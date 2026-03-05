@@ -3,6 +3,7 @@ import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/cn';
 import { usePreferencesStore } from '@/store/usePreferencesStore';
+import { Search, Gamepad2, Network, Database, House, ChevronLeft, ChevronRight } from '@/components/shared/Icons';
 
 interface AlgorithmEntry {
   id: string;
@@ -13,15 +14,24 @@ interface AlgorithmEntry {
 interface CategoryEntry {
   category: 'uninformed-search' | 'informed-search';
   displayName: string;
-  icon: string;
+  hint: string;
+  icon: React.ReactNode;
   algorithms: AlgorithmEntry[];
 }
+
+const HOME_DESTINATIONS = [
+  { id: 'algorithms', label: 'Algorithms', to: '/?tab=algorithms', icon: <Search size={15} /> },
+  { id: 'games', label: 'Games', to: '/?tab=games', icon: <Gamepad2 size={15} /> },
+  { id: 'graph', label: 'Relationship Graph', to: '/?tab=graph', icon: <Network size={15} /> },
+  { id: 'maze', label: 'Maze Lab', to: '/maze/bfs', icon: <Database size={15} /> },
+] as const;
 
 const CATEGORIES: CategoryEntry[] = [
   {
     category: 'uninformed-search',
     displayName: 'Uninformed Search',
-    icon: 'DIR',
+    hint: 'Level order, depth-first, and cost-blind baselines',
+    icon: <span className="text-[10px] font-mono uppercase tracking-[0.18em]">DIR</span>,
     algorithms: [
       { id: 'bfs', name: 'BFS', path: '/search/uninformed-search/bfs' },
       { id: 'dfs', name: 'DFS', path: '/search/uninformed-search/dfs' },
@@ -34,7 +44,8 @@ const CATEGORIES: CategoryEntry[] = [
   {
     category: 'informed-search',
     displayName: 'Informed Search',
-    icon: 'H*',
+    hint: 'Heuristic-guided strategies and A* variants',
+    icon: <span className="text-[10px] font-mono uppercase tracking-[0.18em]">H*</span>,
     algorithms: [
       { id: 'greedy-bfs', name: 'Greedy BFS', path: '/search/informed-search/greedy-bfs' },
       { id: 'astar', name: 'A* Search', path: '/search/informed-search/astar' },
@@ -47,160 +58,161 @@ const CATEGORIES: CategoryEntry[] = [
 export default function Sidebar() {
   const { sidebarCollapsed, toggle } = usePreferencesStore();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  const homeTab = new URLSearchParams(search).get('tab') ?? 'algorithms';
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>(
-    Object.fromEntries(CATEGORIES.map((c) => [c.category, true]))
+    Object.fromEntries(CATEGORIES.map((category) => [category.category, true])),
   );
 
   function handleCategoryClick(cat: CategoryEntry) {
-    if (sidebarCollapsed) {
-      // When collapsed, navigate to homepage and scroll to the category
+    if (sidebarCollapsed || pathname === '/') {
       navigate(`/?scroll=category-${cat.category}`);
-    } else if (pathname === '/') {
-      // When expanded and already on homepage, scroll to the category
-      const el = document.getElementById(`category-${cat.category}`);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-      // Also toggle the accordion
-      setOpenCategories((prev) => ({ ...prev, [cat.category]: !prev[cat.category] }));
-    } else {
-      // On another page, just toggle accordion
-      setOpenCategories((prev) => ({ ...prev, [cat.category]: !prev[cat.category] }));
+      return;
     }
+
+    setOpenCategories((prev) => ({ ...prev, [cat.category]: !prev[cat.category] }));
   }
 
   return (
     <motion.aside
-      animate={{ width: sidebarCollapsed ? 48 : 240 }}
-      transition={{ duration: 0.2, ease: 'easeInOut' }}
+      animate={{ width: sidebarCollapsed ? 68 : 292 }}
+      transition={{ duration: 0.22, ease: 'easeInOut' }}
       className="flex flex-col h-full bg-[var(--titlebar)] border-r border-[var(--border-strong)] overflow-hidden shrink-0"
     >
-      {/* Logo row */}
-      <div className="flex items-center h-10 px-2.5 border-b border-[var(--border)] shrink-0 ide-titlebar">
-        <Link to="/" className="flex items-center flex-1 min-w-0 hover:opacity-85 transition-opacity">
-          {sidebarCollapsed ? (
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-label="Praxis">
-              <defs>
-                <linearGradient id="slg" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%"   stopColor="#58A6FF" />
-                  <stop offset="100%" stopColor="#D2A8FF" />
-                </linearGradient>
-              </defs>
-              <circle cx="7"  cy="5"  r="2.5" fill="url(#slg)" />
-              <circle cx="17" cy="12" r="2"   fill="url(#slg)" />
-              <circle cx="8"  cy="19" r="2"   fill="url(#slg)" />
-              <line x1="7"  y1="5"  x2="17" y2="12" stroke="url(#slg)" strokeWidth="1.2" />
-              <line x1="17" y1="12" x2="8"  y2="19" stroke="url(#slg)" strokeWidth="1.2" />
-              <line x1="7"  y1="5"  x2="8"  y2="19" stroke="url(#slg)" strokeWidth="1.2" strokeDasharray="2 1.5" />
-            </svg>
-          ) : (
+      <div className="flex items-center h-12 px-3 border-b border-[var(--border)] shrink-0 ide-titlebar">
+        <Link to="/" className="flex items-center gap-2 flex-1 min-w-0">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--accent)]">
+            <House size={16} />
+          </span>
+          {!sidebarCollapsed && (
             <div className="min-w-0">
-              <p className="font-semibold text-xs text-[var(--text)] tracking-wide uppercase">Praxis</p>
+              <p className="font-semibold text-sm text-[var(--text)] tracking-wide">Praxis</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-3)]">Navigation Console</p>
             </div>
           )}
         </Link>
         <button
           onClick={() => toggle('sidebarCollapsed')}
-          className="text-[var(--text-2)] hover:text-[var(--text)] transition-colors text-xs ml-1 shrink-0 w-6 h-6 rounded border border-transparent hover:border-[var(--border)]"
+          className="ml-2 flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/50 hover:text-[var(--text)]"
           aria-label="Toggle sidebar"
         >
-          {sidebarCollapsed ? '›' : '‹'}
+          {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
       </div>
 
       {!sidebarCollapsed && (
-        <div className="px-3 py-2 border-b border-[var(--border)] bg-[var(--surface)]/70">
-          <p className="ide-title text-[var(--text-3)]">Explorer</p>
-          <p className="text-[11px] text-[var(--text-2)] mt-1 truncate font-mono">src/algorithms/search</p>
+        <div className="px-3 py-3 border-b border-[var(--border)] bg-[var(--surface)]/65">
+          <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Quick Access</p>
+          <p className="mt-1 text-xs text-[var(--text-2)]">Jump between the algorithm index, game labs, the relationship map, and live workspaces.</p>
         </div>
       )}
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2 scrollbar-thin scrollbar-thumb-[var(--border)]">
-        <div className="mb-2 px-1">
-          <NavLink
-            to="/maze"
-            className={({ isActive }) => cn(
-              'mx-1 flex items-center gap-2 px-2.5 py-1.5 rounded-md border-l-2 border-transparent text-[12px] font-mono transition-colors',
-              isActive
-                ? 'text-[var(--accent)] bg-[var(--accent-soft)] border-l-[var(--accent)]'
-                : 'text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]/60',
-              sidebarCollapsed && 'justify-center px-1',
-            )}
-          >
-            <span className="text-[10px] text-[var(--text-3)]">app</span>
-            {!sidebarCollapsed && <span>Maze Lab</span>}
-          </NavLink>
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3">
+        <div className="px-2 space-y-1.5">
+          {HOME_DESTINATIONS.map((item) => {
+            const isActive = item.id === 'maze'
+              ? pathname.startsWith('/maze')
+              : pathname === '/' && homeTab === item.id;
+
+            return (
+              <Link
+                key={item.id}
+                to={item.to}
+                title={sidebarCollapsed ? item.label : undefined}
+                className={cn(
+                  'flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors',
+                  isActive
+                    ? 'border-[var(--accent)]/45 bg-[var(--accent-soft)] text-[var(--text)]'
+                    : 'border-transparent text-[var(--text-2)] hover:border-[var(--border)] hover:bg-[var(--surface)]',
+                  sidebarCollapsed && 'justify-center px-0',
+                )}
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)]">
+                  {item.icon}
+                </span>
+                {!sidebarCollapsed && (
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium">{item.label}</span>
+                    <span className="block text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">
+                      {item.id === 'maze' ? 'Interactive lab' : 'Home module'}
+                    </span>
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </div>
 
-        {CATEGORIES.map((cat) => (
-          <div key={cat.category} className="mb-1">
-            {/* Category header */}
-            <button
-              onClick={() => handleCategoryClick(cat)}
-              className={cn(
-                'w-full flex items-center gap-2 px-3 py-1.5 text-left hover:bg-[var(--surface-2)]/70 transition-colors',
-                sidebarCollapsed && 'justify-center'
-              )}
-            >
-              <span className="text-[10px] px-1.5 py-0.5 rounded border border-[var(--border)] text-[var(--text-3)] bg-[var(--surface-2)] shrink-0 font-mono" title={cat.displayName}>
-                {cat.icon}
-              </span>
-              <AnimatePresence>
+        <div className="mt-4 px-2">
+          {!sidebarCollapsed && (
+            <p className="px-2 pb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">
+              Search Families
+            </p>
+          )}
+
+          {CATEGORIES.map((cat) => (
+            <div key={cat.category} className="mb-2">
+              <button
+                onClick={() => handleCategoryClick(cat)}
+                title={sidebarCollapsed ? cat.displayName : undefined}
+                className={cn(
+                  'w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors',
+                  'hover:bg-[var(--surface)] hover:border hover:border-[var(--border)]',
+                  sidebarCollapsed && 'justify-center px-0',
+                )}
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--accent)]">
+                  {cat.icon}
+                </span>
                 {!sidebarCollapsed && (
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex-1 text-[11px] font-semibold text-[var(--text-2)] uppercase tracking-wide truncate"
+                  <>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-medium text-[var(--text)]">{cat.displayName}</span>
+                      <span className="block text-[11px] text-[var(--text-3)]">{cat.hint}</span>
+                    </span>
+                    <ChevronRight
+                      size={15}
+                      className={cn(
+                        'shrink-0 text-[var(--text-3)] transition-transform',
+                        openCategories[cat.category] && 'rotate-90',
+                      )}
+                    />
+                  </>
+                )}
+              </button>
+
+              <AnimatePresence initial={false}>
+                {!sidebarCollapsed && openCategories[cat.category] && (
+                  <motion.ul
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.16 }}
+                    className="overflow-hidden pl-3 pr-1 pt-1"
                   >
-                    {cat.displayName}
-                  </motion.span>
+                    {cat.algorithms.map((algo) => (
+                      <li key={algo.id}>
+                        <NavLink
+                          to={algo.path}
+                          className={({ isActive }) => cn(
+                            'flex items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-mono transition-colors',
+                            isActive
+                              ? 'bg-[var(--accent-soft)] text-[var(--text)] border border-[var(--accent)]/35'
+                              : 'text-[var(--text-2)] hover:bg-[var(--surface)] hover:text-[var(--text)]',
+                          )}
+                        >
+                          <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">fn</span>
+                          <span className="truncate">{algo.name}</span>
+                        </NavLink>
+                      </li>
+                    ))}
+                  </motion.ul>
                 )}
               </AnimatePresence>
-              {!sidebarCollapsed && (
-                <span className="text-[var(--text-3)] text-[10px]">
-                  {openCategories[cat.category] ? '▾' : '▸'}
-                </span>
-              )}
-            </button>
-
-            {/* Algorithm list */}
-            <AnimatePresence initial={false}>
-              {openCategories[cat.category] && !sidebarCollapsed && (
-                <motion.ul
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="overflow-hidden"
-                >
-                  {cat.algorithms.map((algo) => (
-                    <li key={algo.id}>
-                      <NavLink
-                        to={algo.path}
-                        className={({ isActive }) =>
-                          cn(
-                            'flex items-center gap-2 pl-7 pr-3 py-1.5 text-[12px] transition-colors truncate font-mono rounded-r-md border-l-2 border-transparent mx-1',
-                            isActive
-                              ? 'text-[var(--accent)] bg-[var(--accent-soft)] border-l-[var(--accent)]'
-                              : 'text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]/60'
-                          )
-                        }
-                      >
-                        <span className="text-[9px] text-[var(--text-3)]">fn</span>
-                        {algo.name}
-                      </NavLink>
-                    </li>
-                  ))}
-                </motion.ul>
-              )}
-            </AnimatePresence>
-          </div>
-        ))}
+            </div>
+          ))}
+        </div>
       </nav>
-
     </motion.aside>
   );
 }

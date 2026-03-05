@@ -6,7 +6,7 @@ import AlgorithmBadge from '@/components/shared/AlgorithmBadge';
 import AlgoInfoPopover from '@/components/shared/AlgoInfoPopover';
 import { registry, type RegistryEntry } from '@/algorithms/core/registry';
 import { buildRoute } from '@/lib/buildRoute';
-import { ChevronDown, ChevronRight } from '@/components/shared/Icons';
+import { ChevronDown, ChevronRight, Info, Settings2 } from '@/components/shared/Icons';
 import type { AlgorithmMeta } from '@/types';
 import type { ProblemCategory } from '@/types/problem';
 
@@ -55,14 +55,14 @@ export default function AlgorithmTitleStrip({
           title={configOpen ? 'Hide configuration' : 'Show configuration'}
           aria-label="Toggle configuration panel"
           className={cn(
-            'flex items-center justify-center w-7 h-7 rounded-md text-[12px]',
-            'border transition-colors select-none font-mono',
+            'flex items-center justify-center w-8 h-8 rounded-lg',
+            'border transition-colors select-none',
             configOpen
               ? 'bg-[var(--accent-soft)] border-[var(--accent)]/60 text-[var(--accent)]'
               : 'bg-[var(--surface)] border-[var(--border)] text-[var(--text-2)] hover:border-[var(--accent)]/50 hover:text-[var(--accent)]',
           )}
         >
-          CFG
+          <Settings2 size={15} />
         </button>
       )}
 
@@ -141,14 +141,14 @@ export default function AlgorithmTitleStrip({
         title="Algorithm info"
         aria-label="Toggle algorithm info"
         className={cn(
-          'flex items-center justify-center w-7 h-7 rounded-md text-[11px] font-bold font-mono',
+          'flex items-center justify-center w-8 h-8 rounded-lg',
           'border transition-colors select-none',
           showInfo
             ? 'bg-[var(--accent-soft)] border-[var(--accent)]/50 text-[var(--accent)]'
             : 'bg-[var(--surface)] border-[var(--border)] text-[var(--text-2)] hover:border-[var(--accent)]/50 hover:text-[var(--accent)]',
         )}
       >
-        INF
+        <Info size={15} />
       </button>
 
       {/* Error badge */}

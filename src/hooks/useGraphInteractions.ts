@@ -45,6 +45,8 @@ interface UseGraphInteractionsReturn {
   selectionBox: SelectionBoxRect | null;
   fit: (padding?: number) => void;
   jumpTo: (x: number, y: number, duration?: number) => void;
+  zoomIn: (factor?: number) => void;
+  zoomOut: (factor?: number) => void;
   runAutoLayout: (
     nodes: Array<{ id: string; x: number; y: number }>,
     edges: Array<{ source: string; target: string }>,
@@ -581,6 +583,26 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
       .call(zoom.transform as unknown as (t: d3.Transition<SVGSVGElement, unknown, null, undefined>) => void, newTransform);
   }, [svgRef]);
 
+  const zoomBy = useCallback((factor: number) => {
+    const svg = svgRef.current;
+    const zoom = zoomBehaviorRef.current;
+    if (!svg || !zoom) return;
+
+    d3.select(svg)
+      .transition()
+      .duration(180)
+      .ease(d3.easeCubicOut)
+      .call(zoom.scaleBy as unknown as (t: d3.Transition<SVGSVGElement, unknown, null, undefined>, factor: number) => void, factor);
+  }, [svgRef]);
+
+  const zoomIn = useCallback((factor = 1.2) => {
+    zoomBy(factor);
+  }, [zoomBy]);
+
+  const zoomOut = useCallback((factor = 1 / 1.2) => {
+    zoomBy(factor);
+  }, [zoomBy]);
+
   // ── Auto-Layout (headless D3 force simulation) ───────────────────────────
   const runAutoLayout = useCallback((
     nodes: Array<{ id: string; x: number; y: number }>,
@@ -628,6 +650,8 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
     selectionBox,
     fit,
     jumpTo,
+    zoomIn,
+    zoomOut,
     runAutoLayout,
     screenToGraph,
   };

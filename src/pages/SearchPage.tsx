@@ -9,6 +9,7 @@ import ProblemConfigurator from '@/components/module/ProblemConfigurator';
 import type { TabDefinition } from '@/components/module/AlgorithmPage';
 import SVGGraphCanvas from '@/components/visualization/SVGGraphCanvas';
 import SVGAutoCanvas from '@/components/visualization/SVGAutoCanvas';
+import DemoProblemPicker from '@/components/editor/DemoProblemPicker';
 import { Dice5 } from '@/components/shared/Icons';
 import { generateRandomGraph } from '@/lib/random-generators';
 import { INFORMED_HEURISTICS, getHeuristicDefinition } from '@/algorithms/search/informed/types';
@@ -216,20 +217,26 @@ export default function SearchPage() {
 
   // ── Title actions ────────────────────────────────────────────────────
   const titleActions = useMemo(() => (
-    <button
-      onClick={() => {
-        const weighted = !UNINFORMED_ALGOS.has(algo);
-        const { nodes, edges } = generateRandomGraph(6 + Math.floor(Math.random() * 5), 0.25, weighted);
-        const ids = nodes.map(n => n.id);
-        useEditorStore.getState().loadGraph(nodes, edges, ids[0], ids[ids.length - 1], false);
-      }}
-      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors"
-      title="Generate random graph"
-    >
-      <Dice5 size={12} />
-      Random
-    </button>
-  ), [algo]);
+    <div className="flex items-center gap-2">
+      <button
+        onClick={() => {
+          const weighted = !UNINFORMED_ALGOS.has(algo);
+          const { nodes, edges } = generateRandomGraph(6 + Math.floor(Math.random() * 5), 0.25, weighted);
+          const ids = nodes.map(n => n.id);
+          useEditorStore.getState().loadGraph(nodes, edges, ids[0], ids[ids.length - 1], false);
+        }}
+        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors"
+        title="Generate random graph"
+      >
+        <Dice5 size={12} />
+        Random
+      </button>
+      <DemoProblemPicker
+        algorithmCategory={runner?.meta.category ?? 'uninformed-search'}
+        onSelect={handleDemoSelect}
+      />
+    </div>
+  ), [algo, runner, handleDemoSelect]);
 
   // ── Problem import handler ───────────────────────────────────────────
   const handleImport = useCallback((imported: unknown) => {

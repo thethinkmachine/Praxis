@@ -13,12 +13,12 @@ import { getLabsForCategory } from '@/lib/game-labs';
 
 export default function HomePage() {
   const metas = registry.getAllMeta();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('algorithms');
   const [graphFullscreen, setGraphFullscreen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const scrollToCategory = useCallback((category: AlgorithmCategory) => {
-    setActiveTab('overview');
+    setActiveTab('algorithms');
     setTimeout(() => {
       const el = document.getElementById(`category-${category}`);
       if (el) {
@@ -30,12 +30,24 @@ export default function HomePage() {
   // Handle scroll param from sidebar navigation
   useEffect(() => {
     const scrollTarget = searchParams.get('scroll');
+    const tab = searchParams.get('tab');
+
+    if (tab === 'algorithms' || tab === 'games' || tab === 'graph') {
+      setActiveTab(tab);
+    }
+
     if (scrollTarget) {
       const cat = scrollTarget.replace('category-', '') as AlgorithmCategory;
       if (CATEGORY_ORDER.includes(cat)) {
         scrollToCategory(cat);
       }
-      setSearchParams({}, { replace: true });
+    }
+
+    if (tab || scrollTarget) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('tab');
+      next.delete('scroll');
+      setSearchParams(next, { replace: true });
     }
   }, [searchParams, setSearchParams, scrollToCategory]);
 
@@ -56,7 +68,7 @@ export default function HomePage() {
       {/* Hero Section — hidden when graph tab is active */}
       <div
         className={cn(
-          'relative mx-3 mt-3 rounded-xl border border-[var(--border)] overflow-hidden transition-all duration-300 ease-in-out ide-surface',
+          'relative mx-3 mt-3 rounded-xl border border-[var(--border)] transition-all duration-300 ease-in-out ide-surface',
           isGraphTab ? 'max-h-0 opacity-0 border-b-0' : 'max-h-[400px] opacity-100',
         )}
       >
@@ -79,7 +91,7 @@ export default function HomePage() {
           </div>
 
           {/* Search */}
-          <AlgorithmSearch />
+            <AlgorithmSearch />
 
           {/* Stats & CTA */}
           <div className="flex items-center gap-3">
@@ -114,16 +126,10 @@ export default function HomePage() {
         <div className="px-3 sm:px-6 border-b border-[var(--border)] shrink-0 bg-[var(--titlebar)]/80">
           <TabsList className="flex gap-1 h-10 items-center">
             <TabsTrigger
-              value="overview"
+              value="algorithms"
               className="px-3 py-1.5 text-sm font-mono text-[var(--text-2)] data-[state=active]:text-[var(--text)] data-[state=active]:border-b-2 data-[state=active]:border-[var(--accent)] transition-colors"
             >
-              Overview
-            </TabsTrigger>
-            <TabsTrigger
-              value="graph"
-              className="px-3 py-1.5 text-sm font-mono text-[var(--text-2)] data-[state=active]:text-[var(--text)] data-[state=active]:border-b-2 data-[state=active]:border-[var(--accent)] transition-colors"
-            >
-              Relationship Graph
+              Algorithms
             </TabsTrigger>
             <TabsTrigger
               value="games"
@@ -131,15 +137,17 @@ export default function HomePage() {
             >
               Games
             </TabsTrigger>
+            <TabsTrigger
+              value="graph"
+              className="px-3 py-1.5 text-sm font-mono text-[var(--text-2)] data-[state=active]:text-[var(--text)] data-[state=active]:border-b-2 data-[state=active]:border-[var(--accent)] transition-colors"
+            >
+              Relationship Graph
+            </TabsTrigger>
           </TabsList>
         </div>
 
-        <TabsContent value="overview" className="flex-1 overflow-y-auto">
+        <TabsContent value="algorithms" className="flex-1 overflow-y-auto">
           <TaxonomyCardGrid algorithms={metas} />
-        </TabsContent>
-
-        <TabsContent value="graph" className="flex-1 overflow-hidden">
-          <RelationshipGraph algorithms={metas} onFullscreen={() => setGraphFullscreen(true)} />
         </TabsContent>
 
         <TabsContent value="games" className="flex-1 overflow-y-auto p-4 sm:p-6">
@@ -205,6 +213,10 @@ export default function HomePage() {
               );
             })}
           </div>
+        </TabsContent>
+
+        <TabsContent value="graph" className="flex-1 overflow-hidden">
+          <RelationshipGraph algorithms={metas} onFullscreen={() => setGraphFullscreen(true)} />
         </TabsContent>
       </Tabs>
 

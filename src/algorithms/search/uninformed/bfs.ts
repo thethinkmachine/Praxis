@@ -4,6 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { SearchState, SearchHighlight } from './types';
 import { reconstructPath, getDepth, validateGraphProblem, buildAdjacencyList } from './types';
 import { deepClone } from '@/lib/deep-clone';
+import { createLog } from '@/algorithms/core/utils';
 
 export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlight> = {
   meta: {
@@ -75,6 +76,7 @@ export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
       state: snap(),
       highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded: 0, frontierSize: 1, currentDepth: 0, pathCost: 0, memoryUsed: 1 },
+      logs: [createLog(`Initialized search at node ${labelOf(problem.startNode)}`, 'info')],
     };
 
     while (frontier.length > 0) {
@@ -92,6 +94,7 @@ export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
         state: snap(),
         highlight: { frontierNodes: new Set(frontier), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
         metrics: { nodesExpanded, frontierSize: frontier.length, currentDepth: depth, pathCost: 0, memoryUsed: frontier.length + explored.size },
+        logs: [createLog(`Expanding node ${labelOf(current)} (depth ${depth})`, 'info')],
       };
 
       if (current === problem.goalNode) {
@@ -104,6 +107,7 @@ export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
           state: { ...snap(), foundPath },
           highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: current, pathEdges: foundPath },
           metrics: { nodesExpanded, frontierSize: 0, currentDepth: depth, pathCost: foundPath.length - 1, memoryUsed: explored.size },
+          logs: [createLog(`SUCCESS: Goal node ${labelOf(problem.goalNode)} reached!`, 'success')],
         };
         return;
       }
@@ -122,6 +126,7 @@ export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
             state: snap(),
             highlight: { frontierNodes: new Set(frontier), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
             metrics: { nodesExpanded, frontierSize: frontier.length, currentDepth: depth + 1, pathCost: 0, memoryUsed: frontier.length + explored.size },
+            logs: [createLog(`Neighbor ${labelOf(neighbor)} discovered, added to frontier`, 'info')],
           };
         }
       }
@@ -135,6 +140,7 @@ export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
       state: snap(),
       highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: explored.size },
+      logs: [createLog('FAILURE: All reachable nodes explored, goal not found', 'error')],
     };
   },
 };

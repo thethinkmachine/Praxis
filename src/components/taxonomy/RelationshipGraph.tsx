@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { useNavigate } from 'react-router-dom';
 import type { AlgorithmMeta, AlgorithmCategory } from '@/types/algorithm';
 import { buildRoute } from '@/lib/buildRoute';
-import { ZoomIn, ZoomOut, Maximize2 } from '@/components/shared/Icons';
+import { ZoomIn, ZoomOut, Maximize2, Search } from '@/components/shared/Icons';
 import { cn } from '@/lib/cn';
 
 const GROUP_COLORS: Record<string, string> = {
@@ -47,6 +47,7 @@ export default function RelationshipGraph({ algorithms, onFullscreen }: Relation
   const svgRef = useRef<SVGSVGElement>(null);
   const navigate = useNavigate();
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+  const [zoomPercent, setZoomPercent] = useState(100);
 
   // Track container dimensions via ResizeObserver
   const [dims, setDims] = useState<{ width: number; height: number }>({ width: 800, height: 520 });
@@ -88,6 +89,12 @@ export default function RelationshipGraph({ algorithms, onFullscreen }: Relation
     if (!svgRef.current || !zoomRef.current) return;
     const svg = d3.select(svgRef.current);
     svg.transition().duration(300).call(zoomRef.current.scaleBy, 1 / 1.3);
+  }, []);
+
+  const handleResetView = useCallback(() => {
+    if (!svgRef.current || !zoomRef.current) return;
+    const svg = d3.select(svgRef.current);
+    svg.transition().duration(300).call(zoomRef.current.transform, d3.zoomIdentity);
   }, []);
 
   useEffect(() => {
@@ -155,7 +162,10 @@ export default function RelationshipGraph({ algorithms, onFullscreen }: Relation
 
     const g = svg.append('g');
 
-    const zoomBehavior = d3.zoom<SVGSVGElement, unknown>().on('zoom', ev => g.attr('transform', ev.transform));
+    const zoomBehavior = d3.zoom<SVGSVGElement, unknown>().on('zoom', (ev) => {
+      g.attr('transform', ev.transform);
+      setZoomPercent(Math.round(ev.transform.k * 100));
+    });
     svg.call(zoomBehavior);
     zoomRef.current = zoomBehavior;
 
@@ -383,11 +393,18 @@ export default function RelationshipGraph({ algorithms, onFullscreen }: Relation
   }, [algorithms, width, height, navigate]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full bg-[var(--bg)] rounded overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-full rounded overflow-hidden bg-[radial-gradient(circle_at_top,rgba(88,166,255,0.09),transparent_40%),var(--bg)]">
       <svg ref={svgRef} width={width} height={height} className="w-full h-full" />
 
-      {/* Zoom controls + fullscreen - top right */}
-      <div className="absolute top-3 right-3 flex flex-col gap-1">
+      <div className="absolute left-3 top-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 px-3 py-2 backdrop-blur-xl">
+        <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Relationship Graph</p>
+        <p className="mt-1 text-xs text-[var(--text-2)]">Clusters breathe softly and stay draggable while you explore connections.</p>
+      </div>
+
+      <div className="absolute top-3 right-3 flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 p-2 backdrop-blur-xl">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1 text-[11px] font-mono text-[var(--text)]">
+          {zoomPercent}%
+        </div>
         {onFullscreen && (
           <button
             onClick={onFullscreen}
@@ -403,6 +420,19 @@ export default function RelationshipGraph({ algorithms, onFullscreen }: Relation
             <Maximize2 size={16} />
           </button>
         )}
+        <button
+          onClick={handleResetView}
+          className={cn(
+            'p-1.5 rounded-md',
+            'bg-[var(--surface)] border border-[var(--border)]',
+            'text-[var(--text-2)] hover:text-[var(--text)]',
+            'hover:bg-[var(--surface-2)] hover:border-[#58A6FF]',
+            'transition-colors duration-150',
+          )}
+          aria-label="Reset view"
+        >
+          <Search size={16} />
+        </button>
         <button
           onClick={handleZoomIn}
           className={cn(

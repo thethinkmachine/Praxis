@@ -9,11 +9,18 @@ export default function ResizeHandle({ orientation }: ResizeHandleProps) {
   return (
     <Separator
       className={cn(
-        'relative shrink-0 bg-transparent before:absolute before:content-[""] before:transition-all before:bg-[var(--border)]',
+        'group relative shrink-0 bg-transparent touch-none select-none flex items-center justify-center',
         orientation === 'horizontal'
-          ? 'w-2 cursor-col-resize before:w-px before:h-full before:top-0 before:left-1/2 before:-translate-x-1/2 hover:before:bg-[var(--accent)] hover:before:shadow-[0_0_12px_rgba(95,179,255,0.35)]'
-          : 'h-2 cursor-row-resize before:h-px before:w-full before:left-0 before:top-1/2 before:-translate-y-1/2 hover:before:bg-[var(--accent)] hover:before:shadow-[0_0_12px_rgba(95,179,255,0.35)]',
+          ? 'w-3 cursor-col-resize data-[dragging]:bg-[var(--accent-soft)]/40'
+          : 'h-3 cursor-row-resize data-[dragging]:bg-[var(--accent-soft)]/40',
       )}
-    />
+    >
+      <div
+        className={cn(
+          'rounded-full bg-[var(--border)] transition-all duration-150 group-hover:bg-[var(--accent)] group-data-[dragging]:bg-[var(--accent)] group-data-[dragging]:shadow-[0_0_14px_rgba(95,179,255,0.45)]',
+          orientation === 'horizontal' ? 'h-12 w-1.5' : 'h-1.5 w-12',
+        )}
+      />
+    </Separator>
   );
 }

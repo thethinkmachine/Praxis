@@ -1,5 +1,17 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { cn } from '@/lib/cn';
+import {
+  MousePointer2,
+  PlusCircle,
+  ArrowRightFromLine,
+  Ban,
+  ArrowLeftRight,
+  ArrowRight,
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
+} from '@/components/shared/Icons';
 
 export type EditorMode = 'select' | 'addNode' | 'addEdge' | 'delete';
 
@@ -16,22 +28,50 @@ interface EditorToolbarProps {
   rightSlot?: React.ReactNode;
 }
 
-const MODES: { id: EditorMode; label: string; icon: string; tooltip: string }[] = [
-  { id: 'select',  label: 'Select',  icon: '↖',  tooltip: 'Select / move nodes (V)' },
-  { id: 'addNode', label: 'Node',    icon: '⊕',  tooltip: 'Click empty area to add node (N)' },
-  { id: 'addEdge', label: 'Edge',    icon: '⤳',  tooltip: 'Drag from node to node to add edge (E)' },
-  { id: 'delete',  label: 'Delete',  icon: '✕',  tooltip: 'Click element to delete (D)' },
+const MODES: Array<{ id: EditorMode; label: string; icon: React.ReactNode; tooltip: string }> = [
+  { id: 'select', label: 'Select', icon: <MousePointer2 size={14} />, tooltip: 'Select and move nodes (V)' },
+  { id: 'addNode', label: 'Node', icon: <PlusCircle size={14} />, tooltip: 'Click empty space to add a node (N)' },
+  { id: 'addEdge', label: 'Edge', icon: <ArrowRightFromLine size={14} />, tooltip: 'Drag from a source node to create an edge (E)' },
+  { id: 'delete', label: 'Delete', icon: <Ban size={14} />, tooltip: 'Delete nodes or edges (D)' },
 ];
 
 function Tip({ children }: { children: React.ReactNode }) {
   return (
     <Tooltip.Content
-      sideOffset={5}
-      className="z-50 px-2 py-1 rounded bg-[var(--surface-2)] border border-[var(--border)] text-[10px] text-[var(--text)] shadow-md select-none"
+      sideOffset={6}
+      className="z-50 rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1 text-[10px] text-[var(--text)] shadow-lg"
     >
       {children}
       <Tooltip.Arrow className="fill-[var(--border)]" />
     </Tooltip.Content>
+  );
+}
+
+function IconButton({
+  children,
+  active = false,
+  disabled = false,
+  onClick,
+}: {
+  children: React.ReactNode;
+  active?: boolean;
+  disabled?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'flex h-9 w-9 items-center justify-center rounded-xl border transition-colors',
+        active
+          ? 'border-[var(--accent)]/45 bg-[var(--accent-soft)] text-[var(--accent)]'
+          : 'border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--accent)]/40',
+        disabled && 'cursor-not-allowed opacity-40 hover:border-[var(--border)] hover:text-[var(--text-2)]',
+      )}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -48,114 +88,85 @@ export default function EditorToolbar({
   rightSlot,
 }: EditorToolbarProps) {
   return (
-    <Tooltip.Provider delayDuration={400}>
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--surface)] border-b border-[var(--border)]">
-        {/* Mode buttons */}
-        <div className="flex items-center gap-1">
-          {MODES.map((m) => (
-            <Tooltip.Root key={m.id}>
+    <Tooltip.Provider delayDuration={250}>
+      <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-[var(--border)] bg-[var(--surface)]">
+        <div className="flex items-center gap-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] p-1">
+          {MODES.map((item) => (
+            <Tooltip.Root key={item.id}>
               <Tooltip.Trigger asChild>
                 <button
-                  onClick={() => onModeChange(m.id)}
+                  onClick={() => onModeChange(item.id)}
                   className={cn(
-                    'flex items-center gap-1 px-2.5 py-1 rounded text-xs transition-colors',
-                    mode === m.id
-                      ? 'bg-[#58A6FF]/20 text-[#58A6FF] border border-[#58A6FF]/40'
-                      : 'text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] border border-transparent'
+                    'inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs transition-colors',
+                    mode === item.id
+                      ? 'bg-[var(--accent-soft)] text-[var(--text)] border border-[var(--accent)]/35'
+                      : 'text-[var(--text-2)] border border-transparent hover:text-[var(--text)] hover:bg-[var(--surface)]',
                   )}
                 >
-                  <span className="text-sm leading-none">{m.icon}</span>
-                  <span className="hidden sm:inline">{m.label}</span>
+                  {item.icon}
+                  <span className="hidden sm:inline">{item.label}</span>
                 </button>
               </Tooltip.Trigger>
-              <Tip>{m.tooltip}</Tip>
+              <Tip>{item.tooltip}</Tip>
             </Tooltip.Root>
           ))}
         </div>
 
-        <div className="w-px h-5 bg-[var(--border)]" />
-
-        {/* Directed toggle */}
         <Tooltip.Root>
           <Tooltip.Trigger asChild>
             <button
               onClick={onToggleDirected}
               className={cn(
-                'flex items-center gap-1 px-2.5 py-1 rounded text-xs transition-colors border',
+                'inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs transition-colors',
                 isDirected
-                  ? 'bg-[#D2A8FF]/15 text-[#D2A8FF] border-[#D2A8FF]/40'
-                  : 'text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] border-transparent'
+                  ? 'border-[#D2A8FF]/45 bg-[#D2A8FF]/12 text-[#D2A8FF]'
+                  : 'border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text)]',
               )}
             >
-              {isDirected ? '→' : '↔'}
-              <span className="hidden sm:inline ml-1">{isDirected ? 'Directed' : 'Undirected'}</span>
+              {isDirected ? <ArrowRight size={14} /> : <ArrowLeftRight size={14} />}
+              <span>{isDirected ? 'Directed' : 'Undirected'}</span>
             </button>
           </Tooltip.Trigger>
           <Tip>{isDirected ? 'Switch to undirected graph' : 'Switch to directed graph'}</Tip>
         </Tooltip.Root>
 
-        <div className="w-px h-5 bg-[var(--border)]" />
-
-        {/* Undo / Redo */}
         <div className="flex items-center gap-1">
           <Tooltip.Root>
             <Tooltip.Trigger asChild>
-              <button
-                onClick={onUndo}
-                disabled={!canUndo}
-                className={cn(
-                  'px-2 py-1 rounded text-xs transition-colors border border-transparent',
-                  canUndo
-                    ? 'text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
-                    : 'text-[var(--text-3)] opacity-40 cursor-not-allowed'
-                )}
-              >
-                ↩
-              </button>
+              <span>
+                <IconButton disabled={!canUndo} onClick={onUndo}>
+                  <ChevronLeft size={15} />
+                </IconButton>
+              </span>
             </Tooltip.Trigger>
-            <Tip>Undo <kbd className="ml-1 opacity-50">Ctrl+Z</kbd></Tip>
+            <Tip>Undo</Tip>
           </Tooltip.Root>
           <Tooltip.Root>
             <Tooltip.Trigger asChild>
-              <button
-                onClick={onRedo}
-                disabled={!canRedo}
-                className={cn(
-                  'px-2 py-1 rounded text-xs transition-colors border border-transparent',
-                  canRedo
-                    ? 'text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
-                    : 'text-[var(--text-3)] opacity-40 cursor-not-allowed'
-                )}
-              >
-                ↪
-              </button>
+              <span>
+                <IconButton disabled={!canRedo} onClick={onRedo}>
+                  <ChevronRight size={15} />
+                </IconButton>
+              </span>
             </Tooltip.Trigger>
-            <Tip>Redo <kbd className="ml-1 opacity-50">Ctrl+Y</kbd></Tip>
+            <Tip>Redo</Tip>
           </Tooltip.Root>
         </div>
 
-        <div className="flex-1" />
+        <div className="min-w-0 flex-1">{rightSlot}</div>
 
-        {/* Clear button */}
         <Tooltip.Root>
           <Tooltip.Trigger asChild>
             <button
               onClick={onClear}
-              className="flex items-center gap-1 px-2.5 py-1 rounded text-xs text-[#FF7B72]/70 hover:text-[#FF7B72] hover:bg-[#FF7B72]/10 border border-transparent hover:border-[#FF7B72]/30 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[#FF7B72]/25 bg-[#FF7B72]/8 px-3 py-2 text-xs text-[#FF7B72] transition-colors hover:border-[#FF7B72]/50 hover:bg-[#FF7B72]/12"
             >
-              <span>⊘</span>
-              <span className="hidden sm:inline">Clear</span>
+              <Trash2 size={14} />
+              <span>Clear</span>
             </button>
           </Tooltip.Trigger>
           <Tip>Clear all nodes and edges</Tip>
         </Tooltip.Root>
-
-        {rightSlot && (
-          <>
-            <div className="w-px h-5 bg-[var(--border)]" />
-            {rightSlot}
-          </>
-        )}
       </div>
     </Tooltip.Provider>
   );

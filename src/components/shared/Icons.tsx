@@ -18,6 +18,13 @@ export {
   Info,
   Keyboard,
   X,
+  Settings2,
+  Database,
+  Gamepad2,
+  Network,
+  House,
+  Plus,
+  Minus,
 
   // Panel management
   GripVertical,

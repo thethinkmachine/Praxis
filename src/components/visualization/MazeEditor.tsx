@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useEffect, useState } from 'react';
+import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { cn } from '@/lib/cn';
 import { useMazeStore } from '@/store/maze.store';
 import type { MazeOverlay } from '@/visualizations/adapters/maze.adapter';
@@ -11,11 +11,11 @@ interface MazeEditorProps {
 }
 
 const TOOL_LABELS = {
-  wall: '🧱 Wall',
-  erase: '🧼 Erase',
-  terrain: '🌿 Terrain',
-  start: '🚩 Start',
-  goal: '🏁 Goal',
+  wall: 'Wall',
+  erase: 'Erase',
+  terrain: 'Terrain',
+  start: 'Start',
+  goal: 'Goal',
 } as const;
 
 const CELL_SIZE = 24;
@@ -32,20 +32,18 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
     setBrushSize,
     setTerrainValue,
     setStrategy,
-    setSeed,
     paintCells,
     clearWalls,
     clearTerrain,
     generateMaze,
   } = useMazeStore();
 
-  const darkMode = usePreferencesStore(s => s.darkMode);
+  const darkMode = usePreferencesStore((s) => s.darkMode);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dragActiveRef = useRef(false);
 
   const walls = useMemo(() => new Set(problem.walls), [problem.walls]);
 
-  // ── Drawing Logic ────────────────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -60,9 +58,9 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
     canvas.height = height * dpr;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
 
-    // Background
     ctx.fillStyle = darkMode ? '#0d1117' : '#ffffff';
     ctx.fillRect(0, 0, width, height);
 
@@ -81,7 +79,6 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
         const x = c * (CELL_SIZE + GAP) + GAP;
         const y = r * (CELL_SIZE + GAP) + GAP;
 
-        // Draw Cell Background
         let fill = darkMode ? '#161b22' : '#f6f8fa';
         let stroke = darkMode ? 'rgba(48,54,61,0.5)' : 'rgba(208,215,222,0.5)';
 
@@ -109,39 +106,35 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
         ctx.fillStyle = fill;
         ctx.strokeStyle = stroke;
         ctx.lineWidth = 1;
-        
-        // Rounded rect for cells
-        const radius = 3;
         ctx.beginPath();
-        ctx.roundRect(x, y, CELL_SIZE, CELL_SIZE, radius);
+        ctx.roundRect(x, y, CELL_SIZE, CELL_SIZE, 4);
         ctx.fill();
         ctx.stroke();
 
-        // Draw Text/Emojis
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        
+
         if (isWall) {
-          ctx.font = '12px serif';
-          ctx.fillText('🧱', x + CELL_SIZE / 2, y + CELL_SIZE / 2);
+          ctx.fillStyle = darkMode ? '#d0d7de' : '#f9fafb';
+          ctx.font = '700 10px JetBrains Mono, monospace';
+          ctx.fillText('W', x + CELL_SIZE / 2, y + CELL_SIZE / 2);
         } else if (isStart) {
-          ctx.font = '12px serif';
-          ctx.fillText('🚩', x + CELL_SIZE / 2, y + CELL_SIZE / 2);
+          ctx.fillStyle = '#A371F7';
+          ctx.font = '700 10px JetBrains Mono, monospace';
+          ctx.fillText('S', x + CELL_SIZE / 2, y + CELL_SIZE / 2);
         } else if (isGoal) {
-          ctx.font = '12px serif';
-          ctx.fillText('🏁', x + CELL_SIZE / 2, y + CELL_SIZE / 2);
+          ctx.fillStyle = '#3FB950';
+          ctx.font = '700 10px JetBrains Mono, monospace';
+          ctx.fillText('G', x + CELL_SIZE / 2, y + CELL_SIZE / 2);
         } else if (terrainCost > 1) {
-           ctx.font = '10px serif';
-           let emoji = '🌿';
-           if (terrainCost > 3) emoji = '🌾';
-           if (terrainCost > 6) emoji = '⛰️';
-           ctx.fillText(emoji, x + CELL_SIZE / 2, y + CELL_SIZE / 2);
+          ctx.fillStyle = darkMode ? '#F2CC8F' : '#8B5E34';
+          ctx.font = '600 9px JetBrains Mono, monospace';
+          ctx.fillText(String(terrainCost), x + CELL_SIZE / 2, y + CELL_SIZE / 2);
         }
       }
     }
   }, [problem, walls, overlay, darkMode]);
 
-  // ── Interaction Logic ────────────────────────────────────────────────────
   const getCoords = (e: React.PointerEvent | PointerEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
@@ -157,6 +150,7 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
   const applyBrush = useCallback((r: number, c: number) => {
     const radius = Math.max(0, brushSize - 1);
     const cells: { row: number; col: number }[] = [];
+
     for (let dr = -radius; dr <= radius; dr++) {
       for (let dc = -radius; dc <= radius; dc++) {
         const nr = r + dr;
@@ -166,6 +160,7 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
         cells.push({ row: nr, col: nc });
       }
     }
+
     if (cells.length > 0) {
       paintCells(cells);
     }
@@ -193,85 +188,103 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
 
   return (
     <div className={cn('h-full w-full flex flex-col overflow-hidden', className)}>
+      <div className="shrink-0 border-b border-[var(--border)] bg-[var(--surface)] px-3 py-3">
+        <div className="flex flex-wrap items-start gap-3">
+          <div className="min-w-[240px] flex-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 p-2">
+            <p className="px-1 pb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Draw Tools</p>
+            <div className="flex flex-wrap gap-1">
+              {(Object.keys(TOOL_LABELS) as Array<keyof typeof TOOL_LABELS>).map((key) => (
+                <button
+                  key={key}
+                  onClick={() => setTool(key)}
+                  className={cn(
+                    'px-3 py-2 rounded-xl text-[11px] font-mono border transition-colors whitespace-nowrap',
+                    tool === key
+                      ? 'text-[var(--text)] border-[var(--accent)]/45 bg-[var(--accent-soft)]'
+                      : 'text-[var(--text-2)] border-transparent hover:text-[var(--text)] hover:bg-[var(--surface)]',
+                  )}
+                >
+                  {TOOL_LABELS[key]}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      {/* ── Toolbar ─────────────────────────────────────────────────────── */}
-      <div className="shrink-0 flex items-center gap-2 px-3 py-2 border-b border-[var(--border)] bg-[var(--surface)] overflow-x-auto">
-        <div className="flex items-center gap-px p-0.5 rounded border border-[var(--border)] bg-[var(--bg)] shrink-0">
-          {(Object.keys(TOOL_LABELS) as Array<keyof typeof TOOL_LABELS>).map((key) => (
-            <button
-              key={key}
-              onClick={() => setTool(key)}
-              className={cn(
-                'px-2.5 py-1 rounded text-[11px] font-mono border transition-colors whitespace-nowrap',
-                tool === key
-                  ? 'text-[var(--accent)] border-[var(--accent)]/50 bg-[var(--accent-soft)]'
-                  : 'text-[var(--text-2)] border-transparent hover:text-[var(--text)] hover:bg-[var(--surface-2)]',
-              )}
-            >
-              {TOOL_LABELS[key]}
-            </button>
-          ))}
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 p-3">
+            <p className="pb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Brush</p>
+            <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--text-2)]">
+              <input type="range" min={1} max={4} value={brushSize} onChange={(e) => setBrushSize(Number(e.target.value))} className="w-24" />
+              <span className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-[var(--text)]">{brushSize}</span>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 p-3">
+            <p className="pb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Terrain Cost</p>
+            <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--text-2)]">
+              <input type="range" min={2} max={10} value={terrainValue} onChange={(e) => setTerrainValue(Number(e.target.value))} className="w-24" />
+              <span className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-[var(--text)]">{terrainValue}</span>
+            </div>
+          </div>
+
+          <div className="min-w-[260px] flex-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 p-3">
+            <p className="pb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Generation</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={strategy}
+                onChange={(e) => setStrategy(e.target.value as typeof strategy)}
+                className="min-w-[180px] shrink-0 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[11px] font-mono text-[var(--text)]"
+              >
+                {Object.entries(MAZE_STRATEGY_LABELS).map(([id, label]) => (
+                  <option key={id} value={id}>{label}</option>
+                ))}
+              </select>
+
+              <button
+                onClick={generateMaze}
+                className="shrink-0 rounded-xl border border-[var(--accent)]/40 bg-[var(--accent-soft)] px-3 py-2 text-[11px] font-mono text-[var(--accent)] transition-colors hover:border-[var(--accent)]/70"
+              >
+                Generate Maze
+              </button>
+              <button
+                onClick={clearWalls}
+                className="shrink-0 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[11px] font-mono text-[var(--text-2)] transition-colors hover:text-[var(--text)]"
+              >
+                Clear Walls
+              </button>
+              <button
+                onClick={clearTerrain}
+                className="shrink-0 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[11px] font-mono text-[var(--text-2)] transition-colors hover:text-[var(--text)]"
+              >
+                Reset Terrain
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="w-px h-4 bg-[var(--border)] shrink-0" />
-
-        <div className="flex items-center gap-1.5 shrink-0 text-[11px] font-mono text-[var(--text-2)]">
-          <span>Brush</span>
-          <input type="range" min={1} max={4} value={brushSize}
-            onChange={(e) => setBrushSize(Number(e.target.value))}
-            className="w-16"
-          />
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/35 px-3 py-2 text-[11px] text-[var(--text-2)]">
+          <span><span className="text-[var(--text-3)]">Active Tool:</span> {TOOL_LABELS[tool]}</span>
+          <span><span className="text-[var(--text-3)]">Brush:</span> {brushSize}</span>
+          <span><span className="text-[var(--text-3)]">Terrain:</span> {terrainValue}</span>
+          <span><span className="text-[var(--text-3)]">Grid:</span> {problem.rows} × {problem.cols}</span>
+          <span><span className="text-[var(--text-3)]">Strategy:</span> {MAZE_STRATEGY_LABELS[strategy]}</span>
         </div>
-
-        <div className="flex items-center gap-1.5 shrink-0 text-[11px] font-mono text-[var(--text-2)]">
-          <span>Cost</span>
-          <input type="range" min={2} max={10} value={terrainValue}
-            onChange={(e) => setTerrainValue(Number(e.target.value))}
-            className="w-16"
-          />
-        </div>
-
-        <div className="w-px h-4 bg-[var(--border)] shrink-0" />
-
-        <select
-          value={strategy}
-          onChange={(e) => setStrategy(e.target.value as typeof strategy)}
-          className="shrink-0 text-[11px] font-mono px-2 py-1 rounded border border-[var(--border)] bg-[var(--surface)] text-[var(--text)]"
-        >
-          {Object.entries(MAZE_STRATEGY_LABELS).map(([id, label]) => (
-            <option key={id} value={id}>{label}</option>
-          ))}
-        </select>
-
-        <button
-          onClick={generateMaze}
-          className="shrink-0 text-[11px] font-mono px-2.5 py-1 rounded border border-[var(--accent)]/40 bg-[var(--accent-soft)] text-[var(--accent)] hover:border-[var(--accent)]/70 transition-colors"
-        >
-          Generate
-        </button>
-        <button
-          onClick={clearWalls}
-          className="shrink-0 text-[11px] font-mono px-2.5 py-1 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text)] transition-colors"
-        >
-          Clear
-        </button>
       </div>
 
-      {/* ── Canvas area ─────────────────────────────────────────────────── */}
       <div className="flex-1 min-h-0 overflow-auto bg-[var(--bg)] custom-scrollbar">
         <div className="p-4 flex items-center justify-center min-h-full">
-          <canvas
-            ref={canvasRef}
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            className="shadow-xl rounded-sm touch-none"
-            style={{ imageRendering: 'pixelated' }}
-          />
+          <div className="rounded-[28px] border border-[var(--border)] bg-[linear-gradient(180deg,rgba(88,166,255,0.05),transparent)] p-4 shadow-[0_18px_50px_rgba(0,0,0,0.25)]">
+            <canvas
+              ref={canvasRef}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              className="shadow-xl rounded-sm touch-none"
+              style={{ imageRendering: 'pixelated' }}
+            />
+          </div>
         </div>
       </div>
 
-      {/* ── Legend ──────────────────────────────────────────────────────── */}
       <div className="shrink-0 flex items-center flex-wrap gap-x-4 gap-y-1 px-3 py-1.5 border-t border-[var(--border)] bg-[var(--surface)] text-[10px] font-mono text-[var(--text-3)]">
         <span className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-[3px] inline-block" style={{ background: 'rgba(95,179,255,0.3)', border: '1px solid rgba(95,179,255,0.7)' }} />

@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/cn';
 import EditorToolbar, { type EditorMode } from '@/components/editor/EditorToolbar';
-import DemoProblemPicker from '@/components/editor/DemoProblemPicker';
 import GraphMinimap from '@/components/visualization/GraphMinimap';
 import { useEditorStore } from '@/store/useEditorStore';
 import { useGraphInteractions } from '@/hooks/useGraphInteractions';
@@ -179,6 +178,13 @@ function getEdgeEndpoints(
   const tgt = borderIntersection(tx, ty, angle + Math.PI, tgtHW, tgtHH);
 
   return { x1: src.x, y1: src.y, x2: tgt.x, y2: tgt.y };
+}
+
+function fitNodeLabel(label: string): { displayLabel: string; fontSize: number } {
+  const trimmed = label.trim();
+  if (trimmed.length <= 9) return { displayLabel: trimmed, fontSize: 11 };
+  if (trimmed.length <= 12) return { displayLabel: trimmed, fontSize: 10 };
+  return { displayLabel: `${trimmed.slice(0, 11).trimEnd()}…`, fontSize: 9 };
 }
 
 // ---------------------------------------------------------------------------
@@ -541,6 +547,8 @@ export default function SVGGraphCanvas({
     selectionBox,
     fit,
     jumpTo,
+    zoomIn,
+    zoomOut,
     runAutoLayout,
   } = useGraphInteractions({
     svgRef,
@@ -671,9 +679,6 @@ export default function SVGGraphCanvas({
                 <span className="text-[10px] text-[var(--text-3)] font-mono tabular-nums">
                   {nodes.length}N {edges.length}E
                 </span>
-                {algorithmCategory && onDemoSelect ? (
-                  <DemoProblemPicker algorithmCategory={algorithmCategory} onSelect={onDemoSelect} />
-                ) : null}
               </div>
             }
           />
@@ -859,18 +864,23 @@ export default function SVGGraphCanvas({
                       />
                     )}
                     {/* Label */}
-                    <text
-                      y={0}
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      fill={theme.text}
-                      fontSize={11}
-                      fontFamily="JetBrains Mono, Fira Code, monospace"
-                      fontWeight={node.isStart || node.isGoal || node.state === 'path' ? 'bold' : 'normal'}
-                      style={{ pointerEvents: 'none', transition: 'fill 0.3s ease' }}
-                    >
-                      {node.label}
-                    </text>
+                    {(() => {
+                      const { displayLabel, fontSize } = fitNodeLabel(node.label);
+                      return (
+                        <text
+                          y={0}
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          fill={theme.text}
+                          fontSize={fontSize}
+                          fontFamily="JetBrains Mono, Fira Code, monospace"
+                          fontWeight={node.isStart || node.isGoal || node.state === 'path' ? 'bold' : 'normal'}
+                          style={{ pointerEvents: 'none', transition: 'fill 0.3s ease' }}
+                        >
+                          {displayLabel}
+                        </text>
+                      );
+                    })()}
                   </g>
                 );
               })}
@@ -879,24 +889,6 @@ export default function SVGGraphCanvas({
         </svg>
 
         {/* ── HTML Overlays ──────────────────────────────────────────── */}
-
-        {/* Fit + Auto-Layout buttons */}
-        <div className="absolute bottom-3 right-3 flex gap-1.5">
-          <button
-            onClick={handleAutoLayout}
-            className="text-xs px-2 py-1 rounded bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] hover:text-[var(--text)] hover:border-[#58A6FF]/40 transition-colors"
-            title="Auto-arrange nodes with force-directed layout"
-          >
-            ⊞ Auto-Layout
-          </button>
-          <button
-            onClick={() => fit()}
-            className="text-xs px-2 py-1 rounded bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] hover:text-[var(--text)] transition-colors"
-            title="Fit graph to view"
-          >
-            ⊡ Fit
-          </button>
-        </div>
 
         {/* Mode badge (top-left) */}
         <div
@@ -1060,15 +1052,13 @@ export default function SVGGraphCanvas({
           transform={transform}
           canvasWidth={canvasDims.w}
           canvasHeight={canvasDims.h}
+          zoomLevel={zoomLevel}
           onViewJump={(x, y) => jumpTo(x, y)}
-          />
-        {/* Zoom indicator */}
-        <div
-          className="absolute bottom-14 right-3 px-2 py-0.5 rounded text-[10px] font-mono tabular-nums text-[var(--text-3)] border border-[var(--border)] pointer-events-none select-none"
-          style={{ background: 'var(--surface)', backdropFilter: 'blur(8px)' }}
-        >
-          {Math.round(zoomLevel * 100)}%
-        </div>
+          onZoomIn={() => zoomIn()}
+          onZoomOut={() => zoomOut()}
+          onFit={() => fit()}
+          onAutoLayout={handleAutoLayout}
+        />
       </div>
     </div>
   );
