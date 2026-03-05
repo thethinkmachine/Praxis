@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { AlgorithmStep, AlgorithmRunner } from '@/types';
+import type { AlgorithmStep, AlgorithmRunner, LogEntry } from '@/types';
 import { ExecutionEngine } from '@/algorithms/core/engine';
 
 interface ExecutionState {
@@ -17,6 +17,8 @@ interface ExecutionState {
   loadError: string | null;
   /** Non-null when validation produced non-fatal warnings. */
   loadWarning: string | null;
+  /** Cumulative logs up to the current index. */
+  logs: LogEntry[];
 
   loadAlgorithm: (runner: AlgorithmRunner, problem: unknown, algorithmId?: string) => void;
   stepForward: () => void;
@@ -29,6 +31,7 @@ interface ExecutionState {
   reset: () => void;
   setSpeed: (speed: number) => void;
   clear: () => void;
+  clearLogs: () => void;
 }
 
 export const useExecutionStore = create<ExecutionState>()(
@@ -44,6 +47,7 @@ export const useExecutionStore = create<ExecutionState>()(
     problemSnapshot: null,
     loadError: null,
     loadWarning: null,
+    logs: [],
 
     loadAlgorithm: (runner, problem, algorithmId) => {
       const { currentIndex: prevIndex } = get();
@@ -63,6 +67,7 @@ export const useExecutionStore = create<ExecutionState>()(
           state.loadError = msg;
           state.loadWarning = null;
           state.algorithmId = algorithmId ?? null;
+          state.logs = [];
         });
         return;
       }
@@ -70,6 +75,7 @@ export const useExecutionStore = create<ExecutionState>()(
       set(state => {
         state.engine = engine as ExecutionEngine;
         state.totalSteps = engine.totalSteps;
+        state.logs = [];
         
         // Preserve index if we were already viewing a trace
         const targetIndex = prevIndex >= 0 
@@ -77,8 +83,17 @@ export const useExecutionStore = create<ExecutionState>()(
           : -1;
 
         if (targetIndex >= 0) {
-          state.currentStep = engine.seekToStep(targetIndex);
+          const step = engine.seekToStep(targetIndex);
+          state.currentStep = step;
           state.currentIndex = targetIndex;
+          
+          // Aggregate logs up to targetIndex
+          const allLogs: LogEntry[] = [];
+          for (let i = 0; i <= targetIndex; i++) {
+             const s = engine.seekToStep(i);
+             if (s?.logs) allLogs.push(...s.logs);
+          }
+          state.logs = allLogs;
         } else {
           state.currentStep = null;
           state.currentIndex = -1;
@@ -98,19 +113,31 @@ export const useExecutionStore = create<ExecutionState>()(
       if (!engine) return;
       const step = engine.stepForward();
       set(state => {
-        if (step !== null) state.currentStep = step;
+        if (step !== null) {
+          state.currentStep = step;
+          if (step.logs) state.logs.push(...step.logs);
+        }
         state.currentIndex = engine.currentIndex;
         if (engine.isAtEnd) state.isPlaying = false;
       });
     },
 
     stepBackward: () => {
-      const { engine } = get();
-      if (!engine) return;
-      const step = engine.stepBackward();
+      const { engine, currentIndex } = get();
+      if (!engine || currentIndex <= 0) return;
+      const targetIndex = currentIndex - 1;
+      const step = engine.seekToStep(targetIndex);
+      
+      const allLogs: LogEntry[] = [];
+      for (let i = 0; i <= targetIndex; i++) {
+        const s = engine.seekToStep(i);
+        if (s?.logs) allLogs.push(...s.logs);
+      }
+
       set(state => {
         if (step !== null) state.currentStep = step;
-        state.currentIndex = engine.currentIndex;
+        state.currentIndex = targetIndex;
+        state.logs = allLogs;
         state.isPlaying = false;
       });
     },
@@ -119,9 +146,17 @@ export const useExecutionStore = create<ExecutionState>()(
       const { engine } = get();
       if (!engine) return;
       const step = engine.seekToStep(index);
+      
+      const allLogs: LogEntry[] = [];
+      for (let i = 0; i <= index; i++) {
+        const s = engine.seekToStep(i);
+        if (s?.logs) allLogs.push(...s.logs);
+      }
+
       set(state => {
         if (step !== null) state.currentStep = step;
-        state.currentIndex = engine.currentIndex;
+        state.currentIndex = index;
+        state.logs = allLogs;
         state.isPlaying = false;
       });
     },
@@ -131,7 +166,10 @@ export const useExecutionStore = create<ExecutionState>()(
       if (!engine) return;
       const step = engine.seekToStep(0);
       set(state => {
-        if (step !== null) state.currentStep = step;
+        if (step !== null) {
+          state.currentStep = step;
+          state.logs = step.logs ? [...step.logs] : [];
+        }
         state.currentIndex = 0;
         state.isPlaying = false;
       });
@@ -140,10 +178,19 @@ export const useExecutionStore = create<ExecutionState>()(
     jumpToEnd: () => {
       const { engine } = get();
       if (!engine) return;
-      const step = engine.seekToStep(engine.totalSteps - 1);
+      const lastIndex = engine.totalSteps - 1;
+      const step = engine.seekToStep(lastIndex);
+      
+      const allLogs: LogEntry[] = [];
+      for (let i = 0; i <= lastIndex; i++) {
+        const s = engine.seekToStep(i);
+        if (s?.logs) allLogs.push(...s.logs);
+      }
+
       set(state => {
         if (step !== null) state.currentStep = step;
-        state.currentIndex = engine.totalSteps - 1;
+        state.currentIndex = lastIndex;
+        state.logs = allLogs;
         state.isPlaying = false;
       });
     },
@@ -159,6 +206,7 @@ export const useExecutionStore = create<ExecutionState>()(
         state.currentStep = null;
         state.currentIndex = -1;
         state.isPlaying = false;
+        state.logs = [];
       });
     },
 
@@ -178,7 +226,10 @@ export const useExecutionStore = create<ExecutionState>()(
         state.problemSnapshot = null;
         state.loadError = null;
         state.loadWarning = null;
+        state.logs = [];
       });
     },
+
+    clearLogs: () => set(state => { state.logs = []; }),
   }))
 );

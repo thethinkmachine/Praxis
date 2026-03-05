@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { cn } from '@/lib/cn';
 import { registry } from '@/algorithms/core/registry';
 import { useEditorStore } from '@/store/useEditorStore';
 import { useExecutionStore } from '@/store/execution.store';
@@ -49,6 +50,7 @@ export default function SearchPage() {
   const editorStartId = useEditorStore(s => s.startNodeId);
   const editorGoalId = useEditorStore(s => s.goalNodeId);
   const editorIsDirected = useEditorStore(s => s.isDirected);
+  const selectedIds = useEditorStore(s => s.selectedIds);
   const updateNode = useEditorStore(s => s.updateNode);
 
   // Topology fingerprint — stable string that changes only when nodes are
@@ -248,101 +250,171 @@ export default function SearchPage() {
     }
   }, []);
 
-  const configPanel = useMemo(() => (
-    <ProblemConfigurator title="Search Config">
-      <div className="space-y-3 text-xs">
-        <div>
-          <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Algorithm</p>
-          <p className="text-[12px] text-[var(--text-2)] font-mono">{algo}</p>
-        </div>
+  const updateNodeHeuristic = useCallback((nodeId: string, raw: string) => {
+    if (raw.trim() === '') {
+      updateNode(nodeId, { heuristic: undefined });
+      return;
+    }
 
-        {isInformedAlgorithm ? (
-          <>
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Heuristic Function</p>
-              <select
-                value={heuristicId}
-                onChange={(e) => setHeuristicId(e.target.value as HeuristicId)}
-                className="w-full px-2 py-1 rounded border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] font-mono"
-              >
-                {INFORMED_HEURISTICS.map((option) => (
-                  <option key={option.id} value={option.id}>{option.label}</option>
-                ))}
-              </select>
-              <p className="text-[10px] text-[var(--text-3)] mt-1">{heuristicDefinition.description}</p>
-            </div>
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) return;
 
-            <div className="rounded border border-[var(--border)] p-2 bg-[var(--surface-2)]/30 space-y-1">
-              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)]">How The Costs Work</p>
-              <p className="text-[11px] text-[var(--text-2)]"><span className="font-mono text-[var(--text)]">g(n)</span>: actual path cost from the start node to node <span className="font-mono">n</span>.</p>
-              <p className="text-[11px] text-[var(--text-2)]"><span className="font-mono text-[var(--text)]">h(n)</span>: heuristic estimate from node <span className="font-mono">n</span> to the goal.</p>
-              <p className="text-[11px] text-[var(--text-2)]"><span className="font-mono text-[var(--text)]">f(n)</span>: priority score used to choose what to expand next.</p>
-              <p className="text-[11px] text-[var(--text)] font-mono border-t border-[var(--border)] pt-1">{evaluationFormula(algo)}</p>
-            </div>
+    updateNode(nodeId, { heuristic: parsed });
+  }, [updateNode]);
 
-            {heuristicId !== 'manual-node' && heuristicId !== 'zero' && (
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Scale</p>
+  const configPanel = useMemo(() => {
+    const selectedNode = selectedIds.length === 1 ? editorNodes.find(n => n.id === selectedIds[0]) : null;
+    const selectedEdge = !selectedNode && selectedIds.length === 1 ? editorEdges.find(e => e.id === selectedIds[0]) : null;
+
+    if (selectedNode) {
+      return (
+        <ProblemConfigurator title={`Node: ${selectedNode.label ?? selectedNode.id}`}>
+          <div className="space-y-4 text-xs">
+             <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Label</p>
+                <input
+                  type="text"
+                  value={selectedNode.label ?? ''}
+                  onChange={(e) => updateNode(selectedNode.id, { label: e.target.value })}
+                  className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                  placeholder={selectedNode.id}
+                />
+             </div>
+             <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Heuristic Value (h)</p>
                 <input
                   type="number"
-                  min={0.1}
                   step={0.1}
-                  value={heuristicScale}
-                  onChange={(e) => setHeuristicScale(Math.max(0.1, Number(e.target.value) || 0.1))}
-                  className="w-full px-2 py-1 rounded border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] font-mono"
+                  value={selectedNode.heuristic ?? ''}
+                  onChange={(e) => updateNodeHeuristic(selectedNode.id, e.target.value)}
+                  className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                  placeholder="0.0"
                 />
-              </div>
-            )}
+             </div>
+             <div className="pt-2 flex flex-col gap-2">
+                <button
+                  onClick={() => useEditorStore.getState().setStartNode(selectedNode.id)}
+                  className={cn(
+                    "w-full py-1.5 rounded border text-[10px] font-semibold uppercase tracking-wider transition-colors",
+                    editorStartId === selectedNode.id 
+                      ? "bg-[var(--purple)]/20 border-[var(--purple)]/50 text-[var(--purple)]"
+                      : "bg-[var(--surface-2)] border-[var(--border)] text-[var(--text-2)] hover:bg-[var(--surface-3)]"
+                  )}
+                >
+                  Set as Start
+                </button>
+                <button
+                  onClick={() => useEditorStore.getState().setGoalNode(selectedNode.id)}
+                  className={cn(
+                    "w-full py-1.5 rounded border text-[10px] font-semibold uppercase tracking-wider transition-colors",
+                    editorGoalId === selectedNode.id 
+                      ? "bg-[var(--success)]/20 border-[var(--success)]/50 text-[var(--success)]"
+                      : "bg-[var(--surface-2)] border-[var(--border)] text-[var(--text-2)] hover:bg-[var(--surface-3)]"
+                  )}
+                >
+                  Set as Goal
+                </button>
+             </div>
+          </div>
+        </ProblemConfigurator>
+      );
+    }
 
-            {heuristicId === 'manual-node' && (
+    if (selectedEdge) {
+      return (
+        <ProblemConfigurator title={`Edge: ${selectedEdge.id}`}>
+          <div className="space-y-4 text-xs">
+             <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Weight (Cost)</p>
+                <input
+                  type="number"
+                  step={1}
+                  value={selectedEdge.weight ?? 1}
+                  onChange={(e) => useEditorStore.getState().updateEdge(selectedEdge.id, { weight: Number(e.target.value) })}
+                  className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                />
+             </div>
+             <div className="text-[10px] text-[var(--text-3)] bg-[var(--surface-2)]/30 p-2 rounded border border-[var(--border)]">
+                Connects <span className="text-[var(--text-2)] font-mono">{selectedEdge.source}</span> and <span className="text-[var(--text-2)] font-mono">{selectedEdge.target}</span>
+             </div>
+          </div>
+        </ProblemConfigurator>
+      );
+    }
+
+    return (
+      <ProblemConfigurator title="Global Config">
+        <div className="space-y-3 text-xs">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Algorithm</p>
+            <p className="text-[12px] text-[var(--text-2)] font-mono">{algo}</p>
+          </div>
+
+          {isInformedAlgorithm ? (
+            <>
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Per-Node h(n) Table</p>
-                <div className="rounded border border-[var(--border)] overflow-hidden">
-                  <div className="grid grid-cols-[1fr_120px] text-[10px] font-semibold uppercase tracking-wider text-[var(--text-3)] bg-[var(--surface-2)] px-2 py-1">
-                    <span>Node</span>
-                    <span className="text-right">h(n)</span>
-                  </div>
-                  <div className="max-h-48 overflow-y-auto divide-y divide-[var(--border)] bg-[var(--surface)]">
-                    {[...editorNodes]
-                      .sort((a, b) => (a.label ?? a.id).localeCompare(b.label ?? b.id))
-                      .map((node) => (
-                        <div key={node.id} className="grid grid-cols-[1fr_120px] items-center px-2 py-1 gap-2">
-                          <span className="truncate text-[11px] text-[var(--text-2)] font-mono" title={node.id}>
-                            {node.label ?? node.id}
-                          </span>
-                          <input
-                            type="number"
-                            step={0.1}
-                            value={node.heuristic ?? ''}
-                            onChange={(e) => {
-                              const raw = e.target.value;
-                              if (raw.trim() === '') {
-                                updateNode(node.id, { heuristic: undefined });
-                                return;
-                              }
-                              const next = Number(raw);
-                              if (Number.isFinite(next)) {
-                                updateNode(node.id, { heuristic: next });
-                              }
-                            }}
-                            className="w-full px-1.5 py-0.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] text-right font-mono"
-                          />
-                        </div>
-                      ))}
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Heuristic Function</p>
+                <select
+                  value={heuristicId}
+                  onChange={(e) => setHeuristicId(e.target.value as HeuristicId)}
+                  className="w-full px-2 py-1 rounded border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] font-mono"
+                >
+                  {INFORMED_HEURISTICS.map((option) => (
+                    <option key={option.id} value={option.id}>{option.label}</option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-[var(--text-3)] mt-1">{heuristicDefinition.description}</p>
+              </div>
+
+              {heuristicId !== 'manual-node' && heuristicId !== 'zero' && (
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Scale</p>
+                  <input
+                    type="number"
+                    min={0.1}
+                    step={0.1}
+                    value={heuristicScale}
+                    onChange={(e) => setHeuristicScale(Math.max(0.1, Number(e.target.value) || 0.1))}
+                    className="w-full px-2 py-1 rounded border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] font-mono"
+                  />
+                </div>
+              )}
+
+              {heuristicId === 'manual-node' && (
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Quick Table</p>
+                  <div className="rounded border border-[var(--border)] overflow-hidden">
+                    <div className="max-h-64 overflow-y-auto divide-y divide-[var(--border)] bg-[var(--surface)]">
+                      {[...editorNodes]
+                        .sort((a, b) => (a.label ?? a.id).localeCompare(b.label ?? b.id))
+                        .map((node) => (
+                          <div key={node.id} className="flex items-center justify-between px-2 py-1 gap-2">
+                            <span className="truncate text-[10px] text-[var(--text-2)] font-mono">
+                              {node.label ?? node.id}
+                            </span>
+                            <input
+                              type="number"
+                              step={0.1}
+                              value={node.heuristic ?? ''}
+                              onChange={(e) => updateNodeHeuristic(node.id, e.target.value)}
+                              className="w-16 px-1 py-0.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] text-right font-mono text-[10px]"
+                            />
+                          </div>
+                        ))}
+                    </div>
                   </div>
                 </div>
-                <p className="text-[10px] text-[var(--text-3)] mt-1">Tip: leave a value blank to fall back to h(n)=0 for that node.</p>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="rounded border border-[var(--border)] p-2 bg-[var(--surface-2)]/30">
-            <p className="text-[11px] text-[var(--text-2)]">This algorithm ignores heuristic functions.</p>
-          </div>
-        )}
-      </div>
-    </ProblemConfigurator>
-  ), [algo, isInformedAlgorithm, heuristicId, heuristicDefinition.description, heuristicScale, editorNodes, updateNode]);
+              )}
+            </>
+          ) : (
+            <div className="rounded border border-[var(--border)] p-2 bg-[var(--surface-2)]/30">
+              <p className="text-[11px] text-[var(--text-2)]">This algorithm ignores heuristic functions.</p>
+            </div>
+          )}
+        </div>
+      </ProblemConfigurator>
+    );
+  }, [algo, isInformedAlgorithm, heuristicId, heuristicDefinition.description, heuristicScale, editorNodes, editorStartId, editorGoalId, editorEdges, selectedIds, updateNodeHeuristic]);
 
   return (
     <AlgorithmPage
@@ -354,6 +426,7 @@ export default function SearchPage() {
       tabs={tabs}
       titleActions={titleActions}
       configPanel={configPanel}
+      defaultConfigOpen={isInformedAlgorithm}
     />
   );
 }

@@ -49,4 +49,10 @@ export {
   ChevronRight,
   ChevronDown,
   ChevronUp,
+  Activity,
+  Zap,
+  Layers,
+  Target,
+  Terminal,
+  Trash2,
 } from 'lucide-react';

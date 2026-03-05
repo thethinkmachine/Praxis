@@ -1,6 +1,15 @@
+export interface LogEntry {
+  id: string;
+  timestamp: number;
+  level: 'info' | 'warn' | 'success' | 'error';
+  message: string;
+  stepIndex?: number;
+}
+
 export interface StepMetrics {
   nodesExpanded: number;
   frontierSize: number;
+  maxFrontierSize?: number; // Total max encountered in run
   currentDepth: number;
   pathCost: number;
   heuristicValue?: number;
@@ -29,4 +38,5 @@ export interface AlgorithmStep<TState = unknown, THighlight = unknown> {
   highlight: THighlight;
   pseudocodeLine: number;
   metrics: StepMetrics;
+  logs?: LogEntry[];
 }
