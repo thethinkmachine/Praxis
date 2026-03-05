@@ -3,10 +3,12 @@ import AlgorithmCard from './AlgorithmCard';
 
 const CATEGORY_LABELS: Record<AlgorithmCategory, string> = {
   'uninformed-search': 'Uninformed Search',
+  'informed-search': 'Informed Search',
 };
 
 const CATEGORY_ICONS: Record<AlgorithmCategory, string> = {
-  'uninformed-search': '🔍',
+  'uninformed-search': 'SEARCH',
+  'informed-search': 'H*',
 };
 
 interface CategorySectionProps {
@@ -18,11 +20,13 @@ export default function CategorySection({ category, algorithms }: CategorySectio
   if (algorithms.length === 0) return null;
 
   return (
-    <section id={`category-${category}`} className="mb-8">
+    <section id={`category-${category}`} className="mb-8 rounded-xl border border-[var(--border)] bg-[var(--surface)]/70 p-4">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-xl">{CATEGORY_ICONS[category]}</span>
+        <span className="text-[10px] px-2 py-0.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-3)] font-mono">
+          {CATEGORY_ICONS[category]}
+        </span>
         <h2 className="text-base font-semibold text-[var(--text)]">{CATEGORY_LABELS[category]}</h2>
-        <span className="text-xs text-[var(--text-3)] ml-1">
+        <span className="text-xs text-[var(--text-3)] ml-1 font-mono">
           ({algorithms.length} algorithm{algorithms.length !== 1 ? 's' : ''})
         </span>
       </div>

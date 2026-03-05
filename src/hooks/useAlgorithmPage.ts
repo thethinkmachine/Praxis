@@ -27,6 +27,7 @@ export function useAlgorithmPage(algorithmId: string, problem: unknown) {
 
   const step = store.currentStep as AlgorithmStep | null;
   const loadError = store.loadError;
+  const loadWarning = store.loadWarning;
 
-  return { runner, step, loadError, store };
+  return { runner, step, loadError, loadWarning, store };
 }

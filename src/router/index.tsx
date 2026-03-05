@@ -4,6 +4,7 @@ import AppShell from '@/components/layout/AppShell';
 
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
 const SearchPage = React.lazy(() => import('@/pages/SearchPage'));
+const MazePage = React.lazy(() => import('@/pages/MazePage'));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center h-full">
@@ -34,6 +35,18 @@ const router = createBrowserRouter([
             <SearchPage />
           </Suspense>
         ),
+      },
+      {
+        path: 'maze/:algo',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <MazePage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'maze',
+        element: <Navigate to="/maze/bfs" replace />,
       },
       {
         path: '*',

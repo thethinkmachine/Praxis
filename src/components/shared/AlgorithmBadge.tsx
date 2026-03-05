@@ -15,6 +15,11 @@ const CATEGORY_CONFIG: Record<
     icon: '🔍',
     colorClass: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   },
+  'informed-search': {
+    label: 'Informed Search',
+    icon: '🧭',
+    colorClass: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
+  },
 };
 
 export default function AlgorithmBadge({ category, size = 'sm' }: AlgorithmBadgeProps) {

@@ -149,8 +149,12 @@ export const useEditorStore = create<EditorState>()(
 
     removeNode: (id) => set(state => {
       pushHistory(state);
+      const removedEdgeIds = new Set(
+        state.edges.filter(e => e.source === id || e.target === id).map(e => e.id),
+      );
       state.nodes = state.nodes.filter(n => n.id !== id);
       state.edges = state.edges.filter(e => e.source !== id && e.target !== id);
+      state.selectedIds = state.selectedIds.filter(sel => sel !== id && !removedEdgeIds.has(sel));
       if (state.startNodeId === id) state.startNodeId = null;
       if (state.goalNodeId === id) state.goalNodeId = null;
     }),
@@ -174,6 +178,7 @@ export const useEditorStore = create<EditorState>()(
     removeEdge: (id) => set(state => {
       pushHistory(state);
       state.edges = state.edges.filter(e => e.id !== id);
+      state.selectedIds = state.selectedIds.filter(sel => sel !== id);
     }),
 
     setStartNode: (id) => set(state => {
@@ -197,6 +202,7 @@ export const useEditorStore = create<EditorState>()(
       pushHistory(state);
       state.nodes = nodes;
       state.edges = edges;
+      state.selectedIds = [];
       state.startNodeId = startNodeId ?? null;
       state.goalNodeId = goalNodeId ?? null;
       state.isDirected = isDirected ?? false;

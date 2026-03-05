@@ -1,35 +1,44 @@
-import { useEffect, useMemo, useCallback } from 'react';
+import { useEffect, useMemo, useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { registry } from '@/algorithms/core/registry';
 import { useEditorStore } from '@/store/useEditorStore';
 import { useExecutionStore } from '@/store/execution.store';
 import AlgorithmPage from '@/components/module/AlgorithmPage';
+import ProblemConfigurator from '@/components/module/ProblemConfigurator';
 import type { TabDefinition } from '@/components/module/AlgorithmPage';
 import SVGGraphCanvas from '@/components/visualization/SVGGraphCanvas';
 import SVGAutoCanvas from '@/components/visualization/SVGAutoCanvas';
-import MazeEditor, { MazeAlgorithmOverlay } from '@/components/visualization/MazeEditor';
 import { Dice5 } from '@/components/shared/Icons';
 import { generateRandomGraph } from '@/lib/random-generators';
+import { INFORMED_HEURISTICS, getHeuristicDefinition } from '@/algorithms/search/informed/types';
 import { createGraphSearchAdapterFromProblem } from '@/visualizations/adapters/graph-search.adapter';
 import { getGraphSearchStyles } from '@/visualizations/cytoscapeStyles/graph-search.styles';
 import { buildSearchTreeElements } from '@/visualizations/adapters/search-tree.adapter';
-import { getSearchTreeStyles } from '@/visualizations/cytoscapeStyles/search-tree.styles';
 import { romaniaMapData, romaniaMapProblem } from '@/problems/graphs/romania-map';
 import { simpleGraphData, simpleGraphProblem } from '@/problems/graphs/simple-graph';
-import { createGridGraph } from '@/problems/graphs/grid-graph';
 import { weightedGridData, weightedGridProblem } from '@/problems/graphs/weighted-grid';
 import type { AlgorithmStep } from '@/types/step';
-import type { GraphProblem } from '@/types/problem';
-import type cytoscape from 'cytoscape';
+import type { GraphProblem, HeuristicId } from '@/types/problem';
 
 // Algorithms that operate on unweighted graphs — don't display edge weight labels
 const UNINFORMED_ALGOS = new Set(['bfs', 'dfs', 'dls', 'iddfs']);
 
+function evaluationFormula(algo: string): string {
+  if (algo === 'greedy-bfs') return 'f(n) = h(n)';
+  if (algo === 'weighted-astar') return 'f(n) = g(n) + w * h(n)';
+  if (algo === 'astar' || algo === 'ida-star') return 'f(n) = g(n) + h(n)';
+  return 'Heuristic scoring is not used by this algorithm.';
+}
+
 export default function SearchPage() {
   const { algo = 'bfs' } = useParams<{ category: string; algo: string }>();
+  const [heuristicId, setHeuristicId] = useState<HeuristicId>('manual-node');
+  const [heuristicScale, setHeuristicScale] = useState(1);
 
   // ── Runner (for meta.category in SVGGraphCanvas) ─────────────────────
   const runner = useMemo(() => registry.get(algo)?.runner ?? null, [algo]);
+  const isInformedAlgorithm = !UNINFORMED_ALGOS.has(algo);
+  const heuristicDefinition = useMemo(() => getHeuristicDefinition(heuristicId), [heuristicId]);
 
   // ── Execution store read (step needed for visualization memos) ───────
   const step = useExecutionStore(s => s.currentStep) as AlgorithmStep | null;
@@ -40,6 +49,7 @@ export default function SearchPage() {
   const editorStartId = useEditorStore(s => s.startNodeId);
   const editorGoalId = useEditorStore(s => s.goalNodeId);
   const editorIsDirected = useEditorStore(s => s.isDirected);
+  const updateNode = useEditorStore(s => s.updateNode);
 
   // Topology fingerprint — stable string that changes only when nodes are
   // added/removed/renamed, NOT when positions change.
@@ -68,9 +78,6 @@ export default function SearchPage() {
       state.loadGraph(romaniaMapData.nodes, romaniaMapData.edges, romaniaMapProblem.startNode, romaniaMapProblem.goalNode, romaniaMapData.directed ?? false);
     } else if (problemId === 'simple-graph') {
       state.loadGraph(simpleGraphData.nodes, simpleGraphData.edges, simpleGraphProblem.startNode, simpleGraphProblem.goalNode, simpleGraphData.directed ?? false);
-    } else if (problemId === 'grid-maze') {
-      const gridData = createGridGraph(6, 6, 5, 5);
-      state.loadGraph(gridData.nodes, gridData.edges, 'r0c0', 'r5c5', false);
     } else if (problemId === 'weighted-grid') {
       state.loadGraph(weightedGridData.nodes, weightedGridData.edges, weightedGridProblem.startNode, weightedGridProblem.goalNode, weightedGridProblem.graph.directed ?? false);
     }
@@ -86,17 +93,29 @@ export default function SearchPage() {
       graph: { directed: editorIsDirected, nodes: topoNodes, edges: editorEdges },
       startNode: editorStartId ?? romaniaMapProblem.startNode,
       goalNode: editorGoalId ?? romaniaMapProblem.goalNode,
-      useHeuristic: !UNINFORMED_ALGOS.has(algo),
+      useHeuristic: isInformedAlgorithm,
+      heuristic: isInformedAlgorithm
+        ? {
+            id: heuristicId,
+            params: heuristicScale !== 1 ? { scale: heuristicScale } : undefined,
+          }
+        : undefined,
     };
-  }, [nodeTopoKey, editorEdges, editorStartId, editorGoalId, editorIsDirected, algo]);
+  }, [nodeTopoKey, editorEdges, editorStartId, editorGoalId, editorIsDirected, isInformedAlgorithm, heuristicId, heuristicScale]);
 
   // displayProblem: includes positions — used only for Cytoscape element generation.
   const displayProblem = useMemo<GraphProblem>(() => ({
     graph: { directed: editorIsDirected, nodes: editorNodes, edges: editorEdges },
     startNode: editorStartId ?? romaniaMapProblem.startNode,
     goalNode: editorGoalId ?? romaniaMapProblem.goalNode,
-    useHeuristic: !UNINFORMED_ALGOS.has(algo),
-  }), [editorNodes, editorEdges, editorStartId, editorGoalId, editorIsDirected, algo]);
+    useHeuristic: isInformedAlgorithm,
+    heuristic: isInformedAlgorithm
+      ? {
+          id: heuristicId,
+          params: heuristicScale !== 1 ? { scale: heuristicScale } : undefined,
+        }
+      : undefined,
+  }), [editorNodes, editorEdges, editorStartId, editorGoalId, editorIsDirected, isInformedAlgorithm, heuristicId, heuristicScale]);
 
   // ── Stylesheet ───────────────────────────────────────────────────────
   const stylesheet = useMemo(
@@ -158,33 +177,6 @@ export default function SearchPage() {
     }
   }, [step, displayProblem.startNode, displayProblem.goalNode, labelMap]);
 
-  // ── Tree stylesheet & layout (kept for potential future use) ──────────
-  const treeStylesheet = useMemo(
-    () => getSearchTreeStyles(!UNINFORMED_ALGOS.has(algo)),
-    [algo],
-  );
-
-  const treeLayout = useMemo<cytoscape.LayoutOptions>(
-    () => ({ name: 'dagre', rankDir: 'TB', nodeSep: 40, rankSep: 60, padding: 20 } as cytoscape.LayoutOptions),
-    [],
-  );
-
-  // Suppress unused-variable warnings — these are kept for future use
-  void treeStylesheet;
-  void treeLayout;
-
-  // ── Maze algorithm overlay ───────────────────────────────────────────
-  const mazeOverlay = useMemo<MazeAlgorithmOverlay | null>(() => {
-    if (!step) return null;
-    const st = step.state as Record<string, unknown>;
-    const h = step.highlight as Record<string, unknown>;
-    const frontier = new Set<string>(Array.isArray(st.frontier) ? st.frontier as string[] : []);
-    const explored = st.explored instanceof Set ? st.explored as Set<string> : new Set<string>();
-    const currentNode = typeof h.currentNode === 'string' ? h.currentNode : null;
-    const foundPath = Array.isArray(st.foundPath) ? st.foundPath as string[] : [];
-    return { frontier, explored, currentNode, pathNodes: new Set(foundPath) };
-  }, [step]);
-
   // ── Tabs ─────────────────────────────────────────────────────────────
   const tabs: TabDefinition[] = useMemo(() => [
     {
@@ -218,23 +210,7 @@ export default function SearchPage() {
         </div>
       ),
     },
-    {
-      id: 'maze',
-      label: 'Maze Editor',
-      content: (
-        <div className="h-full overflow-auto flex items-start justify-center pt-4 pb-4 bg-[var(--bg)]">
-          <MazeEditor
-            rows={10}
-            cols={14}
-            algorithmOverlay={mazeOverlay}
-            onMazeChange={(graphData, startId, goalId) => {
-              useEditorStore.getState().loadGraph(graphData.nodes, graphData.edges, startId, goalId, false);
-            }}
-          />
-        </div>
-      ),
-    },
-  ], [algorithmElements, stylesheet, step, runner, handleDemoSelect, treeElements, mazeOverlay]);
+  ], [algorithmElements, stylesheet, step, runner, handleDemoSelect, treeElements]);
 
   // ── Title actions ────────────────────────────────────────────────────
   const titleActions = useMemo(() => (
@@ -264,8 +240,109 @@ export default function SearchPage() {
         p.goalNode ?? 'B',
         p.graph.directed ?? false,
       );
+      if (p.heuristic?.id) {
+        setHeuristicId(p.heuristic.id);
+        const importedScale = Number(p.heuristic.params?.scale);
+        setHeuristicScale(Number.isFinite(importedScale) && importedScale > 0 ? importedScale : 1);
+      }
     }
   }, []);
+
+  const configPanel = useMemo(() => (
+    <ProblemConfigurator title="Search Config">
+      <div className="space-y-3 text-xs">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Algorithm</p>
+          <p className="text-[12px] text-[var(--text-2)] font-mono">{algo}</p>
+        </div>
+
+        {isInformedAlgorithm ? (
+          <>
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Heuristic Function</p>
+              <select
+                value={heuristicId}
+                onChange={(e) => setHeuristicId(e.target.value as HeuristicId)}
+                className="w-full px-2 py-1 rounded border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] font-mono"
+              >
+                {INFORMED_HEURISTICS.map((option) => (
+                  <option key={option.id} value={option.id}>{option.label}</option>
+                ))}
+              </select>
+              <p className="text-[10px] text-[var(--text-3)] mt-1">{heuristicDefinition.description}</p>
+            </div>
+
+            <div className="rounded border border-[var(--border)] p-2 bg-[var(--surface-2)]/30 space-y-1">
+              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)]">How The Costs Work</p>
+              <p className="text-[11px] text-[var(--text-2)]"><span className="font-mono text-[var(--text)]">g(n)</span>: actual path cost from the start node to node <span className="font-mono">n</span>.</p>
+              <p className="text-[11px] text-[var(--text-2)]"><span className="font-mono text-[var(--text)]">h(n)</span>: heuristic estimate from node <span className="font-mono">n</span> to the goal.</p>
+              <p className="text-[11px] text-[var(--text-2)]"><span className="font-mono text-[var(--text)]">f(n)</span>: priority score used to choose what to expand next.</p>
+              <p className="text-[11px] text-[var(--text)] font-mono border-t border-[var(--border)] pt-1">{evaluationFormula(algo)}</p>
+            </div>
+
+            {heuristicId !== 'manual-node' && heuristicId !== 'zero' && (
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Scale</p>
+                <input
+                  type="number"
+                  min={0.1}
+                  step={0.1}
+                  value={heuristicScale}
+                  onChange={(e) => setHeuristicScale(Math.max(0.1, Number(e.target.value) || 0.1))}
+                  className="w-full px-2 py-1 rounded border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] font-mono"
+                />
+              </div>
+            )}
+
+            {heuristicId === 'manual-node' && (
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Per-Node h(n) Table</p>
+                <div className="rounded border border-[var(--border)] overflow-hidden">
+                  <div className="grid grid-cols-[1fr_90px] text-[10px] font-semibold uppercase tracking-wider text-[var(--text-3)] bg-[var(--surface-2)] px-2 py-1">
+                    <span>Node</span>
+                    <span className="text-right">h(n)</span>
+                  </div>
+                  <div className="max-h-48 overflow-y-auto divide-y divide-[var(--border)] bg-[var(--surface)]">
+                    {[...editorNodes]
+                      .sort((a, b) => (a.label ?? a.id).localeCompare(b.label ?? b.id))
+                      .map((node) => (
+                        <div key={node.id} className="grid grid-cols-[1fr_90px] items-center px-2 py-1 gap-2">
+                          <span className="truncate text-[11px] text-[var(--text-2)] font-mono" title={node.id}>
+                            {node.label ?? node.id}
+                          </span>
+                          <input
+                            type="number"
+                            step={0.1}
+                            value={node.heuristic ?? ''}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              if (raw.trim() === '') {
+                                updateNode(node.id, { heuristic: undefined });
+                                return;
+                              }
+                              const next = Number(raw);
+                              if (Number.isFinite(next)) {
+                                updateNode(node.id, { heuristic: next });
+                              }
+                            }}
+                            className="w-full px-1.5 py-0.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] text-right font-mono"
+                          />
+                        </div>
+                      ))}
+                  </div>
+                </div>
+                <p className="text-[10px] text-[var(--text-3)] mt-1">Tip: leave a value blank to fall back to h(n)=0 for that node.</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="rounded border border-[var(--border)] p-2 bg-[var(--surface-2)]/30">
+            <p className="text-[11px] text-[var(--text-2)]">This algorithm ignores heuristic functions.</p>
+          </div>
+        )}
+      </div>
+    </ProblemConfigurator>
+  ), [algo, isInformedAlgorithm, heuristicId, heuristicDefinition.description, heuristicScale, editorNodes, updateNode]);
 
   return (
     <AlgorithmPage
@@ -276,6 +353,7 @@ export default function SearchPage() {
       onProblemImport={handleImport}
       tabs={tabs}
       titleActions={titleActions}
+      configPanel={configPanel}
     />
   );
 }

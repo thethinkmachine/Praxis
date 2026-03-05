@@ -13,6 +13,12 @@ import { iddfsRunner } from './search/uninformed/iddfs';
 import { ucsRunner } from './search/uninformed/ucs';
 import { bidirectionalBfsRunner } from './search/uninformed/bidirectional-bfs';
 
+// Informed Search
+import { greedyBfsRunner } from './search/informed/greedy-bfs';
+import { astarRunner } from './search/informed/astar';
+import { weightedAstarRunner } from './search/informed/weighted-astar';
+import { idaStarRunner } from './search/informed/ida-star';
+
 export function registerAllAlgorithms() {
   // Uninformed Search
   registry.register(bfsRunner);
@@ -21,4 +27,11 @@ export function registerAllAlgorithms() {
   registry.register(iddfsRunner);
   registry.register(ucsRunner);
   registry.register(bidirectionalBfsRunner);
+
+  // Informed Search
+  registry.register(greedyBfsRunner);
+  registry.register(astarRunner);
+  registry.register(weightedAstarRunner);
+  registry.register(idaStarRunner);
 }
+

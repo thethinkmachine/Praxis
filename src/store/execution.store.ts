@@ -15,6 +15,8 @@ interface ExecutionState {
   problemSnapshot: unknown;
   /** Non-null when the last loadAlgorithm call failed validation. */
   loadError: string | null;
+  /** Non-null when validation produced non-fatal warnings. */
+  loadWarning: string | null;
 
   loadAlgorithm: (runner: AlgorithmRunner, problem: unknown, algorithmId?: string) => void;
   stepForward: () => void;
@@ -41,6 +43,7 @@ export const useExecutionStore = create<ExecutionState>()(
     algorithmId: null,
     problemSnapshot: null,
     loadError: null,
+    loadWarning: null,
 
     loadAlgorithm: (runner, problem, algorithmId) => {
       const engine = new ExecutionEngine();
@@ -57,6 +60,7 @@ export const useExecutionStore = create<ExecutionState>()(
           state.totalSteps = 0;
           state.isPlaying = false;
           state.loadError = msg;
+          state.loadWarning = null;
           state.algorithmId = algorithmId ?? null;
         });
         return;
@@ -71,6 +75,7 @@ export const useExecutionStore = create<ExecutionState>()(
         state.algorithmId = algorithmId ?? null;
         state.problemSnapshot = problem;
         state.loadError = null;
+        state.loadWarning = engine.validationWarnings.length > 0 ? engine.validationWarnings.join(' ') : null;
       });
     },
 
@@ -158,6 +163,7 @@ export const useExecutionStore = create<ExecutionState>()(
         state.algorithmId = null;
         state.problemSnapshot = null;
         state.loadError = null;
+        state.loadWarning = null;
       });
     },
   }))

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
 import { registry } from '@/algorithms/core/registry';
 import TaxonomyCardGrid from '@/components/taxonomy/TaxonomyCardGrid';
@@ -9,6 +9,7 @@ import { X } from '@/components/shared/Icons';
 import { cn } from '@/lib/cn';
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/lib/constants';
 import type { AlgorithmCategory } from '@/types/algorithm';
+import { getLabsForCategory } from '@/lib/game-labs';
 
 export default function HomePage() {
   const metas = registry.getAllMeta();
@@ -51,36 +52,46 @@ export default function HomePage() {
   const isGraphTab = activeTab === 'graph';
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-[var(--bg)]">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* Hero Section — hidden when graph tab is active */}
       <div
         className={cn(
-          'relative border-b border-[var(--border)] overflow-hidden transition-all duration-300 ease-in-out',
+          'relative mx-3 mt-3 rounded-xl border border-[var(--border)] overflow-hidden transition-all duration-300 ease-in-out ide-surface',
           isGraphTab ? 'max-h-0 opacity-0 border-b-0' : 'max-h-[400px] opacity-100',
         )}
       >
         {/* Backdrop - RelationshipGraph at very low opacity */}
-        <div className="absolute inset-0 opacity-[0.06] blur-[1px] pointer-events-none">
+        <div className="absolute inset-0 opacity-[0.08] blur-[1px] pointer-events-none">
           <RelationshipGraph algorithms={metas} />
         </div>
 
         {/* Overlay Content */}
-        <div className="relative z-10 px-6 py-8 flex flex-col items-center text-center gap-4">
-          <span className="font-bold text-5xl tracking-tight text-[var(--text)]">
+        <div className="relative z-10 px-4 sm:px-6 py-6 flex flex-col items-center text-center gap-4 bg-gradient-to-b from-[var(--surface)]/80 to-[var(--surface-2)]/60">
+          <span className="font-bold text-4xl sm:text-5xl tracking-tight text-[var(--text)] font-mono">
             Praxis
           </span>
-          <p className="text-sm text-[var(--text-2)]">
-            Interactive AI Algorithm Visualization
+          <p className="text-xs sm:text-sm text-[var(--text-2)] uppercase tracking-[0.2em]">
+            Algorithm Workspace Console
           </p>
+
+          <div className="text-[11px] font-mono px-3 py-1 rounded border border-[var(--border)] bg-[var(--bg)] text-[var(--text-2)]">
+            {`>`} index algorithms --interactive --trace
+          </div>
 
           {/* Search */}
           <AlgorithmSearch />
 
           {/* Stats & CTA */}
           <div className="flex items-center gap-3">
-            <span className="text-xs px-2 py-1 rounded-full bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)]">
+            <span className="text-xs px-2.5 py-1 rounded-md bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] font-mono">
               {metas.length} algorithms
             </span>
+            <Link
+              to="/maze/bfs"
+              className="text-xs px-2.5 py-1 rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--accent)]/60 font-mono transition-colors"
+            >
+              Open Maze Lab
+            </Link>
           </div>
 
           {/* Category Quick-Nav Chips */}
@@ -89,7 +100,7 @@ export default function HomePage() {
               <button
                 key={cat}
                 onClick={() => scrollToCategory(cat)}
-                className="text-xs px-3 py-1 rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] hover:border-[var(--accent)]/60 hover:text-[var(--text)] transition-colors"
+                className="text-xs px-3 py-1 rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] hover:border-[var(--accent)]/60 hover:text-[var(--text)] transition-colors font-mono"
               >
                 {CATEGORY_LABELS[cat]}
               </button>
@@ -100,19 +111,25 @@ export default function HomePage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-        <div className="px-6 border-b border-[var(--border)] shrink-0">
+        <div className="px-3 sm:px-6 border-b border-[var(--border)] shrink-0 bg-[var(--titlebar)]/80">
           <TabsList className="flex gap-1 h-10 items-center">
             <TabsTrigger
               value="overview"
-              className="px-3 py-1.5 text-sm text-[var(--text-2)] data-[state=active]:text-[var(--text)] data-[state=active]:border-b-2 data-[state=active]:border-[var(--accent)] transition-colors"
+              className="px-3 py-1.5 text-sm font-mono text-[var(--text-2)] data-[state=active]:text-[var(--text)] data-[state=active]:border-b-2 data-[state=active]:border-[var(--accent)] transition-colors"
             >
               Overview
             </TabsTrigger>
             <TabsTrigger
               value="graph"
-              className="px-3 py-1.5 text-sm text-[var(--text-2)] data-[state=active]:text-[var(--text)] data-[state=active]:border-b-2 data-[state=active]:border-[var(--accent)] transition-colors"
+              className="px-3 py-1.5 text-sm font-mono text-[var(--text-2)] data-[state=active]:text-[var(--text)] data-[state=active]:border-b-2 data-[state=active]:border-[var(--accent)] transition-colors"
             >
               Relationship Graph
+            </TabsTrigger>
+            <TabsTrigger
+              value="games"
+              className="px-3 py-1.5 text-sm font-mono text-[var(--text-2)] data-[state=active]:text-[var(--text)] data-[state=active]:border-b-2 data-[state=active]:border-[var(--accent)] transition-colors"
+            >
+              Games
             </TabsTrigger>
           </TabsList>
         </div>
@@ -123,6 +140,71 @@ export default function HomePage() {
 
         <TabsContent value="graph" className="flex-1 overflow-hidden">
           <RelationshipGraph algorithms={metas} onFullscreen={() => setGraphFullscreen(true)} />
+        </TabsContent>
+
+        <TabsContent value="games" className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="mx-auto max-w-5xl space-y-5">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+              <p className="text-[11px] font-mono uppercase tracking-wider text-[var(--text-3)]">Game Labs</p>
+              <h2 className="mt-1 text-lg font-semibold text-[var(--text)]">Playground Modules by Category</h2>
+              <p className="mt-1 text-sm text-[var(--text-2)]">
+                Every algorithm family can have its own game lab. Live labs open directly; planned labs are listed as coming soon.
+              </p>
+            </div>
+
+            {CATEGORY_ORDER.map((category) => {
+              const labs = getLabsForCategory(category);
+              return (
+                <section key={category} className="rounded-xl border border-[var(--border)] bg-[var(--surface)]/80 p-4">
+                  <div className="mb-3 flex items-center justify-between gap-2">
+                    <h3 className="text-sm font-semibold text-[var(--text)]">{CATEGORY_LABELS[category]}</h3>
+                    <span className="text-[10px] font-mono text-[var(--text-3)] uppercase tracking-wider">
+                      {labs.length > 0 ? `${labs.length} lab${labs.length > 1 ? 's' : ''}` : 'No labs yet'}
+                    </span>
+                  </div>
+
+                  {labs.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface-2)]/60 px-3 py-4">
+                      <p className="text-sm text-[var(--text-2)]">Coming soon: category-specific games for this algorithm family.</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {labs.map((lab) => (
+                        lab.path ? (
+                          <Link
+                            key={lab.id}
+                            to={lab.path}
+                            className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-3 transition-colors hover:border-[var(--accent)]/60 hover:bg-[var(--accent-soft)]"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-sm font-semibold text-[var(--text)]">{lab.name}</p>
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-[#53c880]/35 bg-[#53c880]/15 text-[#53c880]">
+                                LIVE
+                              </span>
+                            </div>
+                            <p className="mt-1 text-xs text-[var(--text-2)]">{lab.description}</p>
+                          </Link>
+                        ) : (
+                          <div
+                            key={lab.id}
+                            className="rounded-lg border border-[var(--border)] bg-[var(--surface)]/60 px-3 py-3"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-sm font-semibold text-[var(--text)]">{lab.name}</p>
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-[var(--border)] text-[var(--text-3)]">
+                                {lab.status === 'coming-soon' ? 'COMING SOON' : 'LAB'}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-xs text-[var(--text-2)]">{lab.description}</p>
+                          </div>
+                        )
+                      ))}
+                    </div>
+                  )}
+                </section>
+              );
+            })}
+          </div>
         </TabsContent>
       </Tabs>
 

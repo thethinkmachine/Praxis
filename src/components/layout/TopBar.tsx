@@ -6,6 +6,7 @@ import { Sun, Moon, Keyboard, Info } from '@/components/shared/Icons';
 
 const SEGMENT_LABELS: Record<string, string> = {
   search: 'Search',
+  maze: 'Maze',
   taxonomy: 'Taxonomy',
   'uninformed-search': 'Uninformed',
   bfs: 'BFS', dfs: 'DFS', dls: 'Depth-Limited', iddfs: 'IDDFS',
@@ -120,20 +121,20 @@ export default function TopBar() {
   return (
     <>
       <header className={cn(
-        'flex items-center justify-between h-11 px-4 shrink-0',
-        'bg-[var(--surface)] border-b border-[var(--border)]'
+        'ide-titlebar flex items-center justify-between h-10 px-2 sm:px-3 shrink-0 gap-2'
       )}>
+
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-1 text-sm text-[var(--text-2)]">
+        <nav className="flex-1 min-w-0 flex items-center gap-1 text-xs text-[var(--text-2)] font-mono px-2 py-1 rounded-md border border-[var(--border)] bg-[var(--surface)]/70">
           {crumbs.map((crumb, i) => (
-            <span key={i} className="flex items-center gap-1">
+            <span key={i} className="flex items-center gap-1 min-w-0">
               {i > 0 && <span className="text-[var(--text-3)]">/</span>}
               {i === crumbs.length - 1 ? (
-                <span className="text-[var(--text)]">{crumb.label}</span>
+                <span className="text-[var(--text)] truncate">{crumb.label}</span>
               ) : (
                 <Link
                   to={crumb.path}
-                  className="text-[var(--text-2)] hover:text-[var(--text)] transition-colors"
+                  className="text-[var(--text-2)] hover:text-[var(--text)] transition-colors truncate"
                 >
                   {crumb.label}
                 </Link>
@@ -143,19 +144,19 @@ export default function TopBar() {
         </nav>
 
         {/* Right side */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 shrink-0">
           {/* Dark / light toggle */}
           <button
             onClick={() => toggle('darkMode')}
             title={darkMode ? 'Switch to light mode (T)' : 'Switch to dark mode (T)'}
-            className="w-8 h-8 flex items-center justify-center rounded text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface)] hover:border-[var(--border)] transition-colors"
           >
             {darkMode ? <Sun size={16} /> : <Moon size={16} />}
           </button>
 
           <button
             onClick={() => setShowShortcuts(true)}
-            className="flex items-center gap-1.5 text-xs text-[var(--text-2)] hover:text-[var(--text)] border border-[var(--border)] rounded px-2 py-0.5 transition-colors"
+            className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--text-2)] hover:text-[var(--text)] border border-[var(--border)] rounded-md px-2 py-1 bg-[var(--surface)]/80 transition-colors"
             title="Keyboard shortcuts (?)"
           >
             <Keyboard size={12} />
@@ -164,7 +165,7 @@ export default function TopBar() {
 
           <button
             onClick={() => setShowAbout(true)}
-            className="flex items-center gap-1.5 text-xs text-[var(--text-2)] hover:text-[var(--text)] border border-[var(--border)] rounded px-2 py-0.5 transition-colors"
+            className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--text-2)] hover:text-[var(--text)] border border-[var(--border)] rounded-md px-2 py-1 bg-[var(--surface)]/80 transition-colors"
             title="About Praxis"
           >
             <Info size={12} />
@@ -176,13 +177,13 @@ export default function TopBar() {
       {/* Shortcuts modal */}
       {showShortcuts && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[2px]"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#060b11]/70 backdrop-blur-[3px]"
           onClick={() => setShowShortcuts(false)}
         >
           <div
             className={cn(
               'relative w-full max-w-md mx-4',
-              'bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl',
+              'ide-surface-elevated rounded-xl shadow-2xl',
               'overflow-hidden',
             )}
             onClick={(e) => e.stopPropagation()}
@@ -229,7 +230,7 @@ export default function TopBar() {
             </div>
 
             {/* Footer hint */}
-            <div className="px-5 py-2.5 border-t border-[var(--border)] bg-[var(--surface-2)]/40">
+            <div className="px-5 py-2.5 border-t border-[var(--border)] bg-[var(--surface-2)]/70">
               <p className="text-[10px] text-[var(--text-3)] text-center">
                 Press <KbdKey>Esc</KbdKey> or click outside to close
               </p>
@@ -241,13 +242,13 @@ export default function TopBar() {
       {/* About modal */}
       {showAbout && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[2px]"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#060b11]/70 backdrop-blur-[3px]"
           onClick={() => setShowAbout(false)}
         >
           <div
             className={cn(
               'relative w-full max-w-sm mx-4',
-              'bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl',
+              'ide-surface-elevated rounded-xl shadow-2xl',
               'overflow-hidden',
             )}
             onClick={(e) => e.stopPropagation()}
@@ -303,7 +304,7 @@ export default function TopBar() {
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-2.5 border-t border-[var(--border)] bg-[var(--surface-2)]/40">
+            <div className="px-5 py-2.5 border-t border-[var(--border)] bg-[var(--surface-2)]/70">
               <p className="text-[10px] text-[var(--text-3)] text-center">
                 Press <KbdKey>Esc</KbdKey> or click outside to close
               </p>

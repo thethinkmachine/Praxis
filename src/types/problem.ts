@@ -7,6 +7,19 @@ export interface GraphNode {
   heuristic?: number; // h(n) for informed search
 }
 
+export type HeuristicId =
+  | 'manual-node'
+  | 'zero'
+  | 'manhattan-distance'
+  | 'euclidean-distance'
+  | 'chebyshev-distance';
+
+export interface HeuristicConfig {
+  id: HeuristicId;
+  /** Optional numeric/string params interpreted by the heuristic evaluator. */
+  params?: Record<string, number | string>;
+}
+
 export interface GraphEdge {
   id: string;
   source: string;
@@ -26,13 +39,30 @@ export interface GraphProblem {
   startNode: string;
   goalNode: string;
   useHeuristic?: boolean;
+  heuristic?: HeuristicConfig;
+}
+
+export interface MazeProblem {
+  kind: 'maze';
+  rows: number;
+  cols: number;
+  seed: number;
+  walls: string[];
+  startNode: string;
+  goalNode: string;
+  /** Per-cell traversal cost multiplier. 1 = default terrain cost. */
+  terrain: Record<string, number>;
+  strategy?: string;
+  heuristic?: HeuristicConfig;
+  /** Optional per-cell heuristic overrides used by manual-node mode. */
+  manualHeuristicValues?: Record<string, number>;
 }
 
 // ---------------------------------------------------------------------------
 // Problem saving
 // ---------------------------------------------------------------------------
 
-export type ProblemCategory = 'graph';
+export type ProblemCategory = 'graph' | 'maze';
 
 export interface SavedProblem {
   id: string;
@@ -44,4 +74,5 @@ export interface SavedProblem {
 
 export const ALGORITHM_TO_PROBLEM_CATEGORY: Record<import('./algorithm').AlgorithmCategory, ProblemCategory> = {
   'uninformed-search': 'graph',
+  'informed-search': 'graph',
 };

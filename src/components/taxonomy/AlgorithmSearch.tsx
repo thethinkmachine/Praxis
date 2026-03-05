@@ -102,10 +102,10 @@ export default function AlgorithmSearch() {
           onKeyDown={handleKeyDown}
           placeholder="Search algorithms..."
           className={cn(
-            'w-full pl-9 pr-16 py-2 rounded-lg text-sm',
-            'bg-[var(--surface)] border border-[var(--border)]',
+            'w-full pl-9 pr-16 py-2.5 rounded-lg text-sm font-mono',
+            'bg-[var(--surface)] border border-[var(--border)] shadow-[0_8px_30px_rgba(0,0,0,0.25)]',
             'text-[var(--text)] placeholder:text-[var(--text-3)]',
-            'focus:outline-none focus:border-[#58A6FF]/60',
+            'focus:outline-none focus:border-[var(--accent)]/70',
             'transition-colors',
           )}
         />
@@ -116,7 +116,7 @@ export default function AlgorithmSearch() {
 
       {/* Dropdown Results */}
       {showDropdown && (
-        <div className="absolute z-50 w-full mt-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-lg overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] shadow-2xl overflow-hidden">
           {results.map((meta, i) => (
             <button
               key={meta.id}
@@ -125,7 +125,7 @@ export default function AlgorithmSearch() {
               className={cn(
                 'w-full text-left px-3 py-2.5 flex flex-col gap-1 transition-colors',
                 i === selectedIndex
-                  ? 'bg-[#58A6FF]/10'
+                  ? 'bg-[var(--accent-soft)]'
                   : 'hover:bg-[var(--surface-2)]',
               )}
             >
@@ -147,7 +147,7 @@ export default function AlgorithmSearch() {
 
       {/* No results */}
       {open && query.trim().length > 0 && results.length === 0 && (
-        <div className="absolute z-50 w-full mt-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-lg p-4 text-center">
+        <div className="absolute z-50 w-full mt-1 rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] shadow-lg p-4 text-center">
           <p className="text-sm text-[var(--text-2)]">No algorithms found</p>
         </div>
       )}

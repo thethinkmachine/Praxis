@@ -1,5 +1,6 @@
 export type AlgorithmCategory =
-  | 'uninformed-search';
+  | 'uninformed-search'
+  | 'informed-search';
 
 export interface AlgorithmMeta {
   id: string;
@@ -21,7 +22,7 @@ export interface AlgorithmMeta {
 export interface AlgorithmRunner<TProblem = unknown, TState = unknown, THighlight = unknown, TResult = void> {
   meta: AlgorithmMeta;
   pseudocode: string[];
-  validate(problem: TProblem): { valid: boolean; errors: string[] };
+  validate(problem: TProblem): { valid: boolean; errors: string[]; warnings?: string[] };
   getInitialState(problem: TProblem): TState;
   run(problem: TProblem): Generator<import('./step').AlgorithmStep<TState, THighlight>, TResult, void>;
 }

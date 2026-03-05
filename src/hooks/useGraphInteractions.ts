@@ -13,17 +13,27 @@ interface UseGraphInteractionsOptions {
   mode: EditorMode;
   /** Node positions keyed by node id — used for fit calculation and edge-draw hit testing */
   nodePositions: Map<string, { x: number; y: number }>;
+  edgeData: Array<{ id: string; source: string; target: string }>;
   nodeHitRadius: number;
   onBackgroundClick: (pos: { x: number; y: number }) => void;
-  onNodeClick: (nodeId: string) => void;
+  onEmptyClick?: (meta: { append: boolean }) => void;
+  onNodeClick: (nodeId: string, meta: { append: boolean }) => void;
   onNodeRightClick: (nodeId: string, screenPos: { x: number; y: number }) => void;
   onNodeDoubleClick: (nodeId: string, screenPos: { x: number; y: number }) => void;
-  onEdgeClick: (edgeId: string) => void;
+  onEdgeClick: (edgeId: string, meta: { append: boolean }) => void;
   onEdgeRightClick: (edgeId: string, screenPos: { x: number; y: number }) => void;
   onEdgeDoubleClick: (edgeId: string, screenPos: { x: number; y: number }) => void;
+  onSelectionBoxComplete?: (payload: { nodeIds: string[]; edgeIds: string[]; append: boolean }) => void;
   onNodeMoved: (nodeId: string, position: { x: number; y: number }) => void;
   onEdgeAdded: (sourceId: string, targetId: string) => void;
   onNodeDragging?: (nodeId: string, pos: { x: number; y: number }) => void;
+}
+
+interface SelectionBoxRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -32,12 +42,63 @@ interface UseGraphInteractionsOptions {
 interface UseGraphInteractionsReturn {
   transform: d3.ZoomTransform;
   zoomLevel: number;
+  selectionBox: SelectionBoxRect | null;
   fit: (padding?: number) => void;
   runAutoLayout: (
     nodes: Array<{ id: string; x: number; y: number }>,
     edges: Array<{ source: string; target: string }>,
   ) => Array<{ id: string; x: number; y: number }>;
   screenToGraph: (screenX: number, screenY: number) => { x: number; y: number };
+}
+
+function isPointInRect(x: number, y: number, rect: { minX: number; minY: number; maxX: number; maxY: number }): boolean {
+  return x >= rect.minX && x <= rect.maxX && y >= rect.minY && y <= rect.maxY;
+}
+
+function orientation(ax: number, ay: number, bx: number, by: number, cx: number, cy: number): number {
+  return (by - ay) * (cx - bx) - (bx - ax) * (cy - by);
+}
+
+function onSegment(ax: number, ay: number, bx: number, by: number, cx: number, cy: number): boolean {
+  return (
+    bx <= Math.max(ax, cx) && bx >= Math.min(ax, cx) &&
+    by <= Math.max(ay, cy) && by >= Math.min(ay, cy)
+  );
+}
+
+function segmentsIntersect(
+  a1x: number, a1y: number, a2x: number, a2y: number,
+  b1x: number, b1y: number, b2x: number, b2y: number,
+): boolean {
+  const o1 = orientation(a1x, a1y, a2x, a2y, b1x, b1y);
+  const o2 = orientation(a1x, a1y, a2x, a2y, b2x, b2y);
+  const o3 = orientation(b1x, b1y, b2x, b2y, a1x, a1y);
+  const o4 = orientation(b1x, b1y, b2x, b2y, a2x, a2y);
+
+  if (o1 * o2 < 0 && o3 * o4 < 0) return true;
+  if (o1 === 0 && onSegment(a1x, a1y, b1x, b1y, a2x, a2y)) return true;
+  if (o2 === 0 && onSegment(a1x, a1y, b2x, b2y, a2x, a2y)) return true;
+  if (o3 === 0 && onSegment(b1x, b1y, a1x, a1y, b2x, b2y)) return true;
+  if (o4 === 0 && onSegment(b1x, b1y, a2x, a2y, b2x, b2y)) return true;
+  return false;
+}
+
+function segmentIntersectsRect(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  rect: { minX: number; minY: number; maxX: number; maxY: number },
+): boolean {
+  if (isPointInRect(x1, y1, rect) || isPointInRect(x2, y2, rect)) return true;
+
+  const { minX, minY, maxX, maxY } = rect;
+  return (
+    segmentsIntersect(x1, y1, x2, y2, minX, minY, maxX, minY) ||
+    segmentsIntersect(x1, y1, x2, y2, maxX, minY, maxX, maxY) ||
+    segmentsIntersect(x1, y1, x2, y2, maxX, maxY, minX, maxY) ||
+    segmentsIntersect(x1, y1, x2, y2, minX, maxY, minX, minY)
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -63,12 +124,39 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
   } = options;
 
   const [transform, setTransform] = useState<d3.ZoomTransform>(d3.zoomIdentity);
+  const [selectionBox, setSelectionBox] = useState<SelectionBoxRect | null>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const optionsRef = useRef(options);
   optionsRef.current = options;
+  const isSpacePressedRef = useRef(false);
+  const suppressNextClickRef = useRef(false);
+  const suppressContextMenuRef = useRef(false);
+  const rightPanRef = useRef(false);
 
   // Track drag state to distinguish click from drag
   const draggedRef = useRef(false);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        isSpacePressedRef.current = true;
+      }
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        isSpacePressedRef.current = false;
+      }
+    };
+    const onBlur = () => { isSpacePressedRef.current = false; };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('blur', onBlur);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('blur', onBlur);
+    };
+  }, []);
 
   // ── Zoom / Pan setup (once) ──────────────────────────────────────────────
   useEffect(() => {
@@ -77,29 +165,44 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
     if (!svg || !mainGroup) return;
 
     const zoom = d3.zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.1, 4])
+      .scaleExtent([0.08, 6])
+      .wheelDelta((event: WheelEvent) => {
+        // Tune zoom speed so trackpad and wheel both feel less jumpy.
+        const factor = event.ctrlKey ? 0.002 : 0.0012;
+        return -event.deltaY * factor;
+      })
       .filter((event: Event) => {
-        // Allow scroll-wheel zoom always
         if (event.type === 'wheel') return true;
-        // Suppress pan when in addNode mode (background click should add node)
-        const m = optionsRef.current.mode;
-        if (m === 'addNode') return false;
-        // Allow pan on middle-mouse or when mode is select AND NOT on a node
+
+        // Natural pan affordance: middle drag, right drag, or hold Space + left drag.
         if (event instanceof MouseEvent) {
-          if (event.button === 1) return true; // middle mouse always pans
-          const target = event.target as SVGElement;
-          const isNode = target.closest('.node-group') !== null;
-          if (isNode) return false; // don't pan when dragging nodes
+          if (event.button === 1 || event.button === 2) return true;
+          if (event.button === 0 && isSpacePressedRef.current) return true;
         }
-        return true;
+
+        return false;
       })
       .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
         d3.select(mainGroup).attr('transform', event.transform.toString());
         setTransform(event.transform);
+      })
+      .on('start', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
+        const src = event.sourceEvent;
+        if (src instanceof MouseEvent && src.button === 2) {
+          rightPanRef.current = true;
+        }
+      })
+      .on('end', () => {
+        if (rightPanRef.current) {
+          suppressContextMenuRef.current = true;
+          setTimeout(() => { suppressContextMenuRef.current = false; }, 0);
+          rightPanRef.current = false;
+        }
       });
 
     zoomBehaviorRef.current = zoom;
     d3.select(svg).call(zoom);
+    d3.select(svg).on('dblclick.zoom', null);
 
     // Suppress default browser context menu on the SVG
     const preventCtxMenu = (e: Event) => e.preventDefault();
@@ -141,10 +244,8 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
         .on('end', function (event: d3.D3DragEvent<SVGGElement, unknown, unknown>) {
           if (!draggedRef.current) return;
           const nodeId = this.dataset.nodeId!;
-          const snappedX = Math.round(event.x / GRID_SNAP) * GRID_SNAP;
-          const snappedY = Math.round(event.y / GRID_SNAP) * GRID_SNAP;
-          d3.select(this).attr('transform', `translate(${snappedX}, ${snappedY})`);
-          optionsRef.current.onNodeMoved(nodeId, { x: snappedX, y: snappedY });
+          d3.select(this).attr('transform', `translate(${event.x}, ${event.y})`);
+          optionsRef.current.onNodeMoved(nodeId, { x: event.x, y: event.y });
         });
 
       sel.call(drag);
@@ -221,6 +322,11 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
     if (!svg) return;
 
     const handleClick = (e: MouseEvent) => {
+      if (suppressNextClickRef.current) {
+        suppressNextClickRef.current = false;
+        return;
+      }
+
       if (draggedRef.current) {
         draggedRef.current = false; // reset so next click works normally
         return;
@@ -228,12 +334,13 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
 
       const target = e.target as SVGElement;
       const m = optionsRef.current.mode;
+      const append = e.shiftKey || e.ctrlKey || e.metaKey;
 
       // Node click
       const nodeGroup = target.closest('.node-group') as SVGGElement | null;
       if (nodeGroup) {
         const nodeId = nodeGroup.dataset.nodeId!;
-        optionsRef.current.onNodeClick(nodeId);
+        optionsRef.current.onNodeClick(nodeId, { append });
         return;
       }
 
@@ -241,7 +348,7 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
       const edgeGroup = target.closest('.edge-group') as SVGGElement | null;
       if (edgeGroup) {
         const edgeId = edgeGroup.dataset.edgeId!;
-        optionsRef.current.onEdgeClick(edgeId);
+        optionsRef.current.onEdgeClick(edgeId, { append });
         return;
       }
 
@@ -255,11 +362,14 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
           x: Math.round(graphX / GRID_SNAP) * GRID_SNAP,
           y: Math.round(graphY / GRID_SNAP) * GRID_SNAP,
         });
+      } else if (m === 'select') {
+        optionsRef.current.onEmptyClick?.({ append });
       }
     };
 
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
+      if (suppressContextMenuRef.current) return;
       const target = e.target as SVGElement;
 
       const nodeGroup = target.closest('.node-group') as SVGGElement | null;
@@ -300,6 +410,112 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
       svg.removeEventListener('click', handleClick);
       svg.removeEventListener('contextmenu', handleContextMenu);
       svg.removeEventListener('dblclick', handleDblClick);
+    };
+  }, [svgRef]);
+
+  // ── Selection box (left-drag on empty canvas in select mode) ────────────
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+
+    let dragActive = false;
+    let moved = false;
+    let append = false;
+    let startX = 0;
+    let startY = 0;
+    let currentBox: SelectionBoxRect | null = null;
+
+    const toGraph = (screenX: number, screenY: number) => {
+      const t = d3.zoomTransform(svg);
+      const rect = svg.getBoundingClientRect();
+      return {
+        x: (screenX - rect.left - t.x) / t.k,
+        y: (screenY - rect.top - t.y) / t.k,
+      };
+    };
+
+    const onMouseDown = (e: MouseEvent) => {
+      if (optionsRef.current.mode !== 'select') return;
+      if (e.button !== 0) return;
+      if (isSpacePressedRef.current) return;
+
+      const target = e.target as SVGElement;
+      if (target.closest('.node-group') || target.closest('.edge-group')) return;
+
+      dragActive = true;
+      moved = false;
+      append = e.shiftKey || e.ctrlKey || e.metaKey;
+      startX = e.clientX;
+      startY = e.clientY;
+      currentBox = { x: startX, y: startY, width: 0, height: 0 };
+      setSelectionBox(currentBox);
+      e.preventDefault();
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!dragActive) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (!moved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+        moved = true;
+      }
+      currentBox = {
+        x: Math.min(startX, e.clientX),
+        y: Math.min(startY, e.clientY),
+        width: Math.abs(dx),
+        height: Math.abs(dy),
+      };
+      setSelectionBox(currentBox);
+    };
+
+    const onMouseUp = () => {
+      if (!dragActive) return;
+      dragActive = false;
+
+      const box = currentBox;
+      setSelectionBox(null);
+      currentBox = null;
+      if (!moved || !box) return;
+
+      const p1 = toGraph(box.x, box.y);
+      const p2 = toGraph(box.x + box.width, box.y + box.height);
+      const graphRect = {
+        minX: Math.min(p1.x, p2.x),
+        minY: Math.min(p1.y, p2.y),
+        maxX: Math.max(p1.x, p2.x),
+        maxY: Math.max(p1.y, p2.y),
+      };
+
+      const nodeIds: string[] = [];
+      for (const [id, pos] of optionsRef.current.nodePositions) {
+        if (isPointInRect(pos.x, pos.y, graphRect)) {
+          nodeIds.push(id);
+        }
+      }
+
+      const edgeIds: string[] = [];
+      for (const edge of optionsRef.current.edgeData) {
+        const src = optionsRef.current.nodePositions.get(edge.source);
+        const tgt = optionsRef.current.nodePositions.get(edge.target);
+        if (!src || !tgt) continue;
+        if (segmentIntersectsRect(src.x, src.y, tgt.x, tgt.y, graphRect)) {
+          edgeIds.push(edge.id);
+        }
+      }
+
+      optionsRef.current.onSelectionBoxComplete?.({ nodeIds, edgeIds, append });
+      suppressNextClickRef.current = true;
+    };
+
+    svg.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+
+    return () => {
+      svg.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      setSelectionBox(null);
     };
   }, [svgRef]);
 
@@ -387,6 +603,7 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
   return {
     transform,
     zoomLevel: transform.k,
+    selectionBox,
     fit,
     runAutoLayout,
     screenToGraph,

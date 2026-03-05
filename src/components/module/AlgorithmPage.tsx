@@ -38,6 +38,8 @@ export interface TabDefinition {
 export interface AlgorithmPageProps {
   algorithmId: string;
   problem: unknown;
+  /** Optional payload used for import/export/save actions instead of execution problem. */
+  problemForActions?: unknown;
   category: AlgorithmCategory;
   problemCategory: ProblemCategory;
   onProblemImport: (problem: unknown) => void;
@@ -52,6 +54,7 @@ export interface AlgorithmPageProps {
 export default function AlgorithmPage({
   algorithmId,
   problem,
+  problemForActions,
   category,
   problemCategory,
   onProblemImport,
@@ -59,7 +62,7 @@ export default function AlgorithmPage({
   titleActions,
   configPanel,
 }: AlgorithmPageProps) {
-  const { runner, step, loadError } = useAlgorithmPage(algorithmId, problem);
+  const { runner, step, loadError, loadWarning } = useAlgorithmPage(algorithmId, problem);
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? '');
   const [configOpen, setConfigOpen] = useState(true);
 
@@ -97,6 +100,7 @@ export default function AlgorithmPage({
 
   const hasConfig = !!configPanel;
   const hasTabs = tabs.length > 1;
+  const actionProblem = problemForActions ?? problem;
 
   return (
     <div className="h-full overflow-hidden flex flex-col">
@@ -104,13 +108,14 @@ export default function AlgorithmPage({
       <AlgorithmTitleStrip
         meta={runner.meta}
         loadError={loadError}
+        loadWarning={loadWarning}
         showConfigButton={hasConfig}
         configOpen={hasConfig && configOpen}
         onToggleConfig={() => setConfigOpen(v => !v)}
         actions={titleActions}
         problemActions={
           <ProblemImportExportButton
-            problem={problem}
+            problem={actionProblem}
             algorithmId={algorithmId}
             problemCategory={problemCategory}
             onImport={onProblemImport}

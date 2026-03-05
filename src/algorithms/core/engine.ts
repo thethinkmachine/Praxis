@@ -10,12 +10,14 @@ export class ExecutionEngine<TProblem = unknown, TState = unknown, THighlight = 
   private _status: EngineStatus = 'idle';
   private _result: TResult | undefined = undefined;
   private _truncated = false;
+  private _validationWarnings: string[] = [];
 
   get status(): EngineStatus { return this._status; }
   get currentIndex(): number { return this._currentIndex; }
   get totalSteps(): number { return this.steps.length; }
   get truncated(): boolean { return this._truncated; }
   get result(): TResult | undefined { return this._result; }
+  get validationWarnings(): string[] { return this._validationWarnings; }
 
   get currentStep(): AlgorithmStep<TState, THighlight> | null {
     return this._currentIndex >= 0 ? this.steps[this._currentIndex] : null;
@@ -34,6 +36,7 @@ export class ExecutionEngine<TProblem = unknown, TState = unknown, THighlight = 
     if (!validation.valid) {
       throw new Error(`Invalid problem: ${validation.errors.join(', ')}`);
     }
+    this._validationWarnings = validation.warnings ?? [];
 
     const start = performance.now();
     const gen = runner.run(problem);
@@ -114,5 +117,6 @@ export class ExecutionEngine<TProblem = unknown, TState = unknown, THighlight = 
     this._status = 'idle';
     this._result = undefined;
     this._truncated = false;
+    this._validationWarnings = [];
   }
 }

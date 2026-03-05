@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { GripVertical, Eye, EyeOff } from '@/components/shared/Icons';
 import { cn } from '@/lib/cn';
 
@@ -20,20 +20,21 @@ export default function PanelWrapper({
   return (
     <div
       className={cn(
-        'h-full flex flex-col overflow-hidden bg-[var(--surface)]',
+        'h-full flex flex-col overflow-hidden bg-[var(--surface)] border-l border-[var(--border)]/70',
         className,
       )}
     >
       {/* Header with drag handle */}
-      <div className="drag-handle flex items-center gap-1.5 px-2 py-1 bg-[var(--surface-2)] border-b border-[var(--border)] cursor-grab active:cursor-grabbing shrink-0">
+      <div className="drag-handle ide-titlebar flex items-center gap-1.5 px-2 py-1.5 border-b border-[var(--border)] cursor-grab active:cursor-grabbing shrink-0">
         <GripVertical size={12} className="text-[var(--text-3)]" />
-        <span className="text-[11px] font-medium text-[var(--text-2)] flex-1 truncate select-none">
+        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]/80" />
+        <span className="ide-title text-[var(--text-2)] flex-1 truncate select-none">
           {title}
         </span>
         {onToggleCollapse && (
           <button
             onClick={onToggleCollapse}
-            className="p-0.5 rounded text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors"
+            className="p-0.5 rounded text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors border border-transparent hover:border-[var(--border)]"
             aria-label={collapsed ? 'Expand panel' : 'Collapse panel'}
           >
             {collapsed ? <EyeOff size={12} /> : <Eye size={12} />}
@@ -43,7 +44,7 @@ export default function PanelWrapper({
 
       {/* Content */}
       {!collapsed && (
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden bg-[var(--surface)]">
           {children}
         </div>
       )}

@@ -8,10 +8,12 @@ import { cn } from '@/lib/cn';
 
 const GROUP_COLORS: Record<string, string> = {
   uninformed: '#58A6FF',
+  informed: '#D2A8FF',
 };
 
 const CATEGORY_TO_GROUP: Record<AlgorithmCategory, string> = {
   'uninformed-search': 'uninformed',
+  'informed-search': 'informed',
 };
 
 // Curated edge labels for well-known relationships
@@ -21,6 +23,11 @@ const EDGE_LABELS: Record<string, string> = {
   'bfs\u2192ucs': 'weighted',
   'bfs\u2192bidirectional-bfs': 'bidirectional',
   'ucs\u2192bidirectional-bfs': 'bidirectional',
+  'ucs\u2192astar': 'adds h(n)',
+  'greedy-bfs\u2192astar': 'adds g(n)',
+  'astar\u2192weighted-astar': 'inflates h',
+  'astar\u2192ida-star': 'iterative',
+  'iddfs\u2192ida-star': 'f-threshold',
 };
 
 interface RelationshipGraphProps {
@@ -130,7 +137,8 @@ export default function RelationshipGraph({ algorithms, onFullscreen }: Relation
 
     // Target positions for each category cluster — tighter spacing
     const GROUP_CENTERS: Record<string, { x: number; y: number }> = {
-      uninformed: { x: 0.5 * width, y: 0.5 * height },
+      uninformed: { x: 0.3 * width, y: 0.5 * height },
+      informed:   { x: 0.7 * width, y: 0.5 * height },
     };
 
     const simulation = d3

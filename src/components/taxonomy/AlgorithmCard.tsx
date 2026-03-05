@@ -9,6 +9,9 @@ interface AlgorithmCardProps {
 }
 
 function buildRoute(meta: AlgorithmMeta): string {
+  if (meta.category === 'informed-search') {
+    return `/search/informed-search/${meta.id}`;
+  }
   return `/search/uninformed-search/${meta.id}`;
 }
 
@@ -19,13 +22,13 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
     <button
       onClick={() => navigate(buildRoute(meta))}
       className={cn(
-        'text-left w-full rounded-lg p-4 border border-[var(--border)] bg-[var(--surface)]',
-        'hover:border-[#58A6FF] hover:bg-[#58A6FF]/5 transition-colors group'
+        'text-left w-full rounded-lg p-4 border border-[var(--border)] bg-[var(--surface)]/90',
+        'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]/50 transition-colors group'
       )}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="text-sm font-semibold text-[var(--text)] group-hover:text-[#58A6FF] transition-colors leading-snug">
+        <h3 className="text-sm font-semibold text-[var(--text)] group-hover:text-[var(--accent)] transition-colors leading-snug">
           {meta.name}
         </h3>
         <div className="flex gap-1 flex-wrap justify-end shrink-0">
@@ -34,8 +37,8 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
               className={cn(
                 'text-[10px] px-1.5 py-0.5 rounded font-medium',
                 meta.complete
-                  ? 'bg-[#3FB950]/15 text-[#3FB950]'
-                  : 'bg-[#FF7B72]/15 text-[#FF7B72]'
+                  ? 'bg-[#3FB950]/15 text-[#3FB950] border border-[#3FB950]/35'
+                  : 'bg-[#FF7B72]/15 text-[#FF7B72] border border-[#FF7B72]/35'
               )}
             >
               {meta.complete ? '✓ Complete' : '✗'}
@@ -46,8 +49,8 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
               className={cn(
                 'text-[10px] px-1.5 py-0.5 rounded font-medium',
                 meta.optimal
-                  ? 'bg-[#3FB950]/15 text-[#3FB950]'
-                  : 'bg-[#F0883E]/15 text-[#F0883E]'
+                  ? 'bg-[#3FB950]/15 text-[#3FB950] border border-[#3FB950]/35'
+                  : 'bg-[#F0883E]/15 text-[#F0883E] border border-[#F0883E]/35'
               )}
             >
               {meta.optimal ? '★ Optimal' : '○'}
@@ -78,7 +81,7 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
 
       {/* AIMA reference */}
       {meta.bookChapter && (
-        <div className="mt-2 text-[10px] text-[var(--text-3)]">
+        <div className="mt-2 text-[10px] text-[var(--text-3)] font-mono">
           AIMA {meta.bookChapter}
         </div>
       )}

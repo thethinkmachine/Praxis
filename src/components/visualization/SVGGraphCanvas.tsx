@@ -16,8 +16,6 @@ import {
   NODE_W,
   NODE_H,
   NODE_RX,
-  NODE_W_WIDE,
-  NODE_H_TALL,
 } from './svg-graph.types';
 import type { SVGNodeVM, SVGEdgeVM, NodeVisualState } from './svg-graph.types';
 
@@ -53,6 +51,25 @@ interface RenameTarget {
 interface WeightTarget {
   edgeId: string;
   weight: string;
+  x: number;
+  y: number;
+}
+
+interface HeuristicTarget {
+  nodeId: string;
+  heuristic: string;
+  x: number;
+  y: number;
+}
+
+interface HoveredNodeTooltip {
+  nodeId: string;
+  label: string;
+  state: NodeVisualState;
+  gCost?: number;
+  hCost?: number;
+  fCost?: number;
+  manualHeuristic?: number;
   x: number;
   y: number;
 }
@@ -147,18 +164,16 @@ function borderIntersection(
 function getEdgeEndpoints(
   sx: number, sy: number,
   tx: number, ty: number,
-  srcHasCosts: boolean,
-  tgtHasCosts: boolean,
 ) {
   const dx = tx - sx;
   const dy = ty - sy;
   if (dx === 0 && dy === 0) return { x1: sx, y1: sy, x2: tx, y2: ty };
 
   const angle = Math.atan2(dy, dx);
-  const srcHW = (srcHasCosts ? NODE_W_WIDE : NODE_W) / 2;
-  const srcHH = (srcHasCosts ? NODE_H_TALL : NODE_H) / 2;
-  const tgtHW = (tgtHasCosts ? NODE_W_WIDE : NODE_W) / 2;
-  const tgtHH = (tgtHasCosts ? NODE_H_TALL : NODE_H) / 2;
+  const srcHW = NODE_W / 2;
+  const srcHH = NODE_H / 2;
+  const tgtHW = NODE_W / 2;
+  const tgtHH = NODE_H / 2;
 
   const src = borderIntersection(sx, sy, angle, srcHW, srcHH);
   const tgt = borderIntersection(tx, ty, angle + Math.PI, tgtHW, tgtHH);
@@ -236,6 +251,11 @@ export default function SVGGraphCanvas({
   const [weightValue, setWeightValue] = useState('');
   const weightInputRef = useRef<HTMLInputElement>(null);
   const weightCommittedRef = useRef(false);
+  const [heuristicTarget, setHeuristicTarget] = useState<HeuristicTarget | null>(null);
+  const [heuristicValue, setHeuristicValue] = useState('');
+  const heuristicInputRef = useRef<HTMLInputElement>(null);
+  const heuristicCommittedRef = useRef(false);
+  const [hoveredNodeTooltip, setHoveredNodeTooltip] = useState<HoveredNodeTooltip | null>(null);
   const fitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [canvasDims, setCanvasDims] = useState({ w: 800, h: 600 });
@@ -252,6 +272,7 @@ export default function SVGGraphCanvas({
     updateNode,
     updateEdge,
     batchUpdateNodes,
+    setSelected,
     clear,
     isDirected,
     setDirected,
@@ -263,6 +284,8 @@ export default function SVGGraphCanvas({
 
   const canUndo = useEditorStore(s => s.past.length > 0);
   const canRedo = useEditorStore(s => s.future.length > 0);
+  const selectedIds = useEditorStore(s => s.selectedIds);
+  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
   // ── Build view models ────────────────────────────────────────────────────
 
@@ -314,6 +337,12 @@ export default function SVGGraphCanvas({
     return m;
   }, [nodeVMs]);
 
+  const manualHeuristicById = useMemo(() => {
+    const m = new Map<string, number | undefined>();
+    for (const node of nodes) m.set(node.id, node.heuristic);
+    return m;
+  }, [nodes]);
+
   // ── Rename / weight helpers ──────────────────────────────────────────────
 
   const openRename = useCallback((nodeId: string, x: number, y: number) => {
@@ -332,6 +361,14 @@ export default function SVGGraphCanvas({
     setWeightTarget({ edgeId, weight, x, y });
   }, [edges]);
 
+  const openHeuristicEdit = useCallback((nodeId: string, x: number, y: number) => {
+    const node = nodes.find(n => n.id === nodeId);
+    const heuristic = node?.heuristic == null ? '' : String(node.heuristic);
+    heuristicCommittedRef.current = false;
+    setContextMenu(null);
+    setHeuristicTarget({ nodeId, heuristic, x, y });
+  }, [nodes]);
+
   useEffect(() => {
     if (renameTarget) {
       setRenameValue(renameTarget.label);
@@ -347,6 +384,14 @@ export default function SVGGraphCanvas({
       return () => clearTimeout(t);
     }
   }, [weightTarget]);
+
+  useEffect(() => {
+    if (heuristicTarget) {
+      setHeuristicValue(heuristicTarget.heuristic);
+      const t = setTimeout(() => { heuristicInputRef.current?.focus(); heuristicInputRef.current?.select(); }, 0);
+      return () => clearTimeout(t);
+    }
+  }, [heuristicTarget]);
 
   const commitRename = useCallback(() => {
     if (renameCommittedRef.current) return;
@@ -370,16 +415,52 @@ export default function SVGGraphCanvas({
 
   const cancelWeight = useCallback(() => { weightCommittedRef.current = true; setWeightTarget(null); }, []);
 
+  const commitHeuristic = useCallback(() => {
+    if (heuristicCommittedRef.current) return;
+    heuristicCommittedRef.current = true;
+    if (heuristicTarget) {
+      const raw = heuristicValue.trim();
+      if (raw === '') {
+        updateNode(heuristicTarget.nodeId, { heuristic: undefined });
+      } else {
+        const num = Number(raw);
+        if (Number.isFinite(num)) {
+          updateNode(heuristicTarget.nodeId, { heuristic: num });
+        }
+      }
+    }
+    setHeuristicTarget(null);
+  }, [heuristicTarget, heuristicValue, updateNode]);
+
+  const cancelHeuristic = useCallback(() => {
+    heuristicCommittedRef.current = true;
+    setHeuristicTarget(null);
+  }, []);
+
   // ── Event handlers ───────────────────────────────────────────────────────
 
-  const handleNodeClick = useCallback((nodeId: string) => {
+  const handleNodeClick = useCallback((nodeId: string, meta: { append: boolean }) => {
     setContextMenu(null);
-    if (mode === 'delete') removeNode(nodeId);
-  }, [mode, removeNode]);
+    if (mode === 'delete') {
+      removeNode(nodeId);
+      return;
+    }
+    if (mode === 'select') {
+      if (meta.append) {
+        setSelected(selectedSet.has(nodeId)
+          ? selectedIds.filter(id => id !== nodeId)
+          : [...selectedIds, nodeId]);
+      } else {
+        setSelected([nodeId]);
+      }
+    }
+  }, [mode, removeNode, selectedIds, selectedSet, setSelected]);
 
   const handleNodeRightClick = useCallback((nodeId: string, pos: { x: number; y: number }) => {
     setRenameTarget(null);
     setWeightTarget(null);
+    setHeuristicTarget(null);
+    setHoveredNodeTooltip(null);
     setContextMenu({ x: pos.x, y: pos.y, type: 'node', targetId: nodeId });
   }, []);
 
@@ -388,14 +469,28 @@ export default function SVGGraphCanvas({
     openRename(nodeId, pos.x, pos.y);
   }, [mode, openRename]);
 
-  const handleEdgeClick = useCallback((edgeId: string) => {
+  const handleEdgeClick = useCallback((edgeId: string, meta: { append: boolean }) => {
     setContextMenu(null);
-    if (mode === 'delete') removeEdge(edgeId);
-  }, [mode, removeEdge]);
+    if (mode === 'delete') {
+      removeEdge(edgeId);
+      return;
+    }
+    if (mode === 'select') {
+      if (meta.append) {
+        setSelected(selectedSet.has(edgeId)
+          ? selectedIds.filter(id => id !== edgeId)
+          : [...selectedIds, edgeId]);
+      } else {
+        setSelected([edgeId]);
+      }
+    }
+  }, [mode, removeEdge, selectedIds, selectedSet, setSelected]);
 
   const handleEdgeRightClick = useCallback((edgeId: string, pos: { x: number; y: number }) => {
     setRenameTarget(null);
     setWeightTarget(null);
+    setHeuristicTarget(null);
+    setHoveredNodeTooltip(null);
     setContextMenu({ x: pos.x, y: pos.y, type: 'edge', targetId: edgeId });
   }, []);
 
@@ -411,6 +506,24 @@ export default function SVGGraphCanvas({
     }
   }, [mode, addNode]);
 
+  const handleEmptyClick = useCallback((meta: { append: boolean }) => {
+    if (mode !== 'select') return;
+    if (!meta.append) {
+      setSelected([]);
+    }
+  }, [mode, setSelected]);
+
+  const handleSelectionBoxComplete = useCallback((payload: { nodeIds: string[]; edgeIds: string[]; append: boolean }) => {
+    const ids = [...payload.nodeIds, ...payload.edgeIds];
+    if (!payload.append) {
+      setSelected(ids);
+      return;
+    }
+    const merged = new Set(selectedIds);
+    for (const id of ids) merged.add(id);
+    setSelected(Array.from(merged));
+  }, [selectedIds, setSelected]);
+
   const handleEdgeAdded = useCallback((sourceId: string, targetId: string) => {
     addEdge(sourceId, targetId, 1);
   }, [addEdge]);
@@ -425,6 +538,7 @@ export default function SVGGraphCanvas({
   const {
     transform,
     zoomLevel,
+    selectionBox,
     fit,
     runAutoLayout,
   } = useGraphInteractions({
@@ -433,14 +547,17 @@ export default function SVGGraphCanvas({
     tempEdgeRef,
     mode,
     nodePositions,
+    edgeData: edges.map(e => ({ id: e.id, source: e.source, target: e.target })),
     nodeHitRadius: 40,
     onBackgroundClick: handleBgClick,
+    onEmptyClick: handleEmptyClick,
     onNodeClick: handleNodeClick,
     onNodeRightClick: handleNodeRightClick,
     onNodeDoubleClick: handleNodeDoubleClick,
     onEdgeClick: handleEdgeClick,
     onEdgeRightClick: handleEdgeRightClick,
     onEdgeDoubleClick: handleEdgeDoubleClick,
+    onSelectionBoxComplete: handleSelectionBoxComplete,
     onNodeMoved: handleNodeMoved,
     onEdgeAdded: handleEdgeAdded,
     onNodeDragging: (nodeId, pos) => setLiveDrag({ nodeId, ...pos }),
@@ -585,21 +702,21 @@ export default function SVGGraphCanvas({
                 const srcNode = nodeVMMap.get(edge.sourceId);
                 const tgtNode = nodeVMMap.get(edge.targetId);
                 if (!srcNode || !tgtNode) return null;
+                const isSelected = selectedSet.has(edge.id);
 
                 const srcPos = liveNodePos(srcNode);
                 const tgtPos = liveNodePos(tgtNode);
-
-                const srcHasCosts = srcNode.gCost != null || srcNode.hCost != null;
-                const tgtHasCosts = tgtNode.gCost != null || tgtNode.hCost != null;
                 const { x1, y1, x2, y2 } = getEdgeEndpoints(
                   srcPos.x, srcPos.y, tgtPos.x, tgtPos.y,
-                  srcHasCosts, tgtHasCosts,
                 );
 
                 const style = edge.isPath ? activeEdgeColors.path
                   : edge.isPruned ? activeEdgeColors.pruned
                   : edge.isDirected ? activeEdgeColors.directed
                   : activeEdgeColors.normal;
+                const stroke = isSelected ? (darkMode ? '#79C0FF' : '#2563EB') : style.stroke;
+                const strokeWidth = style.width + (isSelected ? 1.2 : 0);
+                const opacity = isSelected ? 1 : style.opacity;
 
                 const markerEnd = edge.isDirected
                   ? (edge.isPath ? 'url(#arrow-path)' : 'url(#arrow-default)')
@@ -613,9 +730,9 @@ export default function SVGGraphCanvas({
                     {/* Visible edge line */}
                     <line
                       x1={x1} y1={y1} x2={x2} y2={y2}
-                      stroke={style.stroke}
-                      strokeWidth={style.width}
-                      opacity={style.opacity}
+                      stroke={stroke}
+                      strokeWidth={strokeWidth}
+                      opacity={opacity}
                       markerEnd={markerEnd}
                       strokeDasharray={'dasharray' in style ? (style as { dasharray: string }).dasharray : undefined}
                       style={{ transition: 'stroke 0.3s ease, stroke-width 0.3s ease, opacity 0.3s ease' }}
@@ -679,16 +796,10 @@ export default function SVGGraphCanvas({
             <g className="nodes-layer">
               {nodeVMs.map(node => {
                 const theme = activeNodeTheme[node.state];
-                const hasCosts = node.gCost != null || node.hCost != null;
-                const w = hasCosts ? NODE_W_WIDE : NODE_W;
-                const h = hasCosts ? NODE_H_TALL : NODE_H;
+                const w = NODE_W;
+                const h = NODE_H;
                 const isExplored = node.state === 'explored';
-
-                // Cost annotation string
-                let costStr = '';
-                if (node.gCost != null) costStr += `g=${formatCost(node.gCost)}`;
-                if (node.hCost != null) costStr += (costStr ? ' ' : '') + `h=${formatCost(node.hCost)}`;
-                if (node.fCost != null) costStr += (costStr ? ' ' : '') + `f=${formatCost(node.fCost)}`;
+                const isSelected = selectedSet.has(node.id);
 
                 return (
                   <g
@@ -698,6 +809,26 @@ export default function SVGGraphCanvas({
                     transform={`translate(${node.x}, ${node.y})`}
                     filter={theme.glowFilter ? `url(#${theme.glowFilter})` : undefined}
                     opacity={isExplored ? 0.5 : 1}
+                    onMouseEnter={(e) => {
+                      const manualHeuristic = manualHeuristicById.get(node.id);
+                      setHoveredNodeTooltip({
+                        nodeId: node.id,
+                        label: node.label,
+                        state: node.state,
+                        gCost: node.gCost,
+                        hCost: node.hCost,
+                        fCost: node.fCost,
+                        manualHeuristic,
+                        x: e.clientX,
+                        y: e.clientY,
+                      });
+                    }}
+                    onMouseMove={(e) => {
+                      setHoveredNodeTooltip(prev => prev && prev.nodeId === node.id
+                        ? { ...prev, x: e.clientX, y: e.clientY }
+                        : prev);
+                    }}
+                    onMouseLeave={() => setHoveredNodeTooltip(prev => prev?.nodeId === node.id ? null : prev)}
                     style={{
                       cursor: nodeCursor,
                       transition: 'filter 0.3s ease, opacity 0.3s ease',
@@ -710,13 +841,25 @@ export default function SVGGraphCanvas({
                       rx={NODE_RX}
                       fill={theme.fill}
                       fillOpacity={theme.fillOpacity}
-                      stroke={theme.border}
-                      strokeWidth={theme.borderWidth}
+                      stroke={isSelected ? (darkMode ? '#79C0FF' : '#2563EB') : theme.border}
+                      strokeWidth={isSelected ? theme.borderWidth + 1.4 : theme.borderWidth}
                       style={{ transition: 'fill 0.3s ease, stroke 0.3s ease, stroke-width 0.3s ease' }}
                     />
+                    {isSelected && (
+                      <rect
+                        x={-w / 2 - 3} y={-h / 2 - 3}
+                        width={w + 6} height={h + 6}
+                        rx={NODE_RX + 2}
+                        fill="none"
+                        stroke={darkMode ? '#79C0FF' : '#2563EB'}
+                        strokeOpacity={0.5}
+                        strokeWidth={1}
+                        style={{ pointerEvents: 'none' }}
+                      />
+                    )}
                     {/* Label */}
                     <text
-                      y={hasCosts ? -6 : 0}
+                      y={0}
                       textAnchor="middle"
                       dominantBaseline="central"
                       fill={theme.text}
@@ -727,21 +870,6 @@ export default function SVGGraphCanvas({
                     >
                       {node.label}
                     </text>
-                    {/* Cost annotations */}
-                    {costStr && (
-                      <text
-                        y={10}
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                        fill={theme.text}
-                        fontSize={8}
-                        fontFamily="JetBrains Mono, Fira Code, monospace"
-                        opacity={0.7}
-                        style={{ pointerEvents: 'none' }}
-                      >
-                        {costStr}
-                      </text>
-                    )}
                   </g>
                 );
               })}
@@ -783,7 +911,7 @@ export default function SVGGraphCanvas({
           {mode === 'addNode' && 'Click empty area to add node'}
           {mode === 'addEdge' && 'Drag from source node to target node'}
           {mode === 'delete' && 'Click node or edge to delete'}
-          {mode === 'select' && 'Drag nodes to reposition \u2022 Right-click for options \u2022 Double-click to edit'}
+          {mode === 'select' && 'Drag nodes to move • Drag empty space to multi-select • Space+drag or right-drag to pan • Scroll to zoom'}
         </div>
 
         {/* Context menu */}
@@ -797,6 +925,10 @@ export default function SVGGraphCanvas({
                 <button className="w-full text-left text-xs px-3 py-1.5 text-[var(--text)] hover:bg-[var(--surface)]"
                   onClick={() => openRename(contextMenu.targetId, contextMenu.x, contextMenu.y)}>
                   Rename Node
+                </button>
+                <button className="w-full text-left text-xs px-3 py-1.5 text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+                  onClick={() => openHeuristicEdit(contextMenu.targetId, contextMenu.x, contextMenu.y)}>
+                  Edit h(n)
                 </button>
                 <div className="border-t border-[var(--border)] my-1" />
                 <button className="w-full text-left text-xs px-3 py-1.5 text-[#D2A8FF] hover:bg-[#D2A8FF]/10"
@@ -866,6 +998,59 @@ export default function SVGGraphCanvas({
               onBlur={commitWeight}
             />
           </div>
+        )}
+
+        {/* Inline heuristic edit input */}
+        {heuristicTarget && (
+          <div className="fixed z-50" style={{ left: heuristicTarget.x, top: heuristicTarget.y }}>
+            <input
+              ref={heuristicInputRef}
+              type="number"
+              value={heuristicValue}
+              step="0.1"
+              className="bg-[var(--surface)] border border-[var(--border)] text-[var(--text)] rounded px-2 py-1 text-sm w-32 outline-none focus:border-[#58A6FF]/60 shadow-lg"
+              placeholder="h(n)"
+              onChange={e => setHeuristicValue(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') commitHeuristic(); else if (e.key === 'Escape') cancelHeuristic(); }}
+              onBlur={commitHeuristic}
+            />
+          </div>
+        )}
+
+        {/* Hover tooltip with algorithm costs */}
+        {hoveredNodeTooltip && (
+          <div
+            className="fixed z-40 pointer-events-none min-w-[156px] rounded-md border border-[var(--border)] bg-[var(--surface)]/95 shadow-lg backdrop-blur px-2 py-1.5"
+            style={{ left: hoveredNodeTooltip.x + 14, top: hoveredNodeTooltip.y + 14 }}
+          >
+            <div className="text-[10px] text-[var(--text)] font-semibold leading-none mb-1">
+              {hoveredNodeTooltip.label}
+            </div>
+            <div className="text-[9px] text-[var(--text-3)] font-mono mb-1">{hoveredNodeTooltip.nodeId}</div>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px] font-mono text-[var(--text-2)]">
+              <span>g(n)</span>
+              <span className="text-right">{hoveredNodeTooltip.gCost == null ? '-' : formatCost(hoveredNodeTooltip.gCost)}</span>
+              <span>h(n)</span>
+              <span className="text-right">{hoveredNodeTooltip.hCost == null ? '-' : formatCost(hoveredNodeTooltip.hCost)}</span>
+              <span>f(n)</span>
+              <span className="text-right">{hoveredNodeTooltip.fCost == null ? '-' : formatCost(hoveredNodeTooltip.fCost)}</span>
+              <span>manual h</span>
+              <span className="text-right">{hoveredNodeTooltip.manualHeuristic == null ? '-' : formatCost(hoveredNodeTooltip.manualHeuristic)}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Drag-selection marquee */}
+        {selectionBox && (
+          <div
+            className="fixed z-30 pointer-events-none border border-[var(--accent)] bg-[var(--accent)]/12 rounded-sm"
+            style={{
+              left: selectionBox.x,
+              top: selectionBox.y,
+              width: selectionBox.width,
+              height: selectionBox.height,
+            }}
+          />
         )}
 
         {/* Minimap */}

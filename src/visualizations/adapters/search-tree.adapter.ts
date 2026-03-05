@@ -26,7 +26,62 @@ interface SearchHighlight {
   pathEdges?: string[] | null;
 }
 
+interface TreeCoord {
+  x: number;
+  y: number;
+}
+
 const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+
+function computeTreeCoordinates(rootId: string, childrenMap: Map<string, string[]>): Map<string, TreeCoord> {
+  const subtreeWidth = new Map<string, number>();
+
+  const computeWidth = (nodeId: string): number => {
+    const children = childrenMap.get(nodeId) ?? [];
+    if (children.length === 0) {
+      subtreeWidth.set(nodeId, 1);
+      return 1;
+    }
+
+    let total = 0;
+    for (const child of children) total += computeWidth(child);
+    // Add lane gaps between sibling subtrees for readability.
+    total += (children.length - 1) * 0.45;
+    subtreeWidth.set(nodeId, total);
+    return total;
+  };
+
+  const rootWidth = computeWidth(rootId);
+  const coords = new Map<string, TreeCoord>();
+
+  const assign = (nodeId: string, leftBoundary: number, depth: number) => {
+    const width = subtreeWidth.get(nodeId) ?? 1;
+    const center = leftBoundary + width / 2;
+    coords.set(nodeId, { x: center, y: depth });
+
+    const children = childrenMap.get(nodeId) ?? [];
+    let cursor = leftBoundary;
+    for (const child of children) {
+      const childWidth = subtreeWidth.get(child) ?? 1;
+      assign(child, cursor, depth + 1);
+      cursor += childWidth + 0.45;
+    }
+  };
+
+  assign(rootId, 0, 0);
+
+  // Normalize x around zero and scale into screen-friendly spacing.
+  const xSpacing = 130;
+  const ySpacing = 110;
+  for (const [id, pos] of coords) {
+    coords.set(id, {
+      x: (pos.x - rootWidth / 2) * xSpacing,
+      y: pos.y * ySpacing,
+    });
+  }
+
+  return coords;
+}
 
 /**
  * Build Cytoscape `ElementDefinition[]` representing the search tree derived
@@ -62,6 +117,8 @@ export function buildSearchTreeElements(
   }
 
   if (rootId === null) return [];
+
+  const coords = computeTreeCoordinates(rootId, childrenMap);
 
   // -- Solution path set (for coloring) --------------------------------------
   const pathSet = new Set(foundPath ?? []);
@@ -116,6 +173,7 @@ export function buildSearchTreeElements(
     nodeElements.push({
       data: { id: `t-${nodeId}`, label },
       classes: classes.join(' '),
+      position: coords.get(nodeId),
     });
 
     // --- Enqueue children & record edges -------------------------------------
@@ -125,13 +183,14 @@ export function buildSearchTreeElements(
         queue.push(childId);
 
         const inPath = pathSet.has(nodeId) && pathSet.has(childId);
+        const edgeClasses = inPath ? 'directed path-edge' : 'directed';
         edgeElements.push({
           data: {
             id: `t-e-${nodeId}-${childId}`,
             source: `t-${nodeId}`,
             target: `t-${childId}`,
           },
-          classes: inPath ? 'path-edge' : '',
+          classes: edgeClasses,
         });
       }
     }

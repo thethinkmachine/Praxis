@@ -7,5 +7,8 @@ export function buildRoute(meta: { id: string; category: AlgorithmCategory }): s
   if (meta.category === 'uninformed-search') {
     return `/search/uninformed-search/${meta.id}`;
   }
+  if (meta.category === 'informed-search') {
+    return `/search/informed-search/${meta.id}`;
+  }
   return '/';
 }
