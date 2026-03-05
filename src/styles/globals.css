@@ -1,0 +1,163 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -------------------------------------------------------------------------
+   Theme tokens — used everywhere via Tailwind arbitrary-value syntax:
+     bg-[var(--bg)]  text-[var(--text)]  border-[var(--border)]  etc.
+   -------------------------------------------------------------------------*/
+:root {
+  /* DARK theme (default) */
+  --bg:       #0D1117;
+  --surface:  #161B22;
+  --surface-2:#1C2129;
+  --border:   #30363D;
+  --text:     #E6EDF3;
+  --text-2:   #8B949E;
+  --text-3:   #484F58;
+
+  /* Legacy aliases (kept for body/scrollbar refs below) */
+  --bg-primary:    #0D1117;
+  --bg-surface:    #161B22;
+  --bg-surface-2:  #1C2129;
+  --text-primary:  #E6EDF3;
+  --text-secondary:#8B949E;
+  --text-muted:    #484F58;
+
+  /* Status / accent — same value in both themes */
+  --accent:        #58A6FF;
+  --success:       #3FB950;
+  --warning:       #F0883E;
+  --danger:        #FF7B72;
+  --purple:        #D2A8FF;
+
+  /* Algorithm node colours */
+  --color-current:  #F0883E;
+  --color-frontier: #58A6FF;
+  --color-explored: #6E7681;
+  --color-goal:     #3FB950;
+  --color-start:    #D2A8FF;
+  --color-path:     #58A6FF;
+  --color-pruned:   #FF7B72;
+}
+
+:root[data-theme="light"] {
+  /* LIGHT theme overrides */
+  --bg:       #F8FAFC;
+  --surface:  #FFFFFF;
+  --surface-2:#EEF2F7;
+  --border:   #C9D1D9;
+  --text:     #1B1F24;
+  --text-2:   #4B5563;
+  --text-3:   #6B7280;
+
+  /* Update legacy aliases too */
+  --bg-primary:    #F8FAFC;
+  --bg-surface:    #FFFFFF;
+  --bg-surface-2:  #EEF2F7;
+  --text-primary:  #1B1F24;
+  --text-secondary:#4B5563;
+  --text-muted:    #6B7280;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-3);
+}
+
+/* Utilities */
+.font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+}
+
+/* Cytoscape container */
+.cy-container {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+}
+
+/* Dot-grid overlay — applied to visualization canvas areas */
+.dot-grid {
+  background-image: radial-gradient(rgba(56,189,248,.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+:root[data-theme="light"] .dot-grid {
+  background-image: radial-gradient(rgba(30, 41, 59, 0.12) 1px, transparent 1px);
+}
+
+/* Frontier node chip */
+.frontier-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  background: rgba(56,189,248,.07);
+  color: #58A6FF;
+  border: 1px solid rgba(56,189,248,.2);
+  white-space: nowrap;
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.frontier-chip.current {
+  background: rgba(240,136,62,.10);
+  color: #F0883E;
+  border-color: rgba(240,136,62,.3);
+}
+
+/* Pseudocode keyword + function colour classes */
+.ps-kw   { color: var(--purple); }   /* keywords:  function, if, for, return, while… */
+.ps-fn   { color: var(--accent); }   /* functions: BFS, A*, push, pop… */
+.ps-cm   { color: var(--text-3); font-style: italic; }  /* comments */
+.ps-num  { color: var(--success); }  /* numeric literals */
+.ps-op   { color: var(--warning); }  /* operators: ←, ≤, +, =, … */
+.ps-punc { color: var(--text-2); }   /* punctuation: (), [], {}, ;, : */
+
+/* Logo font */
+.logo-font {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  letter-spacing: -0.02em;
+}
