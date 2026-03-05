@@ -3,7 +3,7 @@ import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/cn';
 import { usePreferencesStore } from '@/store/usePreferencesStore';
-import { Search, Gamepad2, Network, Database, House, ChevronLeft, ChevronRight } from '@/components/shared/Icons';
+import { Search, Gamepad2, Network, ChevronLeft, ChevronRight } from '@/components/shared/Icons';
 
 interface AlgorithmEntry {
   id: string;
@@ -23,7 +23,6 @@ const HOME_DESTINATIONS = [
   { id: 'algorithms', label: 'Algorithms', to: '/?tab=algorithms', icon: <Search size={15} /> },
   { id: 'games', label: 'Games', to: '/?tab=games', icon: <Gamepad2 size={15} /> },
   { id: 'graph', label: 'Relationship Graph', to: '/?tab=graph', icon: <Network size={15} /> },
-  { id: 'maze', label: 'Maze Lab', to: '/maze/bfs', icon: <Database size={15} /> },
 ] as const;
 
 const CATEGORIES: CategoryEntry[] = [
@@ -80,9 +79,9 @@ export default function Sidebar() {
       className="flex flex-col h-full bg-[var(--titlebar)] border-r border-[var(--border-strong)] overflow-hidden shrink-0"
     >
       <div className="flex items-center h-12 px-3 border-b border-[var(--border)] shrink-0 ide-titlebar">
-        <Link to="/" className="flex items-center gap-2 flex-1 min-w-0">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--accent)]">
-            <House size={16} />
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--accent)] text-[11px] font-mono">
+            PX
           </span>
           {!sidebarCollapsed && (
             <div className="min-w-0">
@@ -90,7 +89,7 @@ export default function Sidebar() {
               <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-3)]">Navigation Console</p>
             </div>
           )}
-        </Link>
+        </div>
         <button
           onClick={() => toggle('sidebarCollapsed')}
           className="ml-2 flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/50 hover:text-[var(--text)]"
@@ -110,9 +109,7 @@ export default function Sidebar() {
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3">
         <div className="px-2 space-y-1.5">
           {HOME_DESTINATIONS.map((item) => {
-            const isActive = item.id === 'maze'
-              ? pathname.startsWith('/maze')
-              : pathname === '/' && homeTab === item.id;
+            const isActive = pathname === '/' && homeTab === item.id;
 
             return (
               <Link
@@ -134,7 +131,7 @@ export default function Sidebar() {
                   <span className="min-w-0">
                     <span className="block text-sm font-medium">{item.label}</span>
                     <span className="block text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">
-                      {item.id === 'maze' ? 'Interactive lab' : 'Home module'}
+                      Home module
                     </span>
                   </span>
                 )}

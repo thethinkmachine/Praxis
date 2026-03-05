@@ -1,22 +1,23 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { cn } from '@/lib/cn';
 import { useExecutionStore } from '@/store/execution.store';
-import SpeedSlider from '@/components/controls/SpeedSlider';
 import StepScrubber from '@/components/controls/StepScrubber';
 import {
-  SkipBack,
   StepBack,
   Play,
   Pause,
   StepForward,
   SkipForward,
+  Plus,
+  Minus,
+  RotateCcw,
 } from '@/components/shared/Icons';
 
 function Tip({ children }: { children: React.ReactNode }) {
   return (
     <Tooltip.Content
       sideOffset={6}
-      className="z-50 px-2 py-1 rounded bg-[var(--surface-2)] border border-[var(--border)] text-[10px] text-[var(--text)] shadow-lg select-none"
+      className="z-50 rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1 text-[10px] text-[var(--text)] shadow-lg"
     >
       {children}
       <Tooltip.Arrow className="fill-[var(--border)]" />
@@ -24,13 +25,37 @@ function Tip({ children }: { children: React.ReactNode }) {
   );
 }
 
-const TRANSPORT_BTN = (enabled: boolean) =>
-  cn(
-    'w-7 h-7 flex items-center justify-center rounded-md transition-all duration-100',
-    enabled
-      ? 'text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] active:scale-90'
-      : 'text-[var(--text-3)] cursor-not-allowed opacity-40',
+function clampSpeed(speed: number): number {
+  return Math.max(1, Math.min(100, speed));
+}
+
+function TransportButton({
+  children,
+  onClick,
+  disabled,
+  accent = false,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled: boolean;
+  accent?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'flex h-10 w-10 items-center justify-center rounded-xl border transition-colors',
+        accent
+          ? 'border-[var(--accent)]/45 bg-[var(--accent-soft)] text-[var(--accent)] hover:border-[var(--accent)]/70'
+          : 'border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--accent)]/35',
+        disabled && 'cursor-not-allowed opacity-40 hover:border-[var(--border)] hover:text-[var(--text-2)]',
+      )}
+    >
+      {children}
+    </button>
   );
+}
 
 export default function ControlPanel() {
   const {
@@ -43,7 +68,6 @@ export default function ControlPanel() {
     pause,
     stepForward,
     stepBackward,
-    jumpToStart,
     jumpToEnd,
     seekToStep,
     setSpeed,
@@ -60,108 +84,120 @@ export default function ControlPanel() {
   }
 
   return (
-    <Tooltip.Provider delayDuration={400}>
-      {/* Pulse animation injected once */}
-      <style>{`
-        @keyframes ctrl-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(88,166,255,0.35); }
-          50%       { box-shadow: 0 0 0 6px rgba(88,166,255,0); }
-        }
-        .ctrl-play-pulse { animation: ctrl-pulse 1.6s ease-in-out infinite; }
-      `}</style>
+    <Tooltip.Provider delayDuration={250}>
+      <div className="bg-[var(--surface)] px-3 py-2">
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 px-3 py-3">
+          <div className="flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-2 py-2">
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <span>
+                  <TransportButton onClick={stepBackward} disabled={!canBack}>
+                    <StepBack size={15} />
+                  </TransportButton>
+                </span>
+              </Tooltip.Trigger>
+              <Tip>Step backward</Tip>
+            </Tooltip.Root>
 
-      <div className="h-full flex items-center gap-3 px-3 bg-[var(--surface)] border-t border-[var(--border)]">
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <span>
+                  <TransportButton onClick={handlePlayPause} disabled={!hasTrace} accent>
+                    {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                  </TransportButton>
+                </span>
+              </Tooltip.Trigger>
+              <Tip>{isPlaying ? 'Pause playback' : 'Play trace'}</Tip>
+            </Tooltip.Root>
 
-        {/* ── Transport buttons ──────────────────────────────────────── */}
-        <div className="flex items-center gap-0.5 px-1 py-1 rounded-lg bg-[var(--bg)] border border-[var(--border)] shrink-0">
-          <Tooltip.Root>
-            <Tooltip.Trigger asChild>
-              <button onClick={jumpToStart} disabled={!canBack} className={TRANSPORT_BTN(canBack)}>
-                <SkipBack size={13} />
-              </button>
-            </Tooltip.Trigger>
-            <Tip>Jump to start <kbd className="ml-1 opacity-50">Home</kbd></Tip>
-          </Tooltip.Root>
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <span>
+                  <TransportButton onClick={stepForward} disabled={!canForward}>
+                    <StepForward size={15} />
+                  </TransportButton>
+                </span>
+              </Tooltip.Trigger>
+              <Tip>Step forward</Tip>
+            </Tooltip.Root>
 
-          <Tooltip.Root>
-            <Tooltip.Trigger asChild>
-              <button onClick={stepBackward} disabled={!canBack} className={TRANSPORT_BTN(canBack)}>
-                <StepBack size={13} />
-              </button>
-            </Tooltip.Trigger>
-            <Tip>Step back <kbd className="ml-1 opacity-50">←</kbd></Tip>
-          </Tooltip.Root>
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <span>
+                  <TransportButton onClick={jumpToEnd} disabled={!canForward}>
+                    <SkipForward size={15} />
+                  </TransportButton>
+                </span>
+              </Tooltip.Trigger>
+              <Tip>Jump to the end</Tip>
+            </Tooltip.Root>
+          </div>
 
-          {/* Play / Pause — focal button */}
-          <Tooltip.Root>
-            <Tooltip.Trigger asChild>
-              <button
-                onClick={handlePlayPause}
-                disabled={!hasTrace}
-                className={cn(
-                  'w-9 h-9 mx-0.5 flex items-center justify-center rounded-full transition-all duration-150',
-                  hasTrace
-                    ? 'bg-[#58A6FF] text-[#0D1117] hover:bg-[#79C0FF] active:scale-90 shadow-[0_2px_12px_rgba(88,166,255,0.45)]'
-                    : 'bg-[var(--surface-2)] text-[var(--text-3)] cursor-not-allowed',
-                  hasTrace && isPlaying && 'ctrl-play-pulse',
-                )}
-              >
-                {isPlaying
-                  ? <Pause size={16} />
-                  : <Play size={16} className="ml-0.5" />
-                }
-              </button>
-            </Tooltip.Trigger>
-            <Tip>{isPlaying ? 'Pause' : 'Play'} <kbd className="ml-1 opacity-50">Space</kbd></Tip>
-          </Tooltip.Root>
+          <div className="min-w-[280px] flex-1 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-3 py-3">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Trace Position</span>
+              <span className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1 text-[11px] font-mono text-[var(--text)]">
+                {hasTrace ? currentIndex + 1 : 0}/{total}
+              </span>
+            </div>
+            <StepScrubber
+              current={Math.max(0, currentIndex)}
+              total={total}
+              onChange={seekToStep}
+              disabled={!hasTrace}
+            />
+          </div>
 
-          <Tooltip.Root>
-            <Tooltip.Trigger asChild>
-              <button onClick={stepForward} disabled={!canForward} className={TRANSPORT_BTN(canForward)}>
-                <StepForward size={13} />
-              </button>
-            </Tooltip.Trigger>
-            <Tip>Step forward <kbd className="ml-1 opacity-50">→</kbd></Tip>
-          </Tooltip.Root>
+          <div className="flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-2 py-2">
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <button
+                  onClick={() => setSpeed(clampSpeed(speed - 5))}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:text-[var(--text)]"
+                >
+                  <Minus size={14} />
+                </button>
+              </Tooltip.Trigger>
+              <Tip>Decrease speed by 5x</Tip>
+            </Tooltip.Root>
 
-          <Tooltip.Root>
-            <Tooltip.Trigger asChild>
-              <button onClick={jumpToEnd} disabled={!canForward} className={TRANSPORT_BTN(canForward)}>
-                <SkipForward size={13} />
-              </button>
-            </Tooltip.Trigger>
-            <Tip>Jump to end <kbd className="ml-1 opacity-50">End</kbd></Tip>
-          </Tooltip.Root>
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3 py-2 text-center font-mono">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Speed</div>
+              <div className="mt-0.5 text-sm text-[var(--text)]">{speed}x</div>
+            </div>
+
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <button
+                  onClick={() => setSpeed(1)}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:text-[var(--text)]"
+                >
+                  <RotateCcw size={14} />
+                </button>
+              </Tooltip.Trigger>
+              <Tip>Reset speed to 1x</Tip>
+            </Tooltip.Root>
+
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <button
+                  onClick={() => setSpeed(clampSpeed(speed + 5))}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:text-[var(--text)]"
+                >
+                  <Plus size={14} />
+                </button>
+              </Tooltip.Trigger>
+              <Tip>Increase speed by 5x</Tip>
+            </Tooltip.Root>
+          </div>
+
+          {truncated && (
+            <span className="shrink-0 flex items-center gap-1 text-[10px] px-2 py-1 rounded-xl bg-[#F0883E]/10 text-[#F0883E] border border-[#F0883E]/25 whitespace-nowrap">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#F0883E] animate-pulse" />
+              Truncated
+            </span>
+          )}
         </div>
-
-        {/* ── Scrubber ───────────────────────────────────────────────── */}
-        <div className="flex-1 min-w-0 flex items-center gap-2">
-          <StepScrubber
-            current={currentIndex}
-            total={total}
-            onChange={seekToStep}
-            disabled={!hasTrace}
-          />
-        </div>
-
-        {/* ── Step counter badge ─────────────────────────────────────── */}
-        <span className="shrink-0 text-[10px] font-mono tabular-nums px-2 py-1 rounded-md bg-[var(--bg)] border border-[var(--border)] text-[var(--text-2)] leading-none">
-          {hasTrace ? currentIndex + 1 : 0}
-          <span className="text-[var(--text-3)] mx-0.5">/</span>
-          {total}
-        </span>
-
-        {/* ── Truncated warning ──────────────────────────────────────── */}
-        {truncated && (
-          <span className="shrink-0 flex items-center gap-1 text-[10px] px-2 py-1 rounded-md bg-[#F0883E]/10 text-[#F0883E] border border-[#F0883E]/25 whitespace-nowrap">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#F0883E] animate-pulse" />
-            Truncated
-          </span>
-        )}
-
-        {/* ── Speed selector ─────────────────────────────────────────── */}
-        <div className="w-px h-5 bg-[var(--border)] shrink-0" />
-        <SpeedSlider value={speed} onChange={setSpeed} />
       </div>
     </Tooltip.Provider>
   );

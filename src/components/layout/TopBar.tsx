@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/cn';
 import { usePreferencesStore } from '@/store/usePreferencesStore';
-import { Sun, Moon, Keyboard, Info, X, Search, Gamepad2, Network, Database } from '@/components/shared/Icons';
+import { Sun, Moon, Keyboard, Info, X } from '@/components/shared/Icons';
 
 const SEGMENT_LABELS: Record<string, string> = {
   search: 'Search',
@@ -100,19 +100,11 @@ function KbdKey({ children }: { children: React.ReactNode }) {
 }
 
 export default function TopBar() {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const { darkMode, toggle } = usePreferencesStore();
   const crumbs = buildBreadcrumbs(pathname);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
-  const activeHomeTab = new URLSearchParams(search).get('tab') ?? 'algorithms';
-
-  const quickLinks = [
-    { id: 'algorithms', label: 'Algorithms', to: '/?tab=algorithms', icon: <Search size={13} /> },
-    { id: 'games', label: 'Games', to: '/?tab=games', icon: <Gamepad2 size={13} /> },
-    { id: 'graph', label: 'Graph', to: '/?tab=graph', icon: <Network size={13} /> },
-    { id: 'maze', label: 'Maze Lab', to: '/maze/bfs', icon: <Database size={13} /> },
-  ];
 
   return (
     <>
@@ -120,49 +112,23 @@ export default function TopBar() {
         'ide-titlebar flex items-center justify-between h-10 px-2 sm:px-3 shrink-0 gap-2'
       )}>
 
-        <div className="flex-1 min-w-0 flex items-center gap-2">
-          <nav className="min-w-0 flex items-center gap-1 text-xs text-[var(--text-2)] font-mono px-2 py-1 rounded-md border border-[var(--border)] bg-[var(--surface)]/70">
-            {crumbs.map((crumb, i) => (
-              <span key={i} className="flex items-center gap-1 min-w-0">
-                {i > 0 && <span className="text-[var(--text-3)]">/</span>}
-                {i === crumbs.length - 1 ? (
-                  <span className="text-[var(--text)] truncate">{crumb.label}</span>
-                ) : (
-                  <Link
-                    to={crumb.path}
-                    className="text-[var(--text-2)] hover:text-[var(--text)] transition-colors truncate"
-                  >
-                    {crumb.label}
-                  </Link>
-                )}
-              </span>
-            ))}
-          </nav>
-
-          <div className="hidden lg:flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface)]/70 p-1">
-            {quickLinks.map((link) => {
-              const isActive = link.id === 'maze'
-                ? pathname.startsWith('/maze')
-                : pathname === '/' && activeHomeTab === link.id;
-
-              return (
+        <nav className="flex-1 min-w-0 flex items-center gap-1 text-xs text-[var(--text-2)] font-mono px-2 py-1 rounded-md border border-[var(--border)] bg-[var(--surface)]/70">
+          {crumbs.map((crumb, i) => (
+            <span key={i} className="flex items-center gap-1 min-w-0">
+              {i > 0 && <span className="text-[var(--text-3)]">/</span>}
+              {i === crumbs.length - 1 ? (
+                <span className="text-[var(--text)] truncate">{crumb.label}</span>
+              ) : (
                 <Link
-                  key={link.id}
-                  to={link.to}
-                  className={cn(
-                    'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-mono transition-colors',
-                    isActive
-                      ? 'bg-[var(--accent-soft)] text-[var(--text)]'
-                      : 'text-[var(--text-2)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]',
-                  )}
+                  to={crumb.path}
+                  className="text-[var(--text-2)] hover:text-[var(--text)] transition-colors truncate"
                 >
-                  {link.icon}
-                  <span>{link.label}</span>
+                  {crumb.label}
                 </Link>
-              );
-            })}
-          </div>
-        </div>
+              )}
+            </span>
+          ))}
+        </nav>
 
         {/* Right side */}
         <div className="flex items-center gap-1 shrink-0">

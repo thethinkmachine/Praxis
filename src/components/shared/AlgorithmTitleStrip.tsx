@@ -151,22 +151,19 @@ export default function AlgorithmTitleStrip({
         <Info size={15} />
       </button>
 
-      {/* Error badge */}
-      {loadError && (
-        <span className="ml-auto text-[10px] px-2 py-0.5 rounded border border-[var(--danger)]/40 text-[var(--danger)] bg-[var(--danger)]/10 truncate max-w-xs">
-          {loadError}
-        </span>
-      )}
+      <div className="ml-auto flex items-center gap-2 min-w-0">
+        {loadError && (
+          <span className="text-[10px] px-2 py-0.5 rounded border border-[var(--danger)]/40 text-[var(--danger)] bg-[var(--danger)]/10 truncate max-w-xs">
+            {loadError}
+          </span>
+        )}
 
-      {/* Warning badge */}
-      {!loadError && loadWarning && (
-        <span className="ml-auto text-[10px] px-2 py-0.5 rounded border border-[#F0883E]/35 text-[#F0883E] bg-[#F0883E]/10 truncate max-w-sm">
-          {loadWarning}
-        </span>
-      )}
+        {!loadError && loadWarning && (
+          <span className="text-[10px] px-2 py-0.5 rounded border border-[#F0883E]/35 text-[#F0883E] bg-[#F0883E]/10 truncate max-w-sm">
+            {loadWarning}
+          </span>
+        )}
 
-      {/* Action slots */}
-      <div className={cn('flex items-center gap-2', loadError ? '' : 'ml-auto')}>
         {actions}
         {problemActions}
       </div>

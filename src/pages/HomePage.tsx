@@ -123,7 +123,7 @@ export default function HomePage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-        <div className="px-3 sm:px-6 border-b border-[var(--border)] shrink-0 bg-[var(--titlebar)]/80">
+        <div className="relative z-20 px-3 sm:px-6 border-b border-[var(--border)] shrink-0 bg-[var(--titlebar)]/92 backdrop-blur-xl">
           <TabsList className="flex gap-1 h-10 items-center">
             <TabsTrigger
               value="algorithms"
@@ -146,11 +146,11 @@ export default function HomePage() {
           </TabsList>
         </div>
 
-        <TabsContent value="algorithms" className="flex-1 overflow-y-auto">
+        <TabsContent value="algorithms" className="relative z-10 flex-1 overflow-y-auto">
           <TaxonomyCardGrid algorithms={metas} />
         </TabsContent>
 
-        <TabsContent value="games" className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <TabsContent value="games" className="relative z-10 flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="mx-auto max-w-5xl space-y-5">
             <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
               <p className="text-[11px] font-mono uppercase tracking-wider text-[var(--text-3)]">Game Labs</p>
@@ -215,7 +215,7 @@ export default function HomePage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="graph" className="flex-1 overflow-hidden">
+        <TabsContent value="graph" className="relative z-10 flex-1 overflow-hidden">
           <RelationshipGraph algorithms={metas} onFullscreen={() => setGraphFullscreen(true)} />
         </TabsContent>
       </Tabs>

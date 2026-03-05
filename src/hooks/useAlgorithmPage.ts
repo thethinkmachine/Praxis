@@ -4,6 +4,12 @@ import { useExecutionStore } from '@/store/execution.store';
 import { usePlayback } from '@/hooks/usePlayback';
 import type { AlgorithmRunner, AlgorithmStep } from '@/types';
 
+function isEmptyGraphProblem(problem: unknown): boolean {
+  if (!problem || typeof problem !== 'object') return false;
+  const graph = (problem as { graph?: { nodes?: unknown[] } }).graph;
+  return Array.isArray(graph?.nodes) && graph.nodes.length === 0;
+}
+
 /**
  * Shared hook for all algorithm pages.
  * Handles runner lookup, execution store integration, playback setup,
@@ -20,6 +26,10 @@ export function useAlgorithmPage(algorithmId: string, problem: unknown) {
 
   useEffect(() => {
     if (!runner) return;
+    if (isEmptyGraphProblem(problem)) {
+      store.clear();
+      return;
+    }
     store.loadAlgorithm(runner, problem, algorithmId);
     
     // Only jump to first step if we aren't preserving a previous index

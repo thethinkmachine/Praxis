@@ -18,8 +18,8 @@ interface GraphMinimapProps {
   onAutoLayout?: () => void;
 }
 
-const MINIMAP_W = 172;
-const MINIMAP_H = 112;
+const MINIMAP_W = 156;
+const MINIMAP_H = 96;
 const PAD = 40;
 
 export default function GraphMinimap({
