@@ -160,12 +160,8 @@ export default function ControlPanel() {
         )}
 
         {/* ── Speed selector ─────────────────────────────────────────── */}
-        {total > 10 && (
-          <>
-            <div className="w-px h-5 bg-[var(--border)] shrink-0" />
-            <SpeedSlider value={speed} onChange={setSpeed} />
-          </>
-        )}
+        <div className="w-px h-5 bg-[var(--border)] shrink-0" />
+        <SpeedSlider value={speed} onChange={setSpeed} />
       </div>
     </Tooltip.Provider>
   );

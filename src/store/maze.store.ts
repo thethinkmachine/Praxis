@@ -28,6 +28,7 @@ interface MazeState {
   setSeed: (seed: number) => void;
   setDimensions: (rows: number, cols: number) => void;
   paintCell: (row: number, col: number) => void;
+  paintCells: (coords: { row: number; col: number }[]) => void;
   clearWalls: () => void;
   clearTerrain: () => void;
   generateMaze: () => void;
@@ -113,6 +114,52 @@ export const useMazeStore = create<MazeState>()(
         walls.delete(p.startNode);
         walls.delete(p.goalNode);
         p.walls = Array.from(walls);
+      }),
+
+      paintCells: (coords) => set((state) => {
+        const p = state.problem;
+        const walls = new Set(p.walls);
+        let changed = false;
+
+        for (const { row, col } of coords) {
+          if (row < 0 || row >= p.rows || col < 0 || col >= p.cols) continue;
+          const id = mazeCellId(row, col);
+
+          if (state.tool === 'start') {
+            if (!walls.has(id)) {
+              p.startNode = id;
+              changed = true;
+            }
+          } else if (state.tool === 'goal') {
+            if (!walls.has(id)) {
+              p.goalNode = id;
+              changed = true;
+            }
+          } else if (state.tool === 'wall') {
+            if (id !== p.startNode && id !== p.goalNode) {
+              walls.add(id);
+              delete p.terrain[id];
+              changed = true;
+            }
+          } else if (state.tool === 'erase') {
+            if (walls.has(id) || p.terrain[id] !== undefined) {
+              walls.delete(id);
+              delete p.terrain[id];
+              changed = true;
+            }
+          } else if (state.tool === 'terrain') {
+            if (!walls.has(id) && id !== p.startNode && id !== p.goalNode) {
+              p.terrain[id] = state.terrainValue;
+              changed = true;
+            }
+          }
+        }
+
+        if (changed) {
+          walls.delete(p.startNode);
+          walls.delete(p.goalNode);
+          p.walls = Array.from(walls);
+        }
       }),
 
       clearWalls: () => set((state) => {

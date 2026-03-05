@@ -46,7 +46,7 @@ function ChipBadge({
       title={title}
       className={cn(
         'inline-flex items-center px-[7px] py-[2px] rounded-[3px]',
-        'font-mono text-[9px] border whitespace-nowrap max-w-[72px] overflow-hidden text-ellipsis',
+        'font-mono text-[9px] border whitespace-nowrap',
         CHIP_STYLES[variant],
       )}
     >
@@ -141,16 +141,6 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
 
   return (
     <div className="h-full flex flex-col bg-[var(--surface)] overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 py-1.5 border-b border-[var(--border)] shrink-0">
-        <span className="text-xs font-semibold text-[var(--text-2)] uppercase tracking-wider">
-          State Inspector
-        </span>
-        {step.phase && (
-          <span className="text-[10px] text-[var(--text-3)]">{step.phase}</span>
-        )}
-      </div>
-
       <div className="flex-1 overflow-y-auto text-xs divide-y divide-[var(--border)]">
         {/* ──── Search-oriented sections ──── */}
         {(algorithmCategory === 'uninformed-search' || algorithmCategory === undefined) && (

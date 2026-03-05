@@ -16,6 +16,8 @@ interface GraphMinimapProps {
   canvasWidth: number;
   /** Canvas SVG height in pixels */
   canvasHeight: number;
+  /** Callback to jump the main view to a graph-space coordinate */
+  onViewJump?: (x: number, y: number) => void;
 }
 
 const MINIMAP_W = 120;
@@ -30,13 +32,14 @@ export default function GraphMinimap({
   transform,
   canvasWidth,
   canvasHeight,
+  onViewJump,
 }: GraphMinimapProps) {
   if (nodes.length === 0) return null;
 
   const darkMode = usePreferencesStore((s) => s.darkMode);
   const dotColors = darkMode ? MINIMAP_DOT_COLORS : MINIMAP_DOT_COLORS_LIGHT;
 
-  const { dots, vx, vy, vw, vh } = useMemo(() => {
+  const { dots, vx, vy, vw, vh, bbX1, bbY1, scale, offsetX, offsetY } = useMemo(() => {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     for (const n of nodes) {
       if (n.x < minX) minX = n.x;
@@ -72,7 +75,7 @@ export default function GraphMinimap({
     const vw = (invBR[0] - invTL[0]) * scale;
     const vh = (invBR[1] - invTL[1]) * scale;
 
-    return { dots, vx, vy, vw, vh };
+    return { dots, vx, vy, vw, vh, bbX1, bbY1, scale, offsetX, offsetY };
   }, [nodes, transform, canvasWidth, canvasHeight, dotColors]);
 
   const clampedX = Math.max(0, Math.min(vx, MINIMAP_W));
@@ -80,19 +83,33 @@ export default function GraphMinimap({
   const clampedW = Math.max(0, Math.min(vw, MINIMAP_W - clampedX));
   const clampedH = Math.max(0, Math.min(vh, MINIMAP_H - clampedY));
 
+  const handleMinimapClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!onViewJump) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    // Convert minimap-space (mx, my) back to graph-space
+    const gx = (mx - offsetX) / scale + bbX1;
+    const gy = (my - offsetY) / scale + bbY1;
+
+    onViewJump(gx, gy);
+  };
+
   return (
     <div
-      className="absolute bottom-3 left-3 rounded border border-[var(--border)] overflow-hidden"
+      className="absolute bottom-3 left-3 rounded border border-[var(--border)] overflow-hidden cursor-crosshair group"
+      onClick={handleMinimapClick}
       style={{
         width: MINIMAP_W,
         height: MINIMAP_H,
         background: 'var(--surface)',
         backdropFilter: 'blur(8px)',
         opacity: 0.9,
-        pointerEvents: 'none',
       }}
     >
-      <svg width={MINIMAP_W} height={MINIMAP_H}>
+      <div className="absolute inset-0 bg-transparent group-hover:bg-[var(--accent-soft)]/5 transition-colors pointer-events-none" />
+      <svg width={MINIMAP_W} height={MINIMAP_H} className="pointer-events-none">
         {dots.map(d => (
           <circle
             key={d.id}

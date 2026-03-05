@@ -46,6 +46,7 @@ export const useExecutionStore = create<ExecutionState>()(
     loadWarning: null,
 
     loadAlgorithm: (runner, problem, algorithmId) => {
+      const { currentIndex: prevIndex } = get();
       const engine = new ExecutionEngine();
       try {
         engine.load(runner, problem);
@@ -65,11 +66,24 @@ export const useExecutionStore = create<ExecutionState>()(
         });
         return;
       }
+
       set(state => {
         state.engine = engine as ExecutionEngine;
         state.totalSteps = engine.totalSteps;
-        state.currentStep = null;
-        state.currentIndex = -1;
+        
+        // Preserve index if we were already viewing a trace
+        const targetIndex = prevIndex >= 0 
+          ? Math.min(prevIndex, engine.totalSteps - 1)
+          : -1;
+
+        if (targetIndex >= 0) {
+          state.currentStep = engine.seekToStep(targetIndex);
+          state.currentIndex = targetIndex;
+        } else {
+          state.currentStep = null;
+          state.currentIndex = -1;
+        }
+
         state.isPlaying = false;
         state.truncated = engine.truncated;
         state.algorithmId = algorithmId ?? null;

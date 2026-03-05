@@ -60,20 +60,17 @@ export default function MetricsPanel({ metrics, phase, description }: MetricsPan
 
   return (
     <div className="h-full flex flex-col bg-[var(--surface)] overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 py-1.5 border-b border-[var(--border)] shrink-0">
-        <span className="text-xs font-semibold text-[var(--text-2)] uppercase tracking-wider">
-          Metrics
-        </span>
-        {phase && phaseClass && (
-          <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-medium', phaseClass)}>
-            {phase}
-          </span>
-        )}
-      </div>
-
       {metrics ? (
         <div className="flex-1 overflow-y-auto p-2 space-y-2">
+          {/* Phase indicator inside content */}
+          {phase && phaseClass && (
+            <div className="flex justify-end mb-1">
+              <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-medium', phaseClass)}>
+                {phase}
+              </span>
+            </div>
+          )}
+
           {/* Primary search metrics */}
           <div className="grid grid-cols-2 gap-1.5">
             <StatCard label="Expanded" value={fmtNum(metrics.nodesExpanded)} valueColor="text-[#58A6FF]" />

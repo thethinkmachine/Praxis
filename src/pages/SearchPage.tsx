@@ -298,7 +298,7 @@ export default function SearchPage() {
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Per-Node h(n) Table</p>
                 <div className="rounded border border-[var(--border)] overflow-hidden">
-                  <div className="grid grid-cols-[1fr_90px] text-[10px] font-semibold uppercase tracking-wider text-[var(--text-3)] bg-[var(--surface-2)] px-2 py-1">
+                  <div className="grid grid-cols-[1fr_120px] text-[10px] font-semibold uppercase tracking-wider text-[var(--text-3)] bg-[var(--surface-2)] px-2 py-1">
                     <span>Node</span>
                     <span className="text-right">h(n)</span>
                   </div>
@@ -306,7 +306,7 @@ export default function SearchPage() {
                     {[...editorNodes]
                       .sort((a, b) => (a.label ?? a.id).localeCompare(b.label ?? b.id))
                       .map((node) => (
-                        <div key={node.id} className="grid grid-cols-[1fr_90px] items-center px-2 py-1 gap-2">
+                        <div key={node.id} className="grid grid-cols-[1fr_120px] items-center px-2 py-1 gap-2">
                           <span className="truncate text-[11px] text-[var(--text-2)] font-mono" title={node.id}>
                             {node.label ?? node.id}
                           </span>

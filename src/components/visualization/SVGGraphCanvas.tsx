@@ -540,6 +540,7 @@ export default function SVGGraphCanvas({
     zoomLevel,
     selectionBox,
     fit,
+    jumpTo,
     runAutoLayout,
   } = useGraphInteractions({
     svgRef,
@@ -1059,8 +1060,8 @@ export default function SVGGraphCanvas({
           transform={transform}
           canvasWidth={canvasDims.w}
           canvasHeight={canvasDims.h}
-        />
-
+          onViewJump={(x, y) => jumpTo(x, y)}
+          />
         {/* Zoom indicator */}
         <div
           className="absolute bottom-14 right-3 px-2 py-0.5 rounded text-[10px] font-mono tabular-nums text-[var(--text-3)] border border-[var(--border)] pointer-events-none select-none"

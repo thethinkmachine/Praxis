@@ -21,7 +21,11 @@ export function useAlgorithmPage(algorithmId: string, problem: unknown) {
   useEffect(() => {
     if (!runner) return;
     store.loadAlgorithm(runner, problem, algorithmId);
-    store.stepForward();
+    
+    // Only jump to first step if we aren't preserving a previous index
+    if (useExecutionStore.getState().currentIndex === -1) {
+      store.stepForward();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [algorithmId, problem]);
 

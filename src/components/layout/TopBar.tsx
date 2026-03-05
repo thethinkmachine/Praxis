@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/cn';
 import { usePreferencesStore } from '@/store/usePreferencesStore';
-import { Sun, Moon, Keyboard, Info } from '@/components/shared/Icons';
+import { Sun, Moon, Keyboard, Info, X } from '@/components/shared/Icons';
 
 const SEGMENT_LABELS: Record<string, string> = {
   search: 'Search',
@@ -105,19 +106,6 @@ export default function TopBar() {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
 
-  // Close modals on Escape
-  useEffect(() => {
-    if (!showShortcuts && !showAbout) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setShowShortcuts(false);
-        setShowAbout(false);
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [showShortcuts, showAbout]);
-
   return (
     <>
       <header className={cn(
@@ -175,27 +163,24 @@ export default function TopBar() {
       </header>
 
       {/* Shortcuts modal */}
-      {showShortcuts && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#060b11]/70 backdrop-blur-[3px]"
-          onClick={() => setShowShortcuts(false)}
-        >
-          <div
+      <Dialog.Root open={showShortcuts} onOpenChange={setShowShortcuts}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-[#060b11]/70 backdrop-blur-[3px] animate-in fade-in duration-200" />
+          <Dialog.Content
             className={cn(
-              'relative w-full max-w-md mx-4',
-              'ide-surface-elevated rounded-xl shadow-2xl',
-              'overflow-hidden',
+              'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
+              'w-full max-w-md mx-4',
+              'ide-surface-elevated rounded-xl shadow-2xl overflow-hidden',
+              'animate-in zoom-in-95 fade-in duration-200',
             )}
-            onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-start justify-between px-5 pt-5 pb-3">
               <div>
-                <h2 className="text-sm font-semibold text-[var(--text)]">Keyboard Shortcuts</h2>
-                <p className="mt-0.5 text-xs text-[var(--text-2)]">Keyboard shortcuts for Praxis</p>
+                <Dialog.Title className="text-sm font-semibold text-[var(--text)]">Keyboard Shortcuts</Dialog.Title>
+                <Dialog.Description className="mt-0.5 text-xs text-[var(--text-2)]">Keyboard shortcuts for Praxis</Dialog.Description>
               </div>
-              <button
-                onClick={() => setShowShortcuts(false)}
+              <Dialog.Close
                 className={cn(
                   'flex items-center justify-center w-6 h-6 rounded',
                   'text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]',
@@ -203,8 +188,8 @@ export default function TopBar() {
                 )}
                 aria-label="Close shortcuts"
               >
-                &times;
-              </button>
+                <X size={14} />
+              </Dialog.Close>
             </div>
 
             {/* Sections */}
@@ -235,36 +220,33 @@ export default function TopBar() {
                 Press <KbdKey>Esc</KbdKey> or click outside to close
               </p>
             </div>
-          </div>
-        </div>
-      )}
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
 
       {/* About modal */}
-      {showAbout && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#060b11]/70 backdrop-blur-[3px]"
-          onClick={() => setShowAbout(false)}
-        >
-          <div
+      <Dialog.Root open={showAbout} onOpenChange={setShowAbout}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-[#060b11]/70 backdrop-blur-[3px] animate-in fade-in duration-200" />
+          <Dialog.Content
             className={cn(
-              'relative w-full max-w-sm mx-4',
-              'ide-surface-elevated rounded-xl shadow-2xl',
-              'overflow-hidden',
+              'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
+              'w-full max-w-sm mx-4',
+              'ide-surface-elevated rounded-xl shadow-2xl overflow-hidden',
+              'animate-in zoom-in-95 fade-in duration-200',
             )}
-            onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-start justify-between px-5 pt-5 pb-3">
               <div>
-                <h2 className="text-2xl font-bold logo-font bg-gradient-to-r from-[#58A6FF] to-[#D2A8FF] bg-clip-text text-transparent">
+                <Dialog.Title className="text-2xl font-bold logo-font bg-gradient-to-r from-[#58A6FF] to-[#D2A8FF] bg-clip-text text-transparent">
                   Praxis
-                </h2>
-                <p className="mt-1 text-xs text-[var(--text-2)]">
+                </Dialog.Title>
+                <Dialog.Description className="mt-1 text-xs text-[var(--text-2)]">
                   Interactive AI Algorithm Visualization
-                </p>
+                </Dialog.Description>
               </div>
-              <button
-                onClick={() => setShowAbout(false)}
+              <Dialog.Close
                 className={cn(
                   'flex items-center justify-center w-6 h-6 rounded',
                   'text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]',
@@ -272,8 +254,8 @@ export default function TopBar() {
                 )}
                 aria-label="Close about"
               >
-                &times;
-              </button>
+                <X size={14} />
+              </Dialog.Close>
             </div>
 
             {/* Content */}
@@ -309,9 +291,9 @@ export default function TopBar() {
                 Press <KbdKey>Esc</KbdKey> or click outside to close
               </p>
             </div>
-          </div>
-        </div>
-      )}
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </>
   );
 }

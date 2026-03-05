@@ -44,6 +44,7 @@ interface UseGraphInteractionsReturn {
   zoomLevel: number;
   selectionBox: SelectionBoxRect | null;
   fit: (padding?: number) => void;
+  jumpTo: (x: number, y: number, duration?: number) => void;
   runAutoLayout: (
     nodes: Array<{ id: string; x: number; y: number }>,
     edges: Array<{ source: string; target: string }>,
@@ -559,6 +560,27 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
       .call(zoom.transform as unknown as (t: d3.Transition<SVGSVGElement, unknown, null, undefined>) => void, newTransform);
   }, [svgRef]);
 
+  const jumpTo = useCallback((x: number, y: number, duration = 500) => {
+    const svg = svgRef.current;
+    const zoom = zoomBehaviorRef.current;
+    if (!svg || !zoom) return;
+
+    const width = svg.clientWidth;
+    const height = svg.clientHeight;
+    const current = d3.zoomTransform(svg);
+
+    const newTransform = d3.zoomIdentity
+      .translate(width / 2, height / 2)
+      .scale(current.k)
+      .translate(-x, -y);
+
+    d3.select(svg)
+      .transition()
+      .duration(duration)
+      .ease(d3.easeCubicInOut)
+      .call(zoom.transform as unknown as (t: d3.Transition<SVGSVGElement, unknown, null, undefined>) => void, newTransform);
+  }, [svgRef]);
+
   // ── Auto-Layout (headless D3 force simulation) ───────────────────────────
   const runAutoLayout = useCallback((
     nodes: Array<{ id: string; x: number; y: number }>,
@@ -605,6 +627,7 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
     zoomLevel: transform.k,
     selectionBox,
     fit,
+    jumpTo,
     runAutoLayout,
     screenToGraph,
   };
