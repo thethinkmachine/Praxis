@@ -3,16 +3,10 @@ import type { AlgorithmMeta } from '@/types';
 import AlgorithmBadge from '@/components/shared/AlgorithmBadge';
 import ComplexityBadge from '@/components/shared/ComplexityBadge';
 import { cn } from '@/lib/cn';
+import { buildRoute } from '@/lib/buildRoute';
 
 interface AlgorithmCardProps {
   meta: AlgorithmMeta;
-}
-
-function buildRoute(meta: AlgorithmMeta): string {
-  if (meta.category === 'informed-search') {
-    return `/search/informed-search/${meta.id}`;
-  }
-  return `/search/uninformed-search/${meta.id}`;
 }
 
 export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
@@ -20,7 +14,7 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
 
   return (
     <button
-      onClick={() => navigate(buildRoute(meta))}
+      onClick={() => navigate(buildRoute(meta, meta.category === 'game-playing' ? 'game' : 'graph'))}
       className={cn(
         'text-left w-full rounded-lg p-4 border border-[var(--border)] bg-[var(--surface)]/90',
         'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]/50 transition-colors group'

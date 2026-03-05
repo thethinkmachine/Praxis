@@ -2,8 +2,10 @@ import type { AlgorithmMeta, AlgorithmCategory } from '@/types';
 import type { AlgorithmRunner } from '@/types';
 import React from 'react';
 
+type AnyRunner = AlgorithmRunner<unknown, unknown, unknown, unknown>;
+
 export interface RegistryEntry {
-  runner: AlgorithmRunner;
+  runner: AnyRunner;
   // Lazy-loaded React module component (optional — routing happens via React Router)
   moduleComponent?: React.LazyExoticComponent<React.ComponentType<object>>;
 }
@@ -12,10 +14,10 @@ class AlgorithmRegistry {
   private entries = new Map<string, RegistryEntry>();
 
   /** Register a full entry (runner + optional component) */
-  register(entry: RegistryEntry | AlgorithmRunner): void {
+  register(entry: RegistryEntry | AnyRunner): void {
     if ('meta' in entry && 'run' in entry) {
       // Plain runner passed directly
-      this.entries.set((entry as AlgorithmRunner).meta.id, { runner: entry as AlgorithmRunner });
+      this.entries.set((entry as AnyRunner).meta.id, { runner: entry as AnyRunner });
     } else {
       this.entries.set((entry as RegistryEntry).runner.meta.id, entry as RegistryEntry);
     }

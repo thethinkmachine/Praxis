@@ -5,6 +5,7 @@ import AppShell from '@/components/layout/AppShell';
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
 const SearchPage = React.lazy(() => import('@/pages/SearchPage'));
 const MazePage = React.lazy(() => import('@/pages/MazePage'));
+const GamePage = React.lazy(() => import('@/pages/GamePage'));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center h-full">
@@ -41,6 +42,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageLoader />}>
             <MazePage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'play/:category/:algo',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <GamePage />
           </Suspense>
         ),
       },

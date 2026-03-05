@@ -4,11 +4,13 @@ import AlgorithmCard from './AlgorithmCard';
 const CATEGORY_LABELS: Record<AlgorithmCategory, string> = {
   'uninformed-search': 'Uninformed Search',
   'informed-search': 'Informed Search',
+  'game-playing': 'Game Playing',
 };
 
 const CATEGORY_ICONS: Record<AlgorithmCategory, string> = {
   'uninformed-search': 'SEARCH',
   'informed-search': 'H*',
+  'game-playing': 'MINMAX',
 };
 
 interface CategorySectionProps {

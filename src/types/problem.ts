@@ -58,11 +58,22 @@ export interface MazeProblem {
   manualHeuristicValues?: Record<string, number>;
 }
 
+export type TicTacToeCell = 'X' | 'O' | null;
+export type TicTacToePlayer = 'X' | 'O';
+
+export interface TicTacToeProblem {
+  kind?: 'tic-tac-toe';
+  board?: TicTacToeCell[];
+  currentPlayer?: TicTacToePlayer;
+  maximizingPlayer?: TicTacToePlayer;
+  allowDepthPenalty?: boolean;
+}
+
 // ---------------------------------------------------------------------------
 // Problem saving
 // ---------------------------------------------------------------------------
 
-export type ProblemCategory = 'graph' | 'maze';
+export type ProblemCategory = 'graph' | 'maze' | 'game';
 
 export interface SavedProblem {
   id: string;
@@ -75,4 +86,5 @@ export interface SavedProblem {
 export const ALGORITHM_TO_PROBLEM_CATEGORY: Record<import('./algorithm').AlgorithmCategory, ProblemCategory> = {
   'uninformed-search': 'graph',
   'informed-search': 'graph',
+  'game-playing': 'game',
 };

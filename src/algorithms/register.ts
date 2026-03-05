@@ -18,6 +18,9 @@ import { greedyBfsRunner } from './search/informed/greedy-bfs';
 import { astarRunner } from './search/informed/astar';
 import { weightedAstarRunner } from './search/informed/weighted-astar';
 import { idaStarRunner } from './search/informed/ida-star';
+import { minimaxRunner } from './game-playing/minimax';
+import { alphaBetaRunner } from './game-playing/alpha-beta';
+import { negamaxRunner } from './game-playing/negamax';
 
 export function registerAllAlgorithms() {
   // Uninformed Search
@@ -33,5 +36,10 @@ export function registerAllAlgorithms() {
   registry.register(astarRunner);
   registry.register(weightedAstarRunner);
   registry.register(idaStarRunner);
+
+  // Game Playing
+  registry.register(minimaxRunner);
+  registry.register(alphaBetaRunner);
+  registry.register(negamaxRunner);
 }
 

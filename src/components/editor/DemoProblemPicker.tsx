@@ -72,6 +72,7 @@ const DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblem[]> = {
       tags: ['comparison', 'f-cost'],
     },
   ],
+  'game-playing': [],
 };
 
 const DIFFICULTY_COLORS = {

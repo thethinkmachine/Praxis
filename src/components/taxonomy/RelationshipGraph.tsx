@@ -9,11 +9,13 @@ import { cn } from '@/lib/cn';
 const GROUP_COLORS: Record<string, string> = {
   uninformed: '#58A6FF',
   informed: '#D2A8FF',
+  game: '#F2C94C',
 };
 
 const CATEGORY_TO_GROUP: Record<AlgorithmCategory, string> = {
   'uninformed-search': 'uninformed',
   'informed-search': 'informed',
+  'game-playing': 'game',
 };
 
 // Curated edge labels for well-known relationships
@@ -28,6 +30,8 @@ const EDGE_LABELS: Record<string, string> = {
   'astar\u2192weighted-astar': 'inflates h',
   'astar\u2192ida-star': 'iterative',
   'iddfs\u2192ida-star': 'f-threshold',
+  'minimax\u2192alpha-beta': 'prunes',
+  'minimax\u2192negamax': 'symmetric',
 };
 
 interface RelationshipGraphProps {
@@ -146,6 +150,7 @@ export default function RelationshipGraph({ algorithms, onFullscreen }: Relation
     const GROUP_CENTERS: Record<string, { x: number; y: number }> = {
       uninformed: { x: 0.3 * width, y: 0.5 * height },
       informed:   { x: 0.7 * width, y: 0.5 * height },
+      game: { x: 0.5 * width, y: 0.22 * height },
     };
 
     const simulation = d3

@@ -47,6 +47,15 @@ export const GAME_LABS: GameLabsByCategory = {
       status: 'live',
     },
   ],
+  'game-playing': [
+    {
+      id: 'tic-tac-toe-lab',
+      name: 'Tic-Tac-Toe Lab',
+      description: 'Set up board positions and inspect adversarial search with Minimax, Alpha-Beta, and Negamax.',
+      path: '/play/game-playing/minimax',
+      status: 'live',
+    },
+  ],
 };
 
 export function getLabsForCategory(category: AlgorithmCategory): GameLab[] {

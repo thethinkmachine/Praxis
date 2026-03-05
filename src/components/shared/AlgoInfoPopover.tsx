@@ -20,6 +20,10 @@ function buildNarrative(meta: AlgorithmMeta): string {
     return `${meta.name} explores the state space without a heuristic estimate. It relies on the structure of the frontier and the order in which nodes are expanded, which makes it a useful baseline when you want to understand raw search behavior before adding domain knowledge.`;
   }
 
+  if (meta.category === 'game-playing') {
+    return `${meta.name} evaluates adversarial game states under alternating turns. The trace shows how the algorithm scores candidate moves, anticipates the opponent's replies, and either searches the full tree or prunes branches that can no longer affect the final decision.`;
+  }
+
   return `${meta.name} uses heuristic guidance to bias exploration toward promising states. That usually means fewer expansions than uninformed baselines, but the quality of the heuristic directly affects how aggressively the frontier narrows and whether optimality guarantees still hold.`;
 }
 
@@ -29,7 +33,9 @@ function buildTradeoffs(meta: AlgorithmMeta): string[] {
     meta.optimal ? 'It preserves optimality when its assumptions are satisfied.' : 'It may trade optimality for speed or lower memory use.',
     meta.category === 'uninformed-search'
       ? 'It is best used when you do not have a trustworthy heuristic.'
-      : 'It benefits most when the heuristic tracks remaining distance or cost reasonably well.',
+      : meta.category === 'game-playing'
+        ? 'It is best used when you need to reason about forced wins, perfect defense, and alternating turns.'
+        : 'It benefits most when the heuristic tracks remaining distance or cost reasonably well.',
   ];
 }
 

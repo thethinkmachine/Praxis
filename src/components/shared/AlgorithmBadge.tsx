@@ -12,13 +12,18 @@ const CATEGORY_CONFIG: Record<
 > = {
   'uninformed-search': {
     label: 'Uninformed Search',
-    icon: '🔍',
+    icon: 'BFS',
     colorClass: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   },
   'informed-search': {
     label: 'Informed Search',
-    icon: '🧭',
+    icon: 'h(n)',
     colorClass: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
+  },
+  'game-playing': {
+    label: 'Game Playing',
+    icon: 'MIN',
+    colorClass: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
   },
 };
 
@@ -34,7 +39,9 @@ export default function AlgorithmBadge({ category, size = 'sm' }: AlgorithmBadge
         size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1'
       )}
     >
-      <span className={size === 'sm' ? 'text-xs' : 'text-sm'}>{config.icon}</span>
+      <span className={cn('font-mono uppercase', size === 'sm' ? 'text-[9px]' : 'text-[10px]')}>
+        {config.icon}
+      </span>
       {config.label}
     </span>
   );

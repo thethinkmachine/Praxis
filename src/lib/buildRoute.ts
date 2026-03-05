@@ -8,6 +8,9 @@ export function buildRoute(
   meta: { id: string; category: AlgorithmCategory },
   problemCategory: ProblemCategory = 'graph',
 ): string {
+  if (meta.category === 'game-playing' || problemCategory === 'game') {
+    return `/play/${meta.category}/${meta.id}`;
+  }
   if (problemCategory === 'maze') {
     return `/maze/${meta.id}`;
   }

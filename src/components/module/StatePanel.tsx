@@ -143,7 +143,7 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
     <div className="h-full flex flex-col bg-[var(--surface)] overflow-hidden">
       <div className="flex-1 overflow-y-auto text-xs divide-y divide-[var(--border)]">
         {/* ──── Search-oriented sections ──── */}
-        {(algorithmCategory === 'uninformed-search' || algorithmCategory === undefined) && (
+        {(algorithmCategory === 'uninformed-search' || algorithmCategory === 'informed-search' || algorithmCategory === undefined) && (
             <>
               {/* Current node */}
               {!!st.currentNode && (
@@ -268,6 +268,101 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
               )}
             </>
           )}
+
+        {algorithmCategory === 'game-playing' && (
+          <>
+            <div>
+              <SectionHeader title="Position" />
+              <div className="px-3 py-2 space-y-1 text-[11px] text-[var(--text-2)]">
+                <div className="flex items-center justify-between gap-2">
+                  <span>Current player</span>
+                  <span className="font-mono text-[var(--text)]">{String(st.currentPlayer ?? '-')}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span>Maximizing player</span>
+                  <span className="font-mono text-[var(--text)]">{String(st.maximizingPlayer ?? '-')}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span>Terminal winner</span>
+                  <span className="font-mono text-[var(--text)]">{String(st.terminalWinner ?? '-')}</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <SectionHeader title="Best Move" />
+              <div className="px-3 py-2 space-y-1 text-[11px] text-[var(--text-2)]">
+                <div className="flex items-center justify-between gap-2">
+                  <span>Current candidate</span>
+                  <span className="font-mono text-[var(--text)]">
+                    {typeof st.currentMove === 'number' ? `cell ${Number(st.currentMove) + 1}` : '-'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span>Best move</span>
+                  <span className="font-mono text-[var(--text)]">
+                    {typeof st.bestMove === 'number' ? `cell ${Number(st.bestMove) + 1}` : '-'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span>Best score</span>
+                  <span className="font-mono text-[var(--text)]">{String(st.bestScore ?? st.currentScore ?? '-')}</span>
+                </div>
+                {(st.alpha !== undefined || st.beta !== undefined) && (
+                  <div className="flex items-center justify-between gap-2">
+                    <span>Window</span>
+                    <span className="font-mono text-[var(--text)]">{`[${String(st.alpha ?? '-')}, ${String(st.beta ?? '-')}]`}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <SectionHeader title="Evaluated Moves" count={Array.isArray(st.evaluatedMoves) ? st.evaluatedMoves.length : 0} />
+              {Array.isArray(st.evaluatedMoves) && st.evaluatedMoves.length > 0 ? (
+                <div className="py-1">
+                  {st.evaluatedMoves.map((item, index) => {
+                    const move = item as { move?: number; score?: number };
+                    return (
+                      <NodeEntry
+                        key={`${move.move ?? 'm'}-${index}`}
+                        id={String(move.move ?? index)}
+                        label={typeof move.move === 'number' ? `cell ${move.move + 1}` : 'move'}
+                        detail={move.score === undefined ? undefined : String(move.score)}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="px-3 py-1 text-[var(--text-3)]">Empty</div>
+              )}
+            </div>
+
+            <div>
+              <SectionHeader title="Recursion Stack" count={Array.isArray(st.recursionStack) ? st.recursionStack.length : 0} />
+              {Array.isArray(st.recursionStack) && st.recursionStack.length > 0 ? (
+                <div className="py-1">
+                  {st.recursionStack.map((frame, index) => {
+                    const item = frame as { depth?: number; role?: string; move?: number | null; bestScore?: number | null };
+                    const moveLabel = typeof item.move === 'number' ? `cell ${item.move + 1}` : 'root';
+                    const roleLabel = item.role ? `${String(item.role).toUpperCase()} d${String(item.depth ?? 0)}` : `d${String(item.depth ?? 0)}`;
+                    const detail = item.bestScore == null ? moveLabel : `${moveLabel} best=${item.bestScore}`;
+                    return (
+                      <NodeEntry
+                        key={`${item.depth ?? 0}-${item.move ?? 'root'}-${index}`}
+                        id={String(index)}
+                        label={roleLabel}
+                        detail={detail}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="px-3 py-1 text-[var(--text-3)]">Empty</div>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -7,12 +7,18 @@ import { Sun, Moon, Keyboard, Info, X } from '@/components/shared/Icons';
 
 const SEGMENT_LABELS: Record<string, string> = {
   search: 'Search',
+  play: 'Play',
   maze: 'Maze',
   taxonomy: 'Taxonomy',
   'uninformed-search': 'Uninformed',
+  'informed-search': 'Informed',
+  'game-playing': 'Game Playing',
   bfs: 'BFS', dfs: 'DFS', dls: 'Depth-Limited', iddfs: 'IDDFS',
   ucs: 'UCS',
   'bidirectional-bfs': 'Bidirectional BFS',
+  minimax: 'Minimax',
+  'alpha-beta': 'Alpha-Beta',
+  negamax: 'Negamax',
 };
 
 interface ShortcutEntry {
