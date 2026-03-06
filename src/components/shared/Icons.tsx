@@ -37,6 +37,7 @@ export {
   ZoomIn,
   ZoomOut,
   Maximize2,
+  Minimize2,
   LayoutGrid,
 
   // Editor modes

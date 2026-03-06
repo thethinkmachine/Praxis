@@ -17,20 +17,33 @@ export default function HomePage() {
   const [graphFullscreen, setGraphFullscreen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const handleTabChange = useCallback((value: string) => {
+    setActiveTab(value);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (value === 'algorithms') {
+        next.delete('tab');
+      } else {
+        next.set('tab', value);
+      }
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
+
   const scrollToCategory = useCallback((category: AlgorithmCategory) => {
-    setActiveTab('algorithms');
+    handleTabChange('algorithms');
     setTimeout(() => {
       const el = document.getElementById(`category-${category}`);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, 50);
-  }, []);
+  }, [handleTabChange]);
 
   // Handle scroll param from sidebar navigation
   useEffect(() => {
     const scrollTarget = searchParams.get('scroll');
-    const tab = searchParams.get('tab');
+    const tab = searchParams.get('tab') || 'algorithms';
 
     if (tab === 'algorithms' || tab === 'games' || tab === 'graph') {
       setActiveTab(tab);
@@ -43,9 +56,8 @@ export default function HomePage() {
       }
     }
 
-    if (tab || scrollTarget) {
+    if (scrollTarget) {
       const next = new URLSearchParams(searchParams);
-      next.delete('tab');
       next.delete('scroll');
       setSearchParams(next, { replace: true });
     }
@@ -122,7 +134,7 @@ export default function HomePage() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col overflow-hidden">
         <div className="relative z-20 px-3 sm:px-6 border-b border-[var(--border)] shrink-0 bg-[var(--titlebar)]/92 backdrop-blur-xl">
           <TabsList className="flex gap-1 h-10 items-center">
             <TabsTrigger
@@ -223,19 +235,7 @@ export default function HomePage() {
       {/* Fullscreen graph overlay */}
       {graphFullscreen && (
         <div className="fixed inset-0 z-50 bg-[var(--bg)]">
-          <RelationshipGraph algorithms={metas} />
-          <button
-            onClick={() => setGraphFullscreen(false)}
-            className={cn(
-              'fixed top-4 right-4 z-50 p-2 rounded-lg',
-              'bg-[var(--surface)] border border-[var(--border)]',
-              'text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--accent)]/50',
-              'transition-colors shadow-lg',
-            )}
-            aria-label="Exit fullscreen"
-          >
-            <X size={18} />
-          </button>
+          <RelationshipGraph algorithms={metas} onFullscreen={() => setGraphFullscreen(false)} isFullscreen={true} />
         </div>
       )}
     </div>

@@ -20,7 +20,7 @@ interface CategoryEntry {
 }
 
 const HOME_DESTINATIONS = [
-  { id: 'algorithms', label: 'Algorithms', to: '/?tab=algorithms', icon: <Search size={15} /> },
+  { id: 'algorithms', label: 'Algorithms', to: '/', icon: <Search size={15} /> },
   { id: 'games', label: 'Games', to: '/?tab=games', icon: <Gamepad2 size={15} /> },
   { id: 'graph', label: 'Relationship Graph', to: '/?tab=graph', icon: <Network size={15} /> },
 ] as const;
@@ -78,21 +78,29 @@ export default function Sidebar() {
       transition={{ duration: 0.22, ease: 'easeInOut' }}
       className="flex flex-col h-full bg-[var(--titlebar)] border-r border-[var(--border-strong)] overflow-hidden shrink-0"
     >
-      <div className="flex items-center h-12 px-3 border-b border-[var(--border)] shrink-0 ide-titlebar">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--accent)] text-[11px] font-mono">
-            PX
-          </span>
-          {!sidebarCollapsed && (
+      <div
+        className={cn(
+          'flex items-center h-12 border-b border-[var(--border)] shrink-0 ide-titlebar transition-all',
+          sidebarCollapsed ? 'justify-center px-0' : 'px-3',
+        )}
+      >
+        {!sidebarCollapsed && (
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--accent)] text-[11px] font-mono">
+              PX
+            </span>
             <div className="min-w-0">
-              <p className="font-semibold text-sm text-[var(--text)] tracking-wide">Praxis</p>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-3)]">Navigation Console</p>
+              <p className="font-semibold text-sm text-[var(--text)] tracking-wide truncate">Praxis</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-3)] truncate">Navigation Console</p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
         <button
           onClick={() => toggle('sidebarCollapsed')}
-          className="ml-2 flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/50 hover:text-[var(--text)]"
+          className={cn(
+            'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/50 hover:text-[var(--text)]',
+            !sidebarCollapsed && 'ml-2',
+          )}
           aria-label="Toggle sidebar"
         >
           {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
@@ -124,13 +132,13 @@ export default function Sidebar() {
                   sidebarCollapsed && 'justify-center px-0',
                 )}
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)]">
                   {item.icon}
                 </span>
                 {!sidebarCollapsed && (
-                  <span className="min-w-0">
-                    <span className="block text-sm font-medium">{item.label}</span>
-                    <span className="block text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-medium truncate">{item.label}</span>
+                    <span className="block text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)] truncate">
                       Home module
                     </span>
                   </span>
@@ -153,19 +161,19 @@ export default function Sidebar() {
                 onClick={() => handleCategoryClick(cat)}
                 title={sidebarCollapsed ? cat.displayName : undefined}
                 className={cn(
-                  'w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors',
-                  'hover:bg-[var(--surface)] hover:border hover:border-[var(--border)]',
+                  'w-full flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-left transition-colors',
+                  'hover:bg-[var(--surface)] hover:border-[var(--border)]',
                   sidebarCollapsed && 'justify-center px-0',
                 )}
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--accent)]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--accent)]">
                   {cat.icon}
                 </span>
                 {!sidebarCollapsed && (
                   <>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-medium text-[var(--text)]">{cat.displayName}</span>
-                      <span className="block text-[11px] text-[var(--text-3)]">{cat.hint}</span>
+                      <span className="block text-sm font-medium text-[var(--text)] truncate">{cat.displayName}</span>
+                      <span className="block text-[11px] text-[var(--text-3)] truncate">{cat.hint}</span>
                     </span>
                     <ChevronRight
                       size={15}
@@ -192,10 +200,10 @@ export default function Sidebar() {
                         <NavLink
                           to={algo.path}
                           className={({ isActive }) => cn(
-                            'flex items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-mono transition-colors',
+                            'flex items-center gap-2 rounded-lg border px-3 py-2 text-[12px] font-mono transition-colors',
                             isActive
-                              ? 'bg-[var(--accent-soft)] text-[var(--text)] border border-[var(--accent)]/35'
-                              : 'text-[var(--text-2)] hover:bg-[var(--surface)] hover:text-[var(--text)]',
+                              ? 'bg-[var(--accent-soft)] text-[var(--text)] border-[var(--accent)]/35'
+                              : 'border-transparent text-[var(--text-2)] hover:bg-[var(--surface)] hover:text-[var(--text)]',
                           )}
                         >
                           <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">fn</span>

@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { useNavigate } from 'react-router-dom';
 import type { AlgorithmMeta, AlgorithmCategory } from '@/types/algorithm';
 import { buildRoute } from '@/lib/buildRoute';
-import { ZoomIn, ZoomOut, Maximize2, Search } from '@/components/shared/Icons';
+import { ZoomIn, ZoomOut, Maximize2, Minimize2, Search } from '@/components/shared/Icons';
 import { cn } from '@/lib/cn';
 
 const GROUP_COLORS: Record<string, string> = {
@@ -37,6 +37,7 @@ const EDGE_LABELS: Record<string, string> = {
 interface RelationshipGraphProps {
   algorithms: AlgorithmMeta[];
   onFullscreen?: () => void;
+  isFullscreen?: boolean;
 }
 
 /** Approximate the pixel width of a label for rect sizing */
@@ -46,7 +47,7 @@ function labelWidth(text: string): number {
 
 const NODE_HEIGHT = 30;
 
-export default function RelationshipGraph({ algorithms, onFullscreen }: RelationshipGraphProps) {
+export default function RelationshipGraph({ algorithms, onFullscreen, isFullscreen }: RelationshipGraphProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const navigate = useNavigate();
@@ -420,9 +421,9 @@ export default function RelationshipGraph({ algorithms, onFullscreen }: Relation
               'hover:bg-[var(--surface-2)] hover:border-[#58A6FF]',
               'transition-colors duration-150',
             )}
-            aria-label="Fullscreen"
+            aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           >
-            <Maximize2 size={16} />
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </button>
         )}
         <button
