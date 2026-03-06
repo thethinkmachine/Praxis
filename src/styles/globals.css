@@ -99,6 +99,7 @@ body {
   font-family: 'IBM Plex Sans', 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  user-select: none;
   background-image:
     radial-gradient(circle at 8% 0%, rgba(95, 179, 255, 0.12) 0%, transparent 32%),
     radial-gradient(circle at 90% 100%, rgba(83, 200, 128, 0.1) 0%, transparent 28%),
