@@ -5,6 +5,7 @@ import { registry } from '@/algorithms/core/registry';
 import TaxonomyCardGrid from '@/components/taxonomy/TaxonomyCardGrid';
 import RelationshipGraph from '@/components/taxonomy/RelationshipGraph';
 import AlgorithmSearch from '@/components/taxonomy/AlgorithmSearch';
+import CellularAutomatonBackdrop from '@/components/visualization/CellularAutomatonBackdrop';
 import { X } from '@/components/shared/Icons';
 import { cn } from '@/lib/cn';
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/lib/constants';
@@ -84,9 +85,9 @@ export default function HomePage() {
           isGraphTab ? 'max-h-0 opacity-0 border-b-0' : 'max-h-[400px] opacity-100',
         )}
       >
-        {/* Backdrop - RelationshipGraph at very low opacity */}
-        <div className="absolute inset-0 opacity-[0.08] blur-[1px] pointer-events-none">
-          <RelationshipGraph algorithms={metas} isBackground={true} />
+        {/* Backdrop - Cellular Automaton */}
+        <div className="absolute inset-0 opacity-[0.25] blur-[1px] pointer-events-none overflow-hidden rounded-xl">
+          <CellularAutomatonBackdrop intervalMs={50} changeRuleIntervalMs={10000} cellSize={10} />
         </div>
 
         {/* Overlay Content */}
