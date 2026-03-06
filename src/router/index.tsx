@@ -63,7 +63,7 @@ const router = createBrowserRouter([
       },
     ],
   },
-]);
+], { basename: '/Praxis' });
 
 export default function Router() {
   return <RouterProvider router={router} />;
