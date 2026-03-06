@@ -112,7 +112,7 @@ export default function GraphMinimap({
       <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2">
         <div>
           <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">Minimap</p>
-          <p className="text-[11px] text-[var(--text-2)]">Click to recenter the graph</p>
+          <p className="text-[11px] text-[var(--text-2)]">Click to recenter</p>
         </div>
         <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1 text-[11px] font-mono text-[var(--text)]">
           {Math.round((zoomLevel ?? transform.k) * 100)}%

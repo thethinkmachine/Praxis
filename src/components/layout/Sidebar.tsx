@@ -80,7 +80,7 @@ export default function Sidebar() {
     >
       <div
         className={cn(
-          'flex items-center h-12 border-b border-[var(--border)] shrink-0 ide-titlebar transition-all',
+          'flex items-center h-10 border-b border-[var(--border)] shrink-0 ide-titlebar transition-all',
           sidebarCollapsed ? 'justify-center px-0' : 'px-3',
         )}
       >

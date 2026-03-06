@@ -38,6 +38,7 @@ interface RelationshipGraphProps {
   algorithms: AlgorithmMeta[];
   onFullscreen?: () => void;
   isFullscreen?: boolean;
+  isBackground?: boolean;
 }
 
 /** Approximate the pixel width of a label for rect sizing */
@@ -47,7 +48,7 @@ function labelWidth(text: string): number {
 
 const NODE_HEIGHT = 30;
 
-export default function RelationshipGraph({ algorithms, onFullscreen, isFullscreen }: RelationshipGraphProps) {
+export default function RelationshipGraph({ algorithms, onFullscreen, isFullscreen, isBackground }: RelationshipGraphProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const navigate = useNavigate();
@@ -347,50 +348,53 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
     });
 
     // --- Floating Legend ---
-    const legendData = Object.entries(GROUP_COLORS);
-    const legendPadX = 12;
-    const legendPadY = 10;
-    const legendRowH = 20;
-    const legendW = 110;
-    const legendH = legendPadY * 2 + legendData.length * legendRowH;
-    const legendX = width - legendW - 16;
-    const legendY = height - legendH - 16;
+    let legend: d3.Selection<SVGGElement, unknown, null, undefined> | null = null;
+    if (!isBackground) {
+      const legendData = Object.entries(GROUP_COLORS);
+      const legendPadX = 12;
+      const legendPadY = 10;
+      const legendRowH = 20;
+      const legendW = 110;
+      const legendH = legendPadY * 2 + legendData.length * legendRowH;
+      const legendX = width - legendW - 16;
+      const legendY = height - legendH - 16;
 
-    const legend = svg.append('g')
-      .attr('transform', `translate(${legendX}, ${legendY})`);
+      legend = svg.append('g')
+        .attr('transform', `translate(${legendX}, ${legendY})`);
 
-    legend.append('rect')
-      .attr('width', legendW)
-      .attr('height', legendH)
-      .attr('rx', 6)
-      .attr('ry', 6)
-      .attr('fill', 'var(--surface, #161B22)')
-      .attr('fill-opacity', 0.85)
-      .attr('stroke', 'var(--border, #30363D)')
-      .attr('stroke-width', 1);
-
-    legendData.forEach(([group, color], i) => {
-      const row = legend.append('g')
-        .attr('transform', `translate(${legendPadX}, ${legendPadY + i * legendRowH + legendRowH / 2})`);
-
-      row.append('rect')
-        .attr('rx', 3)
-        .attr('ry', 3)
-        .attr('width', 12)
-        .attr('height', 12)
-        .attr('x', 0)
-        .attr('y', -6)
-        .attr('fill', color + '40')
-        .attr('stroke', color)
+      legend.append('rect')
+        .attr('width', legendW)
+        .attr('height', legendH)
+        .attr('rx', 6)
+        .attr('ry', 6)
+        .attr('fill', 'var(--surface, #161B22)')
+        .attr('fill-opacity', 0.85)
+        .attr('stroke', 'var(--border, #30363D)')
         .attr('stroke-width', 1);
 
-      row.append('text')
-        .attr('x', 18)
-        .attr('y', 4)
-        .attr('font-size', 10)
-        .attr('fill', 'var(--text-2, #8B949E)')
-        .text(group.charAt(0).toUpperCase() + group.slice(1));
-    });
+      legendData.forEach(([group, color], i) => {
+        const row = legend!.append('g')
+          .attr('transform', `translate(${legendPadX}, ${legendPadY + i * legendRowH + legendRowH / 2})`);
+
+        row.append('rect')
+          .attr('rx', 3)
+          .attr('ry', 3)
+          .attr('width', 12)
+          .attr('height', 12)
+          .attr('x', 0)
+          .attr('y', -6)
+          .attr('fill', color + '40')
+          .attr('stroke', color)
+          .attr('stroke-width', 1);
+
+        row.append('text')
+          .attr('x', 18)
+          .attr('y', 4)
+          .attr('font-size', 10)
+          .attr('fill', 'var(--text-2, #8B949E)')
+          .text(group.charAt(0).toUpperCase() + group.slice(1));
+      });
+    }
 
     return () => {
       simulation.stop();
@@ -402,15 +406,17 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
     <div ref={containerRef} className="relative w-full h-full rounded overflow-hidden bg-[radial-gradient(circle_at_top,rgba(88,166,255,0.09),transparent_40%),var(--bg)]">
       <svg ref={svgRef} width={width} height={height} className="w-full h-full" />
 
-      <div className="absolute left-3 top-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 px-3 py-2 backdrop-blur-xl">
-        <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Relationship Graph</p>
-        <p className="mt-1 text-xs text-[var(--text-2)]">Clusters breathe softly and stay draggable while you explore connections.</p>
-      </div>
+      {!isBackground && (
+        <>
+          <div className="absolute left-3 top-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 px-3 py-2 backdrop-blur-xl">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Relationship Graph</p>
+            <p className="mt-1 text-xs text-[var(--text-2)]">Clusters breathe softly and stay draggable while you explore connections.</p>
+          </div>
 
-      <div className="absolute top-3 right-3 flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 p-2 backdrop-blur-xl">
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1 text-[11px] font-mono text-[var(--text)]">
-          {zoomPercent}%
-        </div>
+          <div className="absolute top-3 right-3 flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 p-2 backdrop-blur-xl">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1 text-[11px] font-mono text-[var(--text)]">
+              {zoomPercent}%
+            </div>
         {onFullscreen && (
           <button
             onClick={onFullscreen}
@@ -466,6 +472,8 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
           <ZoomOut size={16} />
         </button>
       </div>
+        </>
+      )}
     </div>
   );
 }

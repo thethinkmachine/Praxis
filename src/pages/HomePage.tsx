@@ -86,7 +86,7 @@ export default function HomePage() {
       >
         {/* Backdrop - RelationshipGraph at very low opacity */}
         <div className="absolute inset-0 opacity-[0.08] blur-[1px] pointer-events-none">
-          <RelationshipGraph algorithms={metas} />
+          <RelationshipGraph algorithms={metas} isBackground={true} />
         </div>
 
         {/* Overlay Content */}
