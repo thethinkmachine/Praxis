@@ -28,16 +28,16 @@ export default function CellularAutomatonBackdrop({
     if (darkMode) {
       return {
         bg: '#0b0f14',
-        cellPrimary: 'rgba(95, 179, 255, 0.12)', // Accent soft
-        cellSecondary: 'rgba(83, 200, 128, 0.08)', // Success soft
-        cellTertiary: 'rgba(186, 163, 255, 0.1)', // Purple soft
+        cellPrimary: 'rgba(95, 179, 255, 0.4)',  // Boosted from 0.12
+        cellSecondary: 'rgba(83, 200, 128, 0.25)', // Boosted from 0.08
+        cellTertiary: 'rgba(186, 163, 255, 0.3)',  // Boosted from 0.1
       };
     } else {
       return {
         bg: '#edf2f7',
-        cellPrimary: 'rgba(40, 113, 185, 0.1)',
-        cellSecondary: 'rgba(63, 185, 80, 0.06)',
-        cellTertiary: 'rgba(130, 80, 223, 0.06)',
+        cellPrimary: 'rgba(40, 113, 185, 0.35)', // Boosted from 0.1
+        cellSecondary: 'rgba(63, 185, 80, 0.25)', // Boosted from 0.06
+        cellTertiary: 'rgba(130, 80, 223, 0.25)', // Boosted from 0.06
       };
     }
   }, [darkMode]);

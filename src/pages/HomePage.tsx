@@ -92,12 +92,12 @@ export default function HomePage() {
         )}
       >
         {/* Backdrop - Cellular Automaton */}
-        <div className="absolute inset-0 opacity-[0.25] blur-[1px] pointer-events-none overflow-hidden rounded-xl">
+        <div className="absolute inset-0 opacity-[0.4] blur-[0.5px] pointer-events-none overflow-hidden rounded-xl">
           <CellularAutomatonBackdrop intervalMs={50} changeRuleIntervalMs={10000} cellSize={10} />
         </div>
 
         {/* Overlay Content */}
-        <div className="relative z-10 px-4 sm:px-6 py-6 flex flex-col items-center text-center gap-4 bg-gradient-to-b from-[var(--surface)]/80 to-[var(--surface-2)]/60">
+        <div className="relative z-10 px-4 sm:px-6 py-6 flex flex-col items-center text-center gap-4 bg-gradient-to-b from-[var(--surface)]/70 to-[var(--surface-2)]/40 backdrop-blur-[2px] rounded-xl">
           <span className="font-bold text-4xl sm:text-5xl tracking-tight text-[var(--text)] font-mono">
             Praxis
           </span>
