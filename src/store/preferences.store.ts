@@ -4,7 +4,8 @@ import { persist } from 'zustand/middleware';
 
 type BooleanKeys = 'sidebarCollapsed' | 'pseudocodeVisible' | 'metricsVisible'
   | 'statePanelVisible' | 'autoFitGraph' | 'showEdgeWeights'
-  | 'showHeuristicValues' | 'animationEnabled' | 'darkMode';
+  | 'showHeuristicValues' | 'animationEnabled' | 'darkMode'
+  | 'terminalExpanded';
 
 interface PreferencesState {
   sidebarCollapsed: boolean;
@@ -16,6 +17,7 @@ interface PreferencesState {
   showHeuristicValues: boolean;
   animationEnabled: boolean;
   darkMode: boolean;
+  terminalExpanded: boolean;
 
   // Panel collapse state keyed by page context (e.g. 'search', 'module')
   collapsedPanels: Record<string, string[]>;
@@ -38,6 +40,7 @@ export const usePreferencesStore = create<PreferencesState>()(
       showHeuristicValues: true,
       animationEnabled: true,
       darkMode: true,
+      terminalExpanded: false,
       collapsedPanels: {},
 
       toggle: (key) => set(state => {

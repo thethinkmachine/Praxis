@@ -1,11 +1,13 @@
 import { useRef, useEffect } from 'react';
 import { useExecutionStore } from '@/store/execution.store';
+import { usePreferencesStore } from '@/store/preferences.store';
 import { cn } from '@/lib/cn';
-import { Terminal, Trash2 } from '@/components/shared/Icons';
+import { Terminal, Trash2, ChevronDown } from '@/components/shared/Icons';
 
 export default function TerminalPanel() {
   const logs = useExecutionStore((s) => s.logs);
   const clearLogs = useExecutionStore((s) => s.clearLogs);
+  const toggle = usePreferencesStore((s) => s.toggle);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -24,13 +26,23 @@ export default function TerminalPanel() {
             Output
           </span>
         </div>
-        <button
-          onClick={clearLogs}
-          className="p-1 rounded hover:bg-[var(--surface-3)] text-[var(--text-3)] hover:text-[var(--danger)] transition-colors"
-          title="Clear logs"
-        >
-          <Trash2 size={12} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={clearLogs}
+            className="p-1 rounded hover:bg-[var(--surface-3)] text-[var(--text-3)] hover:text-[var(--danger)] transition-colors"
+            title="Clear logs"
+          >
+            <Trash2 size={12} />
+          </button>
+          <div className="w-px h-3 bg-[var(--border)]" />
+          <button
+            onClick={() => toggle('terminalExpanded')}
+            className="p-1 rounded hover:bg-[var(--surface-3)] text-[var(--text-3)] hover:text-[var(--text)] transition-colors"
+            title="Collapse terminal"
+          >
+            <ChevronDown size={14} />
+          </button>
+        </div>
       </div>
 
       {/* Logs container */}

@@ -69,7 +69,6 @@ export default function AlgorithmPage({
   const { runner, step, loadError, loadWarning } = useAlgorithmPage(algorithmId, problem);
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? '');
   const [configOpen, setConfigOpen] = useState(defaultConfigOpen);
-  const [terminalOpen, setTerminalOpen] = useState(true);
 
   // Imperative ref for the config panel — needed for programmatic collapse/expand
   const configPanelRef = usePanelRef();
@@ -120,18 +119,6 @@ export default function AlgorithmPage({
         onToggleConfig={() => setConfigOpen(v => !v)}
         actions={
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setTerminalOpen(v => !v)}
-              className={cn(
-                'px-2 py-1 rounded border text-[10px] font-mono transition-colors uppercase tracking-wider',
-                terminalOpen
-                  ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent-soft)]'
-                  : 'border-[var(--border)] text-[var(--text-3)] hover:text-[var(--text-2)] hover:border-[var(--border-strong)]'
-              )}
-            >
-              Output
-            </button>
-            <div className="w-px h-3 bg-[var(--border)]" />
             {titleActions}
           </div>
         }
@@ -165,55 +152,42 @@ export default function AlgorithmPage({
         )}
         {hasConfig && <ResizeHandle orientation="horizontal" />}
 
-        {/* Visualization panel with optional tabs and terminal */}
+        {/* Visualization panel with optional tabs */}
         <Panel defaultSize={hasConfig ? '45' : '60'} minSize="30" maxSize="80">
-          <Group orientation="vertical" className="h-full">
-            <Panel defaultSize="75" minSize="30">
-              <div className="h-full overflow-hidden flex flex-col">
-                {/* Tab strip — only shown if multiple tabs */}
-                {hasTabs && (
-                  <TabStrip
-                    tabs={tabs.map(t => ({ id: t.id, label: t.label }))}
-                    activeTab={activeTab}
-                    onTabChange={setActiveTab}
-                  />
-                )}
-
-                {/* Tab content */}
-                <div className="flex-1 relative overflow-hidden">
-                  <ErrorBoundary>
-                    {tabs.map(tab => {
-                      const isActive = activeTab === tab.id;
-                      const shouldMount = isActive || tab.keepMounted;
-
-                      if (!shouldMount) return null;
-
-                      return (
-                        <div
-                          key={tab.id}
-                          className={cn(
-                            'absolute inset-0',
-                            !isActive && 'invisible pointer-events-none',
-                          )}
-                        >
-                          {tab.content}
-                        </div>
-                      );
-                    })}
-                  </ErrorBoundary>
-                </div>
-              </div>
-            </Panel>
-
-            {terminalOpen && (
-              <>
-                <ResizeHandle orientation="vertical" />
-                <Panel defaultSize="25" minSize="10" collapsible collapsedSize="0">
-                  <TerminalPanel />
-                </Panel>
-              </>
+          <div className="h-full overflow-hidden flex flex-col">
+            {/* Tab strip — only shown if multiple tabs */}
+            {hasTabs && (
+              <TabStrip
+                tabs={tabs.map(t => ({ id: t.id, label: t.label }))}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
             )}
-          </Group>
+
+            {/* Tab content */}
+            <div className="flex-1 relative overflow-hidden">
+              <ErrorBoundary>
+                {tabs.map(tab => {
+                  const isActive = activeTab === tab.id;
+                  const shouldMount = isActive || tab.keepMounted;
+
+                  if (!shouldMount) return null;
+
+                  return (
+                    <div
+                      key={tab.id}
+                      className={cn(
+                        'absolute inset-0',
+                        !isActive && 'invisible pointer-events-none',
+                      )}
+                    >
+                      {tab.content}
+                    </div>
+                  );
+                })}
+              </ErrorBoundary>
+            </div>
+          </div>
         </Panel>
 
         <ResizeHandle orientation="horizontal" />

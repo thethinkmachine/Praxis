@@ -1,15 +1,18 @@
 import { useEffect, useCallback } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import { usePreferencesStore } from '@/store/usePreferencesStore';
 import { useExecutionStore } from '@/store/execution.store';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import TerminalPanel from '../module/TerminalPanel';
 import { cn } from '@/lib/cn';
-import { Activity, Zap, Layers, Target } from '@/components/shared/Icons';
+import { Activity, Zap, Layers, Target, Terminal } from '@/components/shared/Icons';
 
 export default function AppShell() {
   const darkMode = usePreferencesStore(s => s.darkMode);
+  const terminalExpanded = usePreferencesStore(s => s.terminalExpanded);
   const toggle = usePreferencesStore(s => s.toggle);
   const { pathname } = useLocation();
 
@@ -17,6 +20,9 @@ export default function AppShell() {
   const currentIndex = useExecutionStore(s => s.currentIndex);
   const totalSteps = useExecutionStore(s => s.totalSteps);
   const step = useExecutionStore(s => s.currentStep);
+  const logs = useExecutionStore(s => s.logs);
+
+  const lastLog = logs.length > 0 ? logs[logs.length - 1] : null;
 
   // Apply/remove data-theme on the <html> element so that the CSS rule
   //   :root[data-theme="light"] { ... }
@@ -53,8 +59,26 @@ export default function AppShell() {
             </div>
           </main>
 
-          <footer className="ide-statusbar h-7 px-3 flex items-center justify-between text-[10px] font-mono text-[var(--text-2)] shrink-0">
-            <div className="flex items-center gap-4 overflow-hidden">
+          {/* Integrated Terminal Drawer */}
+          <AnimatePresence initial={false}>
+            {terminalExpanded && (
+              <motion.div 
+                initial={{ height: 0 }}
+                animate={{ height: 180 }}
+                exit={{ height: 0 }}
+                transition={{ duration: 0.22, ease: "easeInOut" }}
+                className="overflow-hidden border-t border-[var(--border)] bg-[var(--surface)]"
+              >
+                <TerminalPanel />
+              </motion.div>
+            )}
+          </AnimatePresence>
+ 
+          <footer 
+            onClick={() => toggle('terminalExpanded')}
+            className="ide-statusbar h-7 px-3 flex items-center justify-between text-[10px] font-mono text-[var(--text-2)] shrink-0 cursor-pointer hover:bg-[var(--surface-3)]/40 transition-colors"
+          >
+            <div className="flex items-center gap-4 overflow-hidden flex-1">
                <div className="flex items-center gap-1.5 shrink-0">
                  <div className={cn(
                    'w-2 h-2 rounded-full',
@@ -64,11 +88,28 @@ export default function AppShell() {
                    {isPlaying ? 'Running' : (currentIndex >= totalSteps - 1 && totalSteps > 0) ? 'Finished' : 'Idle'}
                  </span>
                </div>
+               
                <div className="w-px h-3 bg-[var(--border-strong)] shrink-0" />
-               <span className="truncate opacity-70">workspace://praxis{pathname}</span>
+               
+               {/* Show latest log or a placeholder */}
+               <div className="flex-1 truncate">
+                 {lastLog ? (
+                   <span className={cn(
+                     "opacity-90",
+                     lastLog.level === 'success' && 'text-[var(--success)]',
+                     lastLog.level === 'warn' && 'text-[var(--warning)]',
+                     lastLog.level === 'error' && 'text-[var(--danger)]'
+                   )}>
+                     <span className="opacity-50 mr-2">[{new Date(lastLog.timestamp).toLocaleTimeString([], { hour12: false, minute: '2-digit', second: '2-digit' })}]</span>
+                     {lastLog.message}
+                   </span>
+                 ) : (
+                   <span className="opacity-40 italic">Ready</span>
+                 )}
+               </div>
             </div>
-
-            <div className="flex items-center gap-4 shrink-0">
+ 
+            <div className="flex items-center gap-4 shrink-0 px-2">
               {step && (
                 <div className="hidden md:flex items-center gap-4">
                   <div className="flex items-center gap-1.5 text-[var(--accent)]" title="Step">
@@ -86,8 +127,8 @@ export default function AppShell() {
                 </div>
               )}
               <div className="hidden sm:flex items-center gap-1.5 opacity-60">
-                <Activity size={10} />
-                <span>Engine: Visual Trace</span>
+                 <Terminal size={10} className={cn(terminalExpanded && "text-[var(--accent)]")} />
+                 <span>Output</span>
               </div>
             </div>
           </footer>

@@ -102,12 +102,10 @@ export default function HomePage() {
             Praxis
           </span>
           <p className="text-xs sm:text-sm text-[var(--text-2)] uppercase tracking-[0.2em]">
-            Algorithm Workspace Console
+            Symbolic AI Algorithm Library & Playground
           </p>
 
-          <div className="text-[11px] font-mono px-3 py-1 rounded border border-[var(--border)] bg-[var(--bg)] text-[var(--text-2)]">
-            {`>`} index algorithms --interactive --trace
-          </div>
+
 
           {/* Search */}
             <AlgorithmSearch />
