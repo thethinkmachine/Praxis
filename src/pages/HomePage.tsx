@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
 import { registry } from '@/algorithms/core/registry';
@@ -10,13 +10,19 @@ import { X } from '@/components/shared/Icons';
 import { cn } from '@/lib/cn';
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/lib/constants';
 import type { AlgorithmCategory } from '@/types/algorithm';
-import { getLabsForCategory } from '@/lib/game-labs';
+import { getLabsForCategory, GAME_LABS } from '@/lib/game-labs';
 
 export default function HomePage() {
   const metas = registry.getAllMeta();
   const [activeTab, setActiveTab] = useState('algorithms');
   const [graphFullscreen, setGraphFullscreen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const liveGamesCount = useMemo(() => {
+    return Object.values(GAME_LABS)
+      .flat()
+      .filter(lab => lab.status === 'live').length;
+  }, []);
 
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value);
@@ -111,12 +117,9 @@ export default function HomePage() {
             <span className="text-xs px-2.5 py-1 rounded-md bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] font-mono">
               {metas.length} algorithms
             </span>
-            <Link
-              to="/maze/bfs"
-              className="text-xs px-2.5 py-1 rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--accent)]/60 font-mono transition-colors"
-            >
-              Open Maze Lab
-            </Link>
+            <span className="text-xs px-2.5 py-1 rounded-md bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] font-mono">
+              {liveGamesCount} live games
+            </span>
           </div>
 
           {/* Category Quick-Nav Chips */}

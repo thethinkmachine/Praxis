@@ -18,21 +18,45 @@ const CATEGORY_TO_GROUP: Record<AlgorithmCategory, string> = {
   'game-playing': 'game',
 };
 
-// Curated edge labels for well-known relationships
-const EDGE_LABELS: Record<string, string> = {
-  'dfs\u2192dls': 'depth limits',
-  'dls\u2192iddfs': 'iterates',
-  'bfs\u2192ucs': 'weighted',
-  'bfs\u2192bidirectional-bfs': 'bidirectional',
-  'ucs\u2192bidirectional-bfs': 'bidirectional',
-  'ucs\u2192astar': 'adds h(n)',
-  'greedy-bfs\u2192astar': 'adds g(n)',
-  'astar\u2192weighted-astar': 'inflates h',
-  'astar\u2192ida-star': 'iterative',
-  'iddfs\u2192ida-star': 'f-threshold',
-  'minimax\u2192alpha-beta': 'prunes',
-  'minimax\u2192negamax': 'symmetric',
+// Fallback edge labels if metadata-based detection fails
+const FALLBACK_EDGE_LABELS: Record<string, string> = {
+  'dfs→dls': 'depth limits',
+  'dls→iddfs': 'iterates',
+  'bfs→ucs': 'weighted',
+  'bfs→bidirectional-bfs': 'bidirectional',
+  'ucs→bidirectional-bfs': 'bidirectional',
+  'iddfs→ida-star': 'f-threshold',
+  'minimax→alpha-beta': 'prunes',
+  'minimax→negamax': 'symmetric',
 };
+
+function getRelationshipLabel(source: AlgorithmMeta, target: AlgorithmMeta): string {
+  // 1. Check if source has a specific label for this target
+  if (source.relationshipLabel && target.relatedAlgorithms?.includes(source.id)) {
+    return source.relationshipLabel;
+  }
+  if (target.relationshipLabel && source.relatedAlgorithms?.includes(target.id)) {
+    return target.relationshipLabel;
+  }
+
+  // 2. Logic-based inference
+  const sTags = new Set(source.tags || []);
+  const tTags = new Set(target.tags || []);
+
+  if (sTags.has('heuristic') && !tTags.has('heuristic') && tTags.has('priority-queue')) return 'adds heuristic';
+  if (tTags.has('heuristic') && !sTags.has('heuristic') && sTags.has('priority-queue')) return 'adds heuristic';
+  
+  if (sTags.has('iterative') && !tTags.has('iterative')) return 'iterative variant';
+  if (tTags.has('iterative') && !sTags.has('iterative')) return 'iterative variant';
+
+  if (sTags.has('optimal') && !tTags.has('optimal')) return 'optimizing variant';
+  if (tTags.has('optimal') && !sTags.has('optimal')) return 'optimizing variant';
+
+  // 3. Fallback
+  const key1 = `${source.id}→${target.id}`;
+  const key2 = `${target.id}→${source.id}`;
+  return FALLBACK_EDGE_LABELS[key1] ?? FALLBACK_EDGE_LABELS[key2] ?? 'related';
+}
 
 interface RelationshipGraphProps {
   algorithms: AlgorithmMeta[];
@@ -54,6 +78,7 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
   const navigate = useNavigate();
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const [zoomPercent, setZoomPercent] = useState(100);
+  const [hoveredNode, setHoveredNode] = useState<AlgorithmMeta | null>(null);
 
   // Track container dimensions via ResizeObserver
   const [dims, setDims] = useState<{ width: number; height: number }>({ width: 800, height: 520 });
@@ -124,11 +149,15 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
     for (const m of algorithms) {
       for (const relId of (m.relatedAlgorithms ?? [])) {
         if (!idSet.has(relId)) continue;
+        const targetMeta = algorithms.find(a => a.id === relId);
+        if (!targetMeta) continue;
+
         const fwd = `${m.id}\u2192${relId}`;
         const rev = `${relId}\u2192${m.id}`;
         if (seenEdges.has(fwd) || seenEdges.has(rev)) continue;
         seenEdges.add(fwd);
-        const label = EDGE_LABELS[fwd] ?? EDGE_LABELS[rev] ?? '';
+        
+        const label = getRelationshipLabel(m, targetMeta);
         links.push({ source: m.id, target: relId, label });
       }
     }
@@ -218,12 +247,14 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
 
     // Hover effects
     nodeGroup
-      .on('mouseenter', function () {
+      .on('mouseenter', function (_ev, d) {
+        setHoveredNode(algorithms.find(a => a.id === d.id) || null);
         d3.select(this).select('rect')
           .attr('stroke-width', 2)
           .style('filter', 'drop-shadow(0 0 6px rgba(88, 166, 255, 0.4))');
       })
       .on('mouseleave', function () {
+        setHoveredNode(null);
         d3.select(this).select('rect')
           .attr('stroke-width', 1.5)
           .style('filter', 'none');
@@ -408,9 +439,24 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
 
       {!isBackground && (
         <>
-          <div className="absolute left-3 top-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 px-3 py-2 backdrop-blur-xl">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Relationship Graph</p>
-            <p className="mt-1 text-xs text-[var(--text-2)]">Clusters breathe softly and stay draggable while you explore connections.</p>
+          <div className="absolute left-3 top-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 px-3 py-2 backdrop-blur-xl max-w-xs transition-all duration-200">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)] font-mono">
+              {hoveredNode ? hoveredNode.name : 'Algorithm Lineage'}
+            </p>
+            <p className="mt-1 text-xs text-[var(--text-2)] leading-relaxed">
+              {hoveredNode 
+                ? hoveredNode.description 
+                : 'Traverse the evolutionary tree of search. Edges highlight how algorithms derive from, optimize, or specialize one another.'}
+            </p>
+            {hoveredNode && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {hoveredNode.tags?.slice(0, 3).map(tag => (
+                  <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent)]/20 uppercase tracking-wider">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="absolute top-3 right-3 flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 p-2 backdrop-blur-xl">
