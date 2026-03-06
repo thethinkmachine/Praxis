@@ -5,6 +5,7 @@ import type { InformedSearchState, SearchHighlight } from './types';
 import { reconstructPath, validateGraphProblem, buildAdjacencyList, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
+import { createLog } from '@/algorithms/core/utils';
 
 export const greedyBfsRunner: AlgorithmRunner<GraphProblem, InformedSearchState, SearchHighlight> = {
   meta: {
@@ -98,6 +99,7 @@ export const greedyBfsRunner: AlgorithmRunner<GraphProblem, InformedSearchState,
       state: snap(),
       highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded: 0, frontierSize: 1, currentDepth: 0, pathCost: 0, hCost: h(problem.startNode), fCost: h(problem.startNode), memoryUsed: 1 },
+      logs: [createLog(`Initialized Greedy BFS at node ${labelOf(problem.startNode)} (h=${h(problem.startNode)})`, 'info')],
     };
 
     while (!pq.isEmpty) {
@@ -118,6 +120,7 @@ export const greedyBfsRunner: AlgorithmRunner<GraphProblem, InformedSearchState,
         state: snap(),
         highlight: { frontierNodes: new Set(pq.toArray()), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
         metrics: { nodesExpanded, frontierSize: pq.size, currentDepth: 0, pathCost: g, hCost: hVal, fCost: fVal, memoryUsed: pq.size + explored.size },
+        logs: [createLog(`Expanding node ${labelOf(current)} (greedy h=${hVal})`, 'info')],
       };
 
       if (current === problem.goalNode) {
@@ -130,6 +133,7 @@ export const greedyBfsRunner: AlgorithmRunner<GraphProblem, InformedSearchState,
           state: { ...snap(), foundPath },
           highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: current, pathEdges: foundPath },
           metrics: { nodesExpanded, frontierSize: 0, currentDepth: foundPath.length - 1, pathCost: g, hCost: 0, fCost: g, memoryUsed: explored.size },
+          logs: [createLog(`SUCCESS: Goal node reached! Final path cost: ${g}`, 'success')],
         };
         return;
       }
@@ -153,6 +157,7 @@ export const greedyBfsRunner: AlgorithmRunner<GraphProblem, InformedSearchState,
             state: snap(),
             highlight: { frontierNodes: new Set(pq.toArray()), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
             metrics: { nodesExpanded, frontierSize: pq.size, currentDepth: 0, pathCost: neighborG, hCost: neighborH, fCost: neighborH, memoryUsed: pq.size + explored.size },
+            logs: [createLog(`Neighbor ${labelOf(neighbor)} discovered (h=${neighborH})`, 'info')],
           };
         }
       }
@@ -166,6 +171,7 @@ export const greedyBfsRunner: AlgorithmRunner<GraphProblem, InformedSearchState,
       state: snap(),
       highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: explored.size },
+      logs: [createLog('FAILURE: No path exists to the goal node', 'error')],
     };
   },
 };

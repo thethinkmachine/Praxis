@@ -5,6 +5,7 @@ import type { InformedSearchState, SearchHighlight } from './types';
 import { reconstructPath, validateGraphProblem, buildAdjacencyList, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
+import { createLog } from '@/algorithms/core/utils';
 
 export interface WeightedAStarProblem extends GraphProblem {
   /** Inflation factor w ≥ 1. Default 1.5. w=1 reduces to A*. */
@@ -109,6 +110,7 @@ export const weightedAstarRunner: AlgorithmRunner<WeightedAStarProblem, Informed
       state: snap(),
       highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded: 0, frontierSize: 1, currentDepth: 0, pathCost: 0, hCost: h(problem.startNode), fCost: fw(0, h(problem.startNode)), memoryUsed: 1 },
+      logs: [createLog(`Initialized Weighted A* (w=${w}) at node ${labelOf(problem.startNode)}`, 'info')],
     };
 
     while (!pq.isEmpty) {
@@ -129,6 +131,7 @@ export const weightedAstarRunner: AlgorithmRunner<WeightedAStarProblem, Informed
         state: snap(),
         highlight: { frontierNodes: new Set(pq.toArray()), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
         metrics: { nodesExpanded, frontierSize: pq.size, currentDepth: 0, pathCost: g, hCost: hVal, fCost: fwVal, memoryUsed: pq.size + explored.size },
+        logs: [createLog(`Expanding node ${labelOf(current)} (f_w=${fwVal.toFixed(1)})`, 'info')],
       };
 
       if (current === problem.goalNode) {
@@ -141,6 +144,7 @@ export const weightedAstarRunner: AlgorithmRunner<WeightedAStarProblem, Informed
           state: { ...snap(), foundPath },
           highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: current, pathEdges: foundPath },
           metrics: { nodesExpanded, frontierSize: 0, currentDepth: foundPath.length - 1, pathCost: g, hCost: 0, fCost: g, memoryUsed: explored.size },
+          logs: [createLog(`SUCCESS: Goal found! Suboptimal cost: ${g} (bounded by ${w}× optimal)`, 'success')],
         };
         return;
       }
@@ -148,6 +152,7 @@ export const weightedAstarRunner: AlgorithmRunner<WeightedAStarProblem, Informed
       for (const { neighbor, weight } of adj.get(current) ?? []) {
         if (explored.has(neighbor)) continue;
         const newG = g + weight;
+        const isUpdate = gCosts.has(neighbor);
         if (newG < (gCosts.get(neighbor) ?? Infinity)) {
           gCosts.set(neighbor, newG);
           const neighborH = h(neighbor);
@@ -160,11 +165,12 @@ export const weightedAstarRunner: AlgorithmRunner<WeightedAStarProblem, Informed
           yield {
             stepNumber: stepNum++,
             phase: 'visiting',
-            description: `Updating "${labelOf(neighbor)}" — g=${newG}, h=${neighborH}, f_w=${neighborFw.toFixed(1)}`,
+            description: `${isUpdate ? 'Updating' : 'Discovering'} "${labelOf(neighbor)}" via "${labelOf(current)}" — g=${newG}, h=${neighborH}, f_w=${neighborFw.toFixed(1)}`,
             pseudocodeLine: 14,
             state: snap(),
             highlight: { frontierNodes: new Set(pq.toArray()), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
             metrics: { nodesExpanded, frontierSize: pq.size, currentDepth: 0, pathCost: newG, hCost: neighborH, fCost: neighborFw, memoryUsed: pq.size + explored.size },
+            logs: [createLog(`${isUpdate ? 'Updated' : 'Discovered'} node ${labelOf(neighbor)} (f_w=${neighborFw.toFixed(1)})`, 'info')],
           };
         }
       }
@@ -178,6 +184,7 @@ export const weightedAstarRunner: AlgorithmRunner<WeightedAStarProblem, Informed
       state: snap(),
       highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: explored.size },
+      logs: [createLog('FAILURE: All reachable nodes explored, goal not found', 'error')],
     };
   },
 };

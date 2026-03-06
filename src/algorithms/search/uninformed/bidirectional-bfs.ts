@@ -4,6 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { SearchHighlight } from './types';
 import { validateGraphProblem, buildAdjacencyList, reconstructPath } from './types';
 import { deepClone } from '@/lib/deep-clone';
+import { createLog } from '@/algorithms/core/utils';
 
 interface BidirectionalSearchState {
   frontierF: string[];
@@ -141,6 +142,7 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
       state: snap(),
       highlight: { frontierNodes: new Set([problem.startNode, problem.goalNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded: 0, frontierSize: 2, currentDepth: 0, pathCost: 0, memoryUsed: 2 },
+      logs: [createLog(`Initialized Bidirectional BFS (Start: ${labelOf(problem.startNode)}, Goal: ${labelOf(problem.goalNode)})`, 'info')],
     };
 
     while (frontierF.length > 0 && frontierB.length > 0) {
@@ -156,6 +158,7 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
           state: snap(meeting, foundPath),
           highlight: { frontierNodes: new Set(), exploredNodes: new Set([...exploredF, ...exploredB]), currentNode: meeting, pathEdges: foundPath },
           metrics: { nodesExpanded, frontierSize: 0, currentDepth: Math.floor(foundPath.length / 2), pathCost: foundPath.length - 1, memoryUsed: exploredF.size + exploredB.size },
+          logs: [createLog(`SUCCESS: Frontiers intersected at node ${labelOf(meeting)}!`, 'success')],
         };
         return;
       }
@@ -199,6 +202,7 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
         state: snap(),
         highlight: { frontierNodes: displayFrontier, exploredNodes: new Set([...exploredF, ...exploredB]), currentNode: expanded[expanded.length - 1] ?? null, pathEdges: null },
         metrics: { nodesExpanded, frontierSize: frontierF.length + frontierB.length, currentDepth: 0, pathCost: 0, memoryUsed: frontierF.length + frontierB.length + exploredF.size + exploredB.size },
+        logs: [createLog(`Expanding ${direction} frontier (F:${frontierF.length}, B:${frontierB.length})`, 'info')],
       };
     }
 
@@ -210,6 +214,7 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
       state: snap(),
       highlight: { frontierNodes: new Set(), exploredNodes: new Set([...exploredF, ...exploredB]), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: exploredF.size + exploredB.size },
+      logs: [createLog('FAILURE: Frontiers exhausted, no path found', 'error')],
     };
   },
 };

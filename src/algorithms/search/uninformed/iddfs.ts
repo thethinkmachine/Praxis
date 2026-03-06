@@ -4,6 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { SearchState, SearchHighlight } from './types';
 import { reconstructPath, validateGraphProblem, buildAdjacencyList } from './types';
 import { deepClone } from '@/lib/deep-clone';
+import { createLog } from '@/algorithms/core/utils';
 
 export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlight> = {
   meta: {
@@ -71,6 +72,7 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
         state: { frontier: [problem.startNode], explored: new Set(), pathMap: new Map([[problem.startNode, null]]), foundPath: null },
         highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
         metrics: { nodesExpanded: 0, frontierSize: 1, currentDepth: 0, pathCost: 0, memoryUsed: 1 },
+        logs: [createLog(`IDDFS: Starting iteration with depth limit ${limit}`, 'info')],
       };
 
       while (stack.length > 0) {
@@ -89,6 +91,7 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
           state: { frontier: stack.map(([n]) => n), explored: deepClone(explored), pathMap: deepClone(pathMap), foundPath: null },
           highlight: { frontierNodes: new Set(stack.map(([n]) => n)), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
           metrics: { nodesExpanded, frontierSize: stack.length, currentDepth: depth, pathCost: 0, memoryUsed: stack.length + explored.size },
+          logs: [createLog(`Expanding ${labelOf(current)} (depth=${depth}, it=${limit})`, 'info')],
         };
 
         if (current === problem.goalNode) {
@@ -101,6 +104,7 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
             state: { frontier: [], explored: deepClone(explored), pathMap: deepClone(pathMap), foundPath },
             highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: current, pathEdges: foundPath },
             metrics: { nodesExpanded, frontierSize: 0, currentDepth: depth, pathCost: foundPath.length - 1, memoryUsed: explored.size },
+            logs: [createLog(`SUCCESS: Goal found at depth ${depth}!`, 'success')],
           };
           return;
         }
@@ -114,6 +118,16 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
         for (const { neighbor } of neighbors) {
           if (!explored.has(neighbor)) {
             stack.push([neighbor, current, depth + 1]);
+            yield {
+              stepNumber: stepNum++,
+              phase: 'visiting',
+              description: `[limit=${limit}] Discovery: pushing "${labelOf(neighbor)}" at depth ${depth + 1}`,
+              pseudocodeLine: 12,
+              state: { frontier: stack.map(([n]) => n), explored: deepClone(explored), pathMap: deepClone(pathMap), foundPath: null },
+              highlight: { frontierNodes: new Set(stack.map(([n]) => n)), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
+              metrics: { nodesExpanded, frontierSize: stack.length, currentDepth: depth + 1, pathCost: 0, memoryUsed: stack.length + explored.size },
+              logs: [createLog(`Pushed neighbor ${labelOf(neighbor)} onto stack (depth=${depth + 1})`, 'info')],
+            };
           }
         }
       }
@@ -129,6 +143,7 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
       state: { frontier: [], explored: new Set(), pathMap: new Map(), foundPath: null },
       highlight: { frontierNodes: new Set(), exploredNodes: new Set(), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded: 0, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: 0 },
+      logs: [createLog('FAILURE: No path exists within search space', 'error')],
     };
   },
 };

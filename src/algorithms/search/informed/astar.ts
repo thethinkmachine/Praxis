@@ -5,6 +5,7 @@ import type { InformedSearchState, SearchHighlight } from './types';
 import { reconstructPath, validateGraphProblem, buildAdjacencyList, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
+import { createLog } from '@/algorithms/core/utils';
 
 export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, SearchHighlight> = {
   meta: {
@@ -98,6 +99,7 @@ export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, Sea
       state: snap(),
       highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded: 0, frontierSize: 1, currentDepth: 0, pathCost: 0, hCost: h(problem.startNode), fCost: h(problem.startNode), memoryUsed: 1 },
+      logs: [createLog(`Initialized A* search at node ${labelOf(problem.startNode)} (h=${h(problem.startNode)})`, 'info')],
     };
 
     while (!pq.isEmpty) {
@@ -118,6 +120,7 @@ export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, Sea
         state: snap(),
         highlight: { frontierNodes: new Set(pq.toArray()), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
         metrics: { nodesExpanded, frontierSize: pq.size, currentDepth: 0, pathCost: g, hCost: hVal, fCost: fVal, memoryUsed: pq.size + explored.size },
+        logs: [createLog(`Expanding node ${labelOf(current)} (f=${fVal} = g:${g} + h:${hVal})`, 'info')],
       };
 
       if (current === problem.goalNode) {
@@ -130,6 +133,7 @@ export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, Sea
           state: { ...snap(), foundPath },
           highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: current, pathEdges: foundPath },
           metrics: { nodesExpanded, frontierSize: 0, currentDepth: foundPath.length - 1, pathCost: g, hCost: 0, fCost: g, memoryUsed: explored.size },
+          logs: [createLog(`SUCCESS: Goal reached with optimal cost ${g}!`, 'success')],
         };
         return;
       }
@@ -137,22 +141,25 @@ export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, Sea
       for (const { neighbor, weight } of adj.get(current) ?? []) {
         if (explored.has(neighbor)) continue;
         const newG = g + weight;
+        const isUpdate = gCosts.has(neighbor);
         if (newG < (gCosts.get(neighbor) ?? Infinity)) {
           gCosts.set(neighbor, newG);
           const neighborH = h(neighbor);
+          const neighborF = newG + neighborH; // A* uses f = g + h
           hCosts.set(neighbor, neighborH);
-          fCosts.set(neighbor, newG + neighborH);
+          fCosts.set(neighbor, neighborF);
           pathMap.set(neighbor, current);
-          pq.push(neighbor, newG + neighborH);
+          pq.push(neighbor, neighborF);
 
           yield {
             stepNumber: stepNum++,
             phase: 'visiting',
-            description: `Updating "${labelOf(neighbor)}" via "${labelOf(current)}" — g=${newG}, h=${neighborH}, f=${newG + neighborH}`,
-            pseudocodeLine: 12,
+            description: `${isUpdate ? 'Updating' : 'Discovering'} "${labelOf(neighbor)}" via "${labelOf(current)}" — g=${newG}, h=${neighborH}, f=${neighborF}`,
+            pseudocodeLine: 12, // Adjusted pseudocode line to match the original A* pseudocode structure
             state: snap(),
             highlight: { frontierNodes: new Set(pq.toArray()), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
-            metrics: { nodesExpanded, frontierSize: pq.size, currentDepth: 0, pathCost: newG, hCost: neighborH, fCost: newG + neighborH, memoryUsed: pq.size + explored.size },
+            metrics: { nodesExpanded, frontierSize: pq.size, currentDepth: 0, pathCost: newG, hCost: neighborH, fCost: neighborF, memoryUsed: pq.size + explored.size },
+            logs: [createLog(`${isUpdate ? 'Updated' : 'Discovered'} node ${labelOf(neighbor)} in frontier (f=${neighborF})`, 'info')],
           };
         }
       }
@@ -166,6 +173,7 @@ export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, Sea
       state: snap(),
       highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: explored.size },
+      logs: [createLog('FAILURE: No path exists to the goal node', 'error')],
     };
   },
 };

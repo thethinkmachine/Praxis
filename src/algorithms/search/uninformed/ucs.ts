@@ -5,6 +5,7 @@ import type { SearchHighlight } from './types';
 import { reconstructPath, validateGraphProblem, buildAdjacencyList } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
+import { createLog } from '@/algorithms/core/utils';
 
 interface UniformCostState {
   frontier: string[];
@@ -99,6 +100,7 @@ export const ucsRunner: AlgorithmRunner<GraphProblem, UniformCostState, SearchHi
       state: snap(),
       highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded: 0, frontierSize: 1, currentDepth: 0, pathCost: 0, gCost: 0, fCost: 0, memoryUsed: 1 },
+      logs: [createLog(`Initialized Uniform-Cost Search at node ${labelOf(problem.startNode)}`, 'info')],
     };
 
     while (!pq.isEmpty) {
@@ -117,6 +119,7 @@ export const ucsRunner: AlgorithmRunner<GraphProblem, UniformCostState, SearchHi
         state: snap(),
         highlight: { frontierNodes: new Set(pq.toArray()), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
         metrics: { nodesExpanded, frontierSize: pq.size, currentDepth: 0, pathCost: g, gCost: g, fCost: g, memoryUsed: pq.size + explored.size },
+        logs: [createLog(`Expanding node ${labelOf(current)} (cost g=${g})`, 'info')],
       };
 
       if (current === problem.goalNode) {
@@ -129,6 +132,7 @@ export const ucsRunner: AlgorithmRunner<GraphProblem, UniformCostState, SearchHi
           state: { ...snap(), foundPath },
           highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: current, pathEdges: foundPath },
           metrics: { nodesExpanded, frontierSize: 0, currentDepth: foundPath.length - 1, pathCost: g, gCost: g, fCost: g, memoryUsed: explored.size },
+          logs: [createLog(`SUCCESS: Goal node reached with optimal cost ${g}!`, 'success')],
         };
         return;
       }
@@ -151,6 +155,7 @@ export const ucsRunner: AlgorithmRunner<GraphProblem, UniformCostState, SearchHi
             state: snap(),
             highlight: { frontierNodes: new Set(pq.toArray()), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
             metrics: { nodesExpanded, frontierSize: pq.size, currentDepth: 0, pathCost: newG, gCost: newG, fCost: newG, memoryUsed: pq.size + explored.size },
+            logs: [createLog(`Neighbor ${labelOf(neighbor)} discovered with cost g=${newG}`, 'info')],
           };
         }
       }
@@ -164,6 +169,7 @@ export const ucsRunner: AlgorithmRunner<GraphProblem, UniformCostState, SearchHi
       state: snap(),
       highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: explored.size },
+      logs: [createLog('FAILURE: No path exists to the goal node', 'error')],
     };
   },
 };

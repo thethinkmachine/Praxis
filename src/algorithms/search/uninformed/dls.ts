@@ -4,6 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { SearchState, SearchHighlight } from './types';
 import { reconstructPath, getDepth, validateGraphProblem, buildAdjacencyList } from './types';
 import { deepClone } from '@/lib/deep-clone';
+import { createLog } from '@/algorithms/core/utils';
 
 export interface DLSProblem extends GraphProblem {
   depthLimit: number;
@@ -82,6 +83,7 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
       state: snap(),
       highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded: 0, frontierSize: 1, currentDepth: 0, pathCost: 0, memoryUsed: 1 },
+      logs: [createLog(`Initialized DLS at node ${labelOf(problem.startNode)} (limit=${depthLimit})`, 'info')],
     };
 
     while (stack.length > 0) {
@@ -100,6 +102,7 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
         state: snap(),
         highlight: { frontierNodes: new Set(stack.map(([n]) => n)), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
         metrics: { nodesExpanded, frontierSize: stack.length, currentDepth: depth, pathCost: 0, memoryUsed: stack.length + explored.size },
+        logs: [createLog(`Expanding node ${labelOf(current)} (depth=${depth})`, 'info')],
       };
 
       if (current === problem.goalNode) {
@@ -112,6 +115,7 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
           state: { ...snap(), foundPath },
           highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: current, pathEdges: foundPath },
           metrics: { nodesExpanded, frontierSize: 0, currentDepth: depth, pathCost: foundPath.length - 1, memoryUsed: explored.size },
+          logs: [createLog(`SUCCESS: Goal node reached at depth ${depth}!`, 'success')],
         };
         return;
       }
@@ -126,6 +130,7 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
           state: snap(),
           highlight: { frontierNodes: new Set(stack.map(([n]) => n)), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
           metrics: { nodesExpanded, frontierSize: stack.length, currentDepth: depth, pathCost: 0, memoryUsed: stack.length + explored.size },
+          logs: [createLog(`Pruning branch: depth limit ${depthLimit} reached at ${labelOf(current)}`, 'warn')],
         };
         continue;
       }
@@ -134,6 +139,16 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
       for (const { neighbor } of neighbors) {
         if (!explored.has(neighbor)) {
           stack.push([neighbor, current, depth + 1]);
+          yield {
+            stepNumber: stepNum++,
+            phase: 'visiting',
+            description: `Discovery: pushing "${labelOf(neighbor)}" (depth ${depth + 1}) onto the stack from "${labelOf(current)}"`,
+            pseudocodeLine: 10,
+            state: snap(),
+            highlight: { frontierNodes: new Set(stack.map(([n]) => n)), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
+            metrics: { nodesExpanded, frontierSize: stack.length, currentDepth: depth + 1, pathCost: 0, memoryUsed: stack.length + explored.size },
+            logs: [createLog(`Pushed neighbor ${labelOf(neighbor)} onto stack (depth ${depth + 1})`, 'info')],
+          };
         }
       }
     }
@@ -148,6 +163,7 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
       state: snap(),
       highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: explored.size },
+      logs: [createLog(cutoffOccurred ? 'CUTOFF: Search space exceeded depth limit' : 'FAILURE: Goal not found', cutoffOccurred ? 'warn' : 'error')],
     };
   },
 };

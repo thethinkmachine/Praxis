@@ -4,6 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { SearchHighlight } from './types';
 import { reconstructPath, validateGraphProblem, buildAdjacencyList, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { deepClone } from '@/lib/deep-clone';
+import { createLog } from '@/algorithms/core/utils';
 
 interface IDAStarState {
   frontier: string[];       // nodes on the current DFS path (call stack)
@@ -124,6 +125,7 @@ export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHi
       state: snap([problem.startNode]),
       highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
       metrics: { nodesExpanded: 0, frontierSize: 1, currentDepth: 0, pathCost: 0, hCost: threshold, fCost: threshold, memoryUsed: 1 },
+      logs: [createLog(`Initialized IDA* (Initial threshold f=${threshold})`, 'info')],
     };
 
     // Outer loop: iterate over thresholds
@@ -184,6 +186,7 @@ export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHi
                 pathEdges: null,
               },
               metrics: { nodesExpanded, frontierSize: callStack.length, currentDepth: pathArr.length, pathCost: g, hCost: hVal, fCost: fVal, memoryUsed: callStack.length + allExplored.size },
+              logs: [createLog(`Pruning ${labelOf(frame.node)}: f=${fVal} > ${threshold}`, 'warn')],
             };
             continue;
           }
@@ -208,6 +211,7 @@ export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHi
                 pathEdges: foundPath,
               },
               metrics: { nodesExpanded, frontierSize: 0, currentDepth: foundPath.length - 1, pathCost: g, hCost: 0, fCost: g, memoryUsed: allExplored.size },
+              logs: [createLog(`SUCCESS: Goal reached with optimal cost ${g}!`, 'success')],
             };
             return;
           }
@@ -225,6 +229,7 @@ export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHi
               pathEdges: null,
             },
             metrics: { nodesExpanded, frontierSize: callStack.length, currentDepth: pathArr.length - 1, pathCost: g, hCost: hVal, fCost: fVal, memoryUsed: callStack.length + allExplored.size },
+            logs: [createLog(`Visiting ${labelOf(frame.node)} (g:${g}, f:${fVal})`, 'info')],
           };
         }
 
@@ -269,6 +274,7 @@ export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHi
                 pathEdges: null,
               },
               metrics: { nodesExpanded, frontierSize: callStack.length, currentDepth: pathArr.length - 1, pathCost: callStack[callStack.length - 1]?.g ?? 0, hCost: hVal, fCost: fVal, memoryUsed: callStack.length + allExplored.size },
+              logs: [createLog(`Backtracking from node ${labelOf(frame.node)}`, 'info')],
             };
           }
         }
@@ -285,6 +291,7 @@ export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHi
           state: snap([]),
           highlight: { frontierNodes: new Set(), exploredNodes: deepClone(allExplored), currentNode: null, pathEdges: null },
           metrics: { nodesExpanded, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: allExplored.size },
+          logs: [createLog('FAILURE: No path exists to the goal node', 'error')],
         };
         return;
       }
@@ -301,6 +308,7 @@ export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHi
         state: snap([problem.startNode]),
         highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: deepClone(allExplored), currentNode: null, pathEdges: null },
         metrics: { nodesExpanded, frontierSize: 1, currentDepth: 0, pathCost: 0, hCost: h(problem.startNode), fCost: threshold, memoryUsed: allExplored.size },
+        logs: [createLog(`IDA*: Raising threshold to f=${threshold} for next iteration`, 'info')],
       };
     }
   },
