@@ -45,7 +45,7 @@ function TransportButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'flex h-10 w-10 items-center justify-center rounded-xl border transition-colors',
+        'flex h-8 w-8 items-center justify-center rounded-lg border transition-colors', // Reduced h-10 w-10 to h-8 w-8
         accent
           ? 'border-[var(--accent)]/45 bg-[var(--accent-soft)] text-[var(--accent)] hover:border-[var(--accent)]/70'
           : 'border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--accent)]/35',
@@ -85,9 +85,9 @@ export default function ControlPanel() {
 
   return (
     <Tooltip.Provider delayDuration={250}>
-      <div className="bg-[var(--surface)] px-3 py-2">
-        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 px-3 py-3">
-          <div className="flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-2 py-2">
+      <div className="bg-[var(--surface)] px-2 py-1.5">
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/65 px-2 py-2">
+          <div className="flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-1.5 py-1.5">
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
                 <span>
@@ -133,10 +133,10 @@ export default function ControlPanel() {
             </Tooltip.Root>
           </div>
 
-          <div className="min-w-[280px] flex-1 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-3 py-3">
-            <div className="mb-2 flex items-center justify-between gap-3">
+          <div className="min-w-[200px] flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2">
+            <div className="mb-1.5 flex items-center justify-between gap-3">
               <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Trace Position</span>
-              <span className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1 text-[11px] font-mono text-[var(--text)]">
+              <span className="rounded-md border border-[var(--border)] bg-[var(--surface-2)] px-1.5 py-0.5 text-[10px] font-mono text-[var(--text)]">
                 {hasTrace ? currentIndex + 1 : 0}/{total}
               </span>
             </div>
@@ -148,31 +148,31 @@ export default function ControlPanel() {
             />
           </div>
 
-          <div className="flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-2 py-2">
+          <div className="flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-1.5 py-1.5">
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
                 <button
                   onClick={() => setSpeed(clampSpeed(speed - 5))}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:text-[var(--text)]"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:text-[var(--text)]"
                 >
-                  <Minus size={14} />
+                  <Minus size={13} />
                 </button>
               </Tooltip.Trigger>
               <Tip>Decrease speed by 5x</Tip>
             </Tooltip.Root>
 
-            <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3 py-2 text-center font-mono">
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Speed</div>
-              <div className="mt-0.5 text-sm text-[var(--text)]">{speed}x</div>
+            <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-2 py-0.5 text-center font-mono min-w-[54px]">
+              <div className="text-[9px] uppercase tracking-[0.14em] text-[var(--text-3)] leading-tight">Speed</div>
+              <div className="text-[11px] font-semibold text-[var(--text)] leading-tight">{speed}x</div>
             </div>
 
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
                 <button
                   onClick={() => setSpeed(1)}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:text-[var(--text)]"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:text-[var(--text)]"
                 >
-                  <RotateCcw size={14} />
+                  <RotateCcw size={13} />
                 </button>
               </Tooltip.Trigger>
               <Tip>Reset speed to 1x</Tip>
@@ -182,9 +182,9 @@ export default function ControlPanel() {
               <Tooltip.Trigger asChild>
                 <button
                   onClick={() => setSpeed(clampSpeed(speed + 5))}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:text-[var(--text)]"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:text-[var(--text)]"
                 >
-                  <Plus size={14} />
+                  <Plus size={13} />
                 </button>
               </Tooltip.Trigger>
               <Tip>Increase speed by 5x</Tip>

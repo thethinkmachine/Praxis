@@ -109,6 +109,8 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
   const [zoomPercent, setZoomPercent] = useState(100);
   const [hoveredNode, setHoveredNode] = useState<AlgorithmMeta | null>(null);
   const [hoveredEdge, setHoveredEdge] = useState<{ sourceName: string; targetName: string; label: string; description: string } | null>(null);
+  const [nodeSpacing, setNodeSpacing] = useState(120);
+  const [clusterSpread, setClusterSpread] = useState(1.0);
 
   const hoverRef = useRef({ hoveredNode, hoveredEdge });
   useEffect(() => {
@@ -220,20 +222,29 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
       label: l.label,
     })).filter(l => typeof l.source === 'object' && typeof l.target === 'object');
 
-    // Target positions for each category cluster — perfectly balanced
+    // Target positions for each category cluster — dynamically spread
     const GROUP_CENTERS: Record<string, { x: number; y: number }> = {
-      uninformed: { x: 0.3 * width, y: 0.6 * height },
-      informed:   { x: 0.7 * width, y: 0.6 * height },
-      game:       { x: 0.5 * width, y: 0.3 * height },
+      uninformed: { 
+        x: width * (0.5 - 0.26 * clusterSpread), 
+        y: height * (0.5 + 0.22 * clusterSpread) 
+      },
+      informed: { 
+        x: width * (0.5 + 0.26 * clusterSpread), 
+        y: height * (0.5 + 0.22 * clusterSpread) 
+      },
+      game: { 
+        x: width * 0.5, 
+        y: height * (0.5 - 0.32 * clusterSpread) 
+      },
     };
 
     const simulation = d3
       .forceSimulation(simNodes)
-      .force('link', d3.forceLink<SimNode, SimLink>(simLinks).id(d => d.id).distance(100))
-      .force('charge', d3.forceManyBody().strength(-220))
-      .force('collision', d3.forceCollide<SimNode>(d => labelWidth(d.label) / 2 + 8))
-      .force('x', d3.forceX<SimNode>(d => GROUP_CENTERS[d.group]?.x ?? width / 2).strength(0.12))
-      .force('y', d3.forceY<SimNode>(d => GROUP_CENTERS[d.group]?.y ?? height / 2).strength(0.12))
+      .force('link', d3.forceLink<SimNode, SimLink>(simLinks).id(d => d.id).distance(nodeSpacing * 1.5))
+      .force('charge', d3.forceManyBody().strength(-nodeSpacing * 5))
+      .force('collision', d3.forceCollide<SimNode>(d => labelWidth(d.label) / 2 + (nodeSpacing * 0.2)))
+      .force('x', d3.forceX<SimNode>(d => GROUP_CENTERS[d.group]?.x ?? width / 2).strength(0.08))
+      .force('y', d3.forceY<SimNode>(d => GROUP_CENTERS[d.group]?.y ?? height / 2).strength(0.08))
       .alphaDecay(0.018) // Slightly faster decay for stability
       .alphaMin(0.001)
       .velocityDecay(0.4);
@@ -548,7 +559,7 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
       simulation.stop();
       if (breatheInterval) clearInterval(breatheInterval);
     };
-  }, [algorithms, width, height, navigate]);
+  }, [algorithms, width, height, nodeSpacing, clusterSpread, navigate]);
 
   return (
     <div ref={containerRef} className="relative w-full h-full rounded overflow-hidden bg-[radial-gradient(circle_at_top,rgba(88,166,255,0.09),transparent_40%),var(--bg)]">
@@ -584,7 +595,59 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
             )}
           </div>
 
-          <div className="absolute top-3 right-3 flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 p-2 backdrop-blur-xl">
+          <div className="absolute top-3 right-3 flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 p-2 backdrop-blur-xl">
+            {/* Spacing Controls Group */}
+            <div className="flex items-center gap-4 px-2 border-r border-[var(--border)]">
+              {/* Node Sparsity */}
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] uppercase tracking-widest text-[var(--text-3)] font-mono whitespace-nowrap">Node Sparsity</span>
+                <div className="relative w-20 h-4 flex items-center group">
+                  <div className="absolute inset-x-0 h-1.5 rounded-full bg-[var(--border)]" />
+                  <div 
+                    className="absolute left-0 h-1.5 rounded-full bg-gradient-to-r from-[#58A6FF] to-[#D2A8FF]" 
+                    style={{ width: `${((nodeSpacing - 50) / 250) * 100}%` }}
+                  />
+                  <input 
+                    type="range"
+                    min={50}
+                    max={300}
+                    value={nodeSpacing}
+                    onChange={(e) => setNodeSpacing(Number(e.target.value))}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div 
+                    className="absolute w-3 h-3 rounded-full bg-white border-2 border-[#58A6FF] shadow-sm pointer-events-none transition-transform group-active:scale-125"
+                    style={{ left: `calc(${((nodeSpacing - 50) / 250) * 100}% - 6px)` }}
+                  />
+                </div>
+              </div>
+
+              {/* Cluster Sparsity */}
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] uppercase tracking-widest text-[var(--text-3)] font-mono whitespace-nowrap">Cluster Sparsity</span>
+                <div className="relative w-20 h-4 flex items-center group">
+                  <div className="absolute inset-x-0 h-1.5 rounded-full bg-[var(--border)]" />
+                  <div 
+                    className="absolute left-0 h-1.5 rounded-full bg-gradient-to-r from-[#D2A8FF] to-[#F2C94C]" 
+                    style={{ width: `${((clusterSpread - 0.4) / 1.6) * 100}%` }}
+                  />
+                  <input 
+                    type="range"
+                    min={0.4}
+                    max={2.0}
+                    step={0.1}
+                    value={clusterSpread}
+                    onChange={(e) => setClusterSpread(Number(e.target.value))}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div 
+                    className="absolute w-3 h-3 rounded-full bg-white border-2 border-[#D2A8FF] shadow-sm pointer-events-none transition-transform group-active:scale-125"
+                    style={{ left: `calc(${((clusterSpread - 0.4) / 1.6) * 100}% - 6px)` }}
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1 text-[11px] font-mono text-[var(--text)]">
               {zoomPercent}%
             </div>

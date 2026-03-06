@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/cn';
 import { usePreferencesStore } from '@/store/usePreferencesStore';
-import { Sun, Moon, Keyboard, Info, X } from '@/components/shared/Icons';
+import { Sun, Moon, Keyboard, Info, X, Maximize2, Minimize2 } from '@/components/shared/Icons';
 
 const SEGMENT_LABELS: Record<string, string> = {
   search: 'Search',
@@ -50,6 +50,7 @@ const SHORTCUT_SECTIONS: ShortcutSection[] = [
       { key: '/', label: 'Search algorithms' },
       { key: 'S', label: 'Toggle sidebar' },
       { key: 'T', label: 'Toggle theme' },
+      { key: 'F', label: 'Toggle Fullscreen' },
     ],
   },
   {
@@ -111,6 +112,36 @@ export default function TopBar() {
   const crumbs = buildBreadcrumbs(pathname);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(!!document.fullscreenElement);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen()
+        .then(() => setIsFullscreen(true))
+        .catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message}`));
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  // Sync state if user uses F11 or Esc
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
+  // Keyboard shortcut for fullscreen
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'f' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName || '')) {
+        toggleFullscreen();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   return (
     <>
@@ -145,6 +176,15 @@ export default function TopBar() {
             className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface)] hover:border-[var(--border)] transition-colors"
           >
             {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
+          {/* Fullscreen toggle */}
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? 'Exit fullscreen (F)' : 'Enter fullscreen (F)'}
+            className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface)] hover:border-[var(--border)] transition-colors"
+          >
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </button>
 
           <button
