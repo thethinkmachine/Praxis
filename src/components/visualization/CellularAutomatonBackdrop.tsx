@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn';
 import { usePreferencesStore } from '@/store/preferences.store';
 
 // A collection of interesting 1D Cellular Automaton rules
-const RULES = [30, 45, 54, 57, 60, 62, 73, 75, 86, 89, 90, 105, 109, 110, 150];
+const RULES_1D = [30, 45, 54, 57, 60, 62, 73, 75, 86, 89, 90, 105, 109, 110, 150];
 
 interface CellularAutomatonBackdropProps {
   className?: string;
@@ -12,11 +12,13 @@ interface CellularAutomatonBackdropProps {
   changeRuleIntervalMs?: number;
 }
 
+type CAMode = '1D' | '2D';
+
 export default function CellularAutomatonBackdrop({
   className,
   cellSize = 8,
   intervalMs = 60,
-  changeRuleIntervalMs = 10000,
+  changeRuleIntervalMs = 12000,
 }: CellularAutomatonBackdropProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const darkMode = usePreferencesStore((s) => s.darkMode);
@@ -26,16 +28,16 @@ export default function CellularAutomatonBackdrop({
     if (darkMode) {
       return {
         bg: '#0b0f14',
-        cellPrimary: 'rgba(95, 179, 255, 0.15)', // Accent soft
-        cellSecondary: 'rgba(83, 200, 128, 0.1)', // Success soft
-        cellTertiary: 'rgba(186, 163, 255, 0.12)', // Purple soft
+        cellPrimary: 'rgba(95, 179, 255, 0.12)', // Accent soft
+        cellSecondary: 'rgba(83, 200, 128, 0.08)', // Success soft
+        cellTertiary: 'rgba(186, 163, 255, 0.1)', // Purple soft
       };
     } else {
       return {
         bg: '#edf2f7',
-        cellPrimary: 'rgba(40, 113, 185, 0.12)',
-        cellSecondary: 'rgba(63, 185, 80, 0.08)',
-        cellTertiary: 'rgba(130, 80, 223, 0.08)',
+        cellPrimary: 'rgba(40, 113, 185, 0.1)',
+        cellSecondary: 'rgba(63, 185, 80, 0.06)',
+        cellTertiary: 'rgba(130, 80, 223, 0.06)',
       };
     }
   }, [darkMode]);
@@ -50,29 +52,32 @@ export default function CellularAutomatonBackdrop({
     let rows = 0;
     
     // CA State
-    let state: number[] = [];
-    let history: number[][] = [];
+    let mode: CAMode = Math.random() > 0.5 ? '1D' : '2D';
+    let state1D: number[] = [];
+    let history1D: number[][] = [];
+    let state2D: number[][] = [];
+    
     let currentRule = 30;
     let ruleSet = [0, 0, 0, 0, 0, 0, 0, 0];
     
     // Animation frame tracking
     let animationId: number;
     let lastDrawTime = 0;
-    let lastRuleChangeTime = 0;
+    let lastModeChangeTime = 0;
 
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
-    // Build the binary rule array
-    const setRule = (ruleDec: number) => {
+    // Build the binary rule array for 1D
+    const setRule1D = (ruleDec: number) => {
       currentRule = ruleDec;
       for (let i = 0; i < 8; i++) {
         ruleSet[i] = (ruleDec >> i) & 1;
       }
     };
 
-    const getRandomRule = () => {
-      const remainingRules = RULES.filter(r => r !== currentRule);
+    const getRandomRule1D = () => {
+      const remainingRules = RULES_1D.filter(r => r !== currentRule);
       return remainingRules[Math.floor(Math.random() * remainingRules.length)];
     };
 
@@ -85,7 +90,6 @@ export default function CellularAutomatonBackdrop({
       width = rect.width;
       height = rect.height;
       
-      // Handle high-DPI displays
       const dpr = window.devicePixelRatio || 1;
       canvas.width = width * dpr;
       canvas.height = height * dpr;
@@ -96,107 +100,123 @@ export default function CellularAutomatonBackdrop({
       cols = Math.ceil(width / cellSize);
       rows = Math.ceil(height / cellSize);
 
-      // Reset state
-      state = new Array(cols).fill(0);
-      history = [];
-      
-      // Start with a single active cell in the middle
-      state[Math.floor(cols / 2)] = 1;
-      
-      // Alternatively, start with random noise
-      // for(let i=0; i<cols; i++) state[i] = Math.random() > 0.5 ? 1 : 0;
-      
-      history.push([...state]);
+      resetState();
     };
 
-    // Apply the CA rule to generate the next generation
-    const generateNextMap = () => {
+    const resetState = () => {
+      if (mode === '1D') {
+        state1D = new Array(cols).fill(0);
+        history1D = [];
+        state1D[Math.floor(cols / 2)] = 1;
+        history1D.push([...state1D]);
+      } else {
+        state2D = Array.from({ length: rows }, () => 
+          Array.from({ length: cols }, () => Math.random() > 0.85 ? 1 : 0)
+        );
+      }
+    };
+
+    const generateNext1D = () => {
       const next = new Array(cols).fill(0);
-      
       for (let i = 0; i < cols; i++) {
-        const left = i === 0 ? state[cols - 1] : state[i - 1];
-        const center = state[i];
-        const right = i === cols - 1 ? state[0] : state[i + 1];
-        
-        // Convert the neighborhood to a binary string, then an index 0-7
+        const left = i === 0 ? state1D[cols - 1] : state1D[i - 1];
+        const center = state1D[i];
+        const right = i === cols - 1 ? state1D[0] : state1D[i + 1];
         const idx = (left << 2) | (center << 1) | right;
         next[i] = ruleSet[idx];
       }
-      
-      state = next;
-      history.push([...state]);
-      
-      // Keep only enough history to fill the screen to prevent unbounded growth
-      if (history.length > rows) {
-        history.shift();
-      }
+      state1D = next;
+      history1D.push([...state1D]);
+      if (history1D.length > rows) history1D.shift();
     };
 
-    // Draw the whole grid history
+    const generateNext2D = () => {
+      const next = Array.from({ length: rows }, () => new Array(cols).fill(0));
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          let neighbors = 0;
+          for (let i = -1; i <= 1; i++) {
+            for (let j = -1; j <= 1; j++) {
+              if (i === 0 && j === 0) continue;
+              const nr = (r + i + rows) % rows;
+              const nc = (c + j + cols) % cols;
+              neighbors += state2D[nr][nc];
+            }
+          }
+          const alive = state2D[r][c] === 1;
+          if (alive && (neighbors === 2 || neighbors === 3)) next[r][c] = 1;
+          else if (!alive && neighbors === 3) next[r][c] = 1;
+        }
+      }
+      state2D = next;
+    };
+
+    // Sequence for fair distribution
+    let ruleSequence: (number | '2D')[] = [];
+    const refreshSequence = () => {
+      ruleSequence = ([...RULES_1D, '2D'] as (number | '2D')[]).sort(() => Math.random() - 0.5);
+    };
+
     const draw = (timestamp: number) => {
       if (!lastDrawTime) lastDrawTime = timestamp;
-      if (!lastRuleChangeTime) lastRuleChangeTime = timestamp;
+      if (!lastModeChangeTime) lastModeChangeTime = timestamp;
 
-      // Check if it's time to change the rule
-      if (timestamp - lastRuleChangeTime > changeRuleIntervalMs) {
-        setRule(getRandomRule());
+      if (timestamp - lastModeChangeTime > changeRuleIntervalMs) {
+        if (ruleSequence.length === 0) refreshSequence();
+        const next = ruleSequence.pop();
         
-        // Inject a little chaos to seed the new rule if it stalls
-        if (Math.random() > 0.3) {
-           const injectionCount = Math.floor(cols * 0.05);
-           for(let i = 0; i < injectionCount; i++) {
-               state[Math.floor(Math.random() * cols)] = 1;
-           }
+        if (next === '2D') {
+          mode = '2D';
+        } else {
+          mode = '1D';
+          setRule1D(next as number);
         }
         
-        lastRuleChangeTime = timestamp;
+        resetState();
+        lastModeChangeTime = timestamp;
       }
 
-      // Check if it's time to generate/draw the next generation
       if (timestamp - lastDrawTime > intervalMs) {
-        generateNextMap();
-        
-        // Clear background
         ctx.fillStyle = colors.bg;
         ctx.fillRect(0, 0, width, height);
 
-        // Draw history from top to bottom
-        for (let r = 0; r < history.length; r++) {
-          const rowData = history[history.length - 1 - r];
-          for (let c = 0; c < rowData.length; c++) {
-            if (rowData[c] === 1) {
-              
-              // Pick color based on position/rule for a little aesthetic variety
-              if ((c * r + currentRule) % 5 === 0) {
-                 ctx.fillStyle = colors.cellSecondary;
-              } else if ((c + r) % 7 === 0) {
-                 ctx.fillStyle = colors.cellTertiary;
-              } else {
-                 ctx.fillStyle = colors.cellPrimary;
+        if (mode === '1D') {
+          generateNext1D();
+          for (let r = 0; r < history1D.length; r++) {
+            const rowData = history1D[history1D.length - 1 - r];
+            for (let c = 0; c < rowData.length; c++) {
+              if (rowData[c] === 1) {
+                if ((c * r + currentRule) % 5 === 0) ctx.fillStyle = colors.cellSecondary;
+                else if ((c + r) % 7 === 0) ctx.fillStyle = colors.cellTertiary;
+                else ctx.fillStyle = colors.cellPrimary;
+                ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
               }
-              
-              ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+            }
+          }
+        } else {
+          generateNext2D();
+          for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+              if (state2D[r][c] === 1) {
+                if ((c + r) % 5 === 0) ctx.fillStyle = colors.cellSecondary;
+                else if ((c * r) % 7 === 0) ctx.fillStyle = colors.cellTertiary;
+                else ctx.fillStyle = colors.cellPrimary;
+                ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+              }
             }
           }
         }
-        
         lastDrawTime = timestamp;
       }
-
       animationId = requestAnimationFrame(draw);
     };
 
-    // Setup
-    setRule(30);
+    setRule1D(30);
     initGrid();
     animationId = requestAnimationFrame(draw);
 
-    const handleResize = () => {
-      initGrid();
-    };
-    
+    const handleResize = () => initGrid();
     window.addEventListener('resize', handleResize);
-
     return () => {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationId);
