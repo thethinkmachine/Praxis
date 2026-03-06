@@ -18,6 +18,26 @@ const CATEGORY_TO_GROUP: Record<AlgorithmCategory, string> = {
   'game-playing': 'game',
 };
 
+const CATEGORY_ICONS: Record<string, string> = {
+  'uninformed-search': 'search',
+  'informed-search': 'zap',
+  'game-playing': 'game',
+};
+
+const RELATIONSHIP_DESCRIPTIONS: Record<string, string> = {
+  'adds heuristic': 'Enhances a classic search by using a heuristic function to estimate the distance to the goal, significantly reducing the number of nodes explored.',
+  'iterative variant': 'Adapts the algorithm to use iterative deepening, which provides the space efficiency of depth-first search while maintaining the completeness of breadth-first search.',
+  'optimizing variant': 'A more advanced version designed to find the truly optimal (lowest cost) path rather than just any path to the goal.',
+  'depth limits': 'Imposes a mandatory maximum depth to prevent infinite loops in deep or cyclic graphs.',
+  'iterates': 'Repeatedly runs a depth-limited search with increasing limits until a solution is found.',
+  'weighted': 'Generalizes the search to handle graphs where edges have different costs or weights.',
+  'bidirectional': 'Searches from both the start and the goal simultaneously, meeting in the middle to find a path much faster than a standard one-directional search.',
+  'f-threshold': 'Uses a cost-based threshold to prune branches, similar to how A* uses f(n) to prioritize nodes.',
+  'prunes': 'Eliminates branches of the game tree that are guaranteed not to affect the final decision, dramatically increasing performance.',
+  'symmetric': 'Leverages the zero-sum nature of the game to simplify the logic, treating players symmetrically to reduce code complexity.',
+  'related': 'These algorithms share fundamental logic or theoretical roots within the same branch of computation.'
+};
+
 // Fallback edge labels if metadata-based detection fails
 const FALLBACK_EDGE_LABELS: Record<string, string> = {
   'dfs→dls': 'depth limits',
@@ -30,32 +50,41 @@ const FALLBACK_EDGE_LABELS: Record<string, string> = {
   'minimax→negamax': 'symmetric',
 };
 
-function getRelationshipLabel(source: AlgorithmMeta, target: AlgorithmMeta): string {
-  // 1. Check if source has a specific label for this target
-  if (source.relationshipLabel && target.relatedAlgorithms?.includes(source.id)) {
-    return source.relationshipLabel;
-  }
-  if (target.relationshipLabel && source.relatedAlgorithms?.includes(target.id)) {
-    return target.relationshipLabel;
-  }
+/** 
+ * Establish a logical hierarchy for the lineage arrows.
+ * Lower numbers = simpler/earlier algorithms.
+ * Arrows always point from Lower Rank -> Higher Rank.
+ */
+const ALGO_RANK: Record<string, number> = {
+  'bfs': 1, 'dfs': 1,
+  'ucs': 2, 'dls': 2, 'bidirectional-bfs': 2,
+  'greedy-bfs': 3, 'iddfs': 3,
+  'astar': 4,
+  'weighted-astar': 5, 'ida-star': 6,
+  'minimax': 10, 'alpha-beta': 11, 'negamax': 12
+};
 
-  // 2. Logic-based inference
+function getRelationshipLabel(source: AlgorithmMeta, target: AlgorithmMeta): string {
+  // 1. Check if either metadata has a specific relationship label
+  if (source.relationshipLabel) return source.relationshipLabel;
+  if (target.relationshipLabel) return target.relationshipLabel;
+
+  // 2. Logic-based inference (Source is lower rank, Target is higher rank)
   const sTags = new Set(source.tags || []);
   const tTags = new Set(target.tags || []);
 
-  if (sTags.has('heuristic') && !tTags.has('heuristic') && tTags.has('priority-queue')) return 'adds heuristic';
-  if (tTags.has('heuristic') && !sTags.has('heuristic') && sTags.has('priority-queue')) return 'adds heuristic';
+  // Evolution: simple -> heuristic
+  if (tTags.has('heuristic') && !sTags.has('heuristic')) return 'adds heuristic';
   
-  if (sTags.has('iterative') && !tTags.has('iterative')) return 'iterative variant';
+  // Evolution: static -> iterative
   if (tTags.has('iterative') && !sTags.has('iterative')) return 'iterative variant';
 
-  if (sTags.has('optimal') && !tTags.has('optimal')) return 'optimizing variant';
+  // Evolution: suboptimal -> optimal
   if (tTags.has('optimal') && !sTags.has('optimal')) return 'optimizing variant';
 
   // 3. Fallback
-  const key1 = `${source.id}→${target.id}`;
-  const key2 = `${target.id}→${source.id}`;
-  return FALLBACK_EDGE_LABELS[key1] ?? FALLBACK_EDGE_LABELS[key2] ?? 'related';
+  const keyMatch = `${source.id}→${target.id}`;
+  return FALLBACK_EDGE_LABELS[keyMatch] ?? 'related';
 }
 
 interface RelationshipGraphProps {
@@ -79,6 +108,12 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const [zoomPercent, setZoomPercent] = useState(100);
   const [hoveredNode, setHoveredNode] = useState<AlgorithmMeta | null>(null);
+  const [hoveredEdge, setHoveredEdge] = useState<{ sourceName: string; targetName: string; label: string; description: string } | null>(null);
+
+  const hoverRef = useRef({ hoveredNode, hoveredEdge });
+  useEffect(() => {
+    hoverRef.current = { hoveredNode, hoveredEdge };
+  }, [hoveredNode, hoveredEdge]);
 
   // Track container dimensions via ResizeObserver
   const [dims, setDims] = useState<{ width: number; height: number }>({ width: 800, height: 520 });
@@ -152,13 +187,21 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
         const targetMeta = algorithms.find(a => a.id === relId);
         if (!targetMeta) continue;
 
-        const fwd = `${m.id}\u2192${relId}`;
-        const rev = `${relId}\u2192${m.id}`;
-        if (seenEdges.has(fwd) || seenEdges.has(rev)) continue;
-        seenEdges.add(fwd);
+        // Ensure arrows point from Simpler -> Complex (Lower Rank -> Higher Rank)
+        const sRank = ALGO_RANK[m.id] ?? 0;
+        const tRank = ALGO_RANK[relId] ?? 0;
         
-        const label = getRelationshipLabel(m, targetMeta);
-        links.push({ source: m.id, target: relId, label });
+        const sourceId = sRank <= tRank ? m.id : relId;
+        const targetId = sRank <= tRank ? relId : m.id;
+        const sMeta = sRank <= tRank ? m : targetMeta;
+        const tMeta = sRank <= tRank ? targetMeta : m;
+
+        const edgeKey = `${sourceId}→${targetId}`;
+        if (seenEdges.has(edgeKey)) continue;
+        seenEdges.add(edgeKey);
+        
+        const label = getRelationshipLabel(sMeta, tMeta);
+        links.push({ source: sourceId, target: targetId, label });
       }
     }
 
@@ -177,22 +220,21 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
       label: l.label,
     })).filter(l => typeof l.source === 'object' && typeof l.target === 'object');
 
-    // Target positions for each category cluster — tighter spacing
+    // Target positions for each category cluster — perfectly balanced
     const GROUP_CENTERS: Record<string, { x: number; y: number }> = {
-      uninformed: { x: 0.3 * width, y: 0.5 * height },
-      informed:   { x: 0.7 * width, y: 0.5 * height },
-      game: { x: 0.5 * width, y: 0.22 * height },
+      uninformed: { x: 0.3 * width, y: 0.6 * height },
+      informed:   { x: 0.7 * width, y: 0.6 * height },
+      game:       { x: 0.5 * width, y: 0.3 * height },
     };
 
     const simulation = d3
       .forceSimulation(simNodes)
       .force('link', d3.forceLink<SimNode, SimLink>(simLinks).id(d => d.id).distance(100))
       .force('charge', d3.forceManyBody().strength(-220))
-      .force('center', d3.forceCenter(width / 2, height / 2).strength(0.008))
       .force('collision', d3.forceCollide<SimNode>(d => labelWidth(d.label) / 2 + 8))
       .force('x', d3.forceX<SimNode>(d => GROUP_CENTERS[d.group]?.x ?? width / 2).strength(0.12))
       .force('y', d3.forceY<SimNode>(d => GROUP_CENTERS[d.group]?.y ?? height / 2).strength(0.12))
-      .alphaDecay(0.015)
+      .alphaDecay(0.018) // Slightly faster decay for stability
       .alphaMin(0.001)
       .velocityDecay(0.4);
 
@@ -205,8 +247,10 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
     svg.call(zoomBehavior);
     zoomRef.current = zoomBehavior;
 
-    // Arrow marker
-    svg.append('defs').append('marker')
+    // Standard Arrow marker
+    const defs = svg.append('defs');
+    
+    defs.append('marker')
       .attr('id', 'rel-arrow')
       .attr('viewBox', '0 -5 10 10')
       .attr('refX', 10)
@@ -218,8 +262,31 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
       .attr('d', 'M0,-5L10,0L0,5')
       .attr('fill', 'var(--text-3, #484F58)');
 
+    // Active/Hover Arrow marker
+    defs.append('marker')
+      .attr('id', 'rel-arrow-active')
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 10)
+      .attr('refY', 0)
+      .attr('markerWidth', 7)
+      .attr('markerHeight', 7)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,-5L10,0L0,5')
+      .attr('fill', 'var(--accent, #58a6ff)');
+
     // Curved edges using quadratic bezier paths
-    const linkPath = g.selectAll('.rl-link').data(simLinks).enter().append('path')
+    const linkGroup = g.selectAll('.rl-link-group').data(simLinks).enter().append('g')
+      .attr('class', 'rl-link-group');
+
+    const linkHitArea = linkGroup.append('path')
+      .attr('class', 'rl-link-hit')
+      .attr('fill', 'none')
+      .attr('stroke', 'transparent')
+      .attr('stroke-width', 10)
+      .style('cursor', 'help');
+
+    const linkPath = linkGroup.append('path')
       .attr('class', 'rl-link')
       .attr('fill', 'none')
       .attr('stroke', 'var(--border, #30363D)')
@@ -227,12 +294,43 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
       .attr('marker-end', 'url(#rel-arrow)');
 
     // Edge labels
-    const linkLabel = g.selectAll('.rl-label').data(simLinks).enter().append('text')
+    const linkLabel = linkGroup.append('text')
       .attr('class', 'rl-label')
       .attr('font-size', 9)
       .attr('fill', 'var(--text-3, #6E7681)')
       .attr('text-anchor', 'middle')
       .text(d => d.label);
+
+    linkGroup
+      .on('mouseenter', function (_ev, d) {
+        const sNode = algorithms.find(a => a.id === (d.source as SimNode).id);
+        const tNode = algorithms.find(a => a.id === (d.target as SimNode).id);
+        if (sNode && tNode) {
+          setHoveredEdge({
+            sourceName: sNode.shortName || sNode.name,
+            targetName: tNode.shortName || tNode.name,
+            label: d.label,
+            description: RELATIONSHIP_DESCRIPTIONS[d.label] || 'Related concepts in algorithm design.'
+          });
+        }
+        d3.select(this).select('.rl-link')
+          .attr('stroke', 'var(--accent, #58a6ff)')
+          .attr('stroke-width', 1.8)
+          .attr('marker-end', 'url(#rel-arrow-active)');
+        d3.select(this).select('.rl-label')
+          .attr('fill', 'var(--text, #f0f6fc)')
+          .attr('font-weight', '600');
+      })
+      .on('mouseleave', function () {
+        setHoveredEdge(null);
+        d3.select(this).select('.rl-link')
+          .attr('stroke', 'var(--border, #30363D)')
+          .attr('stroke-width', 1.2)
+          .attr('marker-end', 'url(#rel-arrow)');
+        d3.select(this).select('.rl-label')
+          .attr('fill', 'var(--text-3, #6E7681)')
+          .attr('font-weight', 'normal');
+      });
 
     const nodeGroup = g.selectAll('.rn').data(simNodes).enter().append('g')
       .attr('class', 'rn')
@@ -318,32 +416,48 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
       linkPath.attr('d', d => {
         const s = d.source as SimNode;
         const t = d.target as SimNode;
-        const sx = s.x ?? 0;
-        const sy = s.y ?? 0;
-        const tx = t.x ?? 0;
-        const ty = t.y ?? 0;
-
-        const sHalfW = labelWidth(s.label) / 2;
-        const tHalfW = labelWidth(t.label) / 2;
-        const halfH = NODE_HEIGHT / 2;
-
-        const [x1, y1] = rectEdgePoint(sx, sy, sHalfW, halfH, tx, ty);
-        const [x2, y2] = rectEdgePoint(tx, ty, tHalfW, halfH, sx, sy);
-
-        return curvedPath(x1, y1, x2, y2);
+        const dx = (t.x ?? 0) - (s.x ?? 0);
+        const dy = (t.y ?? 0) - (s.y ?? 0);
+        const dr = Math.sqrt(dx * dx + dy * dy) * 1.5;
+        return `M${s.x ?? 0},${s.y ?? 0}A${dr},${dr} 0 0,1 ${t.x ?? 0},${t.y ?? 0}`;
       });
 
-      linkLabel
-        .attr('x', d => (((d.source as SimNode).x ?? 0) + ((d.target as SimNode).x ?? 0)) / 2)
-        .attr('y', d => (((d.source as SimNode).y ?? 0) + ((d.target as SimNode).y ?? 0)) / 2 - 4);
+      linkHitArea.attr('d', d => {
+        const s = d.source as SimNode;
+        const t = d.target as SimNode;
+        const dx = (t.x ?? 0) - (s.x ?? 0);
+        const dy = (t.y ?? 0) - (s.y ?? 0);
+        const dr = Math.sqrt(dx * dx + dy * dy) * 1.5;
+        return `M${s.x ?? 0},${s.y ?? 0}A${dr},${dr} 0 0,1 ${t.x ?? 0},${t.y ?? 0}`;
+      });
+
+      linkLabel.attr('transform', d => {
+        const s = d.source as SimNode;
+        const t = d.target as SimNode;
+        const dx = (t.x ?? 0) - (s.x ?? 0);
+        const dy = (t.y ?? 0) - (s.y ?? 0);
+        const dr = Math.sqrt(dx * dx + dy * dy) * 1.5;
+        
+        const mx = ((s.x ?? 0) + (t.x ?? 0)) / 2;
+        const my = ((s.y ?? 0) + (t.y ?? 0)) / 2;
+        
+        const normalX = -dy / (dr/20 || 1);
+        const normalY = dx / (dr/20 || 1);
+        
+        return `translate(${mx + normalX}, ${my + normalY})`;
+      });
 
       nodeGroup.attr('transform', d => `translate(${d.x ?? 0},${d.y ?? 0})`);
     });
 
     // After simulation stabilises, auto-fit then start breathing animation
     let breatheInterval: ReturnType<typeof setInterval> | null = null;
+    let hasFitted = false;
 
     simulation.on('end', () => {
+      if (hasFitted) return;
+      hasFitted = true;
+
       // Auto-fit
       const gNode = g.node() as SVGGElement | null;
       if (gNode) {
@@ -366,15 +480,18 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
 
       // Start breathing animation — gentle perturbation every 3.5s
       breatheInterval = setInterval(() => {
-        // Pick 3 random nodes and nudge them slightly
-        for (let i = 0; i < 3; i++) {
+        // FREEZE: Don't perturb if user is reading (hovering) or if it's the main page and not background
+        if (hoverRef.current.hoveredNode || hoverRef.current.hoveredEdge) return;
+
+        // Pick 2 random nodes and nudge them slightly
+        for (let i = 0; i < 2; i++) {
           const idx = Math.floor(Math.random() * simNodes.length);
           const node = simNodes[idx];
           if (node.fx != null) continue; // skip if being dragged
-          node.vx = (node.vx ?? 0) + (Math.random() - 0.5) * 3;
-          node.vy = (node.vy ?? 0) + (Math.random() - 0.5) * 3;
+          node.vx = (node.vx ?? 0) + (Math.random() - 0.5) * 2;
+          node.vy = (node.vy ?? 0) + (Math.random() - 0.5) * 2;
         }
-        simulation.alpha(0.03).restart();
+        simulation.alpha(0.02).restart();
       }, 3500);
     });
 
@@ -441,11 +558,13 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
         <>
           <div className="absolute left-3 top-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 px-3 py-2 backdrop-blur-xl max-w-xs transition-all duration-200">
             <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)] font-mono">
-              {hoveredNode ? hoveredNode.name : 'Algorithm Lineage'}
+              {hoveredNode ? hoveredNode.name : hoveredEdge ? `${hoveredEdge.sourceName} → ${hoveredEdge.targetName}` : 'Algorithm Lineage'}
             </p>
             <p className="mt-1 text-xs text-[var(--text-2)] leading-relaxed">
               {hoveredNode 
                 ? hoveredNode.description 
+                : hoveredEdge
+                ? hoveredEdge.description
                 : 'Traverse the evolutionary tree of search. Edges highlight how algorithms derive from, optimize, or specialize one another.'}
             </p>
             {hoveredNode && (
@@ -455,6 +574,12 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
                     {tag}
                   </span>
                 ))}
+              </div>
+            )}
+            {hoveredEdge && (
+              <div className="mt-2 text-[10px] font-mono text-[var(--accent)] uppercase tracking-wider flex items-center gap-1">
+                <span className="w-1 h-1 rounded-full bg-[var(--accent)]" />
+                {hoveredEdge.label}
               </div>
             )}
           </div>
