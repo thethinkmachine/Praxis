@@ -69,7 +69,7 @@ export const greedyBfsRunner: AlgorithmRunner<GraphProblem, InformedSearchState,
     const labelOf = (id: string) => problem.graph.nodes.find(n => n.id === id)?.label ?? id;
     const h = createHeuristicEvaluator(problem);
 
-    const pq = new PriorityQueue<string>();
+    const pq = new PriorityQueue<string>((a, b) => labelOf(a).localeCompare(labelOf(b)));
     const reached = new Set<string>([problem.startNode]);
     const explored = new Set<string>();
     const pathMap = new Map<string, string | null>([[problem.startNode, null]]);

@@ -112,7 +112,7 @@ export const dfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
         return;
       }
 
-      const neighbors = (adj.get(current) ?? []).slice().reverse();
+      const neighbors = [...(adj.get(current) ?? [])].reverse();
       for (const { neighbor } of neighbors) {
         if (!explored.has(neighbor)) {
           stack.push([neighbor, current]);

@@ -70,7 +70,7 @@ export const ucsRunner: AlgorithmRunner<GraphProblem, UniformCostState, SearchHi
   *run(problem: GraphProblem): Generator<AlgorithmStep<UniformCostState, SearchHighlight>, void> {
     const adj = buildAdjacencyList(problem.graph);
     const labelOf = (id: string) => problem.graph.nodes.find(n => n.id === id)?.label ?? id;
-    const pq = new PriorityQueue<string>();
+    const pq = new PriorityQueue<string>((a, b) => labelOf(a).localeCompare(labelOf(b)));
     const explored = new Set<string>();
     const pathMap = new Map<string, string | null>([[problem.startNode, null]]);
     const gCosts = new Map<string, number>([[problem.startNode, 0]]);

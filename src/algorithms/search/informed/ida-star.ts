@@ -144,7 +144,7 @@ export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHi
         node: problem.startNode,
         g: 0,
         childIdx: 0,
-        children: adj.get(problem.startNode) ?? [],
+        children: [...(adj.get(problem.startNode) ?? [])].reverse(),
       }];
 
       const currentPath = new Set<string>([problem.startNode]);
@@ -247,7 +247,7 @@ export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHi
               node: neighbor,
               g: g + weight,
               childIdx: 0,
-              children: adj.get(neighbor) ?? [],
+              children: [...(adj.get(neighbor) ?? [])].reverse(),
             });
             pushed = true;
             break;

@@ -114,7 +114,7 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
           continue;
         }
 
-        const neighbors = (adj.get(current) ?? []).slice().reverse();
+        const neighbors = [...(adj.get(current) ?? [])].reverse();
         for (const { neighbor } of neighbors) {
           if (!explored.has(neighbor)) {
             stack.push([neighbor, current, depth + 1]);

@@ -183,7 +183,8 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
         nodesExpanded++;
         expanded.push(current);
 
-        for (const { neighbor } of adjMap.get(current) ?? []) {
+        const neighbors = adjMap.get(current) ?? [];
+        for (const { neighbor } of neighbors) {
           if (!explored.has(neighbor) && !frontierSet.has(neighbor)) {
             pathMap.set(neighbor, current);
             frontier.push(neighbor);

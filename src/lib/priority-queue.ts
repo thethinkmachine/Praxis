@@ -1,9 +1,15 @@
 /**
  * Generic min-heap priority queue.
  * Items are [priority, value] pairs; lower priority = higher precedence.
+ * Supports an optional tie-breaker function for items with equal priority.
  */
 export class PriorityQueue<T> {
   private heap: [number, T][] = [];
+  private compareItems?: (a: T, b: T) => number;
+
+  constructor(compareItems?: (a: T, b: T) => number) {
+    this.compareItems = compareItems;
+  }
 
   get size(): number {
     return this.heap.length;
@@ -45,10 +51,18 @@ export class PriorityQueue<T> {
     return this.heap.map(([, v]) => v);
   }
 
+  private compare(i: number, j: number): number {
+    const [p1, v1] = this.heap[i];
+    const [p2, v2] = this.heap[j];
+    if (p1 !== p2) return p1 - p2;
+    if (this.compareItems) return this.compareItems(v1, v2);
+    return 0;
+  }
+
   private bubbleUp(i: number): void {
     while (i > 0) {
       const parent = Math.floor((i - 1) / 2);
-      if (this.heap[parent][0] <= this.heap[i][0]) break;
+      if (this.compare(parent, i) <= 0) break;
       [this.heap[parent], this.heap[i]] = [this.heap[i], this.heap[parent]];
       i = parent;
     }
@@ -60,8 +74,8 @@ export class PriorityQueue<T> {
       let smallest = i;
       const left = 2 * i + 1;
       const right = 2 * i + 2;
-      if (left < n && this.heap[left][0] < this.heap[smallest][0]) smallest = left;
-      if (right < n && this.heap[right][0] < this.heap[smallest][0]) smallest = right;
+      if (left < n && this.compare(left, smallest) < 0) smallest = left;
+      if (right < n && this.compare(right, smallest) < 0) smallest = right;
       if (smallest === i) break;
       [this.heap[smallest], this.heap[i]] = [this.heap[i], this.heap[smallest]];
       i = smallest;

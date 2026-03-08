@@ -81,7 +81,7 @@ export const weightedAstarRunner: AlgorithmRunner<WeightedAStarProblem, Informed
     const h = createHeuristicEvaluator(problem);
     const fw = (g: number, hVal: number) => g + w * hVal;
 
-    const pq = new PriorityQueue<string>();
+    const pq = new PriorityQueue<string>((a, b) => labelOf(a).localeCompare(labelOf(b)));
     const explored = new Set<string>();
     const pathMap = new Map<string, string | null>([[problem.startNode, null]]);
     const gCosts = new Map<string, number>([[problem.startNode, 0]]);

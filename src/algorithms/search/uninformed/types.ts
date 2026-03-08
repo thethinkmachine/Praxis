@@ -71,6 +71,9 @@ export function getHeuristic(problem: GraphProblem & { graph: GraphData }, nodeI
 
 export function buildAdjacencyList(graph: GraphData): Map<string, { neighbor: string; weight: number; edgeId: string }[]> {
   const adj = new Map<string, { neighbor: string; weight: number; edgeId: string }[]>();
+  const nodes = new Map(graph.nodes.map(n => [n.id, n]));
+  const getLabel = (id: string) => nodes.get(id)?.label ?? id;
+
   graph.nodes.forEach(n => adj.set(n.id, []));
   graph.edges.forEach(e => {
     adj.get(e.source)?.push({ neighbor: e.target, weight: e.weight, edgeId: e.id });
@@ -78,5 +81,11 @@ export function buildAdjacencyList(graph: GraphData): Map<string, { neighbor: st
       adj.get(e.target)?.push({ neighbor: e.source, weight: e.weight, edgeId: e.id });
     }
   });
+
+  // Sort neighbors alphabetically by label for deterministic expansion
+  adj.forEach((neighbors) => {
+    neighbors.sort((a, b) => getLabel(a.neighbor).localeCompare(getLabel(b.neighbor)));
+  });
+
   return adj;
 }
