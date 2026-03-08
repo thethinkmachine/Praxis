@@ -308,7 +308,7 @@ export default function TopBar() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-[var(--text-3)] uppercase tracking-wider font-medium w-16 shrink-0">Built by</span>
-                  <span className="text-xs text-[var(--text)]">Shreyan Chaubey & Claude</span>
+                  <span className="text-xs text-[var(--text)]">Shreyan Chaubey</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-[var(--text-3)] uppercase tracking-wider font-medium w-16 shrink-0">License</span>
