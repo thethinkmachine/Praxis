@@ -6,6 +6,7 @@ const HomePage = React.lazy(() => import('@/pages/HomePage'));
 const SearchPage = React.lazy(() => import('@/pages/SearchPage'));
 const MazePage = React.lazy(() => import('@/pages/MazePage'));
 const GamePage = React.lazy(() => import('@/pages/GamePage'));
+const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage'));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center h-full">
@@ -59,7 +60,11 @@ const router = createBrowserRouter([
       },
       {
         path: '*',
-        element: <Navigate to="/" replace />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <NotFoundPage />
+          </Suspense>
+        ),
       },
     ],
   },
