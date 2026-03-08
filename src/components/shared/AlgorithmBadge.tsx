@@ -12,17 +12,17 @@ const CATEGORY_CONFIG: Record<
 > = {
   'uninformed-search': {
     label: 'Uninformed Search',
-    icon: 'BFS',
+    icon: 'US //',
     colorClass: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   },
   'informed-search': {
     label: 'Informed Search',
-    icon: 'h(n)',
+    icon: 'IS //',
     colorClass: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
   },
   'game-playing': {
     label: 'Game Playing',
-    icon: 'MIN',
+    icon: 'GP //',
     colorClass: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
   },
 };
