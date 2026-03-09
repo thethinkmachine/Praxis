@@ -16,19 +16,31 @@ interface SavedProblemsState {
 
 export const useSavedProblemsStore = create<SavedProblemsState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       problems: [],
 
       saveProblem: (name, category, problem) => {
-        const id = crypto.randomUUID();
-        const entry: SavedProblem = {
-          id,
-          name,
-          category,
-          problem,
-          createdAt: new Date().toISOString(),
-        };
-        set((state) => ({ problems: [...state.problems, entry] }));
+        const existing = get().problems.find(p => p.name === name && p.category === category);
+        const id = existing ? existing.id : crypto.randomUUID();
+
+        set((state) => {
+          if (existing) {
+            return {
+              problems: state.problems.map(p =>
+                p.id === id ? { ...p, problem, createdAt: new Date().toISOString() } : p
+              )
+            };
+          }
+          const entry: SavedProblem = {
+            id,
+            name,
+            category,
+            problem,
+            createdAt: new Date().toISOString(),
+          };
+          return { problems: [...state.problems, entry] };
+        });
+        
         return id;
       },
 

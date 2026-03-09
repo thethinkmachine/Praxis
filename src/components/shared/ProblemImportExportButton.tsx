@@ -80,7 +80,7 @@ export default function ProblemImportExportButton({
         if (entry) onImport(entry.problem);
     }
 
-    function handleDelete(e: Event, id: string) {
+    function handleDelete(e: React.MouseEvent, id: string) {
         e.preventDefault();
         e.stopPropagation();
         if (confirmDelete === id) {
@@ -161,16 +161,20 @@ export default function ProblemImportExportButton({
                             </DropdownMenu.Item>
                         ) : (
                             saved.map((sp) => (
-                                <DropdownMenu.Item
+                                <div
                                     key={sp.id}
-                                    onSelect={() => handleLoad(sp.id)}
-                                    className={cn(itemClass, 'justify-between')}
+                                    className="flex items-center justify-between hover:bg-[var(--accent)]/10"
                                 >
-                                    <span className="truncate">{sp.name}</span>
+                                    <DropdownMenu.Item
+                                        onSelect={() => handleLoad(sp.id)}
+                                        className="flex-1 truncate px-3 py-1.5 text-xs text-[var(--text)] hover:text-[var(--accent)] cursor-pointer outline-none"
+                                    >
+                                        {sp.name}
+                                    </DropdownMenu.Item>
                                     <button
-                                        onPointerDown={(e) => handleDelete(e.nativeEvent, sp.id)}
+                                        onClick={(e) => handleDelete(e, sp.id)}
                                         className={cn(
-                                            'shrink-0 text-[10px] px-1 rounded',
+                                            'shrink-0 text-[10px] px-1 rounded mr-3',
                                             confirmDelete === sp.id
                                                 ? 'text-[var(--danger)] bg-[var(--danger)]/10'
                                                 : 'text-[var(--text-3)] hover:text-[var(--danger)]',
@@ -179,7 +183,7 @@ export default function ProblemImportExportButton({
                                     >
                                         {confirmDelete === sp.id ? 'confirm?' : '×'}
                                     </button>
-                                </DropdownMenu.Item>
+                                </div>
                             ))
                         )}
 
