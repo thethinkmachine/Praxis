@@ -10,7 +10,7 @@ import type { TabDefinition } from '@/components/module/AlgorithmPage';
 import SVGGraphCanvas from '@/components/visualization/SVGGraphCanvas';
 import SVGAutoCanvas from '@/components/visualization/SVGAutoCanvas';
 import DemoProblemPicker from '@/components/editor/DemoProblemPicker';
-import { Dice5 } from '@/components/shared/Icons';
+import { Dice5, Info } from '@/components/shared/Icons';
 import { generateRandomGraph } from '@/lib/random-generators';
 import { INFORMED_HEURISTICS, getHeuristicDefinition } from '@/algorithms/search/informed/types';
 import { createGraphSearchAdapterFromProblem } from '@/visualizations/adapters/graph-search.adapter';
@@ -20,8 +20,11 @@ import { buildSearchTreeElements } from '@/visualizations/adapters/search-tree.a
 import type { AlgorithmStep } from '@/types/step';
 import { Graph, type GraphProblem, type HeuristicId } from '@/types/problem';
 
-// Algorithms that operate on unweighted graphs — don't display edge weight labels
-const UNINFORMED_ALGOS = new Set(['bfs', 'dfs', 'dls', 'iddfs']);
+import AdjacencyTable from '@/components/editor/AdjacencyTable';
+
+// Algorithm categorization for UI behavior
+const INFORMED_ALGOS = new Set(['greedy-bfs', 'astar', 'weighted-astar', 'ida-star']);
+const UNWEIGHTED_ALGOS = new Set(['bfs', 'dfs', 'dls', 'iddfs', 'bidirectional-bfs']);
 
 function evaluationFormula(algo: string): string {
   if (algo === 'greedy-bfs') return 'f(n) = h(n)';
@@ -37,7 +40,8 @@ export default function SearchPage() {
 
   // ── Runner (for meta.category in SVGGraphCanvas) ─────────────────────
   const runner = useMemo(() => registry.get(algo)?.runner ?? null, [algo]);
-  const isInformedAlgorithm = !UNINFORMED_ALGOS.has(algo);
+  const isInformedAlgorithm = INFORMED_ALGOS.has(algo);
+  const isWeightedAlgorithm = !UNWEIGHTED_ALGOS.has(algo);
   const heuristicDefinition = useMemo(() => getHeuristicDefinition(heuristicId), [heuristicId]);
 
   // ── Execution store read (step needed for visualization memos) ───────
@@ -51,6 +55,7 @@ export default function SearchPage() {
   const editorIsDirected = useEditorStore(s => s.isDirected);
   const selectedIds = useEditorStore(s => s.selectedIds);
   const updateNode = useEditorStore(s => s.updateNode);
+  const setSelected = useEditorStore(s => s.setSelected);
 
   // Topology fingerprint — stable string that changes only when nodes are
   // added/removed/renamed, NOT when positions change.
@@ -129,8 +134,8 @@ export default function SearchPage() {
 
   // ── Stylesheet ───────────────────────────────────────────────────────
   const stylesheet = useMemo(
-    () => getGraphSearchStyles(!UNINFORMED_ALGOS.has(algo)),
-    [algo],
+    () => getGraphSearchStyles(isWeightedAlgorithm),
+    [isWeightedAlgorithm],
   );
 
   // ── Cytoscape elements (colored by algorithm state) ──────────────────
@@ -227,7 +232,7 @@ export default function SearchPage() {
     <div className="flex items-center gap-2">
       <button
         onClick={() => {
-          const weighted = !UNINFORMED_ALGOS.has(algo);
+          const weighted = isWeightedAlgorithm;
           const { nodes, edges } = generateRandomGraph(6 + Math.floor(Math.random() * 5), 0.25, weighted);
           const ids = nodes.map(n => n.id);
           useEditorStore.getState().loadGraph(nodes, edges, ids[0], ids[ids.length - 1], false);
@@ -282,7 +287,10 @@ export default function SearchPage() {
 
     if (selectedNode) {
       return (
-        <ProblemConfigurator title={`Node: ${selectedNode.label ?? selectedNode.id}`}>
+        <ProblemConfigurator 
+          title={`Node: ${selectedNode.label ?? selectedNode.id}`}
+          onBack={() => setSelected([])}
+        >
           <div className="space-y-4 text-xs">
              <div>
                 <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Label</p>
@@ -336,7 +344,10 @@ export default function SearchPage() {
 
     if (selectedEdge) {
       return (
-        <ProblemConfigurator title={`Edge: ${selectedEdge.id}`}>
+        <ProblemConfigurator 
+          title={`Edge: ${selectedEdge.id}`}
+          onBack={() => setSelected([])}
+        >
           <div className="space-y-4 text-xs">
              <div>
                 <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Weight (Cost)</p>
@@ -356,79 +367,84 @@ export default function SearchPage() {
       );
     }
 
+
     return (
       <ProblemConfigurator title="Global Config">
-        <div className="space-y-3 text-xs">
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Algorithm</p>
-            <p className="text-[12px] text-[var(--text-2)] font-mono">{algo}</p>
-          </div>
+        <div className="space-y-6 text-xs">
+          {/* Algorithm & Heuristic Selection */}
+          <div className="space-y-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Algorithm</p>
+              <p className="text-[12px] text-[var(--text-2)] font-mono">{algo}</p>
+            </div>
 
-          {isInformedAlgorithm ? (
-            <>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Heuristic Function</p>
-                <select
-                  value={heuristicId}
-                  onChange={(e) => setHeuristicId(e.target.value as HeuristicId)}
-                  className="w-full px-2 py-1 rounded border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] font-mono"
-                >
-                  {INFORMED_HEURISTICS.map((option) => (
-                    <option key={option.id} value={option.id}>{option.label}</option>
-                  ))}
-                </select>
-                <p className="text-[10px] text-[var(--text-3)] mt-1">{heuristicDefinition.description}</p>
-              </div>
-
-              {heuristicId !== 'manual-node' && heuristicId !== 'zero' && (
+            {isInformedAlgorithm && (
+              <>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Scale</p>
-                  <input
-                    type="number"
-                    min={0.1}
-                    step={0.1}
-                    value={heuristicScale}
-                    onChange={(e) => setHeuristicScale(Math.max(0.1, Number(e.target.value) || 0.1))}
-                    className="w-full px-2 py-1 rounded border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] font-mono"
-                  />
+                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Heuristic Function</p>
+                  <select
+                    value={heuristicId}
+                    onChange={(e) => setHeuristicId(e.target.value as HeuristicId)}
+                    className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                  >
+                    {INFORMED_HEURISTICS.map((option) => (
+                      <option key={option.id} value={option.id}>{option.label}</option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-[var(--text-3)] mt-1.5 leading-relaxed">{heuristicDefinition.description}</p>
                 </div>
-              )}
 
-              {heuristicId === 'manual-node' && (
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Quick Table</p>
-                  <div className="rounded border border-[var(--border)] overflow-hidden">
-                    <div className="max-h-64 overflow-y-auto divide-y divide-[var(--border)] bg-[var(--surface)]">
-                      {[...editorNodes]
-                        .sort((a, b) => (a.label ?? a.id).localeCompare(b.label ?? b.id))
-                        .map((node) => (
-                          <div key={node.id} className="flex items-center justify-between px-2 py-1 gap-2">
-                            <span className="truncate text-[10px] text-[var(--text-2)] font-mono">
-                              {node.label ?? node.id}
-                            </span>
-                            <input
-                              type="number"
-                              step={0.1}
-                              value={node.heuristic ?? ''}
-                              onChange={(e) => updateNodeHeuristic(node.id, e.target.value)}
-                              className="w-16 px-1 py-0.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] text-right font-mono text-[10px]"
-                            />
-                          </div>
-                        ))}
+                {heuristicId !== 'manual-node' && heuristicId !== 'zero' && (
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Scale (w)</p>
+                      <input
+                        type="number"
+                        min={0.1}
+                        step={0.1}
+                        value={heuristicScale}
+                        onChange={(e) => setHeuristicScale(Math.max(0.1, Number(e.target.value) || 0.1))}
+                        className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                      />
+                    </div>
+                    
+                    <div className="rounded border border-[var(--warning)]/30 bg-[var(--surface-2)]/30 p-2.5 space-y-1.5 border-l-2">
+                       <div className="flex items-center gap-1.5 text-[var(--warning)]">
+                          <Info size={10} />
+                          <p className="text-[9px] uppercase font-bold tracking-widest">Caution: Spatial Reference</p>
+                       </div>
+                       <p className="text-[10px] text-[var(--text-3)] leading-relaxed italic">
+                         Geometric heuristics like <span className="text-[var(--text-2)] font-mono">{heuristicId.split('-')[0]}</span> depend on node coordinates. 
+                         You will need to <span className="text-[var(--text-2)] font-semibold">rearrange nodes on the canvas</span> to physically represent the distances you want.
+                       </p>
                     </div>
                   </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="rounded border border-[var(--border)] p-2 bg-[var(--surface-2)]/30">
-              <p className="text-[11px] text-[var(--text-2)]">This algorithm ignores heuristic functions.</p>
-            </div>
-          )}
+                )}
+              </>
+            )}
+
+            {!isInformedAlgorithm && (
+              <div className="rounded border border-[var(--border)] p-2.5 bg-[var(--surface-2)]/30">
+                <p className="text-[10px] text-[var(--text-2)] leading-relaxed">
+                  This algorithm operates on unweighted graphs or ignores heuristic estimates.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Adjacency Table Section */}
+          <div className="border-t border-[var(--border)] pt-5">
+            <AdjacencyTable 
+              showHeuristics={isInformedAlgorithm} 
+              showWeights={isWeightedAlgorithm}
+              heuristicId={heuristicId}
+              heuristicScale={heuristicScale}
+            />
+          </div>
         </div>
       </ProblemConfigurator>
     );
-  }, [algo, isInformedAlgorithm, heuristicId, heuristicDefinition.description, heuristicScale, editorNodes, editorStartId, editorGoalId, editorEdges, selectedIds, updateNodeHeuristic]);
+  }, [algo, isInformedAlgorithm, heuristicId, heuristicDefinition.description, heuristicScale, editorNodes, editorStartId, editorGoalId, editorEdges, selectedIds, updateNode, updateNodeHeuristic, setSelected]);
 
   return (
     <AlgorithmPage

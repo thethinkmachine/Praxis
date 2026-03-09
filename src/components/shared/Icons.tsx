@@ -63,4 +63,6 @@ export {
   Target,
   Terminal,
   Trash2,
+  Flag,
+  Hash,
 } from 'lucide-react';

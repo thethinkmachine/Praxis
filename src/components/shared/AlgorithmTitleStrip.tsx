@@ -6,7 +6,7 @@ import AlgorithmBadge from '@/components/shared/AlgorithmBadge';
 import AlgoInfoPopover from '@/components/shared/AlgoInfoPopover';
 import { registry, type RegistryEntry } from '@/algorithms/core/registry';
 import { buildRoute } from '@/lib/buildRoute';
-import { ChevronDown, ChevronRight, Info, Settings2 } from '@/components/shared/Icons';
+import { ChevronDown, ChevronRight, Info, Settings2, House } from '@/components/shared/Icons';
 import type { AlgorithmMeta } from '@/types';
 import type { ProblemCategory } from '@/types/problem';
 
@@ -48,6 +48,15 @@ export default function AlgorithmTitleStrip({
 
   return (
     <div className="relative flex items-center gap-2 px-3 h-10 bg-[var(--titlebar)] border-b border-[var(--border)] shrink-0">
+      {/* Back to Home Button */}
+      <button
+        onClick={() => navigate('/')}
+        title="Back to Home"
+        className="flex items-center justify-center w-8 h-8 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-3)] hover:text-[var(--accent)] hover:border-[var(--accent)]/50 transition-colors shrink-0"
+      >
+        <House size={14} />
+      </button>
+
       {/* Config toggle button (optional) */}
       {showConfigButton && onToggleConfig && (
         <button
