@@ -38,6 +38,7 @@ const CATEGORIES: CategoryEntry[] = [
       { id: 'iddfs', name: 'IDDFS', path: '/search/uninformed-search/iddfs' },
       { id: 'ucs', name: 'UCS', path: '/search/uninformed-search/ucs' },
       { id: 'bidirectional-bfs', name: 'Bidirectional BFS', path: '/search/uninformed-search/bidirectional-bfs' },
+      { id: 'bidirectional-ucs', name: 'Bidirectional UCS', path: '/search/uninformed-search/bidirectional-ucs' },
     ],
   },
   {
@@ -48,6 +49,9 @@ const CATEGORIES: CategoryEntry[] = [
     algorithms: [
       { id: 'greedy-bfs', name: 'Greedy BFS', path: '/search/informed-search/greedy-bfs' },
       { id: 'astar', name: 'A* Search', path: '/search/informed-search/astar' },
+      { id: 'rbfs', name: 'RBFS', path: '/search/informed-search/rbfs' },
+      { id: 'sma-star', name: 'SMA*', path: '/search/informed-search/sma-star' },
+      { id: 'bidirectional-astar', name: 'Bidirectional A*', path: '/search/informed-search/bidirectional-astar' },
       { id: 'weighted-astar', name: 'Weighted A*', path: '/search/informed-search/weighted-astar' },
       { id: 'ida-star', name: 'IDA*', path: '/search/informed-search/ida-star' },
     ],

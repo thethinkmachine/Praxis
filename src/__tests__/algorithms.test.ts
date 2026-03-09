@@ -78,6 +78,40 @@ describe('Uninformed Search', () => {
     expect(path![0]).toBe(simpleGraphProblem.startNode);
     expect(path![path!.length - 1]).toBe(simpleGraphProblem.goalNode);
   });
+
+  it('Bidirectional UCS finds a valid path on weighted map', () => {
+    const step = runToEnd('bidirectional-ucs', romaniaMapProblem);
+    const path = getFinalPath(step);
+    expect(path).not.toBeNull();
+    expect(path![0]).toBe(romaniaMapProblem.startNode);
+    expect(path![path!.length - 1]).toBe(romaniaMapProblem.goalNode);
+  });
+});
+
+describe('Informed Search', () => {
+  it('RBFS finds a valid path', () => {
+    const step = runToEnd('rbfs', romaniaMapProblem);
+    const path = getFinalPath(step);
+    expect(path).not.toBeNull();
+    expect(path![0]).toBe(romaniaMapProblem.startNode);
+    expect(path![path!.length - 1]).toBe(romaniaMapProblem.goalNode);
+  });
+
+  it('SMA* finds a valid path', () => {
+    const step = runToEnd('sma-star', { ...romaniaMapProblem, memoryLimit: 24 });
+    const path = getFinalPath(step);
+    expect(path).not.toBeNull();
+    expect(path![0]).toBe(romaniaMapProblem.startNode);
+    expect(path![path!.length - 1]).toBe(romaniaMapProblem.goalNode);
+  });
+
+  it('Bidirectional A* finds a valid path', () => {
+    const step = runToEnd('bidirectional-astar', romaniaMapProblem);
+    const path = getFinalPath(step);
+    expect(path).not.toBeNull();
+    expect(path![0]).toBe(romaniaMapProblem.startNode);
+    expect(path![path!.length - 1]).toBe(romaniaMapProblem.goalNode);
+  });
 });
 
 describe('Validation', () => {

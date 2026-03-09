@@ -33,6 +33,7 @@ const RELATIONSHIP_DESCRIPTIONS: Record<string, string> = {
   'weighted': 'Generalizes the search to handle graphs where edges have different costs or weights.',
   'bidirectional': 'Searches from both the start and the goal simultaneously, meeting in the middle to find a path much faster than a standard one-directional search.',
   'f-threshold': 'Uses a cost-based threshold to prune branches, similar to how A* uses f(n) to prioritize nodes.',
+  'memory-bounded': 'Constrains memory usage by retaining only a limited frontier and backing up f-costs when low-value leaves are discarded.',
   'prunes': 'Eliminates branches of the game tree that are guaranteed not to affect the final decision, dramatically increasing performance.',
   'symmetric': 'Leverages the zero-sum nature of the game to simplify the logic, treating players symmetrically to reduce code complexity.',
   'related': 'These algorithms share fundamental logic or theoretical roots within the same branch of computation.'
@@ -45,6 +46,12 @@ const FALLBACK_EDGE_LABELS: Record<string, string> = {
   'bfs→ucs': 'weighted',
   'bfs→bidirectional-bfs': 'bidirectional',
   'ucs→bidirectional-bfs': 'bidirectional',
+  'ucs→bidirectional-ucs': 'bidirectional',
+  'astar→bidirectional-astar': 'bidirectional',
+  'bidirectional-ucs→bidirectional-astar': 'adds heuristic',
+  'astar→rbfs': 'memory-bounded',
+  'astar→sma-star': 'memory-bounded',
+  'rbfs→sma-star': 'memory-bounded',
   'iddfs→ida-star': 'f-threshold',
   'minimax→alpha-beta': 'prunes',
   'minimax→negamax': 'symmetric',
@@ -58,9 +65,10 @@ const FALLBACK_EDGE_LABELS: Record<string, string> = {
 const ALGO_RANK: Record<string, number> = {
   'bfs': 1, 'dfs': 1,
   'ucs': 2, 'dls': 2, 'bidirectional-bfs': 2,
-  'greedy-bfs': 3, 'iddfs': 3,
+  'greedy-bfs': 3, 'iddfs': 3, 'bidirectional-ucs': 3,
   'astar': 4,
-  'weighted-astar': 5, 'ida-star': 6,
+  'rbfs': 5, 'weighted-astar': 5,
+  'sma-star': 6, 'bidirectional-astar': 6, 'ida-star': 6,
   'minimax': 10, 'alpha-beta': 11, 'negamax': 12
 };
 

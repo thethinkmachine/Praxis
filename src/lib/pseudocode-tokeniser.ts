@@ -10,7 +10,7 @@ const KW_PATTERN =
   '\\b(?:function|if|else|then|loop|return|for|each|while|do|begin|end|let|var|const|in|not|and|or|of|to|with|true|false|null|nil|prob)\\b';
 
 const FN_PATTERN =
-  '\\b(?:BFS|DFS|DLS|IDDFS|UCS|BidirectionalBFS|BiDirection|Search|search|pop|push|POP|PUSH|dequeue|enqueue|insert|contains|isEmpty|size|min|max|get|set|add|remove|expand|EXPAND|path|FAILURE|FOUND|GOAL|SOLUTION|INITIAL|IS[-_]GOAL|Node|RESULT|ACTIONS|backtrack)\\b';
+  '\\b(?:BFS|DFS|DLS|IDDFS|UCS|RBFS|SMA|ASTAR|BidirectionalBFS|BidirectionalUCS|BidirectionalASTAR|BiDirection|Search|search|pop|push|POP|PUSH|dequeue|enqueue|insert|contains|isEmpty|size|min|max|get|set|add|remove|expand|EXPAND|path|FAILURE|FOUND|GOAL|SOLUTION|INITIAL|IS[-_]GOAL|Node|RESULT|ACTIONS|backtrack)\\b';
 
 const NUM_PATTERN = '\\b\\d+(?:\\.\\d+)?\\b';
 
