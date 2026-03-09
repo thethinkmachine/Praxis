@@ -1,0 +1,1000 @@
+{
+  "category": "graph",
+  "name": "Australia OSM Mesh",
+  "description": "High-fidelity city mesh for Australia generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+  "tags": [
+    "osm",
+    "real-world",
+    "detailed"
+  ],
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        {
+          "id": "Sydney",
+          "label": "Sydney",
+          "x": 1208,
+          "y": 643,
+          "heuristic": 3149
+        },
+        {
+          "id": "Melbourne",
+          "label": "Melbourne",
+          "x": 1015,
+          "y": 747,
+          "heuristic": 3148
+        },
+        {
+          "id": "Brisbane",
+          "label": "Brisbane",
+          "x": 1264,
+          "y": 475,
+          "heuristic": 2848
+        },
+        {
+          "id": "Perth",
+          "label": "Perth",
+          "x": 118,
+          "y": 593,
+          "heuristic": 2654
+        },
+        {
+          "id": "Adelaide",
+          "label": "Adelaide",
+          "x": 819,
+          "y": 671,
+          "heuristic": 2618
+        },
+        {
+          "id": "GoldCoast",
+          "label": "Gold Coast",
+          "x": 1276,
+          "y": 489,
+          "heuristic": 2911
+        },
+        {
+          "id": "Canberra",
+          "label": "Canberra",
+          "x": 1143,
+          "y": 681,
+          "heuristic": 3133
+        },
+        {
+          "id": "Newcastle",
+          "label": "Newcastle",
+          "x": 1226,
+          "y": 618,
+          "heuristic": 3116
+        },
+        {
+          "id": "Gosford",
+          "label": "Gosford",
+          "x": 1212,
+          "y": 631,
+          "heuristic": 3124
+        },
+        {
+          "id": "SunshineCoast",
+          "label": "Sunshine Coast",
+          "x": 1266,
+          "y": 453,
+          "heuristic": 2807
+        },
+        {
+          "id": "Wollongong",
+          "label": "Wollongong",
+          "x": 1198,
+          "y": 658,
+          "heuristic": 3172
+        },
+        {
+          "id": "Hobart",
+          "label": "Hobart",
+          "x": 1088,
+          "y": 880,
+          "heuristic": 3736
+        },
+        {
+          "id": "Geelong",
+          "label": "Geelong",
+          "x": 997,
+          "y": 756,
+          "heuristic": 3155
+        },
+        {
+          "id": "Penrith",
+          "label": "Penrith",
+          "x": 1192,
+          "y": 640,
+          "heuristic": 3106
+        },
+        {
+          "id": "Townsville",
+          "label": "Townsville",
+          "x": 1073,
+          "y": 259,
+          "heuristic": 1868
+        },
+        {
+          "id": "RedlandCity",
+          "label": "Redland City",
+          "x": 1272,
+          "y": 477,
+          "heuristic": 2875
+        },
+        {
+          "id": "Cairns",
+          "label": "Cairns",
+          "x": 1040,
+          "y": 197,
+          "heuristic": 1680
+        },
+        {
+          "id": "Darwin",
+          "label": "Darwin",
+          "x": 580,
+          "y": 80,
+          "heuristic": 0
+        },
+        {
+          "id": "Toowoomba",
+          "label": "Toowoomba",
+          "x": 1231,
+          "y": 477,
+          "heuristic": 2764
+        },
+        {
+          "id": "Ballarat",
+          "label": "Ballarat",
+          "x": 981,
+          "y": 740,
+          "heuristic": 3076
+        },
+        {
+          "id": "Bendigo",
+          "label": "Bendigo",
+          "x": 994,
+          "y": 719,
+          "heuristic": 3017
+        },
+        {
+          "id": "Maitland",
+          "label": "Maitland",
+          "x": 1218,
+          "y": 613,
+          "heuristic": 3086
+        },
+        {
+          "id": "Tuggeranong",
+          "label": "Tuggeranong",
+          "x": 1143,
+          "y": 684,
+          "heuristic": 3143
+        },
+        {
+          "id": "Launceston",
+          "label": "Launceston",
+          "x": 1082,
+          "y": 842,
+          "heuristic": 3590
+        },
+        {
+          "id": "Mackay",
+          "label": "Mackay",
+          "x": 1146,
+          "y": 308,
+          "heuristic": 2176
+        },
+        {
+          "id": "Melton",
+          "label": "Melton",
+          "x": 1004,
+          "y": 743,
+          "heuristic": 3119
+        },
+        {
+          "id": "Bunbury",
+          "label": "Bunbury",
+          "x": 112,
+          "y": 629,
+          "heuristic": 2787
+        },
+        {
+          "id": "TweedHeads",
+          "label": "Tweed Heads",
+          "x": 1280,
+          "y": 493,
+          "heuristic": 2933
+        },
+        {
+          "id": "Rockhampton",
+          "label": "Rockhampton",
+          "x": 1186,
+          "y": 367,
+          "heuristic": 2405
+        },
+        {
+          "id": "NorthSydney",
+          "label": "North Sydney",
+          "x": 1208,
+          "y": 642,
+          "heuristic": 3146
+        },
+        {
+          "id": "HerveyBay",
+          "label": "Hervey Bay",
+          "x": 1259,
+          "y": 418,
+          "heuristic": 2714
+        },
+        {
+          "id": "Albury",
+          "label": "Albury",
+          "x": 1076,
+          "y": 701,
+          "heuristic": 3080
+        },
+        {
+          "id": "Bundaberg",
+          "label": "Bundaberg",
+          "x": 1243,
+          "y": 406,
+          "heuristic": 2647
+        },
+        {
+          "id": "CoffsHarbour",
+          "label": "Coffs Harbour",
+          "x": 1267,
+          "y": 549,
+          "heuristic": 3030
+        },
+        {
+          "id": "WaggaWagga",
+          "label": "Wagga Wagga",
+          "x": 1090,
+          "y": 676,
+          "heuristic": 3019
+        },
+        {
+          "id": "PortMacquarie",
+          "label": "Port Macquarie",
+          "x": 1260,
+          "y": 579,
+          "heuristic": 3090
+        },
+        {
+          "id": "Orange",
+          "label": "Orange",
+          "x": 1143,
+          "y": 628,
+          "heuristic": 2966
+        },
+        {
+          "id": "Manly",
+          "label": "Manly",
+          "x": 1210,
+          "y": 641,
+          "heuristic": 3149
+        },
+        {
+          "id": "Dubbo",
+          "label": "Dubbo",
+          "x": 1128,
+          "y": 600,
+          "heuristic": 2850
+        },
+        {
+          "id": "Sunbury",
+          "label": "Sunbury",
+          "x": 1008,
+          "y": 741,
+          "heuristic": 3115
+        },
+        {
+          "id": "Wodonga",
+          "label": "Wodonga",
+          "x": 1075,
+          "y": 702,
+          "heuristic": 3083
+        },
+        {
+          "id": "Queanbeyan",
+          "label": "Queanbeyan",
+          "x": 1147,
+          "y": 682,
+          "heuristic": 3146
+        },
+        {
+          "id": "Bathurst",
+          "label": "Bathurst",
+          "x": 1158,
+          "y": 631,
+          "heuristic": 3007
+        },
+        {
+          "id": "Mildura",
+          "label": "Mildura",
+          "x": 929,
+          "y": 652,
+          "heuristic": 2674
+        },
+        {
+          "id": "Tamworth",
+          "label": "Tamworth",
+          "x": 1199,
+          "y": 570,
+          "heuristic": 2921
+        },
+        {
+          "id": "Gladstone",
+          "label": "Gladstone",
+          "x": 1209,
+          "y": 379,
+          "heuristic": 2496
+        },
+        {
+          "id": "Nowra",
+          "label": "Nowra",
+          "x": 1189,
+          "y": 669,
+          "heuristic": 3189
+        },
+        {
+          "id": "Woden",
+          "label": "Woden",
+          "x": 1143,
+          "y": 682,
+          "heuristic": 3137
+        },
+        {
+          "id": "Warrnambool",
+          "label": "Warrnambool",
+          "x": 939,
+          "y": 762,
+          "heuristic": 3104
+        },
+        {
+          "id": "Geraldton",
+          "label": "Geraldton",
+          "x": 80,
+          "y": 509,
+          "heuristic": 2472
+        },
+        {
+          "id": "Shepparton",
+          "label": "Shepparton",
+          "x": 1029,
+          "y": 709,
+          "heuristic": 3032
+        },
+        {
+          "id": "Albany",
+          "label": "Albany",
+          "x": 181,
+          "y": 673,
+          "heuristic": 2828
+        },
+        {
+          "id": "Kalgoorlie",
+          "label": "Kalgoorlie",
+          "x": 291,
+          "y": 561,
+          "heuristic": 2250
+        },
+        {
+          "id": "Gawler",
+          "label": "Gawler",
+          "x": 824,
+          "y": 662,
+          "heuristic": 2588
+        },
+        {
+          "id": "Lismore",
+          "label": "Lismore",
+          "x": 1272,
+          "y": 510,
+          "heuristic": 2949
+        },
+        {
+          "id": "Traralgon",
+          "label": "Traralgon",
+          "x": 1064,
+          "y": 757,
+          "heuristic": 3256
+        },
+        {
+          "id": "Busselton",
+          "label": "Busselton",
+          "x": 103,
+          "y": 637,
+          "heuristic": 2831
+        },
+        {
+          "id": "MountGambier",
+          "label": "Mount Gambier",
+          "x": 887,
+          "y": 747,
+          "heuristic": 2989
+        },
+        {
+          "id": "AliceSprings",
+          "label": "Alice Springs",
+          "x": 674,
+          "y": 376,
+          "heuristic": 1290
+        },
+        {
+          "id": "Devonport",
+          "label": "Devonport",
+          "x": 1059,
+          "y": 835,
+          "heuristic": 3532
+        }
+      ],
+      "edges": [
+        {
+          "id": "e-Sydney-NorthSydney",
+          "source": "Sydney",
+          "target": "NorthSydney",
+          "weight": 4
+        },
+        {
+          "id": "e-Albury-Wodonga",
+          "source": "Albury",
+          "target": "Wodonga",
+          "weight": 5
+        },
+        {
+          "id": "e-Canberra-Woden",
+          "source": "Canberra",
+          "target": "Woden",
+          "weight": 6
+        },
+        {
+          "id": "e-Tuggeranong-Woden",
+          "source": "Tuggeranong",
+          "target": "Woden",
+          "weight": 8
+        },
+        {
+          "id": "e-NorthSydney-Manly",
+          "source": "NorthSydney",
+          "target": "Manly",
+          "weight": 9
+        },
+        {
+          "id": "e-Canberra-Queanbeyan",
+          "source": "Canberra",
+          "target": "Queanbeyan",
+          "weight": 13
+        },
+        {
+          "id": "e-Melton-Sunbury",
+          "source": "Melton",
+          "target": "Sunbury",
+          "weight": 17
+        },
+        {
+          "id": "e-GoldCoast-TweedHeads",
+          "source": "GoldCoast",
+          "target": "TweedHeads",
+          "weight": 24
+        },
+        {
+          "id": "e-Brisbane-RedlandCity",
+          "source": "Brisbane",
+          "target": "RedlandCity",
+          "weight": 28
+        },
+        {
+          "id": "e-Newcastle-Maitland",
+          "source": "Newcastle",
+          "target": "Maitland",
+          "weight": 31
+        },
+        {
+          "id": "e-Melbourne-Sunbury",
+          "source": "Melbourne",
+          "target": "Sunbury",
+          "weight": 33
+        },
+        {
+          "id": "e-Adelaide-Gawler",
+          "source": "Adelaide",
+          "target": "Gawler",
+          "weight": 39
+        },
+        {
+          "id": "e-Gosford-Manly",
+          "source": "Gosford",
+          "target": "Manly",
+          "weight": 42
+        },
+        {
+          "id": "e-Bunbury-Busselton",
+          "source": "Bunbury",
+          "target": "Busselton",
+          "weight": 44
+        },
+        {
+          "id": "e-Orange-Bathurst",
+          "source": "Orange",
+          "target": "Bathurst",
+          "weight": 47
+        },
+        {
+          "id": "e-Penrith-NorthSydney",
+          "source": "Penrith",
+          "target": "NorthSydney",
+          "weight": 48
+        },
+        {
+          "id": "e-GoldCoast-RedlandCity",
+          "source": "GoldCoast",
+          "target": "RedlandCity",
+          "weight": 50
+        },
+        {
+          "id": "e-Geelong-Melton",
+          "source": "Geelong",
+          "target": "Melton",
+          "weight": 55
+        },
+        {
+          "id": "e-Wollongong-Nowra",
+          "source": "Wollongong",
+          "target": "Nowra",
+          "weight": 57
+        },
+        {
+          "id": "e-Ballarat-Melton",
+          "source": "Ballarat",
+          "target": "Melton",
+          "weight": 65
+        },
+        {
+          "id": "e-Sydney-Wollongong",
+          "source": "Sydney",
+          "target": "Wollongong",
+          "weight": 68
+        },
+        {
+          "id": "e-Newcastle-Gosford",
+          "source": "Newcastle",
+          "target": "Gosford",
+          "weight": 69
+        },
+        {
+          "id": "e-HerveyBay-Bundaberg",
+          "source": "HerveyBay",
+          "target": "Bundaberg",
+          "weight": 70
+        },
+        {
+          "id": "e-Launceston-Devonport",
+          "source": "Launceston",
+          "target": "Devonport",
+          "weight": 71
+        },
+        {
+          "id": "e-TweedHeads-Lismore",
+          "source": "TweedHeads",
+          "target": "Lismore",
+          "weight": 74
+        },
+        {
+          "id": "e-Brisbane-SunshineCoast",
+          "source": "Brisbane",
+          "target": "SunshineCoast",
+          "weight": 91
+        },
+        {
+          "id": "e-Rockhampton-Gladstone",
+          "source": "Rockhampton",
+          "target": "Gladstone",
+          "weight": 92
+        },
+        {
+          "id": "e-Ballarat-Bendigo",
+          "source": "Ballarat",
+          "target": "Bendigo",
+          "weight": 97
+        },
+        {
+          "id": "e-Brisbane-Toowoomba",
+          "source": "Brisbane",
+          "target": "Toowoomba",
+          "weight": 106
+        },
+        {
+          "id": "e-Bendigo-Shepparton",
+          "source": "Bendigo",
+          "target": "Shepparton",
+          "weight": 108
+        },
+        {
+          "id": "e-Penrith-Bathurst",
+          "source": "Penrith",
+          "target": "Bathurst",
+          "weight": 110
+        },
+        {
+          "id": "e-Albury-WaggaWagga",
+          "source": "Albury",
+          "target": "WaggaWagga",
+          "weight": 115
+        },
+        {
+          "id": "e-Orange-Dubbo",
+          "source": "Orange",
+          "target": "Dubbo",
+          "weight": 124
+        },
+        {
+          "id": "e-CoffsHarbour-PortMacquarie",
+          "source": "CoffsHarbour",
+          "target": "PortMacquarie",
+          "weight": 128
+        },
+        {
+          "id": "e-Queanbeyan-Nowra",
+          "source": "Queanbeyan",
+          "target": "Nowra",
+          "weight": 135
+        },
+        {
+          "id": "e-Wodonga-Shepparton",
+          "source": "Wodonga",
+          "target": "Shepparton",
+          "weight": 137
+        },
+        {
+          "id": "e-Melbourne-Traralgon",
+          "source": "Melbourne",
+          "target": "Traralgon",
+          "weight": 144
+        },
+        {
+          "id": "e-Ballarat-Warrnambool",
+          "source": "Ballarat",
+          "target": "Warrnambool",
+          "weight": 151
+        },
+        {
+          "id": "e-SunshineCoast-HerveyBay",
+          "source": "SunshineCoast",
+          "target": "HerveyBay",
+          "weight": 153
+        },
+        {
+          "id": "e-Perth-Bunbury",
+          "source": "Perth",
+          "target": "Bunbury",
+          "weight": 154
+        },
+        {
+          "id": "e-Canberra-WaggaWagga",
+          "source": "Canberra",
+          "target": "WaggaWagga",
+          "weight": 159
+        },
+        {
+          "id": "e-Bundaberg-Gladstone",
+          "source": "Bundaberg",
+          "target": "Gladstone",
+          "weight": 159
+        },
+        {
+          "id": "e-Warrnambool-MountGambier",
+          "source": "Warrnambool",
+          "target": "MountGambier",
+          "weight": 161
+        },
+        {
+          "id": "e-Hobart-Launceston",
+          "source": "Hobart",
+          "target": "Launceston",
+          "weight": 162
+        },
+        {
+          "id": "e-CoffsHarbour-Lismore",
+          "source": "CoffsHarbour",
+          "target": "Lismore",
+          "weight": 166
+        },
+        {
+          "id": "e-Maitland-Tamworth",
+          "source": "Maitland",
+          "target": "Tamworth",
+          "weight": 192
+        },
+        {
+          "id": "e-PortMacquarie-Tamworth",
+          "source": "PortMacquarie",
+          "target": "Tamworth",
+          "weight": 192
+        },
+        {
+          "id": "e-Albany-Busselton",
+          "source": "Albany",
+          "target": "Busselton",
+          "weight": 279
+        },
+        {
+          "id": "e-Townsville-Cairns",
+          "source": "Townsville",
+          "target": "Cairns",
+          "weight": 283
+        },
+        {
+          "id": "e-Mackay-Rockhampton",
+          "source": "Mackay",
+          "target": "Rockhampton",
+          "weight": 284
+        },
+        {
+          "id": "e-Mildura-Gawler",
+          "source": "Mildura",
+          "target": "Gawler",
+          "weight": 316
+        },
+        {
+          "id": "e-Townsville-Mackay",
+          "source": "Townsville",
+          "target": "Mackay",
+          "weight": 324
+        },
+        {
+          "id": "e-Traralgon-Devonport",
+          "source": "Traralgon",
+          "target": "Devonport",
+          "weight": 332
+        },
+        {
+          "id": "e-Bendigo-Mildura",
+          "source": "Bendigo",
+          "target": "Mildura",
+          "weight": 344
+        },
+        {
+          "id": "e-Perth-Geraldton",
+          "source": "Perth",
+          "target": "Geraldton",
+          "weight": 374
+        },
+        {
+          "id": "e-Perth-Kalgoorlie",
+          "source": "Perth",
+          "target": "Kalgoorlie",
+          "weight": 550
+        },
+        {
+          "id": "e-Darwin-AliceSprings",
+          "source": "Darwin",
+          "target": "AliceSprings",
+          "weight": 1290
+        },
+        {
+          "id": "e-Gawler-AliceSprings",
+          "source": "Gawler",
+          "target": "AliceSprings",
+          "weight": 1300
+        },
+        {
+          "id": "e-Kalgoorlie-AliceSprings",
+          "source": "Kalgoorlie",
+          "target": "AliceSprings",
+          "weight": 1454
+        },
+        {
+          "id": "e-Sydney-Manly",
+          "source": "Sydney",
+          "target": "Manly",
+          "weight": 11
+        },
+        {
+          "id": "e-Queanbeyan-Woden",
+          "source": "Queanbeyan",
+          "target": "Woden",
+          "weight": 13
+        },
+        {
+          "id": "e-Canberra-Tuggeranong",
+          "source": "Canberra",
+          "target": "Tuggeranong",
+          "weight": 14
+        },
+        {
+          "id": "e-Tuggeranong-Queanbeyan",
+          "source": "Tuggeranong",
+          "target": "Queanbeyan",
+          "weight": 15
+        },
+        {
+          "id": "e-Melbourne-Melton",
+          "source": "Melbourne",
+          "target": "Melton",
+          "weight": 36
+        },
+        {
+          "id": "e-Gosford-NorthSydney",
+          "source": "Gosford",
+          "target": "NorthSydney",
+          "weight": 47
+        },
+        {
+          "id": "e-Sydney-Penrith",
+          "source": "Sydney",
+          "target": "Penrith",
+          "weight": 49
+        },
+        {
+          "id": "e-Melbourne-Geelong",
+          "source": "Melbourne",
+          "target": "Geelong",
+          "weight": 65
+        },
+        {
+          "id": "e-Brisbane-GoldCoast",
+          "source": "Brisbane",
+          "target": "GoldCoast",
+          "weight": 71
+        },
+        {
+          "id": "e-Geelong-Sunbury",
+          "source": "Geelong",
+          "target": "Sunbury",
+          "weight": 71
+        },
+        {
+          "id": "e-Wollongong-NorthSydney",
+          "source": "Wollongong",
+          "target": "NorthSydney",
+          "weight": 72
+        },
+        {
+          "id": "e-RedlandCity-TweedHeads",
+          "source": "RedlandCity",
+          "target": "TweedHeads",
+          "weight": 73
+        },
+        {
+          "id": "e-Gosford-Maitland",
+          "source": "Gosford",
+          "target": "Maitland",
+          "weight": 80
+        },
+        {
+          "id": "e-GoldCoast-Lismore",
+          "source": "GoldCoast",
+          "target": "Lismore",
+          "weight": 91
+        },
+        {
+          "id": "e-SunshineCoast-RedlandCity",
+          "source": "SunshineCoast",
+          "target": "RedlandCity",
+          "weight": 104
+        },
+        {
+          "id": "e-Newcastle-Manly",
+          "source": "Newcastle",
+          "target": "Manly",
+          "weight": 107
+        },
+        {
+          "id": "e-WaggaWagga-Wodonga",
+          "source": "WaggaWagga",
+          "target": "Wodonga",
+          "weight": 120
+        },
+        {
+          "id": "e-Sydney-Nowra",
+          "source": "Sydney",
+          "target": "Nowra",
+          "weight": 125
+        },
+        {
+          "id": "e-RedlandCity-Toowoomba",
+          "source": "RedlandCity",
+          "target": "Toowoomba",
+          "weight": 131
+        },
+        {
+          "id": "e-Albury-Shepparton",
+          "source": "Albury",
+          "target": "Shepparton",
+          "weight": 140
+        },
+        {
+          "id": "e-SunshineCoast-Toowoomba",
+          "source": "SunshineCoast",
+          "target": "Toowoomba",
+          "weight": 151
+        },
+        {
+          "id": "e-Penrith-Orange",
+          "source": "Penrith",
+          "target": "Orange",
+          "weight": 157
+        },
+        {
+          "id": "e-NorthSydney-Bathurst",
+          "source": "NorthSydney",
+          "target": "Bathurst",
+          "weight": 158
+        },
+        {
+          "id": "e-Dubbo-Bathurst",
+          "source": "Dubbo",
+          "target": "Bathurst",
+          "weight": 159
+        },
+        {
+          "id": "e-Geelong-Warrnambool",
+          "source": "Geelong",
+          "target": "Warrnambool",
+          "weight": 166
+        },
+        {
+          "id": "e-Sunbury-Traralgon",
+          "source": "Sunbury",
+          "target": "Traralgon",
+          "weight": 173
+        },
+        {
+          "id": "e-Maitland-PortMacquarie",
+          "source": "Maitland",
+          "target": "PortMacquarie",
+          "weight": 193
+        },
+        {
+          "id": "e-Perth-Busselton",
+          "source": "Perth",
+          "target": "Busselton",
+          "weight": 194
+        },
+        {
+          "id": "e-Hobart-Devonport",
+          "source": "Hobart",
+          "target": "Devonport",
+          "weight": 205
+        },
+        {
+          "id": "e-SunshineCoast-Bundaberg",
+          "source": "SunshineCoast",
+          "target": "Bundaberg",
+          "weight": 212
+        },
+        {
+          "id": "e-Newcastle-Tamworth",
+          "source": "Newcastle",
+          "target": "Tamworth",
+          "weight": 220
+        },
+        {
+          "id": "e-CoffsHarbour-Tamworth",
+          "source": "CoffsHarbour",
+          "target": "Tamworth",
+          "weight": 227
+        },
+        {
+          "id": "e-HerveyBay-Gladstone",
+          "source": "HerveyBay",
+          "target": "Gladstone",
+          "weight": 229
+        },
+        {
+          "id": "e-Rockhampton-Bundaberg",
+          "source": "Rockhampton",
+          "target": "Bundaberg",
+          "weight": 249
+        }
+      ]
+    },
+    "startNode": "Hobart",
+    "goalNode": "Darwin",
+    "useHeuristic": true
+  }
+}

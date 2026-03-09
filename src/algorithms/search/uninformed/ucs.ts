@@ -2,7 +2,7 @@ import type { AlgorithmRunner } from '@/types/algorithm';
 import type { GraphProblem } from '@/types/problem';
 import type { AlgorithmStep } from '@/types/step';
 import type { SearchHighlight } from './types';
-import { reconstructPath, validateGraphProblem, buildAdjacencyList } from './types';
+import { reconstructPath, validateGraphProblem } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
 import { createLog } from '@/algorithms/core/utils';
@@ -68,7 +68,7 @@ export const ucsRunner: AlgorithmRunner<GraphProblem, UniformCostState, SearchHi
   },
 
   *run(problem: GraphProblem): Generator<AlgorithmStep<UniformCostState, SearchHighlight>, void> {
-    const adj = buildAdjacencyList(problem.graph);
+    const adj = problem.graph.toAdjList();
     const labelOf = (id: string) => problem.graph.nodes.find(n => n.id === id)?.label ?? id;
     const pq = new PriorityQueue<string>((a, b) => labelOf(a).localeCompare(labelOf(b)));
     const explored = new Set<string>();

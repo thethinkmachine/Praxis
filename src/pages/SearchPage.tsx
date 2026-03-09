@@ -16,11 +16,9 @@ import { INFORMED_HEURISTICS, getHeuristicDefinition } from '@/algorithms/search
 import { createGraphSearchAdapterFromProblem } from '@/visualizations/adapters/graph-search.adapter';
 import { getGraphSearchStyles } from '@/visualizations/cytoscapeStyles/graph-search.styles';
 import { buildSearchTreeElements } from '@/visualizations/adapters/search-tree.adapter';
-import { romaniaMapData, romaniaMapProblem } from '@/problems/graphs/romania-map';
-import { simpleGraphData, simpleGraphProblem } from '@/problems/graphs/simple-graph';
-import { weightedGridData, weightedGridProblem } from '@/problems/graphs/weighted-grid';
+
 import type { AlgorithmStep } from '@/types/step';
-import type { GraphProblem, HeuristicId } from '@/types/problem';
+import { Graph, type GraphProblem, type HeuristicId } from '@/types/problem';
 
 // Algorithms that operate on unweighted graphs — don't display edge weight labels
 const UNINFORMED_ALGOS = new Set(['bfs', 'dfs', 'dls', 'iddfs']);
@@ -65,24 +63,33 @@ export default function SearchPage() {
 
   // ── Pre-load Romania map on first mount ──────────────────────────────
   useEffect(() => {
-    useEditorStore.getState().loadGraph(
-      romaniaMapData.nodes,
-      romaniaMapData.edges,
-      romaniaMapProblem.startNode,
-      romaniaMapProblem.goalNode,
-      romaniaMapData.directed ?? false,
-    );
+    fetch('/Praxis/problems/graphs/romania-map.json')
+      .then(res => res.json())
+      .then(data => {
+        const p = data.problem;
+        useEditorStore.getState().loadGraph(
+          p.graph.nodes,
+          p.graph.edges,
+          p.startNode,
+          p.goalNode,
+          p.graph.directed ?? false
+        );
+      })
+      .catch(err => console.error("Failed to preload Romania Map:", err));
   }, []);
 
   // ── Demo selector ────────────────────────────────────────────────────
-  const handleDemoSelect = useCallback((problemId: string) => {
-    const state = useEditorStore.getState();
-    if (problemId === 'romania-map') {
-      state.loadGraph(romaniaMapData.nodes, romaniaMapData.edges, romaniaMapProblem.startNode, romaniaMapProblem.goalNode, romaniaMapData.directed ?? false);
-    } else if (problemId === 'simple-graph') {
-      state.loadGraph(simpleGraphData.nodes, simpleGraphData.edges, simpleGraphProblem.startNode, simpleGraphProblem.goalNode, simpleGraphData.directed ?? false);
-    } else if (problemId === 'weighted-grid') {
-      state.loadGraph(weightedGridData.nodes, weightedGridData.edges, weightedGridProblem.startNode, weightedGridProblem.goalNode, weightedGridProblem.graph.directed ?? false);
+  const handleDemoSelect = useCallback((problem: unknown) => {
+    const p = problem as GraphProblem;
+    // We already passed the exact json problem shape from `fetch` in Picker
+    if (p?.graph?.nodes && p?.graph?.edges) {
+      useEditorStore.getState().loadGraph(
+        p.graph.nodes,
+        p.graph.edges,
+        p.startNode ?? '',
+        p.goalNode ?? '',
+        p.graph.directed ?? false,
+      );
     }
   }, []);
 
@@ -93,9 +100,9 @@ export default function SearchPage() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const topoNodes = useEditorStore.getState().nodes.map(({ x: _x, y: _y, ...n }) => n);
     return {
-      graph: { directed: editorIsDirected, nodes: topoNodes, edges: editorEdges },
-      startNode: editorStartId ?? romaniaMapProblem.startNode,
-      goalNode: editorGoalId ?? romaniaMapProblem.goalNode,
+      graph: new Graph({ directed: editorIsDirected, nodes: topoNodes, edges: editorEdges }),
+      startNode: editorStartId ?? '',
+      goalNode: editorGoalId ?? '',
       useHeuristic: isInformedAlgorithm,
       heuristic: isInformedAlgorithm
         ? {
@@ -108,9 +115,9 @@ export default function SearchPage() {
 
   // displayProblem: includes positions — used only for Cytoscape element generation.
   const displayProblem = useMemo<GraphProblem>(() => ({
-    graph: { directed: editorIsDirected, nodes: editorNodes, edges: editorEdges },
-    startNode: editorStartId ?? romaniaMapProblem.startNode,
-    goalNode: editorGoalId ?? romaniaMapProblem.goalNode,
+    graph: new Graph({ directed: editorIsDirected, nodes: editorNodes, edges: editorEdges }),
+    startNode: editorStartId ?? '',
+    goalNode: editorGoalId ?? '',
     useHeuristic: isInformedAlgorithm,
     heuristic: isInformedAlgorithm
       ? {

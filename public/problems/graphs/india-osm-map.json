@@ -1,0 +1,1338 @@
+{
+  "category": "graph",
+  "name": "India OSM Mesh",
+  "description": "High-fidelity city mesh for India generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+  "tags": [
+    "osm",
+    "real-world",
+    "detailed"
+  ],
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        {
+          "id": "Delhi",
+          "label": "Delhi",
+          "x": 476,
+          "y": 247,
+          "heuristic": 647
+        },
+        {
+          "id": "Mumbai",
+          "label": "Mumbai",
+          "x": 236,
+          "y": 542,
+          "heuristic": 1681
+        },
+        {
+          "id": "Bengaluru",
+          "label": "Bengaluru",
+          "x": 497,
+          "y": 729,
+          "heuristic": 2363
+        },
+        {
+          "id": "Surat",
+          "label": "Surat",
+          "x": 234,
+          "y": 476,
+          "heuristic": 1444
+        },
+        {
+          "id": "Hyderabad",
+          "label": "Hyderabad",
+          "x": 546,
+          "y": 594,
+          "heuristic": 1894
+        },
+        {
+          "id": "Ahmedabad",
+          "label": "Ahmedabad",
+          "x": 220,
+          "y": 420,
+          "heuristic": 1248
+        },
+        {
+          "id": "Prayagraj",
+          "label": "Prayagraj",
+          "x": 731,
+          "y": 346,
+          "heuristic": 1174
+        },
+        {
+          "id": "Chennai",
+          "label": "Chennai",
+          "x": 645,
+          "y": 726,
+          "heuristic": 2398
+        },
+        {
+          "id": "Lucknow",
+          "label": "Lucknow",
+          "x": 682,
+          "y": 303,
+          "heuristic": 995
+        },
+        {
+          "id": "Kolkata",
+          "label": "Kolkata",
+          "x": 1093,
+          "y": 434,
+          "heuristic": 1839
+        },
+        {
+          "id": "Indore",
+          "label": "Indore",
+          "x": 401,
+          "y": 429,
+          "heuristic": 1267
+        },
+        {
+          "id": "Pune",
+          "label": "Pune",
+          "x": 290,
+          "y": 559,
+          "heuristic": 1732
+        },
+        {
+          "id": "Varanasi",
+          "label": "Varanasi",
+          "x": 796,
+          "y": 349,
+          "heuristic": 1252
+        },
+        {
+          "id": "Jaipur",
+          "label": "Jaipur",
+          "x": 399,
+          "y": 300,
+          "heuristic": 802
+        },
+        {
+          "id": "Kanpur",
+          "label": "Kanpur",
+          "x": 648,
+          "y": 314,
+          "heuristic": 998
+        },
+        {
+          "id": "Visakhapatnam",
+          "label": "Visakhapatnam",
+          "x": 812,
+          "y": 584,
+          "heuristic": 2007
+        },
+        {
+          "id": "Nagpur",
+          "label": "Nagpur",
+          "x": 579,
+          "y": 478,
+          "heuristic": 1497
+        },
+        {
+          "id": "Ludhiana",
+          "label": "Ludhiana",
+          "x": 401,
+          "y": 177,
+          "heuristic": 365
+        },
+        {
+          "id": "Kanyakumari",
+          "label": "Kanyakumari",
+          "x": 494,
+          "y": 880,
+          "heuristic": 2904
+        },
+        {
+          "id": "Thane",
+          "label": "Thane",
+          "x": 241,
+          "y": 538,
+          "heuristic": 1665
+        },
+        {
+          "id": "Bhopal",
+          "label": "Bhopal",
+          "x": 486,
+          "y": 413,
+          "heuristic": 1229
+        },
+        {
+          "id": "PimpriChinchwad",
+          "label": "Pimpri-Chinchwad",
+          "x": 287,
+          "y": 555,
+          "heuristic": 1721
+        },
+        {
+          "id": "Ghaziabad",
+          "label": "Ghaziabad",
+          "x": 487,
+          "y": 246,
+          "heuristic": 649
+        },
+        {
+          "id": "Madurai",
+          "label": "Madurai",
+          "x": 526,
+          "y": 823,
+          "heuristic": 2706
+        },
+        {
+          "id": "Siliguri",
+          "label": "Siliguri",
+          "x": 1096,
+          "y": 306,
+          "heuristic": 1538
+        },
+        {
+          "id": "Agra",
+          "label": "Agra",
+          "x": 520,
+          "y": 292,
+          "heuristic": 826
+        },
+        {
+          "id": "Nashik",
+          "label": "Nashik",
+          "x": 287,
+          "y": 513,
+          "heuristic": 1567
+        },
+        {
+          "id": "Kurukshetra",
+          "label": "Kurukshetra",
+          "x": 456,
+          "y": 206,
+          "heuristic": 495
+        },
+        {
+          "id": "Bhubaneshwar",
+          "label": "Bhubaneshwar",
+          "x": 953,
+          "y": 505,
+          "heuristic": 1881
+        },
+        {
+          "id": "Meerut",
+          "label": "Meerut",
+          "x": 503,
+          "y": 236,
+          "heuristic": 627
+        },
+        {
+          "id": "Rajkot",
+          "label": "Rajkot",
+          "x": 121,
+          "y": 442,
+          "heuristic": 1366
+        },
+        {
+          "id": "KalyanDombivli",
+          "label": "Kalyan-Dombivli",
+          "x": 250,
+          "y": 537,
+          "heuristic": 1658
+        },
+        {
+          "id": "VasaiVirar",
+          "label": "Vasai-Virar",
+          "x": 233,
+          "y": 531,
+          "heuristic": 1641
+        },
+        {
+          "id": "Srinagar",
+          "label": "Srinagar",
+          "x": 344,
+          "y": 80,
+          "heuristic": 0
+        },
+        {
+          "id": "ChhatrapatiSambhajinagar",
+          "label": "Chhatrapati Sambhajinagar",
+          "x": 372,
+          "y": 517,
+          "heuristic": 1580
+        },
+        {
+          "id": "Dhanbad",
+          "label": "Dhanbad",
+          "x": 986,
+          "y": 396,
+          "heuristic": 1605
+        },
+        {
+          "id": "Amritsar",
+          "label": "Amritsar",
+          "x": 347,
+          "y": 155,
+          "heuristic": 271
+        },
+        {
+          "id": "NaviMumbai",
+          "label": "Navi Mumbai",
+          "x": 244,
+          "y": 543,
+          "heuristic": 1682
+        },
+        {
+          "id": "Ranchi",
+          "label": "Ranchi",
+          "x": 924,
+          "y": 409,
+          "heuristic": 1568
+        },
+        {
+          "id": "Howrah",
+          "label": "Howrah",
+          "x": 1090,
+          "y": 434,
+          "heuristic": 1836
+        },
+        {
+          "id": "Coimbatore",
+          "label": "Coimbatore",
+          "x": 462,
+          "y": 790,
+          "heuristic": 2575
+        },
+        {
+          "id": "Vijayawada",
+          "label": "Vijayawada",
+          "x": 664,
+          "y": 621,
+          "heuristic": 2037
+        },
+        {
+          "id": "Jodhpur",
+          "label": "Jodhpur",
+          "x": 245,
+          "y": 319,
+          "heuristic": 882
+        },
+        {
+          "id": "Chandigarh",
+          "label": "Chandigarh",
+          "x": 452,
+          "y": 183,
+          "heuristic": 415
+        },
+        {
+          "id": "Raipur",
+          "label": "Raipur",
+          "x": 720,
+          "y": 475,
+          "heuristic": 1576
+        },
+        {
+          "id": "Kota",
+          "label": "Kota",
+          "x": 401,
+          "y": 354,
+          "heuristic": 995
+        },
+        {
+          "id": "Guwahati",
+          "label": "Guwahati",
+          "x": 1280,
+          "y": 323,
+          "heuristic": 1846
+        },
+        {
+          "id": "Solapur",
+          "label": "Solapur",
+          "x": 403,
+          "y": 585,
+          "heuristic": 1827
+        },
+        {
+          "id": "Jalandhar",
+          "label": "Jalandhar",
+          "x": 385,
+          "y": 164,
+          "heuristic": 313
+        },
+        {
+          "id": "Rewari",
+          "label": "Rewari",
+          "x": 443,
+          "y": 261,
+          "heuristic": 676
+        },
+        {
+          "id": "Bareilly",
+          "label": "Bareilly",
+          "x": 598,
+          "y": 256,
+          "heuristic": 772
+        },
+        {
+          "id": "Mysuru",
+          "label": "Mysuru",
+          "x": 445,
+          "y": 750,
+          "heuristic": 2428
+        },
+        {
+          "id": "Gurgaon",
+          "label": "Gurgaon",
+          "x": 466,
+          "y": 253,
+          "heuristic": 658
+        },
+        {
+          "id": "Aligarh",
+          "label": "Aligarh",
+          "x": 523,
+          "y": 271,
+          "heuristic": 755
+        },
+        {
+          "id": "Salem",
+          "label": "Salem",
+          "x": 528,
+          "y": 770,
+          "heuristic": 2516
+        },
+        {
+          "id": "Warangal",
+          "label": "Warangal",
+          "x": 608,
+          "y": 575,
+          "heuristic": 1851
+        },
+        {
+          "id": "MiraBhayander",
+          "label": "Mira-Bhayander",
+          "x": 235,
+          "y": 535,
+          "heuristic": 1655
+        },
+        {
+          "id": "Thiruvananthapuram",
+          "label": "Thiruvananthapuram",
+          "x": 461,
+          "y": 867,
+          "heuristic": 2853
+        },
+        {
+          "id": "Saharanpur",
+          "label": "Saharanpur",
+          "x": 494,
+          "y": 207,
+          "heuristic": 524
+        },
+        {
+          "id": "Kochi",
+          "label": "Kochi",
+          "x": 422,
+          "y": 822,
+          "heuristic": 2684
+        },
+        {
+          "id": "Gorakhpur",
+          "label": "Gorakhpur",
+          "x": 816,
+          "y": 305,
+          "heuristic": 1154
+        },
+        {
+          "id": "Jamnagar",
+          "label": "Jamnagar",
+          "x": 80,
+          "y": 437,
+          "heuristic": 1371
+        },
+        {
+          "id": "Bikaner",
+          "label": "Bikaner",
+          "x": 260,
+          "y": 266,
+          "heuristic": 689
+        },
+        {
+          "id": "Guntur",
+          "label": "Guntur",
+          "x": 655,
+          "y": 627,
+          "heuristic": 2056
+        },
+        {
+          "id": "Amravati",
+          "label": "Amravati",
+          "x": 506,
+          "y": 484,
+          "heuristic": 1490
+        },
+        {
+          "id": "Noida",
+          "label": "Noida",
+          "x": 482,
+          "y": 249,
+          "heuristic": 657
+        },
+        {
+          "id": "Ernakulam",
+          "label": "Ernakulam",
+          "x": 424,
+          "y": 821,
+          "heuristic": 2683
+        },
+        {
+          "id": "Cuttack",
+          "label": "Cuttack",
+          "x": 955,
+          "y": 499,
+          "heuristic": 1864
+        },
+        {
+          "id": "Belagavi",
+          "label": "Belagavi",
+          "x": 326,
+          "y": 641,
+          "heuristic": 2026
+        },
+        {
+          "id": "Bhavnagar",
+          "label": "Bhavnagar",
+          "x": 195,
+          "y": 459,
+          "heuristic": 1393
+        },
+        {
+          "id": "Panchkula",
+          "label": "Panchkula",
+          "x": 456,
+          "y": 184,
+          "heuristic": 421
+        },
+        {
+          "id": "Nanded",
+          "label": "Nanded",
+          "x": 481,
+          "y": 539,
+          "heuristic": 1676
+        },
+        {
+          "id": "Palakunnu",
+          "label": "Palakunnu",
+          "x": 355,
+          "y": 746,
+          "heuristic": 2408
+        },
+        {
+          "id": "Kolhapur",
+          "label": "Kolhapur",
+          "x": 311,
+          "y": 615,
+          "heuristic": 1933
+        },
+        {
+          "id": "Nellore",
+          "label": "Nellore",
+          "x": 629,
+          "y": 684,
+          "heuristic": 2243
+        },
+        {
+          "id": "Ajmer",
+          "label": "Ajmer",
+          "x": 333,
+          "y": 314,
+          "heuristic": 846
+        },
+        {
+          "id": "Ulhasnagar",
+          "label": "Ulhasnagar",
+          "x": 252,
+          "y": 537,
+          "heuristic": 1659
+        },
+        {
+          "id": "Sangli",
+          "label": "Sangli",
+          "x": 331,
+          "y": 610,
+          "heuristic": 1915
+        },
+        {
+          "id": "Jammu",
+          "label": "Jammu",
+          "x": 346,
+          "y": 122,
+          "heuristic": 151
+        },
+        {
+          "id": "Kallakuruchi",
+          "label": "Kallakuruchi",
+          "x": 573,
+          "y": 767,
+          "heuristic": 2519
+        }
+      ],
+      "edges": [
+        {
+          "id": "e-Kolkata-Howrah",
+          "source": "Kolkata",
+          "target": "Howrah",
+          "weight": 4
+        },
+        {
+          "id": "e-KalyanDombivli-Ulhasnagar",
+          "source": "KalyanDombivli",
+          "target": "Ulhasnagar",
+          "weight": 4
+        },
+        {
+          "id": "e-Kochi-Ernakulam",
+          "source": "Kochi",
+          "target": "Ernakulam",
+          "weight": 4
+        },
+        {
+          "id": "e-Chandigarh-Panchkula",
+          "source": "Chandigarh",
+          "target": "Panchkula",
+          "weight": 8
+        },
+        {
+          "id": "e-Delhi-Noida",
+          "source": "Delhi",
+          "target": "Noida",
+          "weight": 13
+        },
+        {
+          "id": "e-Pune-PimpriChinchwad",
+          "source": "Pune",
+          "target": "PimpriChinchwad",
+          "weight": 13
+        },
+        {
+          "id": "e-Ghaziabad-Noida",
+          "source": "Ghaziabad",
+          "target": "Noida",
+          "weight": 14
+        },
+        {
+          "id": "e-VasaiVirar-MiraBhayander",
+          "source": "VasaiVirar",
+          "target": "MiraBhayander",
+          "weight": 14
+        },
+        {
+          "id": "e-Mumbai-NaviMumbai",
+          "source": "Mumbai",
+          "target": "NaviMumbai",
+          "weight": 16
+        },
+        {
+          "id": "e-Thane-MiraBhayander",
+          "source": "Thane",
+          "target": "MiraBhayander",
+          "weight": 16
+        },
+        {
+          "id": "e-Thane-KalyanDombivli",
+          "source": "Thane",
+          "target": "KalyanDombivli",
+          "weight": 17
+        },
+        {
+          "id": "e-Mumbai-Thane",
+          "source": "Mumbai",
+          "target": "Thane",
+          "weight": 19
+        },
+        {
+          "id": "e-Bhubaneshwar-Cuttack",
+          "source": "Bhubaneshwar",
+          "target": "Cuttack",
+          "weight": 24
+        },
+        {
+          "id": "e-Delhi-Gurgaon",
+          "source": "Delhi",
+          "target": "Gurgaon",
+          "weight": 26
+        },
+        {
+          "id": "e-Vijayawada-Guntur",
+          "source": "Vijayawada",
+          "target": "Guntur",
+          "weight": 30
+        },
+        {
+          "id": "e-Kolhapur-Sangli",
+          "source": "Kolhapur",
+          "target": "Sangli",
+          "weight": 41
+        },
+        {
+          "id": "e-Ghaziabad-Meerut",
+          "source": "Ghaziabad",
+          "target": "Meerut",
+          "weight": 46
+        },
+        {
+          "id": "e-Rewari-Gurgaon",
+          "source": "Rewari",
+          "target": "Gurgaon",
+          "weight": 50
+        },
+        {
+          "id": "e-Ludhiana-Jalandhar",
+          "source": "Ludhiana",
+          "target": "Jalandhar",
+          "weight": 54
+        },
+        {
+          "id": "e-Kurukshetra-Saharanpur",
+          "source": "Kurukshetra",
+          "target": "Saharanpur",
+          "weight": 67
+        },
+        {
+          "id": "e-Lucknow-Kanpur",
+          "source": "Lucknow",
+          "target": "Kanpur",
+          "weight": 74
+        },
+        {
+          "id": "e-Amritsar-Jalandhar",
+          "source": "Amritsar",
+          "target": "Jalandhar",
+          "weight": 74
+        },
+        {
+          "id": "e-Agra-Aligarh",
+          "source": "Agra",
+          "target": "Aligarh",
+          "weight": 79
+        },
+        {
+          "id": "e-Rajkot-Jamnagar",
+          "source": "Rajkot",
+          "target": "Jamnagar",
+          "weight": 79
+        },
+        {
+          "id": "e-Kanyakumari-Thiruvananthapuram",
+          "source": "Kanyakumari",
+          "target": "Thiruvananthapuram",
+          "weight": 80
+        },
+        {
+          "id": "e-Kurukshetra-Panchkula",
+          "source": "Kurukshetra",
+          "target": "Panchkula",
+          "weight": 81
+        },
+        {
+          "id": "e-Salem-Kallakuruchi",
+          "source": "Salem",
+          "target": "Kallakuruchi",
+          "weight": 88
+        },
+        {
+          "id": "e-Ludhiana-Chandigarh",
+          "source": "Ludhiana",
+          "target": "Chandigarh",
+          "weight": 91
+        },
+        {
+          "id": "e-PimpriChinchwad-NaviMumbai",
+          "source": "PimpriChinchwad",
+          "target": "NaviMumbai",
+          "weight": 94
+        },
+        {
+          "id": "e-Surat-Bhavnagar",
+          "source": "Surat",
+          "target": "Bhavnagar",
+          "weight": 95
+        },
+        {
+          "id": "e-Belagavi-Kolhapur",
+          "source": "Belagavi",
+          "target": "Kolhapur",
+          "weight": 98
+        },
+        {
+          "id": "e-Aligarh-Noida",
+          "source": "Aligarh",
+          "target": "Noida",
+          "weight": 106
+        },
+        {
+          "id": "e-Nashik-Ulhasnagar",
+          "source": "Nashik",
+          "target": "Ulhasnagar",
+          "weight": 109
+        },
+        {
+          "id": "e-Meerut-Saharanpur",
+          "source": "Meerut",
+          "target": "Saharanpur",
+          "weight": 109
+        },
+        {
+          "id": "e-Prayagraj-Varanasi",
+          "source": "Prayagraj",
+          "target": "Varanasi",
+          "weight": 118
+        },
+        {
+          "id": "e-Amritsar-Jammu",
+          "source": "Amritsar",
+          "target": "Jammu",
+          "weight": 120
+        },
+        {
+          "id": "e-Dhanbad-Ranchi",
+          "source": "Dhanbad",
+          "target": "Ranchi",
+          "weight": 122
+        },
+        {
+          "id": "e-Bengaluru-Mysuru",
+          "source": "Bengaluru",
+          "target": "Mysuru",
+          "weight": 126
+        },
+        {
+          "id": "e-Jaipur-Ajmer",
+          "source": "Jaipur",
+          "target": "Ajmer",
+          "weight": 127
+        },
+        {
+          "id": "e-Coimbatore-Ernakulam",
+          "source": "Coimbatore",
+          "target": "Ernakulam",
+          "weight": 136
+        },
+        {
+          "id": "e-Hyderabad-Warangal",
+          "source": "Hyderabad",
+          "target": "Warangal",
+          "weight": 138
+        },
+        {
+          "id": "e-Nagpur-Amravati",
+          "source": "Nagpur",
+          "target": "Amravati",
+          "weight": 139
+        },
+        {
+          "id": "e-Bareilly-Aligarh",
+          "source": "Bareilly",
+          "target": "Aligarh",
+          "weight": 142
+        },
+        {
+          "id": "e-Ahmedabad-Bhavnagar",
+          "source": "Ahmedabad",
+          "target": "Bhavnagar",
+          "weight": 146
+        },
+        {
+          "id": "e-Coimbatore-Mysuru",
+          "source": "Coimbatore",
+          "target": "Mysuru",
+          "weight": 149
+        },
+        {
+          "id": "e-Coimbatore-Salem",
+          "source": "Coimbatore",
+          "target": "Salem",
+          "weight": 149
+        },
+        {
+          "id": "e-Rajkot-Bhavnagar",
+          "source": "Rajkot",
+          "target": "Bhavnagar",
+          "weight": 150
+        },
+        {
+          "id": "e-Srinagar-Jammu",
+          "source": "Srinagar",
+          "target": "Jammu",
+          "weight": 151
+        },
+        {
+          "id": "e-Chennai-Nellore",
+          "source": "Chennai",
+          "target": "Nellore",
+          "weight": 155
+        },
+        {
+          "id": "e-Jodhpur-Ajmer",
+          "source": "Jodhpur",
+          "target": "Ajmer",
+          "weight": 161
+        },
+        {
+          "id": "e-Varanasi-Gorakhpur",
+          "source": "Varanasi",
+          "target": "Gorakhpur",
+          "weight": 162
+        },
+        {
+          "id": "e-Jaipur-Rewari",
+          "source": "Jaipur",
+          "target": "Rewari",
+          "weight": 163
+        },
+        {
+          "id": "e-Nashik-ChhatrapatiSambhajinagar",
+          "source": "Nashik",
+          "target": "ChhatrapatiSambhajinagar",
+          "weight": 163
+        },
+        {
+          "id": "e-Surat-Nashik",
+          "source": "Surat",
+          "target": "Nashik",
+          "weight": 166
+        },
+        {
+          "id": "e-Solapur-Sangli",
+          "source": "Solapur",
+          "target": "Sangli",
+          "weight": 166
+        },
+        {
+          "id": "e-Indore-Bhopal",
+          "source": "Indore",
+          "target": "Bhopal",
+          "weight": 168
+        },
+        {
+          "id": "e-Madurai-Coimbatore",
+          "source": "Madurai",
+          "target": "Coimbatore",
+          "weight": 174
+        },
+        {
+          "id": "e-Mysuru-Palakunnu",
+          "source": "Mysuru",
+          "target": "Palakunnu",
+          "weight": 178
+        },
+        {
+          "id": "e-Prayagraj-Lucknow",
+          "source": "Prayagraj",
+          "target": "Lucknow",
+          "weight": 180
+        },
+        {
+          "id": "e-Thiruvananthapuram-Kochi",
+          "source": "Thiruvananthapuram",
+          "target": "Kochi",
+          "weight": 182
+        },
+        {
+          "id": "e-Kota-Ajmer",
+          "source": "Kota",
+          "target": "Ajmer",
+          "weight": 189
+        },
+        {
+          "id": "e-Jodhpur-Bikaner",
+          "source": "Jodhpur",
+          "target": "Bikaner",
+          "weight": 193
+        },
+        {
+          "id": "e-Vijayawada-Warangal",
+          "source": "Vijayawada",
+          "target": "Warangal",
+          "weight": 196
+        },
+        {
+          "id": "e-Amravati-Nanded",
+          "source": "Amravati",
+          "target": "Nanded",
+          "weight": 201
+        },
+        {
+          "id": "e-Pune-Sangli",
+          "source": "Pune",
+          "target": "Sangli",
+          "weight": 202
+        },
+        {
+          "id": "e-Chennai-Kallakuruchi",
+          "source": "Chennai",
+          "target": "Kallakuruchi",
+          "weight": 206
+        },
+        {
+          "id": "e-Guntur-Nellore",
+          "source": "Guntur",
+          "target": "Nellore",
+          "weight": 211
+        },
+        {
+          "id": "e-ChhatrapatiSambhajinagar-Nanded",
+          "source": "ChhatrapatiSambhajinagar",
+          "target": "Nanded",
+          "weight": 221
+        },
+        {
+          "id": "e-Lucknow-Bareilly",
+          "source": "Lucknow",
+          "target": "Bareilly",
+          "weight": 225
+        },
+        {
+          "id": "e-Hyderabad-Nanded",
+          "source": "Hyderabad",
+          "target": "Nanded",
+          "weight": 236
+        },
+        {
+          "id": "e-Dhanbad-Howrah",
+          "source": "Dhanbad",
+          "target": "Howrah",
+          "weight": 237
+        },
+        {
+          "id": "e-Bhopal-Amravati",
+          "source": "Bhopal",
+          "target": "Amravati",
+          "weight": 261
+        },
+        {
+          "id": "e-Bhopal-Kota",
+          "source": "Bhopal",
+          "target": "Kota",
+          "weight": 264
+        },
+        {
+          "id": "e-Nagpur-Raipur",
+          "source": "Nagpur",
+          "target": "Raipur",
+          "weight": 265
+        },
+        {
+          "id": "e-Visakhapatnam-Vijayawada",
+          "source": "Visakhapatnam",
+          "target": "Vijayawada",
+          "weight": 313
+        },
+        {
+          "id": "e-Varanasi-Ranchi",
+          "source": "Varanasi",
+          "target": "Ranchi",
+          "weight": 321
+        },
+        {
+          "id": "e-Ranchi-Cuttack",
+          "source": "Ranchi",
+          "target": "Cuttack",
+          "weight": 328
+        },
+        {
+          "id": "e-Siliguri-Guwahati",
+          "source": "Siliguri",
+          "target": "Guwahati",
+          "weight": 336
+        },
+        {
+          "id": "e-Siliguri-Dhanbad",
+          "source": "Siliguri",
+          "target": "Dhanbad",
+          "weight": 382
+        },
+        {
+          "id": "e-Delhi-Ghaziabad",
+          "source": "Delhi",
+          "target": "Ghaziabad",
+          "weight": 19
+        },
+        {
+          "id": "e-Thane-NaviMumbai",
+          "source": "Thane",
+          "target": "NaviMumbai",
+          "weight": 19
+        },
+        {
+          "id": "e-Thane-Ulhasnagar",
+          "source": "Thane",
+          "target": "Ulhasnagar",
+          "weight": 21
+        },
+        {
+          "id": "e-KalyanDombivli-NaviMumbai",
+          "source": "KalyanDombivli",
+          "target": "NaviMumbai",
+          "weight": 26
+        },
+        {
+          "id": "e-Mumbai-MiraBhayander",
+          "source": "Mumbai",
+          "target": "MiraBhayander",
+          "weight": 27
+        },
+        {
+          "id": "e-Thane-VasaiVirar",
+          "source": "Thane",
+          "target": "VasaiVirar",
+          "weight": 30
+        },
+        {
+          "id": "e-Gurgaon-Noida",
+          "source": "Gurgaon",
+          "target": "Noida",
+          "weight": 31
+        },
+        {
+          "id": "e-KalyanDombivli-VasaiVirar",
+          "source": "KalyanDombivli",
+          "target": "VasaiVirar",
+          "weight": 38
+        },
+        {
+          "id": "e-Meerut-Noida",
+          "source": "Meerut",
+          "target": "Noida",
+          "weight": 60
+        },
+        {
+          "id": "e-Delhi-Rewari",
+          "source": "Delhi",
+          "target": "Rewari",
+          "weight": 76
+        },
+        {
+          "id": "e-Kurukshetra-Chandigarh",
+          "source": "Kurukshetra",
+          "target": "Chandigarh",
+          "weight": 85
+        },
+        {
+          "id": "e-PimpriChinchwad-Ulhasnagar",
+          "source": "PimpriChinchwad",
+          "target": "Ulhasnagar",
+          "weight": 94
+        },
+        {
+          "id": "e-Ludhiana-Panchkula",
+          "source": "Ludhiana",
+          "target": "Panchkula",
+          "weight": 99
+        },
+        {
+          "id": "e-Pune-NaviMumbai",
+          "source": "Pune",
+          "target": "NaviMumbai",
+          "weight": 105
+        },
+        {
+          "id": "e-Saharanpur-Panchkula",
+          "source": "Saharanpur",
+          "target": "Panchkula",
+          "weight": 105
+        },
+        {
+          "id": "e-Belagavi-Sangli",
+          "source": "Belagavi",
+          "target": "Sangli",
+          "weight": 111
+        },
+        {
+          "id": "e-Ludhiana-Amritsar",
+          "source": "Ludhiana",
+          "target": "Amritsar",
+          "weight": 123
+        },
+        {
+          "id": "e-Chandigarh-Jalandhar",
+          "source": "Chandigarh",
+          "target": "Jalandhar",
+          "weight": 133
+        },
+        {
+          "id": "e-Coimbatore-Kochi",
+          "source": "Coimbatore",
+          "target": "Kochi",
+          "weight": 139
+        },
+        {
+          "id": "e-Bengaluru-Salem",
+          "source": "Bengaluru",
+          "target": "Salem",
+          "weight": 159
+        },
+        {
+          "id": "e-Jalandhar-Jammu",
+          "source": "Jalandhar",
+          "target": "Jammu",
+          "weight": 168
+        },
+        {
+          "id": "e-Agra-Noida",
+          "source": "Agra",
+          "target": "Noida",
+          "weight": 169
+        },
+        {
+          "id": "e-Agra-Gurgaon",
+          "source": "Agra",
+          "target": "Gurgaon",
+          "weight": 173
+        },
+        {
+          "id": "e-Meerut-Bareilly",
+          "source": "Meerut",
+          "target": "Bareilly",
+          "weight": 182
+        },
+        {
+          "id": "e-Thiruvananthapuram-Ernakulam",
+          "source": "Thiruvananthapuram",
+          "target": "Ernakulam",
+          "weight": 182
+        },
+        {
+          "id": "e-Prayagraj-Kanpur",
+          "source": "Prayagraj",
+          "target": "Kanpur",
+          "weight": 189
+        },
+        {
+          "id": "e-Madurai-Salem",
+          "source": "Madurai",
+          "target": "Salem",
+          "weight": 192
+        },
+        {
+          "id": "e-Jaipur-Kota",
+          "source": "Jaipur",
+          "target": "Kota",
+          "weight": 194
+        },
+        {
+          "id": "e-Surat-VasaiVirar",
+          "source": "Surat",
+          "target": "VasaiVirar",
+          "weight": 199
+        },
+        {
+          "id": "e-Ahmedabad-Rajkot",
+          "source": "Ahmedabad",
+          "target": "Rajkot",
+          "weight": 199
+        },
+        {
+          "id": "e-Madurai-Ernakulam",
+          "source": "Madurai",
+          "target": "Ernakulam",
+          "weight": 202
+        },
+        {
+          "id": "e-Bengaluru-Kallakuruchi",
+          "source": "Bengaluru",
+          "target": "Kallakuruchi",
+          "weight": 203
+        },
+        {
+          "id": "e-Surat-Ahmedabad",
+          "source": "Surat",
+          "target": "Ahmedabad",
+          "weight": 203
+        },
+        {
+          "id": "e-Pune-Kolhapur",
+          "source": "Pune",
+          "target": "Kolhapur",
+          "weight": 206
+        },
+        {
+          "id": "e-Solapur-Kolhapur",
+          "source": "Solapur",
+          "target": "Kolhapur",
+          "weight": 207
+        },
+        {
+          "id": "e-Warangal-Guntur",
+          "source": "Warangal",
+          "target": "Guntur",
+          "weight": 209
+        },
+        {
+          "id": "e-Prayagraj-Gorakhpur",
+          "source": "Prayagraj",
+          "target": "Gorakhpur",
+          "weight": 212
+        },
+        {
+          "id": "e-PimpriChinchwad-ChhatrapatiSambhajinagar",
+          "source": "PimpriChinchwad",
+          "target": "ChhatrapatiSambhajinagar",
+          "weight": 213
+        },
+        {
+          "id": "e-Kanyakumari-Madurai",
+          "source": "Kanyakumari",
+          "target": "Madurai",
+          "weight": 215
+        },
+        {
+          "id": "e-Bikaner-Ajmer",
+          "source": "Bikaner",
+          "target": "Ajmer",
+          "weight": 216
+        },
+        {
+          "id": "e-Solapur-Nanded",
+          "source": "Solapur",
+          "target": "Nanded",
+          "weight": 223
+        },
+        {
+          "id": "e-Kanpur-Bareilly",
+          "source": "Kanpur",
+          "target": "Bareilly",
+          "weight": 229
+        },
+        {
+          "id": "e-Jamnagar-Bhavnagar",
+          "source": "Jamnagar",
+          "target": "Bhavnagar",
+          "weight": 229
+        },
+        {
+          "id": "e-Vijayawada-Nellore",
+          "source": "Vijayawada",
+          "target": "Nellore",
+          "weight": 239
+        },
+        {
+          "id": "e-Kolkata-Dhanbad",
+          "source": "Kolkata",
+          "target": "Dhanbad",
+          "weight": 240
+        },
+        {
+          "id": "e-Hyderabad-Guntur",
+          "source": "Hyderabad",
+          "target": "Guntur",
+          "weight": 242
+        },
+        {
+          "id": "e-Lucknow-Gorakhpur",
+          "source": "Lucknow",
+          "target": "Gorakhpur",
+          "weight": 242
+        }
+      ]
+    },
+    "startNode": "Kanyakumari",
+    "goalNode": "Srinagar",
+    "useHeuristic": true
+  }
+}

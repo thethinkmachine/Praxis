@@ -1,0 +1,1230 @@
+{
+  "category": "graph",
+  "name": "Russia OSM Mesh",
+  "description": "High-fidelity city mesh for Russia generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+  "tags": [
+    "osm",
+    "real-world",
+    "detailed"
+  ],
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        {
+          "id": "Moscow",
+          "label": "Moscow",
+          "x": 259,
+          "y": 487,
+          "heuristic": 1488
+        },
+        {
+          "id": "SaintPetersburg",
+          "label": "Saint Petersburg",
+          "x": 183,
+          "y": 358,
+          "heuristic": 1013
+        },
+        {
+          "id": "Novosibirsk",
+          "label": "Novosibirsk",
+          "x": 734,
+          "y": 509,
+          "heuristic": 2910
+        },
+        {
+          "id": "Yekaterinburg",
+          "label": "Yekaterinburg",
+          "x": 500,
+          "y": 453,
+          "heuristic": 1909
+        },
+        {
+          "id": "Kazan",
+          "label": "Kazan",
+          "x": 380,
+          "y": 486,
+          "heuristic": 1670
+        },
+        {
+          "id": "Krasnoyarsk",
+          "label": "Krasnoyarsk",
+          "x": 838,
+          "y": 479,
+          "heuristic": 3222
+        },
+        {
+          "id": "NizhnyNovgorod",
+          "label": "Nizhny Novgorod",
+          "x": 326,
+          "y": 469,
+          "heuristic": 1507
+        },
+        {
+          "id": "Chelyabinsk",
+          "label": "Chelyabinsk",
+          "x": 508,
+          "y": 505,
+          "heuristic": 2093
+        },
+        {
+          "id": "Ufa",
+          "label": "Ufa",
+          "x": 451,
+          "y": 519,
+          "heuristic": 1962
+        },
+        {
+          "id": "Krasnodar",
+          "label": "Krasnodar",
+          "x": 273,
+          "y": 817,
+          "heuristic": 2683
+        },
+        {
+          "id": "Samara",
+          "label": "Samara",
+          "x": 390,
+          "y": 566,
+          "heuristic": 1963
+        },
+        {
+          "id": "RostovonDon",
+          "label": "Rostov-on-Don",
+          "x": 281,
+          "y": 749,
+          "heuristic": 2446
+        },
+        {
+          "id": "Omsk",
+          "label": "Omsk",
+          "x": 634,
+          "y": 510,
+          "heuristic": 2541
+        },
+        {
+          "id": "Voronezh",
+          "label": "Voronezh",
+          "x": 276,
+          "y": 613,
+          "heuristic": 1952
+        },
+        {
+          "id": "Perm",
+          "label": "Perm",
+          "x": 454,
+          "y": 417,
+          "heuristic": 1655
+        },
+        {
+          "id": "Volgograd",
+          "label": "Volgograd",
+          "x": 331,
+          "y": 704,
+          "heuristic": 2338
+        },
+        {
+          "id": "Saratov",
+          "label": "Saratov",
+          "x": 347,
+          "y": 617,
+          "heuristic": 2057
+        },
+        {
+          "id": "Tyumen",
+          "label": "Tyumen",
+          "x": 552,
+          "y": 444,
+          "heuristic": 2056
+        },
+        {
+          "id": "Tolyatti",
+          "label": "Tolyatti",
+          "x": 383,
+          "y": 556,
+          "heuristic": 1914
+        },
+        {
+          "id": "Barnaul",
+          "label": "Barnaul",
+          "x": 743,
+          "y": 561,
+          "heuristic": 3092
+        },
+        {
+          "id": "Makhachkala",
+          "label": "Makhachkala",
+          "x": 363,
+          "y": 880,
+          "heuristic": 3008
+        },
+        {
+          "id": "Khabarovsk",
+          "label": "Khabarovsk",
+          "x": 1280,
+          "y": 711,
+          "heuristic": 5504
+        },
+        {
+          "id": "Izhevsk",
+          "label": "Izhevsk",
+          "x": 423,
+          "y": 453,
+          "heuristic": 1673
+        },
+        {
+          "id": "Ulyanovsk",
+          "label": "Ulyanovsk",
+          "x": 372,
+          "y": 531,
+          "heuristic": 1808
+        },
+        {
+          "id": "Irkutsk",
+          "label": "Irkutsk",
+          "x": 957,
+          "y": 594,
+          "heuristic": 4002
+        },
+        {
+          "id": "Vladivostok",
+          "label": "Vladivostok",
+          "x": 1247,
+          "y": 876,
+          "heuristic": 5925
+        },
+        {
+          "id": "Yaroslavl",
+          "label": "Yaroslavl",
+          "x": 283,
+          "y": 429,
+          "heuristic": 1305
+        },
+        {
+          "id": "Stavropol",
+          "label": "Stavropol",
+          "x": 305,
+          "y": 817,
+          "heuristic": 2708
+        },
+        {
+          "id": "Kemerovo",
+          "label": "Kemerovo",
+          "x": 767,
+          "y": 499,
+          "heuristic": 3008
+        },
+        {
+          "id": "NaberezhnyeChelny",
+          "label": "Naberezhnye Chelny",
+          "x": 414,
+          "y": 487,
+          "heuristic": 1760
+        },
+        {
+          "id": "Tomsk",
+          "label": "Tomsk",
+          "x": 755,
+          "y": 464,
+          "heuristic": 2865
+        },
+        {
+          "id": "Orenburg",
+          "label": "Orenburg",
+          "x": 442,
+          "y": 610,
+          "heuristic": 2236
+        },
+        {
+          "id": "Novokuznetsk",
+          "label": "Novokuznetsk",
+          "x": 778,
+          "y": 548,
+          "heuristic": 3189
+        },
+        {
+          "id": "Ryazan",
+          "label": "Ryazan",
+          "x": 281,
+          "y": 521,
+          "heuristic": 1630
+        },
+        {
+          "id": "Balashikha",
+          "label": "Balashikha",
+          "x": 263,
+          "y": 485,
+          "heuristic": 1485
+        },
+        {
+          "id": "Cheboksary",
+          "label": "Cheboksary",
+          "x": 360,
+          "y": 475,
+          "heuristic": 1592
+        },
+        {
+          "id": "Lipetsk",
+          "label": "Lipetsk",
+          "x": 280,
+          "y": 584,
+          "heuristic": 1851
+        },
+        {
+          "id": "Kaliningrad",
+          "label": "Kaliningrad",
+          "x": 80,
+          "y": 519,
+          "heuristic": 1709
+        },
+        {
+          "id": "Penza",
+          "label": "Penza",
+          "x": 337,
+          "y": 566,
+          "heuristic": 1860
+        },
+        {
+          "id": "Kirov",
+          "label": "Kirov",
+          "x": 385,
+          "y": 399,
+          "heuristic": 1402
+        },
+        {
+          "id": "Tula",
+          "label": "Tula",
+          "x": 259,
+          "y": 535,
+          "heuristic": 1660
+        },
+        {
+          "id": "Astrakhan",
+          "label": "Astrakhan",
+          "x": 368,
+          "y": 776,
+          "heuristic": 2651
+        },
+        {
+          "id": "Sevastopol",
+          "label": "Sevastopol",
+          "x": 216,
+          "y": 830,
+          "heuristic": 2709
+        },
+        {
+          "id": "Sochi",
+          "label": "Sochi",
+          "x": 281,
+          "y": 861,
+          "heuristic": 2849
+        },
+        {
+          "id": "Kursk",
+          "label": "Kursk",
+          "x": 244,
+          "y": 611,
+          "heuristic": 1924
+        },
+        {
+          "id": "UlanUde",
+          "label": "Ulan-Ude",
+          "x": 992,
+          "y": 607,
+          "heuristic": 4172
+        },
+        {
+          "id": "Surgut",
+          "label": "Surgut",
+          "x": 634,
+          "y": 318,
+          "heuristic": 2025
+        },
+        {
+          "id": "Tver",
+          "label": "Tver",
+          "x": 241,
+          "y": 453,
+          "heuristic": 1354
+        },
+        {
+          "id": "Magnitogorsk",
+          "label": "Magnitogorsk",
+          "x": 483,
+          "y": 559,
+          "heuristic": 2184
+        },
+        {
+          "id": "Grozny",
+          "label": "Grozny",
+          "x": 344,
+          "y": 870,
+          "heuristic": 2944
+        },
+        {
+          "id": "Bryansk",
+          "label": "Bryansk",
+          "x": 225,
+          "y": 564,
+          "heuristic": 1750
+        },
+        {
+          "id": "Yakutsk",
+          "label": "Yakutsk",
+          "x": 1224,
+          "y": 294,
+          "heuristic": 4048
+        },
+        {
+          "id": "Ivanovo",
+          "label": "Ivanovo",
+          "x": 294,
+          "y": 449,
+          "heuristic": 1387
+        },
+        {
+          "id": "Vladimir",
+          "label": "Vladimir",
+          "x": 288,
+          "y": 475,
+          "heuristic": 1474
+        },
+        {
+          "id": "Simferopol",
+          "label": "Simferopol",
+          "x": 222,
+          "y": 819,
+          "heuristic": 2671
+        },
+        {
+          "id": "Kaluga",
+          "label": "Kaluga",
+          "x": 245,
+          "y": 525,
+          "heuristic": 1616
+        },
+        {
+          "id": "Chita",
+          "label": "Chita",
+          "x": 1054,
+          "y": 601,
+          "heuristic": 4383
+        },
+        {
+          "id": "Belgorod",
+          "label": "Belgorod",
+          "x": 248,
+          "y": 646,
+          "heuristic": 2052
+        },
+        {
+          "id": "NizhnyTagil",
+          "label": "Nizhny Tagil",
+          "x": 493,
+          "y": 421,
+          "heuristic": 1790
+        },
+        {
+          "id": "Smolensk",
+          "label": "Smolensk",
+          "x": 201,
+          "y": 517,
+          "heuristic": 1579
+        },
+        {
+          "id": "Volzhskiy",
+          "label": "Volzhskiy",
+          "x": 334,
+          "y": 701,
+          "heuristic": 2333
+        },
+        {
+          "id": "Cherepovets",
+          "label": "Cherepovets",
+          "x": 262,
+          "y": 383,
+          "heuristic": 1119
+        },
+        {
+          "id": "Vologda",
+          "label": "Vologda",
+          "x": 283,
+          "y": 380,
+          "heuristic": 1132
+        },
+        {
+          "id": "Saransk",
+          "label": "Saransk",
+          "x": 338,
+          "y": 535,
+          "heuristic": 1757
+        },
+        {
+          "id": "Kurgan",
+          "label": "Kurgan",
+          "x": 550,
+          "y": 496,
+          "heuristic": 2203
+        },
+        {
+          "id": "Arkhangelsk",
+          "label": "Arkhangelsk",
+          "x": 290,
+          "y": 216,
+          "heuristic": 590
+        },
+        {
+          "id": "Oryol",
+          "label": "Oryol",
+          "x": 243,
+          "y": 573,
+          "heuristic": 1786
+        },
+        {
+          "id": "Nizhnevartovsk",
+          "label": "Nizhnevartovsk",
+          "x": 667,
+          "y": 327,
+          "heuristic": 2174
+        },
+        {
+          "id": "Vladikavkaz",
+          "label": "Vladikavkaz",
+          "x": 333,
+          "y": 879,
+          "heuristic": 2962
+        },
+        {
+          "id": "Tambov",
+          "label": "Tambov",
+          "x": 299,
+          "y": 580,
+          "heuristic": 1859
+        },
+        {
+          "id": "YoshkarOla",
+          "label": "Yoshkar-Ola",
+          "x": 367,
+          "y": 460,
+          "heuristic": 1556
+        },
+        {
+          "id": "Sterlitamak",
+          "label": "Sterlitamak",
+          "x": 451,
+          "y": 553,
+          "heuristic": 2072
+        },
+        {
+          "id": "Murmansk",
+          "label": "Murmansk",
+          "x": 212,
+          "y": 80,
+          "heuristic": 0
+        },
+        {
+          "id": "Kostroma",
+          "label": "Kostroma",
+          "x": 294,
+          "y": 425,
+          "heuristic": 1303
+        },
+        {
+          "id": "Novorossiysk",
+          "label": "Novorossiysk",
+          "x": 261,
+          "y": 826,
+          "heuristic": 2709
+        },
+        {
+          "id": "Mytishchi",
+          "label": "Mytishchi",
+          "x": 260,
+          "y": 482,
+          "heuristic": 1471
+        },
+        {
+          "id": "Taganrog",
+          "label": "Taganrog",
+          "x": 273,
+          "y": 750,
+          "heuristic": 2441
+        },
+        {
+          "id": "Nizhnekamsk",
+          "label": "Nizhnekamsk",
+          "x": 408,
+          "y": 490,
+          "heuristic": 1754
+        },
+        {
+          "id": "Blagoveshchensk",
+          "label": "Blagoveshchensk",
+          "x": 1201,
+          "y": 656,
+          "heuristic": 5068
+        },
+        {
+          "id": "Nalchik",
+          "label": "Nalchik",
+          "x": 322,
+          "y": 865,
+          "heuristic": 2899
+        }
+      ],
+      "edges": [
+        {
+          "id": "e-Balashikha-Mytishchi",
+          "source": "Balashikha",
+          "target": "Mytishchi",
+          "weight": 18
+        },
+        {
+          "id": "e-Moscow-Mytishchi",
+          "source": "Moscow",
+          "target": "Mytishchi",
+          "weight": 19
+        },
+        {
+          "id": "e-Volgograd-Volzhskiy",
+          "source": "Volgograd",
+          "target": "Volzhskiy",
+          "weight": 19
+        },
+        {
+          "id": "e-NaberezhnyeChelny-Nizhnekamsk",
+          "source": "NaberezhnyeChelny",
+          "target": "Nizhnekamsk",
+          "weight": 38
+        },
+        {
+          "id": "e-Samara-Tolyatti",
+          "source": "Samara",
+          "target": "Tolyatti",
+          "weight": 57
+        },
+        {
+          "id": "e-RostovonDon-Taganrog",
+          "source": "RostovonDon",
+          "target": "Taganrog",
+          "weight": 60
+        },
+        {
+          "id": "e-Sevastopol-Simferopol",
+          "source": "Sevastopol",
+          "target": "Simferopol",
+          "weight": 60
+        },
+        {
+          "id": "e-Yaroslavl-Kostroma",
+          "source": "Yaroslavl",
+          "target": "Kostroma",
+          "weight": 63
+        },
+        {
+          "id": "e-Cheboksary-YoshkarOla",
+          "source": "Cheboksary",
+          "target": "YoshkarOla",
+          "weight": 67
+        },
+        {
+          "id": "e-Ivanovo-Kostroma",
+          "source": "Ivanovo",
+          "target": "Kostroma",
+          "weight": 86
+        },
+        {
+          "id": "e-Grozny-Vladikavkaz",
+          "source": "Grozny",
+          "target": "Vladikavkaz",
+          "weight": 88
+        },
+        {
+          "id": "e-Tula-Kaluga",
+          "source": "Tula",
+          "target": "Kaluga",
+          "weight": 95
+        },
+        {
+          "id": "e-Krasnodar-Novorossiysk",
+          "source": "Krasnodar",
+          "target": "Novorossiysk",
+          "weight": 101
+        },
+        {
+          "id": "e-Vladikavkaz-Nalchik",
+          "source": "Vladikavkaz",
+          "target": "Nalchik",
+          "weight": 101
+        },
+        {
+          "id": "e-Ivanovo-Vladimir",
+          "source": "Ivanovo",
+          "target": "Vladimir",
+          "weight": 103
+        },
+        {
+          "id": "e-Voronezh-Lipetsk",
+          "source": "Voronezh",
+          "target": "Lipetsk",
+          "weight": 108
+        },
+        {
+          "id": "e-Penza-Saransk",
+          "source": "Penza",
+          "target": "Saransk",
+          "weight": 111
+        },
+        {
+          "id": "e-Tolyatti-Ulyanovsk",
+          "source": "Tolyatti",
+          "target": "Ulyanovsk",
+          "weight": 112
+        },
+        {
+          "id": "e-Cherepovets-Vologda",
+          "source": "Cherepovets",
+          "target": "Vologda",
+          "weight": 114
+        },
+        {
+          "id": "e-Bryansk-Oryol",
+          "source": "Bryansk",
+          "target": "Oryol",
+          "weight": 117
+        },
+        {
+          "id": "e-Kazan-YoshkarOla",
+          "source": "Kazan",
+          "target": "YoshkarOla",
+          "weight": 120
+        },
+        {
+          "id": "e-Ufa-Sterlitamak",
+          "source": "Ufa",
+          "target": "Sterlitamak",
+          "weight": 123
+        },
+        {
+          "id": "e-Yekaterinburg-NizhnyTagil",
+          "source": "Yekaterinburg",
+          "target": "NizhnyTagil",
+          "weight": 125
+        },
+        {
+          "id": "e-Lipetsk-Tambov",
+          "source": "Lipetsk",
+          "target": "Tambov",
+          "weight": 126
+        },
+        {
+          "id": "e-Kursk-Belgorod",
+          "source": "Kursk",
+          "target": "Belgorod",
+          "weight": 129
+        },
+        {
+          "id": "e-Izhevsk-NaberezhnyeChelny",
+          "source": "Izhevsk",
+          "target": "NaberezhnyeChelny",
+          "weight": 133
+        },
+        {
+          "id": "e-Kursk-Oryol",
+          "source": "Kursk",
+          "target": "Oryol",
+          "weight": 138
+        },
+        {
+          "id": "e-Kemerovo-Tomsk",
+          "source": "Kemerovo",
+          "target": "Tomsk",
+          "weight": 145
+        },
+        {
+          "id": "e-Ryazan-Tula",
+          "source": "Ryazan",
+          "target": "Tula",
+          "weight": 146
+        },
+        {
+          "id": "e-Makhachkala-Grozny",
+          "source": "Makhachkala",
+          "target": "Grozny",
+          "weight": 152
+        },
+        {
+          "id": "e-Tver-Mytishchi",
+          "source": "Tver",
+          "target": "Mytishchi",
+          "weight": 154
+        },
+        {
+          "id": "e-Balashikha-Vladimir",
+          "source": "Balashikha",
+          "target": "Vladimir",
+          "weight": 158
+        },
+        {
+          "id": "e-Moscow-Kaluga",
+          "source": "Moscow",
+          "target": "Kaluga",
+          "weight": 163
+        },
+        {
+          "id": "e-Kazan-Nizhnekamsk",
+          "source": "Kazan",
+          "target": "Nizhnekamsk",
+          "weight": 170
+        },
+        {
+          "id": "e-Tula-Oryol",
+          "source": "Tula",
+          "target": "Oryol",
+          "weight": 170
+        },
+        {
+          "id": "e-Kazan-Ulyanovsk",
+          "source": "Kazan",
+          "target": "Ulyanovsk",
+          "weight": 171
+        },
+        {
+          "id": "e-Krasnodar-Sochi",
+          "source": "Krasnodar",
+          "target": "Sochi",
+          "weight": 172
+        },
+        {
+          "id": "e-Vologda-Kostroma",
+          "source": "Vologda",
+          "target": "Kostroma",
+          "weight": 172
+        },
+        {
+          "id": "e-Surgut-Nizhnevartovsk",
+          "source": "Surgut",
+          "target": "Nizhnevartovsk",
+          "weight": 173
+        },
+        {
+          "id": "e-Kemerovo-Novokuznetsk",
+          "source": "Kemerovo",
+          "target": "Novokuznetsk",
+          "weight": 190
+        },
+        {
+          "id": "e-Tyumen-Kurgan",
+          "source": "Tyumen",
+          "target": "Kurgan",
+          "weight": 191
+        },
+        {
+          "id": "e-Yekaterinburg-Chelyabinsk",
+          "source": "Yekaterinburg",
+          "target": "Chelyabinsk",
+          "weight": 193
+        },
+        {
+          "id": "e-Novosibirsk-Barnaul",
+          "source": "Novosibirsk",
+          "target": "Barnaul",
+          "weight": 195
+        },
+        {
+          "id": "e-Saratov-Penza",
+          "source": "Saratov",
+          "target": "Penza",
+          "weight": 198
+        },
+        {
+          "id": "e-NizhnyNovgorod-Ivanovo",
+          "source": "NizhnyNovgorod",
+          "target": "Ivanovo",
+          "weight": 199
+        },
+        {
+          "id": "e-NizhnyNovgorod-Cheboksary",
+          "source": "NizhnyNovgorod",
+          "target": "Cheboksary",
+          "weight": 201
+        },
+        {
+          "id": "e-Magnitogorsk-Sterlitamak",
+          "source": "Magnitogorsk",
+          "target": "Sterlitamak",
+          "weight": 201
+        },
+        {
+          "id": "e-Novosibirsk-Kemerovo",
+          "source": "Novosibirsk",
+          "target": "Kemerovo",
+          "weight": 204
+        },
+        {
+          "id": "e-Voronezh-Kursk",
+          "source": "Voronezh",
+          "target": "Kursk",
+          "weight": 207
+        },
+        {
+          "id": "e-Ulyanovsk-Saransk",
+          "source": "Ulyanovsk",
+          "target": "Saransk",
+          "weight": 210
+        },
+        {
+          "id": "e-Orenburg-Sterlitamak",
+          "source": "Orenburg",
+          "target": "Sterlitamak",
+          "weight": 214
+        },
+        {
+          "id": "e-Stavropol-Nalchik",
+          "source": "Stavropol",
+          "target": "Nalchik",
+          "weight": 217
+        },
+        {
+          "id": "e-Perm-NizhnyTagil",
+          "source": "Perm",
+          "target": "NizhnyTagil",
+          "weight": 221
+        },
+        {
+          "id": "e-Perm-Izhevsk",
+          "source": "Perm",
+          "target": "Izhevsk",
+          "weight": 222
+        },
+        {
+          "id": "e-Bryansk-Smolensk",
+          "source": "Bryansk",
+          "target": "Smolensk",
+          "weight": 229
+        },
+        {
+          "id": "e-Irkutsk-UlanUde",
+          "source": "Irkutsk",
+          "target": "UlanUde",
+          "weight": 231
+        },
+        {
+          "id": "e-Krasnodar-Stavropol",
+          "source": "Krasnodar",
+          "target": "Stavropol",
+          "weight": 235
+        },
+        {
+          "id": "e-Krasnodar-Taganrog",
+          "source": "Krasnodar",
+          "target": "Taganrog",
+          "weight": 242
+        },
+        {
+          "id": "e-Kirov-YoshkarOla",
+          "source": "Kirov",
+          "target": "YoshkarOla",
+          "weight": 244
+        },
+        {
+          "id": "e-Chelyabinsk-Magnitogorsk",
+          "source": "Chelyabinsk",
+          "target": "Magnitogorsk",
+          "weight": 250
+        },
+        {
+          "id": "e-Chelyabinsk-Kurgan",
+          "source": "Chelyabinsk",
+          "target": "Kurgan",
+          "weight": 251
+        },
+        {
+          "id": "e-Simferopol-Novorossiysk",
+          "source": "Simferopol",
+          "target": "Novorossiysk",
+          "weight": 290
+        },
+        {
+          "id": "e-Saratov-Volzhskiy",
+          "source": "Saratov",
+          "target": "Volzhskiy",
+          "weight": 318
+        },
+        {
+          "id": "e-Astrakhan-Volzhskiy",
+          "source": "Astrakhan",
+          "target": "Volzhskiy",
+          "weight": 366
+        },
+        {
+          "id": "e-Makhachkala-Astrakhan",
+          "source": "Makhachkala",
+          "target": "Astrakhan",
+          "weight": 377
+        },
+        {
+          "id": "e-UlanUde-Chita",
+          "source": "UlanUde",
+          "target": "Chita",
+          "weight": 406
+        },
+        {
+          "id": "e-Krasnoyarsk-Kemerovo",
+          "source": "Krasnoyarsk",
+          "target": "Kemerovo",
+          "weight": 431
+        },
+        {
+          "id": "e-SaintPetersburg-Cherepovets",
+          "source": "SaintPetersburg",
+          "target": "Cherepovets",
+          "weight": 437
+        },
+        {
+          "id": "e-Omsk-Kurgan",
+          "source": "Omsk",
+          "target": "Kurgan",
+          "weight": 512
+        },
+        {
+          "id": "e-Khabarovsk-Blagoveshchensk",
+          "source": "Khabarovsk",
+          "target": "Blagoveshchensk",
+          "weight": 581
+        },
+        {
+          "id": "e-Arkhangelsk-Murmansk",
+          "source": "Arkhangelsk",
+          "target": "Murmansk",
+          "weight": 590
+        },
+        {
+          "id": "e-Vologda-Arkhangelsk",
+          "source": "Vologda",
+          "target": "Arkhangelsk",
+          "weight": 593
+        },
+        {
+          "id": "e-Novosibirsk-Omsk",
+          "source": "Novosibirsk",
+          "target": "Omsk",
+          "weight": 609
+        },
+        {
+          "id": "e-Tyumen-Surgut",
+          "source": "Tyumen",
+          "target": "Surgut",
+          "weight": 637
+        },
+        {
+          "id": "e-Khabarovsk-Vladivostok",
+          "source": "Khabarovsk",
+          "target": "Vladivostok",
+          "weight": 646
+        },
+        {
+          "id": "e-Kaliningrad-Smolensk",
+          "source": "Kaliningrad",
+          "target": "Smolensk",
+          "weight": 740
+        },
+        {
+          "id": "e-Krasnoyarsk-Irkutsk",
+          "source": "Krasnoyarsk",
+          "target": "Irkutsk",
+          "weight": 849
+        },
+        {
+          "id": "e-Chita-Blagoveshchensk",
+          "source": "Chita",
+          "target": "Blagoveshchensk",
+          "weight": 997
+        },
+        {
+          "id": "e-Yakutsk-Blagoveshchensk",
+          "source": "Yakutsk",
+          "target": "Blagoveshchensk",
+          "weight": 1315
+        },
+        {
+          "id": "e-Moscow-Balashikha",
+          "source": "Moscow",
+          "target": "Balashikha",
+          "weight": 21
+        },
+        {
+          "id": "e-Yaroslavl-Ivanovo",
+          "source": "Yaroslavl",
+          "target": "Ivanovo",
+          "weight": 96
+        },
+        {
+          "id": "e-Kazan-Cheboksary",
+          "source": "Kazan",
+          "target": "Cheboksary",
+          "weight": 122
+        },
+        {
+          "id": "e-Izhevsk-Nizhnekamsk",
+          "source": "Izhevsk",
+          "target": "Nizhnekamsk",
+          "weight": 160
+        },
+        {
+          "id": "e-Moscow-Tver",
+          "source": "Moscow",
+          "target": "Tver",
+          "weight": 162
+        },
+        {
+          "id": "e-Samara-Ulyanovsk",
+          "source": "Samara",
+          "target": "Ulyanovsk",
+          "weight": 167
+        },
+        {
+          "id": "e-Vladimir-Mytishchi",
+          "source": "Vladimir",
+          "target": "Mytishchi",
+          "weight": 168
+        },
+        {
+          "id": "e-Yaroslavl-Vladimir",
+          "source": "Yaroslavl",
+          "target": "Vladimir",
+          "weight": 169
+        },
+        {
+          "id": "e-Grozny-Nalchik",
+          "source": "Grozny",
+          "target": "Nalchik",
+          "weight": 170
+        },
+        {
+          "id": "e-Balashikha-Tver",
+          "source": "Balashikha",
+          "target": "Tver",
+          "weight": 171
+        },
+        {
+          "id": "e-Ryazan-Vladimir",
+          "source": "Ryazan",
+          "target": "Vladimir",
+          "weight": 172
+        },
+        {
+          "id": "e-Kaluga-Oryol",
+          "source": "Kaluga",
+          "target": "Oryol",
+          "weight": 172
+        },
+        {
+          "id": "e-Ryazan-Balashikha",
+          "source": "Ryazan",
+          "target": "Balashikha",
+          "weight": 173
+        },
+        {
+          "id": "e-Bryansk-Kaluga",
+          "source": "Bryansk",
+          "target": "Kaluga",
+          "weight": 188
+        },
+        {
+          "id": "e-Voronezh-Tambov",
+          "source": "Voronezh",
+          "target": "Tambov",
+          "weight": 194
+        },
+        {
+          "id": "e-Sochi-Novorossiysk",
+          "source": "Sochi",
+          "target": "Novorossiysk",
+          "weight": 201
+        },
+        {
+          "id": "e-Yaroslavl-Cherepovets",
+          "source": "Yaroslavl",
+          "target": "Cherepovets",
+          "weight": 203
+        },
+        {
+          "id": "e-Novosibirsk-Tomsk",
+          "source": "Novosibirsk",
+          "target": "Tomsk",
+          "weight": 206
+        },
+        {
+          "id": "e-Kazan-NaberezhnyeChelny",
+          "source": "Kazan",
+          "target": "NaberezhnyeChelny",
+          "weight": 206
+        },
+        {
+          "id": "e-Voronezh-Belgorod",
+          "source": "Voronezh",
+          "target": "Belgorod",
+          "weight": 217
+        },
+        {
+          "id": "e-Lipetsk-Tula",
+          "source": "Lipetsk",
+          "target": "Tula",
+          "weight": 220
+        },
+        {
+          "id": "e-NizhnyNovgorod-Vladimir",
+          "source": "NizhnyNovgorod",
+          "target": "Vladimir",
+          "weight": 223
+        },
+        {
+          "id": "e-Barnaul-Novokuznetsk",
+          "source": "Barnaul",
+          "target": "Novokuznetsk",
+          "weight": 226
+        },
+        {
+          "id": "e-Makhachkala-Vladikavkaz",
+          "source": "Makhachkala",
+          "target": "Vladikavkaz",
+          "weight": 230
+        },
+        {
+          "id": "e-Ryazan-Tambov",
+          "source": "Ryazan",
+          "target": "Tambov",
+          "weight": 240
+        },
+        {
+          "id": "e-Stavropol-Sochi",
+          "source": "Stavropol",
+          "target": "Sochi",
+          "weight": 241
+        },
+        {
+          "id": "e-Penza-Tambov",
+          "source": "Penza",
+          "target": "Tambov",
+          "weight": 245
+        },
+        {
+          "id": "e-Ufa-Magnitogorsk",
+          "source": "Ufa",
+          "target": "Magnitogorsk",
+          "weight": 246
+        },
+        {
+          "id": "e-NizhnyNovgorod-Saransk",
+          "source": "NizhnyNovgorod",
+          "target": "Saransk",
+          "weight": 249
+        }
+      ]
+    },
+    "startNode": "Makhachkala",
+    "goalNode": "Murmansk",
+    "useHeuristic": true
+  }
+}

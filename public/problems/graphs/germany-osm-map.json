@@ -1,0 +1,924 @@
+{
+  "category": "graph",
+  "name": "Germany OSM Mesh",
+  "description": "High-fidelity city mesh for Germany generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+  "tags": [
+    "osm",
+    "real-world",
+    "detailed"
+  ],
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        {
+          "id": "Berlin",
+          "label": "Berlin",
+          "x": 1226,
+          "y": 308,
+          "heuristic": 295
+        },
+        {
+          "id": "Hamburg",
+          "label": "Hamburg",
+          "x": 694,
+          "y": 178,
+          "heuristic": 86
+        },
+        {
+          "id": "Munich",
+          "label": "Munich",
+          "x": 941,
+          "y": 862,
+          "heuristic": 695
+        },
+        {
+          "id": "Cologne",
+          "label": "Cologne",
+          "x": 217,
+          "y": 508,
+          "heuristic": 433
+        },
+        {
+          "id": "Frankfurt",
+          "label": "Frankfurt",
+          "x": 487,
+          "y": 613,
+          "heuristic": 479
+        },
+        {
+          "id": "Dusseldorf",
+          "label": "Dusseldorf",
+          "x": 189,
+          "y": 472,
+          "heuristic": 412
+        },
+        {
+          "id": "Leipzig",
+          "label": "Leipzig",
+          "x": 1066,
+          "y": 457,
+          "heuristic": 364
+        },
+        {
+          "id": "Stuttgart",
+          "label": "Stuttgart",
+          "x": 565,
+          "y": 781,
+          "heuristic": 620
+        },
+        {
+          "id": "Dortmund",
+          "label": "Dortmund",
+          "x": 297,
+          "y": 435,
+          "heuristic": 360
+        },
+        {
+          "id": "Dresden",
+          "label": "Dresden",
+          "x": 1280,
+          "y": 494,
+          "heuristic": 437
+        },
+        {
+          "id": "Essen",
+          "label": "Essen",
+          "x": 226,
+          "y": 442,
+          "heuristic": 381
+        },
+        {
+          "id": "Hanover",
+          "label": "Hanover",
+          "x": 653,
+          "y": 326,
+          "heuristic": 218
+        },
+        {
+          "id": "Bremen",
+          "label": "Bremen",
+          "x": 507,
+          "y": 238,
+          "heuristic": 164
+        },
+        {
+          "id": "Nuremberg",
+          "label": "Nuremberg",
+          "x": 863,
+          "y": 696,
+          "heuristic": 545
+        },
+        {
+          "id": "Duisburg",
+          "label": "Duisburg",
+          "x": 186,
+          "y": 445,
+          "heuristic": 393
+        },
+        {
+          "id": "Bochum",
+          "label": "Bochum",
+          "x": 258,
+          "y": 439,
+          "heuristic": 371
+        },
+        {
+          "id": "Wuppertal",
+          "label": "Wuppertal",
+          "x": 252,
+          "y": 467,
+          "heuristic": 394
+        },
+        {
+          "id": "Bonn",
+          "label": "Bonn",
+          "x": 240,
+          "y": 534,
+          "heuristic": 448
+        },
+        {
+          "id": "Bielefeld",
+          "label": "Bielefeld",
+          "x": 464,
+          "y": 371,
+          "heuristic": 278
+        },
+        {
+          "id": "Mnster",
+          "label": "Münster",
+          "x": 322,
+          "y": 378,
+          "heuristic": 311
+        },
+        {
+          "id": "Mannheim",
+          "label": "Mannheim",
+          "x": 454,
+          "y": 691,
+          "heuristic": 549
+        },
+        {
+          "id": "Augsburg",
+          "label": "Augsburg",
+          "x": 835,
+          "y": 833,
+          "heuristic": 664
+        },
+        {
+          "id": "Wiesbaden",
+          "label": "Wiesbaden",
+          "x": 418,
+          "y": 616,
+          "heuristic": 489
+        },
+        {
+          "id": "Karlsruhe",
+          "label": "Karlsruhe",
+          "x": 444,
+          "y": 752,
+          "heuristic": 603
+        },
+        {
+          "id": "Gelsenkirchen",
+          "label": "Gelsenkirchen",
+          "x": 239,
+          "y": 436,
+          "heuristic": 373
+        },
+        {
+          "id": "Mnchengladbach",
+          "label": "Mönchengladbach",
+          "x": 135,
+          "y": 476,
+          "heuristic": 428
+        },
+        {
+          "id": "Brunswick",
+          "label": "Brunswick",
+          "x": 776,
+          "y": 340,
+          "heuristic": 230
+        },
+        {
+          "id": "Kiel",
+          "label": "Kiel",
+          "x": 715,
+          "y": 80,
+          "heuristic": 0
+        },
+        {
+          "id": "Magdeburg",
+          "label": "Magdeburg",
+          "x": 951,
+          "y": 357,
+          "heuristic": 263
+        },
+        {
+          "id": "Chemnitz",
+          "label": "Chemnitz",
+          "x": 1152,
+          "y": 521,
+          "heuristic": 431
+        },
+        {
+          "id": "Aachen",
+          "label": "Aachen",
+          "x": 80,
+          "y": 528,
+          "heuristic": 480
+        },
+        {
+          "id": "HalleSaale",
+          "label": "Halle (Saale)",
+          "x": 1003,
+          "y": 439,
+          "heuristic": 339
+        },
+        {
+          "id": "Mainz",
+          "label": "Mainz",
+          "x": 423,
+          "y": 627,
+          "heuristic": 497
+        },
+        {
+          "id": "Krefeld",
+          "label": "Krefeld",
+          "x": 155,
+          "y": 458,
+          "heuristic": 410
+        },
+        {
+          "id": "FreiburgimBreisgau",
+          "label": "Freiburg im Breisgau",
+          "x": 357,
+          "y": 880,
+          "heuristic": 721
+        },
+        {
+          "id": "Erfurt",
+          "label": "Erfurt",
+          "x": 855,
+          "y": 503,
+          "heuristic": 377
+        },
+        {
+          "id": "Lbeck",
+          "label": "Lübeck",
+          "x": 801,
+          "y": 138,
+          "heuristic": 62
+        },
+        {
+          "id": "Oberhausen",
+          "label": "Oberhausen",
+          "x": 200,
+          "y": 441,
+          "heuristic": 386
+        },
+        {
+          "id": "Rostock",
+          "label": "Rostock",
+          "x": 1029,
+          "y": 110,
+          "heuristic": 133
+        },
+        {
+          "id": "Kassel",
+          "label": "Kassel",
+          "x": 615,
+          "y": 460,
+          "heuristic": 337
+        },
+        {
+          "id": "Hagen",
+          "label": "Hagen",
+          "x": 298,
+          "y": 455,
+          "heuristic": 375
+        },
+        {
+          "id": "Potsdam",
+          "label": "Potsdam",
+          "x": 1174,
+          "y": 323,
+          "heuristic": 289
+        },
+        {
+          "id": "Saarbrcken",
+          "label": "Saarbrücken",
+          "x": 223,
+          "y": 723,
+          "heuristic": 605
+        },
+        {
+          "id": "Hamm",
+          "label": "Hamm",
+          "x": 352,
+          "y": 414,
+          "heuristic": 332
+        },
+        {
+          "id": "Osnabrck",
+          "label": "Osnabrück",
+          "x": 388,
+          "y": 339,
+          "heuristic": 267
+        },
+        {
+          "id": "MlheimanderRuhr",
+          "label": "Mülheim an der Ruhr",
+          "x": 205,
+          "y": 446,
+          "heuristic": 389
+        },
+        {
+          "id": "Solingen",
+          "label": "Solingen",
+          "x": 237,
+          "y": 478,
+          "heuristic": 406
+        },
+        {
+          "id": "Oldenburg",
+          "label": "Oldenburg",
+          "x": 414,
+          "y": 230,
+          "heuristic": 182
+        },
+        {
+          "id": "LudwigshafenamRhein",
+          "label": "Ludwigshafen am Rhein",
+          "x": 449,
+          "y": 694,
+          "heuristic": 552
+        },
+        {
+          "id": "Leverkusen",
+          "label": "Leverkusen",
+          "x": 222,
+          "y": 496,
+          "heuristic": 423
+        }
+      ],
+      "edges": [
+        {
+          "id": "e-Mannheim-LudwigshafenamRhein",
+          "source": "Mannheim",
+          "target": "LudwigshafenamRhein",
+          "weight": 3
+        },
+        {
+          "id": "e-Oberhausen-MlheimanderRuhr",
+          "source": "Oberhausen",
+          "target": "MlheimanderRuhr",
+          "weight": 5
+        },
+        {
+          "id": "e-Duisburg-Oberhausen",
+          "source": "Duisburg",
+          "target": "Oberhausen",
+          "weight": 7
+        },
+        {
+          "id": "e-Essen-Gelsenkirchen",
+          "source": "Essen",
+          "target": "Gelsenkirchen",
+          "weight": 8
+        },
+        {
+          "id": "e-Bochum-Gelsenkirchen",
+          "source": "Bochum",
+          "target": "Gelsenkirchen",
+          "weight": 9
+        },
+        {
+          "id": "e-Wiesbaden-Mainz",
+          "source": "Wiesbaden",
+          "target": "Mainz",
+          "weight": 9
+        },
+        {
+          "id": "e-Essen-MlheimanderRuhr",
+          "source": "Essen",
+          "target": "MlheimanderRuhr",
+          "weight": 10
+        },
+        {
+          "id": "e-Cologne-Leverkusen",
+          "source": "Cologne",
+          "target": "Leverkusen",
+          "weight": 11
+        },
+        {
+          "id": "e-Wuppertal-Solingen",
+          "source": "Wuppertal",
+          "target": "Solingen",
+          "weight": 12
+        },
+        {
+          "id": "e-Dortmund-Bochum",
+          "source": "Dortmund",
+          "target": "Bochum",
+          "weight": 17
+        },
+        {
+          "id": "e-Dortmund-Hagen",
+          "source": "Dortmund",
+          "target": "Hagen",
+          "weight": 17
+        },
+        {
+          "id": "e-Solingen-Leverkusen",
+          "source": "Solingen",
+          "target": "Leverkusen",
+          "weight": 17
+        },
+        {
+          "id": "e-Duisburg-Krefeld",
+          "source": "Duisburg",
+          "target": "Krefeld",
+          "weight": 18
+        },
+        {
+          "id": "e-Mnchengladbach-Krefeld",
+          "source": "Mnchengladbach",
+          "target": "Krefeld",
+          "weight": 18
+        },
+        {
+          "id": "e-Dusseldorf-Krefeld",
+          "source": "Dusseldorf",
+          "target": "Krefeld",
+          "weight": 19
+        },
+        {
+          "id": "e-Dusseldorf-Solingen",
+          "source": "Dusseldorf",
+          "target": "Solingen",
+          "weight": 22
+        },
+        {
+          "id": "e-Cologne-Bonn",
+          "source": "Cologne",
+          "target": "Bonn",
+          "weight": 25
+        },
+        {
+          "id": "e-Berlin-Potsdam",
+          "source": "Berlin",
+          "target": "Potsdam",
+          "weight": 26
+        },
+        {
+          "id": "e-Dortmund-Hamm",
+          "source": "Dortmund",
+          "target": "Hamm",
+          "weight": 31
+        },
+        {
+          "id": "e-Frankfurt-Wiesbaden",
+          "source": "Frankfurt",
+          "target": "Wiesbaden",
+          "weight": 32
+        },
+        {
+          "id": "e-Leipzig-HalleSaale",
+          "source": "Leipzig",
+          "target": "HalleSaale",
+          "weight": 32
+        },
+        {
+          "id": "e-Mnster-Hamm",
+          "source": "Mnster",
+          "target": "Hamm",
+          "weight": 34
+        },
+        {
+          "id": "e-Bremen-Oldenburg",
+          "source": "Bremen",
+          "target": "Oldenburg",
+          "weight": 40
+        },
+        {
+          "id": "e-Bielefeld-Osnabrck",
+          "source": "Bielefeld",
+          "target": "Osnabrck",
+          "weight": 43
+        },
+        {
+          "id": "e-Mnster-Osnabrck",
+          "source": "Mnster",
+          "target": "Osnabrck",
+          "weight": 45
+        },
+        {
+          "id": "e-Karlsruhe-LudwigshafenamRhein",
+          "source": "Karlsruhe",
+          "target": "LudwigshafenamRhein",
+          "weight": 52
+        },
+        {
+          "id": "e-Mnchengladbach-Aachen",
+          "source": "Mnchengladbach",
+          "target": "Aachen",
+          "weight": 53
+        },
+        {
+          "id": "e-Hanover-Brunswick",
+          "source": "Hanover",
+          "target": "Brunswick",
+          "weight": 55
+        },
+        {
+          "id": "e-Munich-Augsburg",
+          "source": "Munich",
+          "target": "Augsburg",
+          "weight": 56
+        },
+        {
+          "id": "e-Hamburg-Lbeck",
+          "source": "Hamburg",
+          "target": "Lbeck",
+          "weight": 57
+        },
+        {
+          "id": "e-Mannheim-Mainz",
+          "source": "Mannheim",
+          "target": "Mainz",
+          "weight": 58
+        },
+        {
+          "id": "e-Stuttgart-Karlsruhe",
+          "source": "Stuttgart",
+          "target": "Karlsruhe",
+          "weight": 62
+        },
+        {
+          "id": "e-Dresden-Chemnitz",
+          "source": "Dresden",
+          "target": "Chemnitz",
+          "weight": 62
+        },
+        {
+          "id": "e-Kiel-Lbeck",
+          "source": "Kiel",
+          "target": "Lbeck",
+          "weight": 62
+        },
+        {
+          "id": "e-Leipzig-Chemnitz",
+          "source": "Leipzig",
+          "target": "Chemnitz",
+          "weight": 68
+        },
+        {
+          "id": "e-Magdeburg-HalleSaale",
+          "source": "Magdeburg",
+          "target": "HalleSaale",
+          "weight": 76
+        },
+        {
+          "id": "e-Brunswick-Magdeburg",
+          "source": "Brunswick",
+          "target": "Magdeburg",
+          "weight": 78
+        },
+        {
+          "id": "e-HalleSaale-Erfurt",
+          "source": "HalleSaale",
+          "target": "Erfurt",
+          "weight": 86
+        },
+        {
+          "id": "e-Hanover-Bielefeld",
+          "source": "Hanover",
+          "target": "Bielefeld",
+          "weight": 91
+        },
+        {
+          "id": "e-Hamburg-Bremen",
+          "source": "Hamburg",
+          "target": "Bremen",
+          "weight": 95
+        },
+        {
+          "id": "e-Osnabrck-Oldenburg",
+          "source": "Osnabrck",
+          "target": "Oldenburg",
+          "weight": 97
+        },
+        {
+          "id": "e-Lbeck-Rostock",
+          "source": "Lbeck",
+          "target": "Rostock",
+          "weight": 98
+        },
+        {
+          "id": "e-Magdeburg-Potsdam",
+          "source": "Magdeburg",
+          "target": "Potsdam",
+          "weight": 101
+        },
+        {
+          "id": "e-Bielefeld-Kassel",
+          "source": "Bielefeld",
+          "target": "Kassel",
+          "weight": 103
+        },
+        {
+          "id": "e-Karlsruhe-Saarbrcken",
+          "source": "Karlsruhe",
+          "target": "Saarbrcken",
+          "weight": 105
+        },
+        {
+          "id": "e-Bonn-Wiesbaden",
+          "source": "Bonn",
+          "target": "Wiesbaden",
+          "weight": 109
+        },
+        {
+          "id": "e-Karlsruhe-FreiburgimBreisgau",
+          "source": "Karlsruhe",
+          "target": "FreiburgimBreisgau",
+          "weight": 120
+        },
+        {
+          "id": "e-Nuremberg-Augsburg",
+          "source": "Nuremberg",
+          "target": "Augsburg",
+          "weight": 121
+        },
+        {
+          "id": "e-Stuttgart-Augsburg",
+          "source": "Stuttgart",
+          "target": "Augsburg",
+          "weight": 134
+        },
+        {
+          "id": "e-Duisburg-MlheimanderRuhr",
+          "source": "Duisburg",
+          "target": "MlheimanderRuhr",
+          "weight": 9
+        },
+        {
+          "id": "e-Essen-Oberhausen",
+          "source": "Essen",
+          "target": "Oberhausen",
+          "weight": 11
+        },
+        {
+          "id": "e-Essen-Bochum",
+          "source": "Essen",
+          "target": "Bochum",
+          "weight": 14
+        },
+        {
+          "id": "e-Gelsenkirchen-MlheimanderRuhr",
+          "source": "Gelsenkirchen",
+          "target": "MlheimanderRuhr",
+          "weight": 17
+        },
+        {
+          "id": "e-Bochum-Hagen",
+          "source": "Bochum",
+          "target": "Hagen",
+          "weight": 22
+        },
+        {
+          "id": "e-Dusseldorf-Duisburg",
+          "source": "Dusseldorf",
+          "target": "Duisburg",
+          "weight": 23
+        },
+        {
+          "id": "e-Wuppertal-Hagen",
+          "source": "Wuppertal",
+          "target": "Hagen",
+          "weight": 23
+        },
+        {
+          "id": "e-Dusseldorf-Mnchengladbach",
+          "source": "Dusseldorf",
+          "target": "Mnchengladbach",
+          "weight": 24
+        },
+        {
+          "id": "e-Essen-Wuppertal",
+          "source": "Essen",
+          "target": "Wuppertal",
+          "weight": 24
+        },
+        {
+          "id": "e-Dusseldorf-Leverkusen",
+          "source": "Dusseldorf",
+          "target": "Leverkusen",
+          "weight": 26
+        },
+        {
+          "id": "e-Cologne-Solingen",
+          "source": "Cologne",
+          "target": "Solingen",
+          "weight": 27
+        },
+        {
+          "id": "e-Frankfurt-Mainz",
+          "source": "Frankfurt",
+          "target": "Mainz",
+          "weight": 32
+        },
+        {
+          "id": "e-Bonn-Leverkusen",
+          "source": "Bonn",
+          "target": "Leverkusen",
+          "weight": 34
+        },
+        {
+          "id": "e-Hagen-Hamm",
+          "source": "Hagen",
+          "target": "Hamm",
+          "weight": 43
+        },
+        {
+          "id": "e-Dortmund-Mnster",
+          "source": "Dortmund",
+          "target": "Mnster",
+          "weight": 51
+        },
+        {
+          "id": "e-Mannheim-Karlsruhe",
+          "source": "Mannheim",
+          "target": "Karlsruhe",
+          "weight": 54
+        },
+        {
+          "id": "e-Mainz-LudwigshafenamRhein",
+          "source": "Mainz",
+          "target": "LudwigshafenamRhein",
+          "weight": 60
+        },
+        {
+          "id": "e-Cologne-Aachen",
+          "source": "Cologne",
+          "target": "Aachen",
+          "weight": 64
+        },
+        {
+          "id": "e-Dusseldorf-Aachen",
+          "source": "Dusseldorf",
+          "target": "Aachen",
+          "weight": 70
+        },
+        {
+          "id": "e-Frankfurt-Mannheim",
+          "source": "Frankfurt",
+          "target": "Mannheim",
+          "weight": 71
+        },
+        {
+          "id": "e-Hamburg-Kiel",
+          "source": "Hamburg",
+          "target": "Kiel",
+          "weight": 86
+        },
+        {
+          "id": "e-Stuttgart-LudwigshafenamRhein",
+          "source": "Stuttgart",
+          "target": "LudwigshafenamRhein",
+          "weight": 94
+        },
+        {
+          "id": "e-Chemnitz-HalleSaale",
+          "source": "Chemnitz",
+          "target": "HalleSaale",
+          "weight": 98
+        },
+        {
+          "id": "e-Leipzig-Dresden",
+          "source": "Leipzig",
+          "target": "Dresden",
+          "weight": 100
+        },
+        {
+          "id": "e-Hanover-Bremen",
+          "source": "Hanover",
+          "target": "Bremen",
+          "weight": 100
+        },
+        {
+          "id": "e-Leipzig-Erfurt",
+          "source": "Leipzig",
+          "target": "Erfurt",
+          "weight": 102
+        },
+        {
+          "id": "e-Saarbrcken-LudwigshafenamRhein",
+          "source": "Saarbrcken",
+          "target": "LudwigshafenamRhein",
+          "weight": 108
+        },
+        {
+          "id": "e-Mannheim-Saarbrcken",
+          "source": "Mannheim",
+          "target": "Saarbrcken",
+          "weight": 110
+        },
+        {
+          "id": "e-Erfurt-Kassel",
+          "source": "Erfurt",
+          "target": "Kassel",
+          "weight": 113
+        },
+        {
+          "id": "e-Hanover-Kassel",
+          "source": "Hanover",
+          "target": "Kassel",
+          "weight": 119
+        },
+        {
+          "id": "e-Bielefeld-Oldenburg",
+          "source": "Bielefeld",
+          "target": "Oldenburg",
+          "weight": 126
+        },
+        {
+          "id": "e-HalleSaale-Potsdam",
+          "source": "HalleSaale",
+          "target": "Potsdam",
+          "weight": 126
+        },
+        {
+          "id": "e-Berlin-Magdeburg",
+          "source": "Berlin",
+          "target": "Magdeburg",
+          "weight": 127
+        },
+        {
+          "id": "e-Brunswick-Kassel",
+          "source": "Brunswick",
+          "target": "Kassel",
+          "weight": 127
+        },
+        {
+          "id": "e-Stuttgart-FreiburgimBreisgau",
+          "source": "Stuttgart",
+          "target": "FreiburgimBreisgau",
+          "weight": 131
+        },
+        {
+          "id": "e-Dresden-HalleSaale",
+          "source": "Dresden",
+          "target": "HalleSaale",
+          "weight": 132
+        },
+        {
+          "id": "e-Kiel-Rostock",
+          "source": "Kiel",
+          "target": "Rostock",
+          "weight": 133
+        },
+        {
+          "id": "e-Berlin-Leipzig",
+          "source": "Berlin",
+          "target": "Leipzig",
+          "weight": 148
+        },
+        {
+          "id": "e-Munich-Nuremberg",
+          "source": "Munich",
+          "target": "Nuremberg",
+          "weight": 151
+        },
+        {
+          "id": "e-FreiburgimBreisgau-Saarbrcken",
+          "source": "FreiburgimBreisgau",
+          "target": "Saarbrcken",
+          "weight": 151
+        },
+        {
+          "id": "e-Hamburg-Rostock",
+          "source": "Hamburg",
+          "target": "Rostock",
+          "weight": 153
+        },
+        {
+          "id": "e-Stuttgart-Nuremberg",
+          "source": "Stuttgart",
+          "target": "Nuremberg",
+          "weight": 157
+        },
+        {
+          "id": "e-Munich-Stuttgart",
+          "source": "Munich",
+          "target": "Stuttgart",
+          "weight": 190
+        }
+      ]
+    },
+    "startNode": "FreiburgimBreisgau",
+    "goalNode": "Kiel",
+    "useHeuristic": true
+  }
+}

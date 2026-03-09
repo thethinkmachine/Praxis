@@ -1,0 +1,918 @@
+{
+  "category": "graph",
+  "name": "Japan OSM Mesh",
+  "description": "High-fidelity city mesh for Japan generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+  "tags": [
+    "osm",
+    "real-world",
+    "detailed"
+  ],
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        {
+          "id": "Tokyo",
+          "label": "Tokyo",
+          "x": 1106,
+          "y": 595,
+          "heuristic": 832
+        },
+        {
+          "id": "Yokohama",
+          "label": "Yokohama",
+          "x": 1092,
+          "y": 611,
+          "heuristic": 859
+        },
+        {
+          "id": "Osaka",
+          "label": "Osaka",
+          "x": 639,
+          "y": 664,
+          "heuristic": 1059
+        },
+        {
+          "id": "Nagoya",
+          "label": "Nagoya",
+          "x": 792,
+          "y": 630,
+          "heuristic": 956
+        },
+        {
+          "id": "Sapporo",
+          "label": "Sapporo",
+          "x": 1280,
+          "y": 80,
+          "heuristic": 0
+        },
+        {
+          "id": "Fukuoka",
+          "label": "Fukuoka",
+          "x": 80,
+          "y": 741,
+          "heuristic": 1420
+        },
+        {
+          "id": "Kawasaki",
+          "label": "Kawasaki",
+          "x": 1099,
+          "y": 606,
+          "heuristic": 849
+        },
+        {
+          "id": "Kobe",
+          "label": "Kobe",
+          "x": 605,
+          "y": 664,
+          "heuristic": 1072
+        },
+        {
+          "id": "Kyoto",
+          "label": "Kyoto",
+          "x": 668,
+          "y": 642,
+          "heuristic": 1016
+        },
+        {
+          "id": "Hiroshima",
+          "label": "Hiroshima",
+          "x": 305,
+          "y": 685,
+          "heuristic": 1234
+        },
+        {
+          "id": "Saitama",
+          "label": "Saitama",
+          "x": 1093,
+          "y": 582,
+          "heuristic": 814
+        },
+        {
+          "id": "Sendai",
+          "label": "Sendai",
+          "x": 1227,
+          "y": 415,
+          "heuristic": 535
+        },
+        {
+          "id": "Chiba",
+          "label": "Chiba",
+          "x": 1143,
+          "y": 600,
+          "heuristic": 836
+        },
+        {
+          "id": "Setagaya",
+          "label": "Setagaya",
+          "x": 1094,
+          "y": 597,
+          "heuristic": 837
+        },
+        {
+          "id": "Kitakyushu",
+          "label": "Kitakyushu",
+          "x": 132,
+          "y": 720,
+          "heuristic": 1367
+        },
+        {
+          "id": "Sakai",
+          "label": "Sakai",
+          "x": 637,
+          "y": 672,
+          "heuristic": 1072
+        },
+        {
+          "id": "Niigata",
+          "label": "Niigata",
+          "x": 1026,
+          "y": 439,
+          "heuristic": 605
+        },
+        {
+          "id": "Hamamatsu",
+          "label": "Hamamatsu",
+          "x": 882,
+          "y": 663,
+          "heuristic": 980
+        },
+        {
+          "id": "Ota",
+          "label": "Ota",
+          "x": 1100,
+          "y": 603,
+          "heuristic": 846
+        },
+        {
+          "id": "Kumamoto",
+          "label": "Kumamoto",
+          "x": 114,
+          "y": 796,
+          "heuristic": 1472
+        },
+        {
+          "id": "Nerima",
+          "label": "Nerima",
+          "x": 1094,
+          "y": 591,
+          "heuristic": 828
+        },
+        {
+          "id": "Sagamihara",
+          "label": "Sagamihara",
+          "x": 1063,
+          "y": 603,
+          "heuristic": 850
+        },
+        {
+          "id": "Okayama",
+          "label": "Okayama",
+          "x": 465,
+          "y": 667,
+          "heuristic": 1134
+        },
+        {
+          "id": "Shizuoka",
+          "label": "Shizuoka",
+          "x": 954,
+          "y": 644,
+          "heuristic": 935
+        },
+        {
+          "id": "Adachi",
+          "label": "Adachi",
+          "x": 1110,
+          "y": 588,
+          "heuristic": 821
+        },
+        {
+          "id": "Edogawa",
+          "label": "Edogawa",
+          "x": 1117,
+          "y": 593,
+          "heuristic": 828
+        },
+        {
+          "id": "Funabashi",
+          "label": "Funabashi",
+          "x": 1130,
+          "y": 594,
+          "heuristic": 828
+        },
+        {
+          "id": "Kagoshima",
+          "label": "Kagoshima",
+          "x": 97,
+          "y": 880,
+          "heuristic": 1590
+        },
+        {
+          "id": "Kawaguchi",
+          "label": "Kawaguchi",
+          "x": 1101,
+          "y": 586,
+          "heuristic": 819
+        },
+        {
+          "id": "Itabashi",
+          "label": "Itabashi",
+          "x": 1100,
+          "y": 590,
+          "heuristic": 825
+        },
+        {
+          "id": "Hachioji",
+          "label": "Hachioji",
+          "x": 1057,
+          "y": 596,
+          "heuristic": 841
+        },
+        {
+          "id": "Suginami",
+          "label": "Suginami",
+          "x": 1092,
+          "y": 594,
+          "heuristic": 832
+        },
+        {
+          "id": "Himeji",
+          "label": "Himeji",
+          "x": 549,
+          "y": 655,
+          "heuristic": 1082
+        },
+        {
+          "id": "Koto",
+          "label": "Koto",
+          "x": 1112,
+          "y": 596,
+          "heuristic": 832
+        },
+        {
+          "id": "Utsunomiya",
+          "label": "Utsunomiya",
+          "x": 1119,
+          "y": 534,
+          "heuristic": 734
+        },
+        {
+          "id": "Matsuyama",
+          "label": "Matsuyama",
+          "x": 339,
+          "y": 724,
+          "heuristic": 1268
+        },
+        {
+          "id": "Higashiosaka",
+          "label": "Higashiosaka",
+          "x": 650,
+          "y": 665,
+          "heuristic": 1056
+        },
+        {
+          "id": "Ichikawa",
+          "label": "Ichikawa",
+          "x": 1124,
+          "y": 592,
+          "heuristic": 825
+        },
+        {
+          "id": "Nishinomiya",
+          "label": "Nishinomiya",
+          "x": 621,
+          "y": 661,
+          "heuristic": 1061
+        },
+        {
+          "id": "Matsudo",
+          "label": "Matsudo",
+          "x": 1121,
+          "y": 588,
+          "heuristic": 818
+        },
+        {
+          "id": "Kurashiki",
+          "label": "Kurashiki",
+          "x": 449,
+          "y": 671,
+          "heuristic": 1148
+        },
+        {
+          "id": "Oita",
+          "label": "Oita",
+          "x": 212,
+          "y": 765,
+          "heuristic": 1383
+        },
+        {
+          "id": "Kanazawa",
+          "label": "Kanazawa",
+          "x": 765,
+          "y": 534,
+          "heuristic": 826
+        },
+        {
+          "id": "Fukuyama",
+          "label": "Fukuyama",
+          "x": 404,
+          "y": 678,
+          "heuristic": 1177
+        },
+        {
+          "id": "Amagasaki",
+          "label": "Amagasaki",
+          "x": 628,
+          "y": 661,
+          "heuristic": 1059
+        },
+        {
+          "id": "Katsushika",
+          "label": "Katsushika",
+          "x": 1115,
+          "y": 591,
+          "heuristic": 824
+        },
+        {
+          "id": "Fujisawa",
+          "label": "Fujisawa",
+          "x": 1076,
+          "y": 619,
+          "heuristic": 874
+        },
+        {
+          "id": "Machida",
+          "label": "Machida",
+          "x": 1070,
+          "y": 604,
+          "heuristic": 852
+        },
+        {
+          "id": "Takamatsu",
+          "label": "Takamatsu",
+          "x": 479,
+          "y": 688,
+          "heuristic": 1157
+        },
+        {
+          "id": "Sakaide",
+          "label": "Sakaide",
+          "x": 459,
+          "y": 690,
+          "heuristic": 1169
+        }
+      ],
+      "edges": [
+        {
+          "id": "e-Kawasaki-Ota",
+          "source": "Kawasaki",
+          "target": "Ota",
+          "weight": 4
+        },
+        {
+          "id": "e-Nerima-Suginami",
+          "source": "Nerima",
+          "target": "Suginami",
+          "weight": 4
+        },
+        {
+          "id": "e-Tokyo-Koto",
+          "source": "Tokyo",
+          "target": "Koto",
+          "weight": 5
+        },
+        {
+          "id": "e-Nerima-Itabashi",
+          "source": "Nerima",
+          "target": "Itabashi",
+          "weight": 5
+        },
+        {
+          "id": "e-Adachi-Katsushika",
+          "source": "Adachi",
+          "target": "Katsushika",
+          "weight": 5
+        },
+        {
+          "id": "e-Edogawa-Katsushika",
+          "source": "Edogawa",
+          "target": "Katsushika",
+          "weight": 5
+        },
+        {
+          "id": "e-Setagaya-Suginami",
+          "source": "Setagaya",
+          "target": "Suginami",
+          "weight": 6
+        },
+        {
+          "id": "e-Edogawa-Koto",
+          "source": "Edogawa",
+          "target": "Koto",
+          "weight": 6
+        },
+        {
+          "id": "e-Edogawa-Ichikawa",
+          "source": "Edogawa",
+          "target": "Ichikawa",
+          "weight": 6
+        },
+        {
+          "id": "e-Funabashi-Ichikawa",
+          "source": "Funabashi",
+          "target": "Ichikawa",
+          "weight": 6
+        },
+        {
+          "id": "e-Kawaguchi-Itabashi",
+          "source": "Kawaguchi",
+          "target": "Itabashi",
+          "weight": 6
+        },
+        {
+          "id": "e-Nishinomiya-Amagasaki",
+          "source": "Nishinomiya",
+          "target": "Amagasaki",
+          "weight": 6
+        },
+        {
+          "id": "e-Sagamihara-Machida",
+          "source": "Sagamihara",
+          "target": "Machida",
+          "weight": 7
+        },
+        {
+          "id": "e-Matsudo-Katsushika",
+          "source": "Matsudo",
+          "target": "Katsushika",
+          "weight": 7
+        },
+        {
+          "id": "e-Adachi-Kawaguchi",
+          "source": "Adachi",
+          "target": "Kawaguchi",
+          "weight": 8
+        },
+        {
+          "id": "e-Osaka-Higashiosaka",
+          "source": "Osaka",
+          "target": "Higashiosaka",
+          "weight": 9
+        },
+        {
+          "id": "e-Saitama-Kawaguchi",
+          "source": "Saitama",
+          "target": "Kawaguchi",
+          "weight": 9
+        },
+        {
+          "id": "e-Osaka-Amagasaki",
+          "source": "Osaka",
+          "target": "Amagasaki",
+          "weight": 10
+        },
+        {
+          "id": "e-Yokohama-Kawasaki",
+          "source": "Yokohama",
+          "target": "Kawasaki",
+          "weight": 11
+        },
+        {
+          "id": "e-Setagaya-Ota",
+          "source": "Setagaya",
+          "target": "Ota",
+          "weight": 11
+        },
+        {
+          "id": "e-Sagamihara-Hachioji",
+          "source": "Sagamihara",
+          "target": "Hachioji",
+          "weight": 12
+        },
+        {
+          "id": "e-Osaka-Sakai",
+          "source": "Osaka",
+          "target": "Sakai",
+          "weight": 13
+        },
+        {
+          "id": "e-Kobe-Nishinomiya",
+          "source": "Kobe",
+          "target": "Nishinomiya",
+          "weight": 14
+        },
+        {
+          "id": "e-Chiba-Funabashi",
+          "source": "Chiba",
+          "target": "Funabashi",
+          "weight": 15
+        },
+        {
+          "id": "e-Okayama-Kurashiki",
+          "source": "Okayama",
+          "target": "Kurashiki",
+          "weight": 16
+        },
+        {
+          "id": "e-Takamatsu-Sakaide",
+          "source": "Takamatsu",
+          "target": "Sakaide",
+          "weight": 17
+        },
+        {
+          "id": "e-Yokohama-Fujisawa",
+          "source": "Yokohama",
+          "target": "Fujisawa",
+          "weight": 18
+        },
+        {
+          "id": "e-Yokohama-Machida",
+          "source": "Yokohama",
+          "target": "Machida",
+          "weight": 21
+        },
+        {
+          "id": "e-Kurashiki-Sakaide",
+          "source": "Kurashiki",
+          "target": "Sakaide",
+          "weight": 31
+        },
+        {
+          "id": "e-Kurashiki-Fukuyama",
+          "source": "Kurashiki",
+          "target": "Fukuyama",
+          "weight": 39
+        },
+        {
+          "id": "e-Kyoto-Higashiosaka",
+          "source": "Kyoto",
+          "target": "Higashiosaka",
+          "weight": 40
+        },
+        {
+          "id": "e-Kobe-Himeji",
+          "source": "Kobe",
+          "target": "Himeji",
+          "weight": 48
+        },
+        {
+          "id": "e-Fukuoka-Kitakyushu",
+          "source": "Fukuoka",
+          "target": "Kitakyushu",
+          "weight": 55
+        },
+        {
+          "id": "e-Hamamatsu-Shizuoka",
+          "source": "Hamamatsu",
+          "target": "Shizuoka",
+          "weight": 67
+        },
+        {
+          "id": "e-Hiroshima-Matsuyama",
+          "source": "Hiroshima",
+          "target": "Matsuyama",
+          "weight": 68
+        },
+        {
+          "id": "e-Okayama-Himeji",
+          "source": "Okayama",
+          "target": "Himeji",
+          "weight": 72
+        },
+        {
+          "id": "e-Saitama-Utsunomiya",
+          "source": "Saitama",
+          "target": "Utsunomiya",
+          "weight": 80
+        },
+        {
+          "id": "e-Hiroshima-Fukuyama",
+          "source": "Hiroshima",
+          "target": "Fukuyama",
+          "weight": 84
+        },
+        {
+          "id": "e-Nagoya-Hamamatsu",
+          "source": "Nagoya",
+          "target": "Hamamatsu",
+          "weight": 92
+        },
+        {
+          "id": "e-Fukuoka-Kumamoto",
+          "source": "Fukuoka",
+          "target": "Kumamoto",
+          "weight": 92
+        },
+        {
+          "id": "e-Kumamoto-Oita",
+          "source": "Kumamoto",
+          "target": "Oita",
+          "weight": 97
+        },
+        {
+          "id": "e-Nagoya-Kyoto",
+          "source": "Nagoya",
+          "target": "Kyoto",
+          "weight": 105
+        },
+        {
+          "id": "e-Shizuoka-Fujisawa",
+          "source": "Shizuoka",
+          "target": "Fujisawa",
+          "weight": 109
+        },
+        {
+          "id": "e-Matsuyama-Oita",
+          "source": "Matsuyama",
+          "target": "Oita",
+          "weight": 126
+        },
+        {
+          "id": "e-Kumamoto-Kagoshima",
+          "source": "Kumamoto",
+          "target": "Kagoshima",
+          "weight": 135
+        },
+        {
+          "id": "e-Nagoya-Kanazawa",
+          "source": "Nagoya",
+          "target": "Kanazawa",
+          "weight": 155
+        },
+        {
+          "id": "e-Sendai-Niigata",
+          "source": "Sendai",
+          "target": "Niigata",
+          "weight": 165
+        },
+        {
+          "id": "e-Niigata-Utsunomiya",
+          "source": "Niigata",
+          "target": "Utsunomiya",
+          "weight": 169
+        },
+        {
+          "id": "e-Sapporo-Sendai",
+          "source": "Sapporo",
+          "target": "Sendai",
+          "weight": 535
+        },
+        {
+          "id": "e-Koto-Katsushika",
+          "source": "Koto",
+          "target": "Katsushika",
+          "weight": 8
+        },
+        {
+          "id": "e-Ichikawa-Matsudo",
+          "source": "Ichikawa",
+          "target": "Matsudo",
+          "weight": 8
+        },
+        {
+          "id": "e-Adachi-Itabashi",
+          "source": "Adachi",
+          "target": "Itabashi",
+          "weight": 9
+        },
+        {
+          "id": "e-Adachi-Matsudo",
+          "source": "Adachi",
+          "target": "Matsudo",
+          "weight": 9
+        },
+        {
+          "id": "e-Itabashi-Suginami",
+          "source": "Itabashi",
+          "target": "Suginami",
+          "weight": 9
+        },
+        {
+          "id": "e-Tokyo-Edogawa",
+          "source": "Tokyo",
+          "target": "Edogawa",
+          "weight": 10
+        },
+        {
+          "id": "e-Tokyo-Itabashi",
+          "source": "Tokyo",
+          "target": "Itabashi",
+          "weight": 10
+        },
+        {
+          "id": "e-Setagaya-Nerima",
+          "source": "Setagaya",
+          "target": "Nerima",
+          "weight": 10
+        },
+        {
+          "id": "e-Edogawa-Funabashi",
+          "source": "Edogawa",
+          "target": "Funabashi",
+          "weight": 10
+        },
+        {
+          "id": "e-Tokyo-Ota",
+          "source": "Tokyo",
+          "target": "Ota",
+          "weight": 14
+        },
+        {
+          "id": "e-Kawasaki-Setagaya",
+          "source": "Kawasaki",
+          "target": "Setagaya",
+          "weight": 14
+        },
+        {
+          "id": "e-Saitama-Nerima",
+          "source": "Saitama",
+          "target": "Nerima",
+          "weight": 14
+        },
+        {
+          "id": "e-Osaka-Nishinomiya",
+          "source": "Osaka",
+          "target": "Nishinomiya",
+          "weight": 15
+        },
+        {
+          "id": "e-Sakai-Higashiosaka",
+          "source": "Sakai",
+          "target": "Higashiosaka",
+          "weight": 16
+        },
+        {
+          "id": "e-Hachioji-Machida",
+          "source": "Hachioji",
+          "target": "Machida",
+          "weight": 17
+        },
+        {
+          "id": "e-Sakai-Amagasaki",
+          "source": "Sakai",
+          "target": "Amagasaki",
+          "weight": 19
+        },
+        {
+          "id": "e-Kobe-Amagasaki",
+          "source": "Kobe",
+          "target": "Amagasaki",
+          "weight": 20
+        },
+        {
+          "id": "e-Chiba-Ichikawa",
+          "source": "Chiba",
+          "target": "Ichikawa",
+          "weight": 20
+        },
+        {
+          "id": "e-Chiba-Edogawa",
+          "source": "Chiba",
+          "target": "Edogawa",
+          "weight": 24
+        },
+        {
+          "id": "e-Fujisawa-Machida",
+          "source": "Fujisawa",
+          "target": "Machida",
+          "weight": 24
+        },
+        {
+          "id": "e-Yokohama-Sagamihara",
+          "source": "Yokohama",
+          "target": "Sagamihara",
+          "weight": 27
+        },
+        {
+          "id": "e-Hachioji-Suginami",
+          "source": "Hachioji",
+          "target": "Suginami",
+          "weight": 29
+        },
+        {
+          "id": "e-Okayama-Takamatsu",
+          "source": "Okayama",
+          "target": "Takamatsu",
+          "weight": 37
+        },
+        {
+          "id": "e-Kurashiki-Takamatsu",
+          "source": "Kurashiki",
+          "target": "Takamatsu",
+          "weight": 37
+        },
+        {
+          "id": "e-Okayama-Sakaide",
+          "source": "Okayama",
+          "target": "Sakaide",
+          "weight": 38
+        },
+        {
+          "id": "e-Osaka-Kyoto",
+          "source": "Osaka",
+          "target": "Kyoto",
+          "weight": 43
+        },
+        {
+          "id": "e-Fukuyama-Sakaide",
+          "source": "Fukuyama",
+          "target": "Sakaide",
+          "weight": 49
+        },
+        {
+          "id": "e-Himeji-Nishinomiya",
+          "source": "Himeji",
+          "target": "Nishinomiya",
+          "weight": 61
+        },
+        {
+          "id": "e-Kawaguchi-Utsunomiya",
+          "source": "Kawaguchi",
+          "target": "Utsunomiya",
+          "weight": 84
+        },
+        {
+          "id": "e-Matsuyama-Fukuyama",
+          "source": "Matsuyama",
+          "target": "Fukuyama",
+          "weight": 90
+        },
+        {
+          "id": "e-Kitakyushu-Oita",
+          "source": "Kitakyushu",
+          "target": "Oita",
+          "weight": 99
+        },
+        {
+          "id": "e-Sagamihara-Shizuoka",
+          "source": "Sagamihara",
+          "target": "Shizuoka",
+          "weight": 112
+        },
+        {
+          "id": "e-Fukuoka-Oita",
+          "source": "Fukuoka",
+          "target": "Oita",
+          "weight": 119
+        },
+        {
+          "id": "e-Kitakyushu-Kumamoto",
+          "source": "Kitakyushu",
+          "target": "Kumamoto",
+          "weight": 121
+        },
+        {
+          "id": "e-Hiroshima-Kurashiki",
+          "source": "Hiroshima",
+          "target": "Kurashiki",
+          "weight": 123
+        },
+        {
+          "id": "e-Hamamatsu-Fujisawa",
+          "source": "Hamamatsu",
+          "target": "Fujisawa",
+          "weight": 175
+        },
+        {
+          "id": "e-Kyoto-Kanazawa",
+          "source": "Kyoto",
+          "target": "Kanazawa",
+          "weight": 190
+        },
+        {
+          "id": "e-Kagoshima-Oita",
+          "source": "Kagoshima",
+          "target": "Oita",
+          "weight": 208
+        },
+        {
+          "id": "e-Sendai-Utsunomiya",
+          "source": "Sendai",
+          "target": "Utsunomiya",
+          "weight": 209
+        },
+        {
+          "id": "e-Fukuoka-Kagoshima",
+          "source": "Fukuoka",
+          "target": "Kagoshima",
+          "weight": 222
+        },
+        {
+          "id": "e-Hamamatsu-Kanazawa",
+          "source": "Hamamatsu",
+          "target": "Kanazawa",
+          "weight": 227
+        },
+        {
+          "id": "e-Saitama-Niigata",
+          "source": "Saitama",
+          "target": "Niigata",
+          "weight": 235
+        }
+      ]
+    },
+    "startNode": "Kagoshima",
+    "goalNode": "Sapporo",
+    "useHeuristic": true
+  }
+}

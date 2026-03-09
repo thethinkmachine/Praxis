@@ -17,7 +17,7 @@ export type InformedSearchStep = AlgorithmStep<InformedSearchState, SearchHighli
 export {
   reconstructPath,
   validateGraphProblem,
-  buildAdjacencyList,
+  
 } from '../uninformed/types';
 
 export {

@@ -2,7 +2,7 @@ import type { AlgorithmRunner } from '@/types/algorithm';
 import type { GraphProblem } from '@/types/problem';
 import type { AlgorithmStep } from '@/types/step';
 import type { SearchHighlight } from './types';
-import { validateGraphProblem, buildAdjacencyList, reconstructPath } from './types';
+import { validateGraphProblem, reconstructPath } from './types';
 import { deepClone } from '@/lib/deep-clone';
 import { createLog } from '@/algorithms/core/utils';
 
@@ -70,7 +70,7 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
   },
 
   *run(problem: GraphProblem): Generator<AlgorithmStep<BidirectionalSearchState, SearchHighlight>, void> {
-    const adj = buildAdjacencyList(problem.graph);
+    const adj = problem.graph.toAdjList();
     // Build reverse adjacency for backward search
     const radj = new Map<string, { neighbor: string; weight: number; edgeId: string }[]>();
     problem.graph.nodes.forEach(n => radj.set(n.id, []));

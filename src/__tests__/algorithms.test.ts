@@ -1,8 +1,8 @@
+import { Graph } from '@/types/problem';
 import { describe, it, expect, beforeAll } from 'vitest';
 import { registerAllAlgorithms } from '@/algorithms/register';
 import { registry } from '@/algorithms/core/registry';
-import { simpleGraphProblem } from '@/problems/graphs/simple-graph';
-import { romaniaMapProblem } from '@/problems/graphs/romania-map';
+import { simpleGraphProblem, romaniaMapProblem } from './fixtures/mock-problems';
 import type { AlgorithmStep } from '@/types/step';
 
 function runToEnd(algorithmId: string, problem: unknown): AlgorithmStep {
@@ -84,7 +84,7 @@ describe('Validation', () => {
   it('rejects missing start node', async () => {
     const { validateGraphProblem } = await import('@/algorithms/search/uninformed/types');
     const result = validateGraphProblem({
-      graph: { directed: false, nodes: [{ id: 'A' }], edges: [] },
+      graph: new Graph({ directed: false, nodes: [{ id: 'A' }], edges: [] }),
       startNode: 'X',
       goalNode: 'A',
     });

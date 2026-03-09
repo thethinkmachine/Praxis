@@ -1,0 +1,1224 @@
+{
+  "category": "graph",
+  "name": "United OSM Mesh",
+  "description": "High-fidelity city mesh for United generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+  "tags": [
+    "osm",
+    "real-world",
+    "detailed"
+  ],
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        {
+          "id": "NewYork",
+          "label": "New York",
+          "x": 1177,
+          "y": 464,
+          "heuristic": 5410
+        },
+        {
+          "id": "LosAngeles",
+          "label": "Los Angeles",
+          "x": 598,
+          "y": 588,
+          "heuristic": 3765
+        },
+        {
+          "id": "Chicago",
+          "label": "Chicago",
+          "x": 999,
+          "y": 442,
+          "heuristic": 4587
+        },
+        {
+          "id": "Houston",
+          "label": "Houston",
+          "x": 897,
+          "y": 669,
+          "heuristic": 5264
+        },
+        {
+          "id": "Phoenix",
+          "label": "Phoenix",
+          "x": 679,
+          "y": 600,
+          "heuristic": 4095
+        },
+        {
+          "id": "Philadelphia",
+          "label": "Philadelphia",
+          "x": 1162,
+          "y": 478,
+          "heuristic": 5415
+        },
+        {
+          "id": "SanAntonio",
+          "label": "San Antonio",
+          "x": 856,
+          "y": 675,
+          "heuristic": 5136
+        },
+        {
+          "id": "SanDiego",
+          "label": "San Diego",
+          "x": 612,
+          "y": 613,
+          "heuristic": 3943
+        },
+        {
+          "id": "Dallas",
+          "label": "Dallas",
+          "x": 879,
+          "y": 612,
+          "heuristic": 4909
+        },
+        {
+          "id": "SanJose",
+          "label": "San Jose",
+          "x": 550,
+          "y": 527,
+          "heuristic": 3290
+        },
+        {
+          "id": "FortWorth",
+          "label": "Fort Worth",
+          "x": 872,
+          "y": 613,
+          "heuristic": 4883
+        },
+        {
+          "id": "Austin",
+          "label": "Austin",
+          "x": 866,
+          "y": 659,
+          "heuristic": 5094
+        },
+        {
+          "id": "Jacksonville",
+          "label": "Jacksonville",
+          "x": 1077,
+          "y": 658,
+          "heuristic": 5935
+        },
+        {
+          "id": "Columbus",
+          "label": "Columbus",
+          "x": 1059,
+          "y": 478,
+          "heuristic": 4998
+        },
+        {
+          "id": "Indianapolis",
+          "label": "Indianapolis",
+          "x": 1018,
+          "y": 481,
+          "heuristic": 4846
+        },
+        {
+          "id": "SanFrancisco",
+          "label": "San Francisco",
+          "x": 544,
+          "y": 518,
+          "heuristic": 3225
+        },
+        {
+          "id": "Charlotte",
+          "label": "Charlotte",
+          "x": 1087,
+          "y": 566,
+          "heuristic": 5532
+        },
+        {
+          "id": "Seattle",
+          "label": "Seattle",
+          "x": 545,
+          "y": 335,
+          "heuristic": 2309
+        },
+        {
+          "id": "Denver",
+          "label": "Denver",
+          "x": 772,
+          "y": 482,
+          "heuristic": 3854
+        },
+        {
+          "id": "OklahomaCity",
+          "label": "Oklahoma City",
+          "x": 869,
+          "y": 562,
+          "heuristic": 4624
+        },
+        {
+          "id": "LasVegas",
+          "label": "Las Vegas",
+          "x": 639,
+          "y": 549,
+          "heuristic": 3693
+        },
+        {
+          "id": "ElPaso",
+          "label": "El Paso",
+          "x": 752,
+          "y": 631,
+          "heuristic": 4520
+        },
+        {
+          "id": "Boston",
+          "label": "Boston",
+          "x": 1215,
+          "y": 433,
+          "heuristic": 5420
+        },
+        {
+          "id": "Detroit",
+          "label": "Detroit",
+          "x": 1059,
+          "y": 433,
+          "heuristic": 4792
+        },
+        {
+          "id": "Washington",
+          "label": "Washington",
+          "x": 1137,
+          "y": 498,
+          "heuristic": 5409
+        },
+        {
+          "id": "Nashville",
+          "label": "Nashville",
+          "x": 1010,
+          "y": 549,
+          "heuristic": 5130
+        },
+        {
+          "id": "Portland",
+          "label": "Portland",
+          "x": 540,
+          "y": 374,
+          "heuristic": 2477
+        },
+        {
+          "id": "Memphis",
+          "label": "Memphis",
+          "x": 967,
+          "y": 568,
+          "heuristic": 5047
+        },
+        {
+          "id": "Louisville",
+          "label": "Louisville",
+          "x": 1023,
+          "y": 510,
+          "heuristic": 4999
+        },
+        {
+          "id": "Baltimore",
+          "label": "Baltimore",
+          "x": 1143,
+          "y": 490,
+          "heuristic": 5397
+        },
+        {
+          "id": "Milwaukee",
+          "label": "Milwaukee",
+          "x": 995,
+          "y": 420,
+          "heuristic": 4473
+        },
+        {
+          "id": "Albuquerque",
+          "label": "Albuquerque",
+          "x": 750,
+          "y": 569,
+          "heuristic": 4197
+        },
+        {
+          "id": "Tucson",
+          "label": "Tucson",
+          "x": 693,
+          "y": 623,
+          "heuristic": 4264
+        },
+        {
+          "id": "Fresno",
+          "label": "Fresno",
+          "x": 578,
+          "y": 538,
+          "heuristic": 3436
+        },
+        {
+          "id": "Mesa",
+          "label": "Mesa",
+          "x": 682,
+          "y": 600,
+          "heuristic": 4109
+        },
+        {
+          "id": "Atlanta",
+          "label": "Atlanta",
+          "x": 1041,
+          "y": 594,
+          "heuristic": 5475
+        },
+        {
+          "id": "Sacramento",
+          "label": "Sacramento",
+          "x": 556,
+          "y": 504,
+          "heuristic": 3184
+        },
+        {
+          "id": "Omaha",
+          "label": "Omaha",
+          "x": 890,
+          "y": 453,
+          "heuristic": 4195
+        },
+        {
+          "id": "Brookhaven",
+          "label": "Brookhaven",
+          "x": 1191,
+          "y": 462,
+          "heuristic": 5461
+        },
+        {
+          "id": "NewOrleans",
+          "label": "New Orleans",
+          "x": 967,
+          "y": 665,
+          "heuristic": 5522
+        },
+        {
+          "id": "ColoradoSprings",
+          "label": "Colorado Springs",
+          "x": 774,
+          "y": 499,
+          "heuristic": 3943
+        },
+        {
+          "id": "Buffalo",
+          "label": "Buffalo",
+          "x": 1113,
+          "y": 423,
+          "heuristic": 4967
+        },
+        {
+          "id": "Cleveland",
+          "label": "Cleveland",
+          "x": 1076,
+          "y": 449,
+          "heuristic": 4935
+        },
+        {
+          "id": "LongBeach",
+          "label": "Long Beach",
+          "x": 599,
+          "y": 594,
+          "heuristic": 3796
+        },
+        {
+          "id": "KansasCity",
+          "label": "Kansas City",
+          "x": 908,
+          "y": 494,
+          "heuristic": 4454
+        },
+        {
+          "id": "Miami",
+          "label": "Miami",
+          "x": 1096,
+          "y": 743,
+          "heuristic": 6437
+        },
+        {
+          "id": "Orlando",
+          "label": "Orlando",
+          "x": 1080,
+          "y": 691,
+          "heuristic": 6115
+        },
+        {
+          "id": "Oakland",
+          "label": "Oakland",
+          "x": 545,
+          "y": 518,
+          "heuristic": 3229
+        },
+        {
+          "id": "Raleigh",
+          "label": "Raleigh",
+          "x": 1116,
+          "y": 556,
+          "heuristic": 5600
+        },
+        {
+          "id": "Minneapolis",
+          "label": "Minneapolis",
+          "x": 925,
+          "y": 384,
+          "heuristic": 4026
+        },
+        {
+          "id": "Tampa",
+          "label": "Tampa",
+          "x": 1066,
+          "y": 703,
+          "heuristic": 6113
+        },
+        {
+          "id": "Cincinnati",
+          "label": "Cincinnati",
+          "x": 1039,
+          "y": 494,
+          "heuristic": 4992
+        },
+        {
+          "id": "Tulsa",
+          "label": "Tulsa",
+          "x": 889,
+          "y": 549,
+          "heuristic": 4642
+        },
+        {
+          "id": "Arlington",
+          "label": "Arlington",
+          "x": 875,
+          "y": 613,
+          "heuristic": 4897
+        },
+        {
+          "id": "StLouis",
+          "label": "St. Louis",
+          "x": 965,
+          "y": 503,
+          "heuristic": 4730
+        },
+        {
+          "id": "Wichita",
+          "label": "Wichita",
+          "x": 872,
+          "y": 520,
+          "heuristic": 4433
+        },
+        {
+          "id": "Aurora",
+          "label": "Aurora",
+          "x": 774,
+          "y": 482,
+          "heuristic": 3862
+        },
+        {
+          "id": "Bakersfield",
+          "label": "Bakersfield",
+          "x": 588,
+          "y": 564,
+          "heuristic": 3602
+        },
+        {
+          "id": "VirginiaBeach",
+          "label": "Virginia Beach",
+          "x": 1151,
+          "y": 536,
+          "heuristic": 5646
+        },
+        {
+          "id": "Honolulu",
+          "label": "Honolulu",
+          "x": 80,
+          "y": 827,
+          "heuristic": 4481
+        },
+        {
+          "id": "Anaheim",
+          "label": "Anaheim",
+          "x": 602,
+          "y": 592,
+          "heuristic": 3801
+        },
+        {
+          "id": "Henderson",
+          "label": "Henderson",
+          "x": 641,
+          "y": 551,
+          "heuristic": 3714
+        },
+        {
+          "id": "SantaAna",
+          "label": "Santa Ana",
+          "x": 603,
+          "y": 594,
+          "heuristic": 3811
+        },
+        {
+          "id": "SanJuan",
+          "label": "San Juan",
+          "x": 1280,
+          "y": 880,
+          "heuristic": 7885
+        },
+        {
+          "id": "Lexington",
+          "label": "Lexington",
+          "x": 1040,
+          "y": 514,
+          "heuristic": 5085
+        },
+        {
+          "id": "Riverside",
+          "label": "Riverside",
+          "x": 610,
+          "y": 590,
+          "heuristic": 3809
+        },
+        {
+          "id": "CorpusChristi",
+          "label": "Corpus Christi",
+          "x": 871,
+          "y": 706,
+          "heuristic": 5350
+        },
+        {
+          "id": "Newark",
+          "label": "Newark",
+          "x": 1175,
+          "y": 463,
+          "heuristic": 5399
+        },
+        {
+          "id": "Stockton",
+          "label": "Stockton",
+          "x": 558,
+          "y": 515,
+          "heuristic": 3254
+        },
+        {
+          "id": "Pittsburgh",
+          "label": "Pittsburgh",
+          "x": 1098,
+          "y": 469,
+          "heuristic": 5116
+        },
+        {
+          "id": "Greensboro",
+          "label": "Greensboro",
+          "x": 1101,
+          "y": 551,
+          "heuristic": 5512
+        },
+        {
+          "id": "NorthLasVegas",
+          "label": "North Las Vegas",
+          "x": 639,
+          "y": 548,
+          "heuristic": 3691
+        },
+        {
+          "id": "JerseyCity",
+          "label": "Jersey City",
+          "x": 1176,
+          "y": 464,
+          "heuristic": 5407
+        },
+        {
+          "id": "Anchorage",
+          "label": "Anchorage",
+          "x": 184,
+          "y": 80,
+          "heuristic": 0
+        },
+        {
+          "id": "Lincoln",
+          "label": "Lincoln",
+          "x": 880,
+          "y": 462,
+          "heuristic": 4193
+        },
+        {
+          "id": "Plano",
+          "label": "Plano",
+          "x": 880,
+          "y": 608,
+          "heuristic": 4892
+        },
+        {
+          "id": "SaintPaul",
+          "label": "Saint Paul",
+          "x": 927,
+          "y": 384,
+          "heuristic": 4038
+        },
+        {
+          "id": "Durham",
+          "label": "Durham",
+          "x": 1113,
+          "y": 552,
+          "heuristic": 5566
+        },
+        {
+          "id": "Chandler",
+          "label": "Chandler",
+          "x": 682,
+          "y": 602,
+          "heuristic": 4119
+        },
+        {
+          "id": "Gilbert",
+          "label": "Gilbert",
+          "x": 683,
+          "y": 601,
+          "heuristic": 4117
+        }
+      ],
+      "edges": [
+        {
+          "id": "e-NewYork-JerseyCity",
+          "source": "NewYork",
+          "target": "JerseyCity",
+          "weight": 4
+        },
+        {
+          "id": "e-LasVegas-NorthLasVegas",
+          "source": "LasVegas",
+          "target": "NorthLasVegas",
+          "weight": 4
+        },
+        {
+          "id": "e-Chandler-Gilbert",
+          "source": "Chandler",
+          "target": "Gilbert",
+          "weight": 7
+        },
+        {
+          "id": "e-Mesa-Gilbert",
+          "source": "Mesa",
+          "target": "Gilbert",
+          "weight": 8
+        },
+        {
+          "id": "e-Anaheim-SantaAna",
+          "source": "Anaheim",
+          "target": "SantaAna",
+          "weight": 10
+        },
+        {
+          "id": "e-Newark-JerseyCity",
+          "source": "Newark",
+          "target": "JerseyCity",
+          "weight": 11
+        },
+        {
+          "id": "e-SanFrancisco-Oakland",
+          "source": "SanFrancisco",
+          "target": "Oakland",
+          "weight": 12
+        },
+        {
+          "id": "e-Denver-Aurora",
+          "source": "Denver",
+          "target": "Aurora",
+          "weight": 13
+        },
+        {
+          "id": "e-Minneapolis-SaintPaul",
+          "source": "Minneapolis",
+          "target": "SaintPaul",
+          "weight": 14
+        },
+        {
+          "id": "e-FortWorth-Arlington",
+          "source": "FortWorth",
+          "target": "Arlington",
+          "weight": 21
+        },
+        {
+          "id": "e-LasVegas-Henderson",
+          "source": "LasVegas",
+          "target": "Henderson",
+          "weight": 21
+        },
+        {
+          "id": "e-Phoenix-Mesa",
+          "source": "Phoenix",
+          "target": "Mesa",
+          "weight": 23
+        },
+        {
+          "id": "e-LongBeach-Anaheim",
+          "source": "LongBeach",
+          "target": "Anaheim",
+          "weight": 27
+        },
+        {
+          "id": "e-Dallas-Plano",
+          "source": "Dallas",
+          "target": "Plano",
+          "weight": 28
+        },
+        {
+          "id": "e-Dallas-Arlington",
+          "source": "Dallas",
+          "target": "Arlington",
+          "weight": 29
+        },
+        {
+          "id": "e-LosAngeles-LongBeach",
+          "source": "LosAngeles",
+          "target": "LongBeach",
+          "weight": 32
+        },
+        {
+          "id": "e-Raleigh-Durham",
+          "source": "Raleigh",
+          "target": "Durham",
+          "weight": 34
+        },
+        {
+          "id": "e-Anaheim-Riverside",
+          "source": "Anaheim",
+          "target": "Riverside",
+          "weight": 52
+        },
+        {
+          "id": "e-Washington-Baltimore",
+          "source": "Washington",
+          "target": "Baltimore",
+          "weight": 57
+        },
+        {
+          "id": "e-SanJose-Oakland",
+          "source": "SanJose",
+          "target": "Oakland",
+          "weight": 62
+        },
+        {
+          "id": "e-Sacramento-Stockton",
+          "source": "Sacramento",
+          "target": "Stockton",
+          "weight": 72
+        },
+        {
+          "id": "e-Greensboro-Durham",
+          "source": "Greensboro",
+          "target": "Durham",
+          "weight": 80
+        },
+        {
+          "id": "e-Omaha-Lincoln",
+          "source": "Omaha",
+          "target": "Lincoln",
+          "weight": 82
+        },
+        {
+          "id": "e-SanJose-Stockton",
+          "source": "SanJose",
+          "target": "Stockton",
+          "weight": 87
+        },
+        {
+          "id": "e-NewYork-Brookhaven",
+          "source": "NewYork",
+          "target": "Brookhaven",
+          "weight": 92
+        },
+        {
+          "id": "e-ColoradoSprings-Aurora",
+          "source": "ColoradoSprings",
+          "target": "Aurora",
+          "weight": 101
+        },
+        {
+          "id": "e-Louisville-Lexington",
+          "source": "Louisville",
+          "target": "Lexington",
+          "weight": 113
+        },
+        {
+          "id": "e-Cincinnati-Lexington",
+          "source": "Cincinnati",
+          "target": "Lexington",
+          "weight": 117
+        },
+        {
+          "id": "e-SanAntonio-Austin",
+          "source": "SanAntonio",
+          "target": "Austin",
+          "weight": 119
+        },
+        {
+          "id": "e-Philadelphia-Newark",
+          "source": "Philadelphia",
+          "target": "Newark",
+          "weight": 121
+        },
+        {
+          "id": "e-Orlando-Tampa",
+          "source": "Orlando",
+          "target": "Tampa",
+          "weight": 125
+        },
+        {
+          "id": "e-Chicago-Milwaukee",
+          "source": "Chicago",
+          "target": "Milwaukee",
+          "weight": 131
+        },
+        {
+          "id": "e-SanDiego-SantaAna",
+          "source": "SanDiego",
+          "target": "SantaAna",
+          "weight": 132
+        },
+        {
+          "id": "e-Charlotte-Greensboro",
+          "source": "Charlotte",
+          "target": "Greensboro",
+          "weight": 134
+        },
+        {
+          "id": "e-Philadelphia-Baltimore",
+          "source": "Philadelphia",
+          "target": "Baltimore",
+          "weight": 144
+        },
+        {
+          "id": "e-Detroit-Cleveland",
+          "source": "Detroit",
+          "target": "Cleveland",
+          "weight": 145
+        },
+        {
+          "id": "e-Tucson-Chandler",
+          "source": "Tucson",
+          "target": "Chandler",
+          "weight": 145
+        },
+        {
+          "id": "e-OklahomaCity-Tulsa",
+          "source": "OklahomaCity",
+          "target": "Tulsa",
+          "weight": 157
+        },
+        {
+          "id": "e-Indianapolis-Cincinnati",
+          "source": "Indianapolis",
+          "target": "Cincinnati",
+          "weight": 160
+        },
+        {
+          "id": "e-Columbus-Cincinnati",
+          "source": "Columbus",
+          "target": "Cincinnati",
+          "weight": 161
+        },
+        {
+          "id": "e-LosAngeles-Bakersfield",
+          "source": "LosAngeles",
+          "target": "Bakersfield",
+          "weight": 163
+        },
+        {
+          "id": "e-Fresno-Bakersfield",
+          "source": "Fresno",
+          "target": "Bakersfield",
+          "weight": 167
+        },
+        {
+          "id": "e-Cleveland-Pittsburgh",
+          "source": "Cleveland",
+          "target": "Pittsburgh",
+          "weight": 184
+        },
+        {
+          "id": "e-Fresno-Stockton",
+          "source": "Fresno",
+          "target": "Stockton",
+          "weight": 190
+        },
+        {
+          "id": "e-Jacksonville-Orlando",
+          "source": "Jacksonville",
+          "target": "Orlando",
+          "weight": 200
+        },
+        {
+          "id": "e-Columbus-Cleveland",
+          "source": "Columbus",
+          "target": "Cleveland",
+          "weight": 203
+        },
+        {
+          "id": "e-Tulsa-Wichita",
+          "source": "Tulsa",
+          "target": "Wichita",
+          "weight": 208
+        },
+        {
+          "id": "e-SanAntonio-CorpusChristi",
+          "source": "SanAntonio",
+          "target": "CorpusChristi",
+          "weight": 213
+        },
+        {
+          "id": "e-Seattle-Portland",
+          "source": "Seattle",
+          "target": "Portland",
+          "weight": 233
+        },
+        {
+          "id": "e-Boston-Brookhaven",
+          "source": "Boston",
+          "target": "Brookhaven",
+          "weight": 234
+        },
+        {
+          "id": "e-Houston-Austin",
+          "source": "Houston",
+          "target": "Austin",
+          "weight": 236
+        },
+        {
+          "id": "e-Washington-VirginiaBeach",
+          "source": "Washington",
+          "target": "VirginiaBeach",
+          "weight": 246
+        },
+        {
+          "id": "e-Nashville-Louisville",
+          "source": "Nashville",
+          "target": "Louisville",
+          "weight": 249
+        },
+        {
+          "id": "e-KansasCity-Lincoln",
+          "source": "KansasCity",
+          "target": "Lincoln",
+          "weight": 263
+        },
+        {
+          "id": "e-Chicago-Indianapolis",
+          "source": "Chicago",
+          "target": "Indianapolis",
+          "weight": 265
+        },
+        {
+          "id": "e-Raleigh-VirginiaBeach",
+          "source": "Raleigh",
+          "target": "VirginiaBeach",
+          "weight": 267
+        },
+        {
+          "id": "e-FortWorth-Austin",
+          "source": "FortWorth",
+          "target": "Austin",
+          "weight": 279
+        },
+        {
+          "id": "e-Buffalo-Cleveland",
+          "source": "Buffalo",
+          "target": "Cleveland",
+          "weight": 279
+        },
+        {
+          "id": "e-OklahomaCity-Plano",
+          "source": "OklahomaCity",
+          "target": "Plano",
+          "weight": 284
+        },
+        {
+          "id": "e-KansasCity-Wichita",
+          "source": "KansasCity",
+          "target": "Wichita",
+          "weight": 287
+        },
+        {
+          "id": "e-Washington-Pittsburgh",
+          "source": "Washington",
+          "target": "Pittsburgh",
+          "weight": 307
+        },
+        {
+          "id": "e-Henderson-Riverside",
+          "source": "Henderson",
+          "target": "Riverside",
+          "weight": 315
+        },
+        {
+          "id": "e-Nashville-Memphis",
+          "source": "Nashville",
+          "target": "Memphis",
+          "weight": 317
+        },
+        {
+          "id": "e-Miami-Orlando",
+          "source": "Miami",
+          "target": "Orlando",
+          "weight": 329
+        },
+        {
+          "id": "e-Nashville-Atlanta",
+          "source": "Nashville",
+          "target": "Atlanta",
+          "weight": 345
+        },
+        {
+          "id": "e-Indianapolis-StLouis",
+          "source": "Indianapolis",
+          "target": "StLouis",
+          "weight": 370
+        },
+        {
+          "id": "e-ElPaso-Albuquerque",
+          "source": "ElPaso",
+          "target": "Albuquerque",
+          "weight": 370
+        },
+        {
+          "id": "e-KansasCity-StLouis",
+          "source": "KansasCity",
+          "target": "StLouis",
+          "weight": 384
+        },
+        {
+          "id": "e-Phoenix-Henderson",
+          "source": "Phoenix",
+          "target": "Henderson",
+          "weight": 391
+        },
+        {
+          "id": "e-ElPaso-Tucson",
+          "source": "ElPaso",
+          "target": "Tucson",
+          "weight": 426
+        },
+        {
+          "id": "e-Albuquerque-ColoradoSprings",
+          "source": "Albuquerque",
+          "target": "ColoradoSprings",
+          "weight": 447
+        },
+        {
+          "id": "e-Jacksonville-Atlanta",
+          "source": "Jacksonville",
+          "target": "Atlanta",
+          "weight": 460
+        },
+        {
+          "id": "e-Milwaukee-SaintPaul",
+          "source": "Milwaukee",
+          "target": "SaintPaul",
+          "weight": 466
+        },
+        {
+          "id": "e-Houston-NewOrleans",
+          "source": "Houston",
+          "target": "NewOrleans",
+          "weight": 511
+        },
+        {
+          "id": "e-ColoradoSprings-Wichita",
+          "source": "ColoradoSprings",
+          "target": "Wichita",
+          "weight": 666
+        },
+        {
+          "id": "e-Portland-Sacramento",
+          "source": "Portland",
+          "target": "Sacramento",
+          "weight": 778
+        },
+        {
+          "id": "e-Miami-SanJuan",
+          "source": "Miami",
+          "target": "SanJuan",
+          "weight": 1661
+        },
+        {
+          "id": "e-Seattle-Anchorage",
+          "source": "Seattle",
+          "target": "Anchorage",
+          "weight": 2309
+        },
+        {
+          "id": "e-SanFrancisco-Honolulu",
+          "source": "SanFrancisco",
+          "target": "Honolulu",
+          "weight": 3855
+        },
+        {
+          "id": "e-Mesa-Chandler",
+          "source": "Mesa",
+          "target": "Chandler",
+          "weight": 12
+        },
+        {
+          "id": "e-NewYork-Newark",
+          "source": "NewYork",
+          "target": "Newark",
+          "weight": 14
+        },
+        {
+          "id": "e-Henderson-NorthLasVegas",
+          "source": "Henderson",
+          "target": "NorthLasVegas",
+          "weight": 23
+        },
+        {
+          "id": "e-Phoenix-Chandler",
+          "source": "Phoenix",
+          "target": "Chandler",
+          "weight": 27
+        },
+        {
+          "id": "e-Phoenix-Gilbert",
+          "source": "Phoenix",
+          "target": "Gilbert",
+          "weight": 29
+        },
+        {
+          "id": "e-LongBeach-SantaAna",
+          "source": "LongBeach",
+          "target": "SantaAna",
+          "weight": 30
+        },
+        {
+          "id": "e-LosAngeles-Anaheim",
+          "source": "LosAngeles",
+          "target": "Anaheim",
+          "weight": 39
+        },
+        {
+          "id": "e-Dallas-FortWorth",
+          "source": "Dallas",
+          "target": "FortWorth",
+          "weight": 50
+        },
+        {
+          "id": "e-Arlington-Plano",
+          "source": "Arlington",
+          "target": "Plano",
+          "weight": 50
+        },
+        {
+          "id": "e-SantaAna-Riverside",
+          "source": "SantaAna",
+          "target": "Riverside",
+          "weight": 53
+        },
+        {
+          "id": "e-SanJose-SanFrancisco",
+          "source": "SanJose",
+          "target": "SanFrancisco",
+          "weight": 68
+        },
+        {
+          "id": "e-Oakland-Stockton",
+          "source": "Oakland",
+          "target": "Stockton",
+          "weight": 88
+        },
+        {
+          "id": "e-Brookhaven-JerseyCity",
+          "source": "Brookhaven",
+          "target": "JerseyCity",
+          "weight": 96
+        },
+        {
+          "id": "e-Denver-ColoradoSprings",
+          "source": "Denver",
+          "target": "ColoradoSprings",
+          "weight": 102
+        },
+        {
+          "id": "e-Raleigh-Greensboro",
+          "source": "Raleigh",
+          "target": "Greensboro",
+          "weight": 109
+        },
+        {
+          "id": "e-Sacramento-Oakland",
+          "source": "Sacramento",
+          "target": "Oakland",
+          "weight": 110
+        },
+        {
+          "id": "e-Philadelphia-JerseyCity",
+          "source": "Philadelphia",
+          "target": "JerseyCity",
+          "weight": 128
+        },
+        {
+          "id": "e-SanDiego-Anaheim",
+          "source": "SanDiego",
+          "target": "Anaheim",
+          "weight": 142
+        },
+        {
+          "id": "e-SanDiego-Riverside",
+          "source": "SanDiego",
+          "target": "Riverside",
+          "weight": 142
+        },
+        {
+          "id": "e-Louisville-Cincinnati",
+          "source": "Louisville",
+          "target": "Cincinnati",
+          "weight": 143
+        },
+        {
+          "id": "e-Tucson-Gilbert",
+          "source": "Tucson",
+          "target": "Gilbert",
+          "weight": 147
+        },
+        {
+          "id": "e-LongBeach-Bakersfield",
+          "source": "LongBeach",
+          "target": "Bakersfield",
+          "weight": 194
+        },
+        {
+          "id": "e-Charlotte-Durham",
+          "source": "Charlotte",
+          "target": "Durham",
+          "weight": 195
+        },
+        {
+          "id": "e-SanJose-Fresno",
+          "source": "SanJose",
+          "target": "Fresno",
+          "weight": 198
+        },
+        {
+          "id": "e-Charlotte-Raleigh",
+          "source": "Charlotte",
+          "target": "Raleigh",
+          "weight": 209
+        },
+        {
+          "id": "e-Indianapolis-Lexington",
+          "source": "Indianapolis",
+          "target": "Lexington",
+          "weight": 239
+        },
+        {
+          "id": "e-OklahomaCity-Wichita",
+          "source": "OklahomaCity",
+          "target": "Wichita",
+          "weight": 247
+        },
+        {
+          "id": "e-Columbus-Lexington",
+          "source": "Columbus",
+          "target": "Lexington",
+          "weight": 249
+        }
+      ]
+    },
+    "startNode": "SanJuan",
+    "goalNode": "Anchorage",
+    "useHeuristic": true
+  }
+}

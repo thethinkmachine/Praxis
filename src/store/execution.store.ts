@@ -20,7 +20,7 @@ interface ExecutionState {
   /** Cumulative logs up to the current index. */
   logs: LogEntry[];
 
-  loadAlgorithm: (runner: AlgorithmRunner, problem: unknown, algorithmId?: string) => void;
+  loadAlgorithm: (runner: AlgorithmRunner, problem: unknown, algorithmId?: string) => Promise<void>;
   stepForward: () => void;
   stepBackward: () => void;
   seekToStep: (index: number) => void;
@@ -49,11 +49,24 @@ export const useExecutionStore = create<ExecutionState>()(
     loadWarning: null,
     logs: [],
 
-    loadAlgorithm: (runner, problem, algorithmId) => {
+    loadAlgorithm: async (runner, problem, algorithmId) => {
       const { currentIndex: prevIndex } = get();
       const engine = new ExecutionEngine();
       try {
-        engine.load(runner, problem);
+        let actualProblem = problem;
+        if (
+          actualProblem &&
+          typeof actualProblem === 'object' &&
+          'graph' in actualProblem &&
+          actualProblem.graph
+        ) {
+          const { Graph } = await import('@/types/problem');
+          const p = actualProblem as { graph: any };
+          if (!(p.graph instanceof Graph)) {
+            actualProblem = { ...actualProblem, graph: new Graph(p.graph) };
+          }
+        }
+        engine.load(runner, actualProblem);
       } catch (err) {
         // Invalid problem (e.g. empty graph, missing start/goal) — store the
         // error message but DON'T throw so React's error boundary is never hit.

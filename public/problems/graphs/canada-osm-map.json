@@ -1,0 +1,870 @@
+{
+  "category": "graph",
+  "name": "Canada OSM Mesh",
+  "description": "High-fidelity city mesh for Canada generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+  "tags": [
+    "osm",
+    "real-world",
+    "detailed"
+  ],
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        {
+          "id": "Toronto",
+          "label": "Toronto",
+          "x": 827,
+          "y": 785,
+          "heuristic": 2705
+        },
+        {
+          "id": "Montreal",
+          "label": "Montreal",
+          "x": 926,
+          "y": 653,
+          "heuristic": 2973
+        },
+        {
+          "id": "Calgary",
+          "label": "Calgary",
+          "x": 238,
+          "y": 258,
+          "heuristic": 281
+        },
+        {
+          "id": "Edmonton",
+          "label": "Edmonton",
+          "x": 248,
+          "y": 80,
+          "heuristic": 0
+        },
+        {
+          "id": "Ottawa",
+          "label": "Ottawa",
+          "x": 890,
+          "y": 659,
+          "heuristic": 2838
+        },
+        {
+          "id": "Mississauga",
+          "label": "Mississauga",
+          "x": 823,
+          "y": 789,
+          "heuristic": 2693
+        },
+        {
+          "id": "Winnipeg",
+          "label": "Winnipeg",
+          "x": 526,
+          "y": 340,
+          "heuristic": 1194
+        },
+        {
+          "id": "Vancouver",
+          "label": "Vancouver",
+          "x": 84,
+          "y": 385,
+          "heuristic": 819
+        },
+        {
+          "id": "Brampton",
+          "label": "Brampton",
+          "x": 821,
+          "y": 782,
+          "heuristic": 2679
+        },
+        {
+          "id": "Hamilton",
+          "label": "Hamilton",
+          "x": 819,
+          "y": 813,
+          "heuristic": 2700
+        },
+        {
+          "id": "Surrey",
+          "label": "Surrey",
+          "x": 89,
+          "y": 390,
+          "heuristic": 809
+        },
+        {
+          "id": "Quebec",
+          "label": "Quebec",
+          "x": 966,
+          "y": 560,
+          "heuristic": 3054
+        },
+        {
+          "id": "Laval",
+          "label": "Laval",
+          "x": 923,
+          "y": 649,
+          "heuristic": 2960
+        },
+        {
+          "id": "London",
+          "label": "London",
+          "x": 795,
+          "y": 832,
+          "heuristic": 2629
+        },
+        {
+          "id": "Halifax",
+          "label": "Halifax",
+          "x": 1095,
+          "y": 714,
+          "heuristic": 3683
+        },
+        {
+          "id": "Markham",
+          "label": "Markham",
+          "x": 828,
+          "y": 770,
+          "heuristic": 2695
+        },
+        {
+          "id": "Vaughan",
+          "label": "Vaughan",
+          "x": 825,
+          "y": 775,
+          "heuristic": 2687
+        },
+        {
+          "id": "Gatineau",
+          "label": "Gatineau",
+          "x": 889,
+          "y": 658,
+          "heuristic": 2836
+        },
+        {
+          "id": "Longueuil",
+          "label": "Longueuil",
+          "x": 928,
+          "y": 652,
+          "heuristic": 2979
+        },
+        {
+          "id": "Burnaby",
+          "label": "Burnaby",
+          "x": 87,
+          "y": 387,
+          "heuristic": 812
+        },
+        {
+          "id": "Saskatoon",
+          "label": "Saskatoon",
+          "x": 364,
+          "y": 181,
+          "heuristic": 485
+        },
+        {
+          "id": "Kitchener",
+          "label": "Kitchener",
+          "x": 808,
+          "y": 799,
+          "heuristic": 2647
+        },
+        {
+          "id": "Windsor",
+          "label": "Windsor",
+          "x": 765,
+          "y": 880,
+          "heuristic": 2562
+        },
+        {
+          "id": "Regina",
+          "label": "Regina",
+          "x": 399,
+          "y": 301,
+          "heuristic": 698
+        },
+        {
+          "id": "Richmond",
+          "label": "Richmond",
+          "x": 84,
+          "y": 392,
+          "heuristic": 827
+        },
+        {
+          "id": "RichmondHill",
+          "label": "Richmond Hill",
+          "x": 826,
+          "y": 769,
+          "heuristic": 2687
+        },
+        {
+          "id": "Barrie",
+          "label": "Barrie",
+          "x": 822,
+          "y": 732,
+          "heuristic": 2638
+        },
+        {
+          "id": "Burlington",
+          "label": "Burlington",
+          "x": 820,
+          "y": 808,
+          "heuristic": 2700
+        },
+        {
+          "id": "Oshawa",
+          "label": "Oshawa",
+          "x": 836,
+          "y": 767,
+          "heuristic": 2723
+        },
+        {
+          "id": "Sudbury",
+          "label": "Sudbury",
+          "x": 800,
+          "y": 582,
+          "heuristic": 2426
+        },
+        {
+          "id": "Sherbrooke",
+          "label": "Sherbrooke",
+          "x": 954,
+          "y": 660,
+          "heuristic": 3090
+        },
+        {
+          "id": "Abbotsford",
+          "label": "Abbotsford",
+          "x": 98,
+          "y": 400,
+          "heuristic": 791
+        },
+        {
+          "id": "Saguenay",
+          "label": "Saguenay",
+          "x": 968,
+          "y": 446,
+          "heuristic": 2978
+        },
+        {
+          "id": "Coquitlam",
+          "label": "Coquitlam",
+          "x": 90,
+          "y": 384,
+          "heuristic": 799
+        },
+        {
+          "id": "Kelowna",
+          "label": "Kelowna",
+          "x": 146,
+          "y": 341,
+          "heuristic": 580
+        },
+        {
+          "id": "Lvis",
+          "label": "Lévis",
+          "x": 966,
+          "y": 560,
+          "heuristic": 3056
+        },
+        {
+          "id": "TroisRivires",
+          "label": "Trois-Rivières",
+          "x": 943,
+          "y": 593,
+          "heuristic": 2992
+        },
+        {
+          "id": "StCatharines",
+          "label": "St. Catharines",
+          "x": 829,
+          "y": 820,
+          "heuristic": 2747
+        },
+        {
+          "id": "LangleyTownship",
+          "label": "Langley Township",
+          "x": 92,
+          "y": 395,
+          "heuristic": 804
+        },
+        {
+          "id": "Guelph",
+          "label": "Guelph",
+          "x": 812,
+          "y": 792,
+          "heuristic": 2656
+        },
+        {
+          "id": "Cambridge",
+          "label": "Cambridge",
+          "x": 811,
+          "y": 806,
+          "heuristic": 2665
+        },
+        {
+          "id": "Whitby",
+          "label": "Whitby",
+          "x": 835,
+          "y": 769,
+          "heuristic": 2720
+        },
+        {
+          "id": "Kingston",
+          "label": "Kingston",
+          "x": 876,
+          "y": 744,
+          "heuristic": 2858
+        },
+        {
+          "id": "Saanich",
+          "label": "Saanich",
+          "x": 80,
+          "y": 442,
+          "heuristic": 892
+        },
+        {
+          "id": "Terrebonne",
+          "label": "Terrebonne",
+          "x": 925,
+          "y": 639,
+          "heuristic": 2957
+        },
+        {
+          "id": "StJohns",
+          "label": "St. John's",
+          "x": 1280,
+          "y": 506,
+          "heuristic": 4212
+        },
+        {
+          "id": "Milton",
+          "label": "Milton",
+          "x": 819,
+          "y": 795,
+          "heuristic": 2682
+        },
+        {
+          "id": "Chatham",
+          "label": "Chatham",
+          "x": 779,
+          "y": 874,
+          "heuristic": 2610
+        },
+        {
+          "id": "Delta",
+          "label": "Delta",
+          "x": 85,
+          "y": 398,
+          "heuristic": 828
+        },
+        {
+          "id": "ThunderBay",
+          "label": "Thunder Bay",
+          "x": 659,
+          "y": 446,
+          "heuristic": 1780
+        }
+      ],
+      "edges": [
+        {
+          "id": "e-Ottawa-Gatineau",
+          "source": "Ottawa",
+          "target": "Gatineau",
+          "weight": 2
+        },
+        {
+          "id": "e-Quebec-Lvis",
+          "source": "Quebec",
+          "target": "Lvis",
+          "weight": 3
+        },
+        {
+          "id": "e-Oshawa-Whitby",
+          "source": "Oshawa",
+          "target": "Whitby",
+          "weight": 7
+        },
+        {
+          "id": "e-Montreal-Longueuil",
+          "source": "Montreal",
+          "target": "Longueuil",
+          "weight": 8
+        },
+        {
+          "id": "e-Markham-RichmondHill",
+          "source": "Markham",
+          "target": "RichmondHill",
+          "weight": 9
+        },
+        {
+          "id": "e-Vancouver-Burnaby",
+          "source": "Vancouver",
+          "target": "Burnaby",
+          "weight": 10
+        },
+        {
+          "id": "e-Hamilton-Burlington",
+          "source": "Hamilton",
+          "target": "Burlington",
+          "weight": 10
+        },
+        {
+          "id": "e-Richmond-Delta",
+          "source": "Richmond",
+          "target": "Delta",
+          "weight": 10
+        },
+        {
+          "id": "e-Vancouver-Richmond",
+          "source": "Vancouver",
+          "target": "Richmond",
+          "weight": 11
+        },
+        {
+          "id": "e-Surrey-Burnaby",
+          "source": "Surrey",
+          "target": "Burnaby",
+          "weight": 11
+        },
+        {
+          "id": "e-Surrey-Coquitlam",
+          "source": "Surrey",
+          "target": "Coquitlam",
+          "weight": 11
+        },
+        {
+          "id": "e-Vaughan-RichmondHill",
+          "source": "Vaughan",
+          "target": "RichmondHill",
+          "weight": 12
+        },
+        {
+          "id": "e-Montreal-Laval",
+          "source": "Montreal",
+          "target": "Laval",
+          "weight": 13
+        },
+        {
+          "id": "e-Mississauga-Brampton",
+          "source": "Mississauga",
+          "target": "Brampton",
+          "weight": 14
+        },
+        {
+          "id": "e-Surrey-LangleyTownship",
+          "source": "Surrey",
+          "target": "LangleyTownship",
+          "weight": 16
+        },
+        {
+          "id": "e-Laval-Terrebonne",
+          "source": "Laval",
+          "target": "Terrebonne",
+          "weight": 17
+        },
+        {
+          "id": "e-Kitchener-Cambridge",
+          "source": "Kitchener",
+          "target": "Cambridge",
+          "weight": 18
+        },
+        {
+          "id": "e-Toronto-Vaughan",
+          "source": "Toronto",
+          "target": "Vaughan",
+          "weight": 19
+        },
+        {
+          "id": "e-Mississauga-Milton",
+          "source": "Mississauga",
+          "target": "Milton",
+          "weight": 21
+        },
+        {
+          "id": "e-Guelph-Cambridge",
+          "source": "Guelph",
+          "target": "Cambridge",
+          "weight": 21
+        },
+        {
+          "id": "e-Toronto-Mississauga",
+          "source": "Toronto",
+          "target": "Mississauga",
+          "weight": 22
+        },
+        {
+          "id": "e-Burlington-Milton",
+          "source": "Burlington",
+          "target": "Milton",
+          "weight": 22
+        },
+        {
+          "id": "e-Abbotsford-LangleyTownship",
+          "source": "Abbotsford",
+          "target": "LangleyTownship",
+          "weight": 25
+        },
+        {
+          "id": "e-Guelph-Milton",
+          "source": "Guelph",
+          "target": "Milton",
+          "weight": 30
+        },
+        {
+          "id": "e-Markham-Whitby",
+          "source": "Markham",
+          "target": "Whitby",
+          "weight": 32
+        },
+        {
+          "id": "e-Burlington-StCatharines",
+          "source": "Burlington",
+          "target": "StCatharines",
+          "weight": 48
+        },
+        {
+          "id": "e-RichmondHill-Barrie",
+          "source": "RichmondHill",
+          "target": "Barrie",
+          "weight": 60
+        },
+        {
+          "id": "e-Windsor-Chatham",
+          "source": "Windsor",
+          "target": "Chatham",
+          "weight": 71
+        },
+        {
+          "id": "e-Saanich-Delta",
+          "source": "Saanich",
+          "target": "Delta",
+          "weight": 73
+        },
+        {
+          "id": "e-London-Kitchener",
+          "source": "London",
+          "target": "Kitchener",
+          "weight": 80
+        },
+        {
+          "id": "e-London-Chatham",
+          "source": "London",
+          "target": "Chatham",
+          "weight": 100
+        },
+        {
+          "id": "e-TroisRivires-Terrebonne",
+          "source": "TroisRivires",
+          "target": "Terrebonne",
+          "weight": 111
+        },
+        {
+          "id": "e-Quebec-TroisRivires",
+          "source": "Quebec",
+          "target": "TroisRivires",
+          "weight": 115
+        },
+        {
+          "id": "e-Sherbrooke-TroisRivires",
+          "source": "Sherbrooke",
+          "target": "TroisRivires",
+          "weight": 116
+        },
+        {
+          "id": "e-Ottawa-Kingston",
+          "source": "Ottawa",
+          "target": "Kingston",
+          "weight": 146
+        },
+        {
+          "id": "e-Ottawa-Laval",
+          "source": "Ottawa",
+          "target": "Laval",
+          "weight": 154
+        },
+        {
+          "id": "e-Quebec-Saguenay",
+          "source": "Quebec",
+          "target": "Saguenay",
+          "weight": 177
+        },
+        {
+          "id": "e-Oshawa-Kingston",
+          "source": "Oshawa",
+          "target": "Kingston",
+          "weight": 194
+        },
+        {
+          "id": "e-Abbotsford-Kelowna",
+          "source": "Abbotsford",
+          "target": "Kelowna",
+          "weight": 225
+        },
+        {
+          "id": "e-Saskatoon-Regina",
+          "source": "Saskatoon",
+          "target": "Regina",
+          "weight": 235
+        },
+        {
+          "id": "e-Barrie-Sudbury",
+          "source": "Barrie",
+          "target": "Sudbury",
+          "weight": 255
+        },
+        {
+          "id": "e-Calgary-Edmonton",
+          "source": "Calgary",
+          "target": "Edmonton",
+          "weight": 281
+        },
+        {
+          "id": "e-Calgary-Kelowna",
+          "source": "Calgary",
+          "target": "Kelowna",
+          "weight": 406
+        },
+        {
+          "id": "e-Edmonton-Saskatoon",
+          "source": "Edmonton",
+          "target": "Saskatoon",
+          "weight": 485
+        },
+        {
+          "id": "e-Winnipeg-Regina",
+          "source": "Winnipeg",
+          "target": "Regina",
+          "weight": 536
+        },
+        {
+          "id": "e-Winnipeg-ThunderBay",
+          "source": "Winnipeg",
+          "target": "ThunderBay",
+          "weight": 596
+        },
+        {
+          "id": "e-Halifax-Lvis",
+          "source": "Halifax",
+          "target": "Lvis",
+          "weight": 636
+        },
+        {
+          "id": "e-Sudbury-ThunderBay",
+          "source": "Sudbury",
+          "target": "ThunderBay",
+          "weight": 657
+        },
+        {
+          "id": "e-Halifax-StJohns",
+          "source": "Halifax",
+          "target": "StJohns",
+          "weight": 898
+        },
+        {
+          "id": "e-Burnaby-Coquitlam",
+          "source": "Burnaby",
+          "target": "Coquitlam",
+          "weight": 14
+        },
+        {
+          "id": "e-Burnaby-Richmond",
+          "source": "Burnaby",
+          "target": "Richmond",
+          "weight": 15
+        },
+        {
+          "id": "e-Markham-Vaughan",
+          "source": "Markham",
+          "target": "Vaughan",
+          "weight": 17
+        },
+        {
+          "id": "e-Surrey-Delta",
+          "source": "Surrey",
+          "target": "Delta",
+          "weight": 19
+        },
+        {
+          "id": "e-Vancouver-Delta",
+          "source": "Vancouver",
+          "target": "Delta",
+          "weight": 20
+        },
+        {
+          "id": "e-Laval-Longueuil",
+          "source": "Laval",
+          "target": "Longueuil",
+          "weight": 20
+        },
+        {
+          "id": "e-Coquitlam-LangleyTownship",
+          "source": "Coquitlam",
+          "target": "LangleyTownship",
+          "weight": 21
+        },
+        {
+          "id": "e-Montreal-Terrebonne",
+          "source": "Montreal",
+          "target": "Terrebonne",
+          "weight": 22
+        },
+        {
+          "id": "e-Brampton-Vaughan",
+          "source": "Brampton",
+          "target": "Vaughan",
+          "weight": 22
+        },
+        {
+          "id": "e-Brampton-Milton",
+          "source": "Brampton",
+          "target": "Milton",
+          "weight": 22
+        },
+        {
+          "id": "e-Kitchener-Guelph",
+          "source": "Kitchener",
+          "target": "Guelph",
+          "weight": 22
+        },
+        {
+          "id": "e-Toronto-Markham",
+          "source": "Toronto",
+          "target": "Markham",
+          "weight": 23
+        },
+        {
+          "id": "e-Longueuil-Terrebonne",
+          "source": "Longueuil",
+          "target": "Terrebonne",
+          "weight": 23
+        },
+        {
+          "id": "e-Hamilton-Milton",
+          "source": "Hamilton",
+          "target": "Milton",
+          "weight": 29
+        },
+        {
+          "id": "e-Hamilton-Cambridge",
+          "source": "Hamilton",
+          "target": "Cambridge",
+          "weight": 37
+        },
+        {
+          "id": "e-Markham-Oshawa",
+          "source": "Markham",
+          "target": "Oshawa",
+          "weight": 38
+        },
+        {
+          "id": "e-RichmondHill-Whitby",
+          "source": "RichmondHill",
+          "target": "Whitby",
+          "weight": 40
+        },
+        {
+          "id": "e-Surrey-Abbotsford",
+          "source": "Surrey",
+          "target": "Abbotsford",
+          "weight": 41
+        },
+        {
+          "id": "e-Hamilton-StCatharines",
+          "source": "Hamilton",
+          "target": "StCatharines",
+          "weight": 52
+        },
+        {
+          "id": "e-Toronto-StCatharines",
+          "source": "Toronto",
+          "target": "StCatharines",
+          "weight": 56
+        },
+        {
+          "id": "e-Markham-Barrie",
+          "source": "Markham",
+          "target": "Barrie",
+          "weight": 66
+        },
+        {
+          "id": "e-Richmond-Saanich",
+          "source": "Richmond",
+          "target": "Saanich",
+          "weight": 80
+        },
+        {
+          "id": "e-London-Cambridge",
+          "source": "London",
+          "target": "Cambridge",
+          "weight": 87
+        },
+        {
+          "id": "e-Surrey-Saanich",
+          "source": "Surrey",
+          "target": "Saanich",
+          "weight": 90
+        },
+        {
+          "id": "e-Lvis-TroisRivires",
+          "source": "Lvis",
+          "target": "TroisRivires",
+          "weight": 116
+        },
+        {
+          "id": "e-Longueuil-Sherbrooke",
+          "source": "Longueuil",
+          "target": "Sherbrooke",
+          "weight": 124
+        },
+        {
+          "id": "e-Montreal-Sherbrooke",
+          "source": "Montreal",
+          "target": "Sherbrooke",
+          "weight": 132
+        },
+        {
+          "id": "e-Gatineau-Kingston",
+          "source": "Gatineau",
+          "target": "Kingston",
+          "weight": 146
+        },
+        {
+          "id": "e-Laval-Gatineau",
+          "source": "Laval",
+          "target": "Gatineau",
+          "weight": 156
+        },
+        {
+          "id": "e-London-Windsor",
+          "source": "London",
+          "target": "Windsor",
+          "weight": 164
+        },
+        {
+          "id": "e-Saguenay-Lvis",
+          "source": "Saguenay",
+          "target": "Lvis",
+          "weight": 178
+        },
+        {
+          "id": "e-Kitchener-Chatham",
+          "source": "Kitchener",
+          "target": "Chatham",
+          "weight": 180
+        },
+        {
+          "id": "e-Kitchener-Windsor",
+          "source": "Kitchener",
+          "target": "Windsor",
+          "weight": 243
+        },
+        {
+          "id": "e-Kelowna-LangleyTownship",
+          "source": "Kelowna",
+          "target": "LangleyTownship",
+          "weight": 244
+        }
+      ]
+    },
+    "startNode": "Windsor",
+    "goalNode": "Edmonton",
+    "useHeuristic": true
+  }
+}

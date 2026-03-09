@@ -4,7 +4,7 @@ import { cn } from '@/lib/cn';
 import type { AlgorithmCategory } from '@/types';
 
 interface DemoProblem {
-  id: string;
+  id: string; // The URL to fetch (e.g. 'problems/graphs/simple-graph.json')
   name: string;
   description: string;
   hint: string;
@@ -13,10 +13,10 @@ interface DemoProblem {
   tags?: string[];
 }
 
-const DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblem[]> = {
+const FALLBACK_DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblem[]> = {
   'uninformed-search': [
     {
-      id: 'simple-graph',
+      id: 'simple-graph.json',
       name: 'Simple State Graph',
       description: 'A small 8-node graph designed to show the difference between BFS level-order and DFS depth-first traversal. Optimal for step-through learning.',
       difficulty: 'easy',
@@ -25,7 +25,7 @@ const DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblem[]> = {
       tags: ['BFS', 'DFS', 'comparison'],
     },
     {
-      id: 'romania-map',
+      id: 'romania-map.json',
       name: 'Romania Road Map',
       description: 'The classic AIMA textbook graph — 20 Romanian cities connected by roads. The definitive benchmark for uninformed search algorithms.',
       difficulty: 'medium',
@@ -34,7 +34,61 @@ const DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblem[]> = {
       tags: ['classic', 'AIMA', 'roads'],
     },
     {
-      id: 'weighted-grid',
+      id: 'india-map.json',
+      name: 'India Major Cities Hub',
+      description: 'A realistic network of major Indian cities. Useful for testing routing between major metropolitan regions with variable distance weights.',
+      difficulty: 'medium',
+      estimatedSteps: 60,
+      hint: 'A pathfinding benchmark showing optimal routes across the continent.',
+      tags: ['real-world', 'india', 'routing'],
+    },
+    {
+      id: 'uk-map.json',
+      name: 'UK Cities',
+      description: 'A detailed map of the United Kingdom covering all major metropolitan hubs.',
+      difficulty: 'medium',
+      estimatedSteps: 50,
+      hint: 'Search algorithms will fan out from London towards Edinburgh.',
+      tags: ['real-world', 'uk', 'routing'],
+    },
+    {
+      id: 'usa-map.json',
+      name: 'USA Cities',
+      description: 'A massive coast-to-coast pathfinding layout crossing the United States.',
+      difficulty: 'hard',
+      estimatedSteps: 120,
+      hint: 'Long-distance paths make for an excellent UCS analysis task.',
+      tags: ['real-world', 'usa', 'routing'],
+    },
+    {
+      id: 'russia-map.json',
+      name: 'Russia Cities',
+      description: 'A sparse, long-distance spanning graph of Russian cities from Moscow to Vladivostok.',
+      difficulty: 'hard',
+      estimatedSteps: 90,
+      hint: 'A linear-dominated graph that demonstrates depth-first properties well.',
+      tags: ['real-world', 'russia', 'routing'],
+    },
+    {
+      id: 'africa-map.json',
+      name: 'Africa Cities',
+      description: 'A widely distributed continental network of African capital cities.',
+      difficulty: 'hard',
+      estimatedSteps: 85,
+      hint: 'Large physical distances require robust pathfinding choices.',
+      tags: ['real-world', 'africa', 'routing'],
+    },
+    {
+      id: 'australia-map.json',
+      name: 'Australia Cities',
+      description: 'Coastal connections bounding the Australian continent.',
+      difficulty: 'medium',
+      estimatedSteps: 40,
+      hint: 'Watch algorithms navigate around the continental edge.',
+      tags: ['real-world', 'australia', 'routing'],
+    },
+    {
+      id: 'weighted-grid.json',
       name: 'Weighted Terrain Grid',
       description: 'A weighted grid where traversal costs vary by region. Useful for observing UCS behavior against uniform-cost assumptions.',
       difficulty: 'hard',
@@ -45,7 +99,7 @@ const DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblem[]> = {
   ],
   'informed-search': [
     {
-      id: 'romania-map',
+      id: 'romania-map.json',
       name: 'Romania Road Map',
       description: 'The classic AIMA benchmark — 20 cities with straight-line-distance heuristics to Bucharest. Ideal for comparing A* against Greedy Best-First.',
       difficulty: 'medium',
@@ -54,7 +108,34 @@ const DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblem[]> = {
       tags: ['classic', 'AIMA', 'heuristic', 'A*'],
     },
     {
-      id: 'weighted-grid',
+      id: 'india-map.json',
+      name: 'India Major Cities Hub',
+      description: 'A realistic map of Indian cities with heuristic values targeted towards Bengaluru.',
+      difficulty: 'medium',
+      estimatedSteps: 45,
+      hint: 'Heuristics guide the search rapidly towards the southern goal.',
+      tags: ['real-world', 'india', 'heuristic'],
+    },
+    {
+      id: 'usa-map.json',
+      name: 'USA Coast to Coast',
+      description: 'A massive coast-to-coast benchmark. The heuristic values are pre-calculated to guide the path to Los Angeles.',
+      difficulty: 'hard',
+      estimatedSteps: 65,
+      hint: 'Watch A* carve an optimal path directly across the country.',
+      tags: ['real-world', 'usa', 'heuristic'],
+    },
+    {
+      id: 'africa-map.json',
+      name: 'Africa Full Span',
+      description: 'Continental pathfinding from Casablanca to Cape Town, heavily utilizing distance heuristics.',
+      difficulty: 'hard',
+      estimatedSteps: 55,
+      hint: 'The sheer scale of coordinates makes heuristic evaluation extremely powerful here.',
+      tags: ['real-world', 'africa', 'heuristic'],
+    },
+    {
+      id: 'weighted-grid.json',
       name: 'Weighted Terrain Grid',
       description: 'A weighted grid with Manhattan-distance heuristics. Observe how the heuristic guides A* to the goal much more efficiently than UCS.',
       difficulty: 'medium',
@@ -63,7 +144,7 @@ const DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblem[]> = {
       tags: ['grid', 'weighted', 'heuristic'],
     },
     {
-      id: 'simple-graph',
+      id: 'simple-graph.json',
       name: 'Simple State Graph',
       description: 'A small 8-node graph. Use it to see clearly how Greedy BFS chases the goal greedily while A* balances cost and estimate.',
       difficulty: 'easy',
@@ -90,7 +171,7 @@ type DifficultyFilter = 'all' | 'easy' | 'medium' | 'hard';
 
 interface DemoProblemPickerProps {
   algorithmCategory: AlgorithmCategory;
-  onSelect: (problemId: string) => void;
+  onSelect: (problemDef: any) => void;
   trigger?: React.ReactNode;
 }
 
@@ -128,8 +209,19 @@ export default function DemoProblemPicker({
   onSelect,
   trigger,
 }: DemoProblemPickerProps) {
-  const allProblems = DEMO_PROBLEMS[algorithmCategory] ?? [];
+  const [manifestData, setManifestData] = useState<Record<AlgorithmCategory, DemoProblem[]> | null>(null);
   const [filter, setFilter] = useState<DifficultyFilter>('all');
+
+  // Load manifest asynchronously on mount
+  useState(() => {
+    fetch('/Praxis/problems/graphs/_manifest.json')
+      .then(r => r.json())
+      .then(d => setManifestData(d))
+      .catch(e => console.warn('Failed to fetch problem manifest, using fallback:', e));
+  });
+
+  const allProblems = manifestData?.[algorithmCategory] ?? FALLBACK_DEMO_PROBLEMS[algorithmCategory] ?? [];
+
 
   const problems = filter === 'all'
     ? allProblems
@@ -141,6 +233,17 @@ export default function DemoProblemPicker({
     { label: 'Medium', value: 'medium' },
     { label: 'Hard', value: 'hard' },
   ];
+
+  const handleSelect = async (filename: string) => {
+    try {
+      const resp = await fetch(`/Praxis/problems/graphs/${filename}`);
+      if (!resp.ok) throw new Error('File not found');
+      const data = await resp.json();
+      onSelect(data.problem);
+    } catch (e) {
+      console.error("Failed to load demo problem:", e);
+    }
+  };
 
   return (
     <Dialog.Root onOpenChange={(open) => { if (!open) setFilter('all'); }}>
@@ -232,7 +335,7 @@ export default function DemoProblemPicker({
               problems.map((p) => (
                 <Dialog.Close key={`${p.id}-${p.difficulty}`} asChild>
                   <button
-                    onClick={() => onSelect(p.id)}
+                    onClick={() => handleSelect(p.id)}
                     className={cn(
                       'w-full text-left rounded-lg p-3.5 border border-[var(--border)]',
                       'bg-[var(--surface-2)]/60',

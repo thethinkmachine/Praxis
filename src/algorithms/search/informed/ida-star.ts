@@ -2,7 +2,7 @@ import type { AlgorithmRunner } from '@/types/algorithm';
 import type { GraphProblem } from '@/types/problem';
 import type { AlgorithmStep } from '@/types/step';
 import type { SearchHighlight } from './types';
-import { reconstructPath, validateGraphProblem, buildAdjacencyList, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
+import { reconstructPath, validateGraphProblem, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { deepClone } from '@/lib/deep-clone';
 import { createLog } from '@/algorithms/core/utils';
 
@@ -86,7 +86,7 @@ export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHi
   },
 
   *run(problem: GraphProblem): Generator<AlgorithmStep<IDAStarState, SearchHighlight>, void> {
-    const adj = buildAdjacencyList(problem.graph);
+    const adj = problem.graph.toAdjList();
     const labelOf = (id: string) => problem.graph.nodes.find(n => n.id === id)?.label ?? id;
     const h = createHeuristicEvaluator(problem);
 

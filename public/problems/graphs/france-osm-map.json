@@ -1,0 +1,900 @@
+{
+  "category": "graph",
+  "name": "France OSM Mesh",
+  "description": "High-fidelity city mesh for France generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+  "tags": [
+    "osm",
+    "real-world",
+    "detailed"
+  ],
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        {
+          "id": "Paris",
+          "label": "Paris",
+          "x": 128,
+          "y": 100,
+          "heuristic": 216
+        },
+        {
+          "id": "Marseille",
+          "label": "Marseille",
+          "x": 149,
+          "y": 161,
+          "heuristic": 843
+        },
+        {
+          "id": "Lyon",
+          "label": "Lyon",
+          "x": 145,
+          "y": 134,
+          "heuristic": 566
+        },
+        {
+          "id": "Toulouse",
+          "label": "Toulouse",
+          "x": 122,
+          "y": 158,
+          "heuristic": 802
+        },
+        {
+          "id": "Nice",
+          "label": "Nice",
+          "x": 163,
+          "y": 157,
+          "heuristic": 840
+        },
+        {
+          "id": "Nantes",
+          "label": "Nantes",
+          "x": 101,
+          "y": 118,
+          "heuristic": 520
+        },
+        {
+          "id": "Montpellier",
+          "label": "Montpellier",
+          "x": 139,
+          "y": 158,
+          "heuristic": 793
+        },
+        {
+          "id": "Strasbourg",
+          "label": "Strasbourg",
+          "x": 166,
+          "y": 103,
+          "heuristic": 407
+        },
+        {
+          "id": "Bordeaux",
+          "label": "Bordeaux",
+          "x": 107,
+          "y": 144,
+          "heuristic": 711
+        },
+        {
+          "id": "Lille",
+          "label": "Lille",
+          "x": 133,
+          "y": 81,
+          "heuristic": 12
+        },
+        {
+          "id": "Rennes",
+          "label": "Rennes",
+          "x": 100,
+          "y": 109,
+          "heuristic": 455
+        },
+        {
+          "id": "Toulon",
+          "label": "Toulon",
+          "x": 153,
+          "y": 163,
+          "heuristic": 870
+        },
+        {
+          "id": "Reims",
+          "label": "Reims",
+          "x": 140,
+          "y": 96,
+          "heuristic": 174
+        },
+        {
+          "id": "Sainttienne",
+          "label": "Saint-Étienne",
+          "x": 142,
+          "y": 138,
+          "heuristic": 594
+        },
+        {
+          "id": "LeHavre",
+          "label": "Le Havre",
+          "x": 112,
+          "y": 93,
+          "heuristic": 257
+        },
+        {
+          "id": "Dijon",
+          "label": "Dijon",
+          "x": 147,
+          "y": 117,
+          "heuristic": 402
+        },
+        {
+          "id": "Grenoble",
+          "label": "Grenoble",
+          "x": 152,
+          "y": 141,
+          "heuristic": 645
+        },
+        {
+          "id": "Angers",
+          "label": "Angers",
+          "x": 108,
+          "y": 116,
+          "heuristic": 451
+        },
+        {
+          "id": "Villeurbanne",
+          "label": "Villeurbanne",
+          "x": 146,
+          "y": 134,
+          "heuristic": 565
+        },
+        {
+          "id": "SaintDenis",
+          "label": "Saint-Denis",
+          "x": 501,
+          "y": 865,
+          "heuristic": 9460
+        },
+        {
+          "id": "Nmes",
+          "label": "Nîmes",
+          "x": 142,
+          "y": 155,
+          "heuristic": 771
+        },
+        {
+          "id": "AixenProvence",
+          "label": "Aix-en-Provence",
+          "x": 150,
+          "y": 159,
+          "heuristic": 818
+        },
+        {
+          "id": "ClermontFerrand",
+          "label": "Clermont-Ferrand",
+          "x": 133,
+          "y": 134,
+          "heuristic": 550
+        },
+        {
+          "id": "LeMans",
+          "label": "Le Mans",
+          "x": 113,
+          "y": 110,
+          "heuristic": 370
+        },
+        {
+          "id": "Brest",
+          "label": "Brest",
+          "x": 80,
+          "y": 106,
+          "heuristic": 609
+        },
+        {
+          "id": "Tours",
+          "label": "Tours",
+          "x": 116,
+          "y": 117,
+          "heuristic": 412
+        },
+        {
+          "id": "Amiens",
+          "label": "Amiens",
+          "x": 128,
+          "y": 89,
+          "heuristic": 111
+        },
+        {
+          "id": "Annecy",
+          "label": "Annecy",
+          "x": 155,
+          "y": 133,
+          "heuristic": 579
+        },
+        {
+          "id": "Limoges",
+          "label": "Limoges",
+          "x": 120,
+          "y": 134,
+          "heuristic": 561
+        },
+        {
+          "id": "Metz",
+          "label": "Metz",
+          "x": 155,
+          "y": 98,
+          "heuristic": 280
+        },
+        {
+          "id": "BoulogneBillancourt",
+          "label": "Boulogne-Billancourt",
+          "x": 127,
+          "y": 101,
+          "heuristic": 220
+        },
+        {
+          "id": "Perpignan",
+          "label": "Perpignan",
+          "x": 132,
+          "y": 168,
+          "heuristic": 893
+        },
+        {
+          "id": "Besanon",
+          "label": "Besançon",
+          "x": 154,
+          "y": 118,
+          "heuristic": 440
+        },
+        {
+          "id": "Orlans",
+          "label": "Orléans",
+          "x": 125,
+          "y": 111,
+          "heuristic": 327
+        },
+        {
+          "id": "Rouen",
+          "label": "Rouen",
+          "x": 119,
+          "y": 94,
+          "heuristic": 205
+        },
+        {
+          "id": "Montreuil",
+          "label": "Montreuil",
+          "x": 129,
+          "y": 100,
+          "heuristic": 213
+        },
+        {
+          "id": "Caen",
+          "label": "Caen",
+          "x": 109,
+          "y": 97,
+          "heuristic": 305
+        },
+        {
+          "id": "Argenteuil",
+          "label": "Argenteuil",
+          "x": 127,
+          "y": 99,
+          "heuristic": 208
+        },
+        {
+          "id": "Mulhouse",
+          "label": "Mulhouse",
+          "x": 163,
+          "y": 113,
+          "heuristic": 449
+        },
+        {
+          "id": "SaintPaul",
+          "label": "Saint-Paul",
+          "x": 500,
+          "y": 866,
+          "heuristic": 9462
+        },
+        {
+          "id": "Nancy",
+          "label": "Nancy",
+          "x": 155,
+          "y": 102,
+          "heuristic": 313
+        },
+        {
+          "id": "Tourcoing",
+          "label": "Tourcoing",
+          "x": 134,
+          "y": 80,
+          "heuristic": 0
+        },
+        {
+          "id": "Roubaix",
+          "label": "Roubaix",
+          "x": 134,
+          "y": 80,
+          "heuristic": 4
+        },
+        {
+          "id": "Nanterre",
+          "label": "Nanterre",
+          "x": 127,
+          "y": 100,
+          "heuristic": 215
+        },
+        {
+          "id": "VitrysurSeine",
+          "label": "Vitry-sur-Seine",
+          "x": 128,
+          "y": 101,
+          "heuristic": 222
+        },
+        {
+          "id": "Crteil",
+          "label": "Créteil",
+          "x": 129,
+          "y": 101,
+          "heuristic": 222
+        },
+        {
+          "id": "Nouma",
+          "label": "Nouméa",
+          "x": 1280,
+          "y": 880,
+          "heuristic": 16535
+        },
+        {
+          "id": "Avignon",
+          "label": "Avignon",
+          "x": 145,
+          "y": 154,
+          "heuristic": 763
+        },
+        {
+          "id": "Poitiers",
+          "label": "Poitiers",
+          "x": 114,
+          "y": 125,
+          "heuristic": 505
+        },
+        {
+          "id": "Aubervilliers",
+          "label": "Aubervilliers",
+          "x": 128,
+          "y": 100,
+          "heuristic": 209
+        }
+      ],
+      "edges": [
+        {
+          "id": "e-Tourcoing-Roubaix",
+          "source": "Tourcoing",
+          "target": "Roubaix",
+          "weight": 4
+        },
+        {
+          "id": "e-Lyon-Villeurbanne",
+          "source": "Lyon",
+          "target": "Villeurbanne",
+          "weight": 5
+        },
+        {
+          "id": "e-VitrysurSeine-Crteil",
+          "source": "VitrysurSeine",
+          "target": "Crteil",
+          "weight": 5
+        },
+        {
+          "id": "e-Paris-Montreuil",
+          "source": "Paris",
+          "target": "Montreuil",
+          "weight": 7
+        },
+        {
+          "id": "e-Paris-Aubervilliers",
+          "source": "Paris",
+          "target": "Aubervilliers",
+          "weight": 7
+        },
+        {
+          "id": "e-BoulogneBillancourt-Nanterre",
+          "source": "BoulogneBillancourt",
+          "target": "Nanterre",
+          "weight": 7
+        },
+        {
+          "id": "e-Argenteuil-Nanterre",
+          "source": "Argenteuil",
+          "target": "Nanterre",
+          "weight": 7
+        },
+        {
+          "id": "e-Paris-BoulogneBillancourt",
+          "source": "Paris",
+          "target": "BoulogneBillancourt",
+          "weight": 8
+        },
+        {
+          "id": "e-Paris-VitrysurSeine",
+          "source": "Paris",
+          "target": "VitrysurSeine",
+          "weight": 8
+        },
+        {
+          "id": "e-Lille-Roubaix",
+          "source": "Lille",
+          "target": "Roubaix",
+          "weight": 10
+        },
+        {
+          "id": "e-SaintDenis-SaintPaul",
+          "source": "SaintDenis",
+          "target": "SaintPaul",
+          "weight": 22
+        },
+        {
+          "id": "e-Marseille-AixenProvence",
+          "source": "Marseille",
+          "target": "AixenProvence",
+          "weight": 27
+        },
+        {
+          "id": "e-Nmes-Avignon",
+          "source": "Nmes",
+          "target": "Avignon",
+          "weight": 38
+        },
+        {
+          "id": "e-Montpellier-Nmes",
+          "source": "Montpellier",
+          "target": "Nmes",
+          "weight": 46
+        },
+        {
+          "id": "e-Metz-Nancy",
+          "source": "Metz",
+          "target": "Nancy",
+          "weight": 47
+        },
+        {
+          "id": "e-Marseille-Toulon",
+          "source": "Marseille",
+          "target": "Toulon",
+          "weight": 49
+        },
+        {
+          "id": "e-Lyon-Sainttienne",
+          "source": "Lyon",
+          "target": "Sainttienne",
+          "weight": 49
+        },
+        {
+          "id": "e-LeHavre-Caen",
+          "source": "LeHavre",
+          "target": "Caen",
+          "weight": 49
+        },
+        {
+          "id": "e-AixenProvence-Avignon",
+          "source": "AixenProvence",
+          "target": "Avignon",
+          "weight": 70
+        },
+        {
+          "id": "e-LeHavre-Rouen",
+          "source": "LeHavre",
+          "target": "Rouen",
+          "weight": 71
+        },
+        {
+          "id": "e-Dijon-Besanon",
+          "source": "Dijon",
+          "target": "Besanon",
+          "weight": 75
+        },
+        {
+          "id": "e-LeMans-Tours",
+          "source": "LeMans",
+          "target": "Tours",
+          "weight": 78
+        },
+        {
+          "id": "e-Nantes-Angers",
+          "source": "Nantes",
+          "target": "Angers",
+          "weight": 81
+        },
+        {
+          "id": "e-Angers-LeMans",
+          "source": "Angers",
+          "target": "LeMans",
+          "weight": 82
+        },
+        {
+          "id": "e-Grenoble-Annecy",
+          "source": "Grenoble",
+          "target": "Annecy",
+          "weight": 85
+        },
+        {
+          "id": "e-Grenoble-Villeurbanne",
+          "source": "Grenoble",
+          "target": "Villeurbanne",
+          "weight": 93
+        },
+        {
+          "id": "e-Tours-Poitiers",
+          "source": "Tours",
+          "target": "Poitiers",
+          "weight": 94
+        },
+        {
+          "id": "e-Strasbourg-Mulhouse",
+          "source": "Strasbourg",
+          "target": "Mulhouse",
+          "weight": 98
+        },
+        {
+          "id": "e-Lille-Amiens",
+          "source": "Lille",
+          "target": "Amiens",
+          "weight": 99
+        },
+        {
+          "id": "e-Nantes-Rennes",
+          "source": "Nantes",
+          "target": "Rennes",
+          "weight": 100
+        },
+        {
+          "id": "e-Amiens-Rouen",
+          "source": "Amiens",
+          "target": "Rouen",
+          "weight": 100
+        },
+        {
+          "id": "e-Rouen-Argenteuil",
+          "source": "Rouen",
+          "target": "Argenteuil",
+          "weight": 100
+        },
+        {
+          "id": "e-Orlans-VitrysurSeine",
+          "source": "Orlans",
+          "target": "VitrysurSeine",
+          "weight": 105
+        },
+        {
+          "id": "e-Sainttienne-ClermontFerrand",
+          "source": "Sainttienne",
+          "target": "ClermontFerrand",
+          "weight": 108
+        },
+        {
+          "id": "e-Tours-Orlans",
+          "source": "Tours",
+          "target": "Orlans",
+          "weight": 108
+        },
+        {
+          "id": "e-Limoges-Poitiers",
+          "source": "Limoges",
+          "target": "Poitiers",
+          "weight": 109
+        },
+        {
+          "id": "e-Besanon-Mulhouse",
+          "source": "Besanon",
+          "target": "Mulhouse",
+          "weight": 114
+        },
+        {
+          "id": "e-Strasbourg-Nancy",
+          "source": "Strasbourg",
+          "target": "Nancy",
+          "weight": 116
+        },
+        {
+          "id": "e-Reims-Montreuil",
+          "source": "Reims",
+          "target": "Montreuil",
+          "weight": 124
+        },
+        {
+          "id": "e-Nice-Toulon",
+          "source": "Nice",
+          "target": "Toulon",
+          "weight": 126
+        },
+        {
+          "id": "e-Montpellier-Perpignan",
+          "source": "Montpellier",
+          "target": "Perpignan",
+          "weight": 129
+        },
+        {
+          "id": "e-ClermontFerrand-Limoges",
+          "source": "ClermontFerrand",
+          "target": "Limoges",
+          "weight": 141
+        },
+        {
+          "id": "e-Annecy-Besanon",
+          "source": "Annecy",
+          "target": "Besanon",
+          "weight": 149
+        },
+        {
+          "id": "e-Toulouse-Perpignan",
+          "source": "Toulouse",
+          "target": "Perpignan",
+          "weight": 155
+        },
+        {
+          "id": "e-Grenoble-Avignon",
+          "source": "Grenoble",
+          "target": "Avignon",
+          "weight": 156
+        },
+        {
+          "id": "e-Bordeaux-Limoges",
+          "source": "Bordeaux",
+          "target": "Limoges",
+          "weight": 182
+        },
+        {
+          "id": "e-Rennes-Brest",
+          "source": "Rennes",
+          "target": "Brest",
+          "weight": 210
+        },
+        {
+          "id": "e-Nice-SaintDenis",
+          "source": "Nice",
+          "target": "SaintDenis",
+          "weight": 8698
+        },
+        {
+          "id": "e-SaintDenis-Nouma",
+          "source": "SaintDenis",
+          "target": "Nouma",
+          "weight": 11126
+        },
+        {
+          "id": "e-Montreuil-Aubervilliers",
+          "source": "Montreuil",
+          "target": "Aubervilliers",
+          "weight": 7
+        },
+        {
+          "id": "e-Montreuil-Crteil",
+          "source": "Montreuil",
+          "target": "Crteil",
+          "weight": 10
+        },
+        {
+          "id": "e-Argenteuil-Aubervilliers",
+          "source": "Argenteuil",
+          "target": "Aubervilliers",
+          "weight": 10
+        },
+        {
+          "id": "e-Paris-Nanterre",
+          "source": "Paris",
+          "target": "Nanterre",
+          "weight": 11
+        },
+        {
+          "id": "e-Paris-Crteil",
+          "source": "Paris",
+          "target": "Crteil",
+          "weight": 11
+        },
+        {
+          "id": "e-Lille-Tourcoing",
+          "source": "Lille",
+          "target": "Tourcoing",
+          "weight": 12
+        },
+        {
+          "id": "e-BoulogneBillancourt-Argenteuil",
+          "source": "BoulogneBillancourt",
+          "target": "Argenteuil",
+          "weight": 12
+        },
+        {
+          "id": "e-Sainttienne-Villeurbanne",
+          "source": "Sainttienne",
+          "target": "Villeurbanne",
+          "weight": 54
+        },
+        {
+          "id": "e-Toulon-AixenProvence",
+          "source": "Toulon",
+          "target": "AixenProvence",
+          "weight": 60
+        },
+        {
+          "id": "e-Montpellier-Avignon",
+          "source": "Montpellier",
+          "target": "Avignon",
+          "weight": 84
+        },
+        {
+          "id": "e-Marseille-Avignon",
+          "source": "Marseille",
+          "target": "Avignon",
+          "weight": 86
+        },
+        {
+          "id": "e-Angers-Tours",
+          "source": "Angers",
+          "target": "Tours",
+          "weight": 94
+        },
+        {
+          "id": "e-Nmes-AixenProvence",
+          "source": "Nmes",
+          "target": "AixenProvence",
+          "weight": 94
+        },
+        {
+          "id": "e-Lyon-Grenoble",
+          "source": "Lyon",
+          "target": "Grenoble",
+          "weight": 95
+        },
+        {
+          "id": "e-Villeurbanne-Annecy",
+          "source": "Villeurbanne",
+          "target": "Annecy",
+          "weight": 97
+        },
+        {
+          "id": "e-Amiens-Argenteuil",
+          "source": "Amiens",
+          "target": "Argenteuil",
+          "weight": 105
+        },
+        {
+          "id": "e-Orlans-Crteil",
+          "source": "Orlans",
+          "target": "Crteil",
+          "weight": 105
+        },
+        {
+          "id": "e-Amiens-Roubaix",
+          "source": "Amiens",
+          "target": "Roubaix",
+          "weight": 108
+        },
+        {
+          "id": "e-Rennes-Angers",
+          "source": "Rennes",
+          "target": "Angers",
+          "weight": 110
+        },
+        {
+          "id": "e-Rouen-Caen",
+          "source": "Rouen",
+          "target": "Caen",
+          "weight": 110
+        },
+        {
+          "id": "e-Amiens-Tourcoing",
+          "source": "Amiens",
+          "target": "Tourcoing",
+          "weight": 111
+        },
+        {
+          "id": "e-Angers-Poitiers",
+          "source": "Angers",
+          "target": "Poitiers",
+          "weight": 120
+        },
+        {
+          "id": "e-Reims-Aubervilliers",
+          "source": "Reims",
+          "target": "Aubervilliers",
+          "weight": 126
+        },
+        {
+          "id": "e-Reims-Crteil",
+          "source": "Reims",
+          "target": "Crteil",
+          "weight": 127
+        },
+        {
+          "id": "e-LeMans-Orlans",
+          "source": "LeMans",
+          "target": "Orlans",
+          "weight": 128
+        },
+        {
+          "id": "e-Strasbourg-Metz",
+          "source": "Strasbourg",
+          "target": "Metz",
+          "weight": 130
+        },
+        {
+          "id": "e-Lyon-ClermontFerrand",
+          "source": "Lyon",
+          "target": "ClermontFerrand",
+          "weight": 136
+        },
+        {
+          "id": "e-Mulhouse-Nancy",
+          "source": "Mulhouse",
+          "target": "Nancy",
+          "weight": 136
+        },
+        {
+          "id": "e-LeMans-Caen",
+          "source": "LeMans",
+          "target": "Caen",
+          "weight": 137
+        },
+        {
+          "id": "e-Nice-AixenProvence",
+          "source": "Nice",
+          "target": "AixenProvence",
+          "weight": 148
+        },
+        {
+          "id": "e-Reims-Metz",
+          "source": "Reims",
+          "target": "Metz",
+          "weight": 157
+        },
+        {
+          "id": "e-Nantes-LeMans",
+          "source": "Nantes",
+          "target": "LeMans",
+          "weight": 158
+        },
+        {
+          "id": "e-LeHavre-Amiens",
+          "source": "LeHavre",
+          "target": "Amiens",
+          "weight": 164
+        },
+        {
+          "id": "e-Dijon-Villeurbanne",
+          "source": "Dijon",
+          "target": "Villeurbanne",
+          "weight": 173
+        },
+        {
+          "id": "e-Nmes-Perpignan",
+          "source": "Nmes",
+          "target": "Perpignan",
+          "weight": 173
+        },
+        {
+          "id": "e-Lyon-Dijon",
+          "source": "Lyon",
+          "target": "Dijon",
+          "weight": 175
+        },
+        {
+          "id": "e-Toulouse-Montpellier",
+          "source": "Toulouse",
+          "target": "Montpellier",
+          "weight": 196
+        },
+        {
+          "id": "e-Bordeaux-Poitiers",
+          "source": "Bordeaux",
+          "target": "Poitiers",
+          "weight": 206
+        },
+        {
+          "id": "e-Toulouse-Bordeaux",
+          "source": "Toulouse",
+          "target": "Bordeaux",
+          "weight": 212
+        }
+      ]
+    },
+    "startNode": "Nouma",
+    "goalNode": "Tourcoing",
+    "useHeuristic": true
+  }
+}

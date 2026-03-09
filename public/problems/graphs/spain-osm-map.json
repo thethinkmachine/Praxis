@@ -1,0 +1,912 @@
+{
+  "category": "graph",
+  "name": "Spain OSM Mesh",
+  "description": "High-fidelity city mesh for Spain generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+  "tags": [
+    "osm",
+    "real-world",
+    "detailed"
+  ],
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        {
+          "id": "Madrid",
+          "label": "Madrid",
+          "x": 877,
+          "y": 242,
+          "heuristic": 384
+        },
+        {
+          "id": "Barcelona",
+          "label": "Barcelona",
+          "x": 1250,
+          "y": 192,
+          "heuristic": 686
+        },
+        {
+          "id": "Valencia",
+          "label": "Valencia",
+          "x": 1088,
+          "y": 291,
+          "heuristic": 631
+        },
+        {
+          "id": "Seville",
+          "label": "Seville",
+          "x": 731,
+          "y": 399,
+          "heuristic": 685
+        },
+        {
+          "id": "Zaragoza",
+          "label": "Zaragoza",
+          "x": 1056,
+          "y": 178,
+          "heuristic": 444
+        },
+        {
+          "id": "Mlaga",
+          "label": "Málaga",
+          "x": 831,
+          "y": 434,
+          "heuristic": 766
+        },
+        {
+          "id": "Bilbao",
+          "label": "Bilbao",
+          "x": 925,
+          "y": 95,
+          "heuristic": 223
+        },
+        {
+          "id": "Alicante",
+          "label": "Alicante",
+          "x": 1081,
+          "y": 350,
+          "heuristic": 723
+        },
+        {
+          "id": "PalmadeMallorca",
+          "label": "Palma de Mallorca",
+          "x": 1280,
+          "y": 286,
+          "heuristic": 820
+        },
+        {
+          "id": "LasPalmas",
+          "label": "Las Palmas",
+          "x": 132,
+          "y": 880,
+          "heuristic": 1924
+        },
+        {
+          "id": "Valladolid",
+          "label": "Valladolid",
+          "x": 812,
+          "y": 178,
+          "heuristic": 224
+        },
+        {
+          "id": "Crdoba",
+          "label": "Córdoba",
+          "x": 809,
+          "y": 374,
+          "heuristic": 634
+        },
+        {
+          "id": "lHospitaletdeLlobregat",
+          "label": "l'Hospitalet de Llobregat",
+          "x": 1245,
+          "y": 193,
+          "heuristic": 681
+        },
+        {
+          "id": "Gijn",
+          "label": "Gijón",
+          "x": 752,
+          "y": 80,
+          "heuristic": 0
+        },
+        {
+          "id": "VitoriaGasteiz",
+          "label": "Vitoria-Gasteiz",
+          "x": 942,
+          "y": 116,
+          "heuristic": 255
+        },
+        {
+          "id": "Granada",
+          "label": "Granada",
+          "x": 883,
+          "y": 411,
+          "heuristic": 730
+        },
+        {
+          "id": "Badalona",
+          "label": "Badalona",
+          "x": 1254,
+          "y": 189,
+          "heuristic": 689
+        },
+        {
+          "id": "Terrassa",
+          "label": "Terrassa",
+          "x": 1239,
+          "y": 183,
+          "heuristic": 666
+        },
+        {
+          "id": "Cartagena",
+          "label": "Cartagena",
+          "x": 1049,
+          "y": 388,
+          "heuristic": 768
+        },
+        {
+          "id": "ACorua",
+          "label": "A Coruña",
+          "x": 579,
+          "y": 89,
+          "heuristic": 221
+        },
+        {
+          "id": "Pamplona",
+          "label": "Pamplona",
+          "x": 1007,
+          "y": 118,
+          "heuristic": 336
+        },
+        {
+          "id": "Vigo",
+          "label": "Vigo",
+          "x": 558,
+          "y": 148,
+          "heuristic": 289
+        },
+        {
+          "id": "Mstoles",
+          "label": "Móstoles",
+          "x": 866,
+          "y": 247,
+          "heuristic": 388
+        },
+        {
+          "id": "Sabadell",
+          "label": "Sabadell",
+          "x": 1246,
+          "y": 184,
+          "heuristic": 675
+        },
+        {
+          "id": "AlcaldeHenares",
+          "label": "Alcalá de Henares",
+          "x": 898,
+          "y": 239,
+          "heuristic": 390
+        },
+        {
+          "id": "ElxElche",
+          "label": "Elx / Elche",
+          "x": 1067,
+          "y": 354,
+          "heuristic": 720
+        },
+        {
+          "id": "Jerez",
+          "label": "Jerez",
+          "x": 722,
+          "y": 436,
+          "heuristic": 764
+        },
+        {
+          "id": "OviedoUviu",
+          "label": "Oviedo / Uviéu",
+          "x": 740,
+          "y": 90,
+          "heuristic": 25
+        },
+        {
+          "id": "DonostiaSanSebastin",
+          "label": "Donostia / San Sebastián",
+          "x": 986,
+          "y": 92,
+          "heuristic": 298
+        },
+        {
+          "id": "Legans",
+          "label": "Leganés",
+          "x": 873,
+          "y": 247,
+          "heuristic": 391
+        },
+        {
+          "id": "Burgos",
+          "label": "Burgos",
+          "x": 877,
+          "y": 142,
+          "heuristic": 208
+        },
+        {
+          "id": "Alcorcn",
+          "label": "Alcorcón",
+          "x": 869,
+          "y": 246,
+          "heuristic": 386
+        },
+        {
+          "id": "Almeria",
+          "label": "Almeria",
+          "x": 955,
+          "y": 428,
+          "heuristic": 793
+        },
+        {
+          "id": "Albacete",
+          "label": "Albacete",
+          "x": 994,
+          "y": 316,
+          "heuristic": 597
+        },
+        {
+          "id": "Fuenlabrada",
+          "label": "Fuenlabrada",
+          "x": 871,
+          "y": 249,
+          "heuristic": 394
+        },
+        {
+          "id": "Getafe",
+          "label": "Getafe",
+          "x": 875,
+          "y": 248,
+          "heuristic": 394
+        },
+        {
+          "id": "CastelldelaPlana",
+          "label": "Castelló de la Plana",
+          "x": 1109,
+          "y": 265,
+          "heuristic": 612
+        },
+        {
+          "id": "Logroo",
+          "label": "Logroño",
+          "x": 957,
+          "y": 136,
+          "heuristic": 288
+        },
+        {
+          "id": "SantaCruzdeTenerife",
+          "label": "Santa Cruz de Tenerife",
+          "x": 80,
+          "y": 862,
+          "heuristic": 1924
+        },
+        {
+          "id": "Salamanca",
+          "label": "Salamanca",
+          "x": 752,
+          "y": 214,
+          "heuristic": 287
+        },
+        {
+          "id": "Huelva",
+          "label": "Huelva",
+          "x": 671,
+          "y": 406,
+          "heuristic": 708
+        },
+        {
+          "id": "TorrejndeArdoz",
+          "label": "Torrejón de Ardoz",
+          "x": 891,
+          "y": 240,
+          "heuristic": 388
+        },
+        {
+          "id": "Lleida",
+          "label": "Lleida",
+          "x": 1152,
+          "y": 180,
+          "heuristic": 558
+        },
+        {
+          "id": "Parla",
+          "label": "Parla",
+          "x": 872,
+          "y": 252,
+          "heuristic": 400
+        },
+        {
+          "id": "Matar",
+          "label": "Mataró",
+          "x": 1267,
+          "y": 184,
+          "heuristic": 700
+        },
+        {
+          "id": "Santander",
+          "label": "Santander",
+          "x": 870,
+          "y": 84,
+          "heuristic": 150
+        },
+        {
+          "id": "Badajoz",
+          "label": "Badajoz",
+          "x": 669,
+          "y": 322,
+          "heuristic": 530
+        },
+        {
+          "id": "Algeciras",
+          "label": "Algeciras",
+          "x": 766,
+          "y": 465,
+          "heuristic": 825
+        },
+        {
+          "id": "Alcobendas",
+          "label": "Alcobendas",
+          "x": 881,
+          "y": 236,
+          "heuristic": 374
+        },
+        {
+          "id": "SantaColomadeGramenet",
+          "label": "Santa Coloma de Gramenet",
+          "x": 1252,
+          "y": 189,
+          "heuristic": 686
+        }
+      ],
+      "edges": [
+        {
+          "id": "e-Badalona-SantaColomadeGramenet",
+          "source": "Badalona",
+          "target": "SantaColomadeGramenet",
+          "weight": 3
+        },
+        {
+          "id": "e-Mstoles-Alcorcn",
+          "source": "Mstoles",
+          "target": "Alcorcn",
+          "weight": 4
+        },
+        {
+          "id": "e-Legans-Getafe",
+          "source": "Legans",
+          "target": "Getafe",
+          "weight": 4
+        },
+        {
+          "id": "e-Fuenlabrada-Parla",
+          "source": "Fuenlabrada",
+          "target": "Parla",
+          "weight": 5
+        },
+        {
+          "id": "e-Legans-Alcorcn",
+          "source": "Legans",
+          "target": "Alcorcn",
+          "weight": 6
+        },
+        {
+          "id": "e-Legans-Fuenlabrada",
+          "source": "Legans",
+          "target": "Fuenlabrada",
+          "weight": 6
+        },
+        {
+          "id": "e-Barcelona-lHospitaletdeLlobregat",
+          "source": "Barcelona",
+          "target": "lHospitaletdeLlobregat",
+          "weight": 7
+        },
+        {
+          "id": "e-Barcelona-SantaColomadeGramenet",
+          "source": "Barcelona",
+          "target": "SantaColomadeGramenet",
+          "weight": 8
+        },
+        {
+          "id": "e-Terrassa-Sabadell",
+          "source": "Terrassa",
+          "target": "Sabadell",
+          "weight": 9
+        },
+        {
+          "id": "e-AlcaldeHenares-TorrejndeArdoz",
+          "source": "AlcaldeHenares",
+          "target": "TorrejndeArdoz",
+          "weight": 10
+        },
+        {
+          "id": "e-Madrid-Legans",
+          "source": "Madrid",
+          "target": "Legans",
+          "weight": 11
+        },
+        {
+          "id": "e-Sabadell-SantaColomadeGramenet",
+          "source": "Sabadell",
+          "target": "SantaColomadeGramenet",
+          "weight": 13
+        },
+        {
+          "id": "e-Madrid-Alcobendas",
+          "source": "Madrid",
+          "target": "Alcobendas",
+          "weight": 15
+        },
+        {
+          "id": "e-TorrejndeArdoz-Alcobendas",
+          "source": "TorrejndeArdoz",
+          "target": "Alcobendas",
+          "weight": 16
+        },
+        {
+          "id": "e-Badalona-Matar",
+          "source": "Badalona",
+          "target": "Matar",
+          "weight": 19
+        },
+        {
+          "id": "e-Alicante-ElxElche",
+          "source": "Alicante",
+          "target": "ElxElche",
+          "weight": 20
+        },
+        {
+          "id": "e-Gijn-OviedoUviu",
+          "source": "Gijn",
+          "target": "OviedoUviu",
+          "weight": 25
+        },
+        {
+          "id": "e-VitoriaGasteiz-Logroo",
+          "source": "VitoriaGasteiz",
+          "target": "Logroo",
+          "weight": 46
+        },
+        {
+          "id": "e-Bilbao-VitoriaGasteiz",
+          "source": "Bilbao",
+          "target": "VitoriaGasteiz",
+          "weight": 51
+        },
+        {
+          "id": "e-Pamplona-DonostiaSanSebastin",
+          "source": "Pamplona",
+          "target": "DonostiaSanSebastin",
+          "weight": 62
+        },
+        {
+          "id": "e-Valencia-CastelldelaPlana",
+          "source": "Valencia",
+          "target": "CastelldelaPlana",
+          "weight": 64
+        },
+        {
+          "id": "e-Bilbao-Santander",
+          "source": "Bilbao",
+          "target": "Santander",
+          "weight": 74
+        },
+        {
+          "id": "e-Pamplona-Logroo",
+          "source": "Pamplona",
+          "target": "Logroo",
+          "weight": 76
+        },
+        {
+          "id": "e-Cartagena-ElxElche",
+          "source": "Cartagena",
+          "target": "ElxElche",
+          "weight": 77
+        },
+        {
+          "id": "e-Seville-Jerez",
+          "source": "Seville",
+          "target": "Jerez",
+          "weight": 80
+        },
+        {
+          "id": "e-Seville-Huelva",
+          "source": "Seville",
+          "target": "Huelva",
+          "weight": 86
+        },
+        {
+          "id": "e-Jerez-Algeciras",
+          "source": "Jerez",
+          "target": "Algeciras",
+          "weight": 87
+        },
+        {
+          "id": "e-LasPalmas-SantaCruzdeTenerife",
+          "source": "LasPalmas",
+          "target": "SantaCruzdeTenerife",
+          "weight": 88
+        },
+        {
+          "id": "e-Mlaga-Granada",
+          "source": "Mlaga",
+          "target": "Granada",
+          "weight": 89
+        },
+        {
+          "id": "e-VitoriaGasteiz-Burgos",
+          "source": "VitoriaGasteiz",
+          "target": "Burgos",
+          "weight": 101
+        },
+        {
+          "id": "e-Granada-Almeria",
+          "source": "Granada",
+          "target": "Almeria",
+          "weight": 107
+        },
+        {
+          "id": "e-Valladolid-Salamanca",
+          "source": "Valladolid",
+          "target": "Salamanca",
+          "weight": 109
+        },
+        {
+          "id": "e-Mlaga-Algeciras",
+          "source": "Mlaga",
+          "target": "Algeciras",
+          "weight": 113
+        },
+        {
+          "id": "e-Valladolid-Burgos",
+          "source": "Valladolid",
+          "target": "Burgos",
+          "weight": 115
+        },
+        {
+          "id": "e-Terrassa-Lleida",
+          "source": "Terrassa",
+          "target": "Lleida",
+          "weight": 115
+        },
+        {
+          "id": "e-Seville-Crdoba",
+          "source": "Seville",
+          "target": "Crdoba",
+          "weight": 121
+        },
+        {
+          "id": "e-Zaragoza-Lleida",
+          "source": "Zaragoza",
+          "target": "Lleida",
+          "weight": 125
+        },
+        {
+          "id": "e-Valencia-Alicante",
+          "source": "Valencia",
+          "target": "Alicante",
+          "weight": 126
+        },
+        {
+          "id": "e-ACorua-Vigo",
+          "source": "ACorua",
+          "target": "Vigo",
+          "weight": 129
+        },
+        {
+          "id": "e-ElxElche-Albacete",
+          "source": "ElxElche",
+          "target": "Albacete",
+          "weight": 129
+        },
+        {
+          "id": "e-Zaragoza-Pamplona",
+          "source": "Zaragoza",
+          "target": "Pamplona",
+          "weight": 144
+        },
+        {
+          "id": "e-Gijn-Santander",
+          "source": "Gijn",
+          "target": "Santander",
+          "weight": 150
+        },
+        {
+          "id": "e-Valladolid-Alcobendas",
+          "source": "Valladolid",
+          "target": "Alcobendas",
+          "weight": 154
+        },
+        {
+          "id": "e-Cartagena-Almeria",
+          "source": "Cartagena",
+          "target": "Almeria",
+          "weight": 156
+        },
+        {
+          "id": "e-Huelva-Badajoz",
+          "source": "Huelva",
+          "target": "Badajoz",
+          "weight": 180
+        },
+        {
+          "id": "e-CastelldelaPlana-Lleida",
+          "source": "CastelldelaPlana",
+          "target": "Lleida",
+          "weight": 190
+        },
+        {
+          "id": "e-PalmadeMallorca-lHospitaletdeLlobregat",
+          "source": "PalmadeMallorca",
+          "target": "lHospitaletdeLlobregat",
+          "weight": 204
+        },
+        {
+          "id": "e-ACorua-OviedoUviu",
+          "source": "ACorua",
+          "target": "OviedoUviu",
+          "weight": 206
+        },
+        {
+          "id": "e-LasPalmas-Huelva",
+          "source": "LasPalmas",
+          "target": "Huelva",
+          "weight": 1288
+        },
+        {
+          "id": "e-Fuenlabrada-Getafe",
+          "source": "Fuenlabrada",
+          "target": "Getafe",
+          "weight": 6
+        },
+        {
+          "id": "e-Mstoles-Legans",
+          "source": "Mstoles",
+          "target": "Legans",
+          "weight": 8
+        },
+        {
+          "id": "e-Mstoles-Fuenlabrada",
+          "source": "Mstoles",
+          "target": "Fuenlabrada",
+          "weight": 8
+        },
+        {
+          "id": "e-Alcorcn-Fuenlabrada",
+          "source": "Alcorcn",
+          "target": "Fuenlabrada",
+          "weight": 8
+        },
+        {
+          "id": "e-Getafe-Parla",
+          "source": "Getafe",
+          "target": "Parla",
+          "weight": 8
+        },
+        {
+          "id": "e-Barcelona-Badalona",
+          "source": "Barcelona",
+          "target": "Badalona",
+          "weight": 10
+        },
+        {
+          "id": "e-Legans-Parla",
+          "source": "Legans",
+          "target": "Parla",
+          "weight": 10
+        },
+        {
+          "id": "e-Madrid-Getafe",
+          "source": "Madrid",
+          "target": "Getafe",
+          "weight": 12
+        },
+        {
+          "id": "e-lHospitaletdeLlobregat-SantaColomadeGramenet",
+          "source": "lHospitaletdeLlobregat",
+          "target": "SantaColomadeGramenet",
+          "weight": 14
+        },
+        {
+          "id": "e-Badalona-Sabadell",
+          "source": "Badalona",
+          "target": "Sabadell",
+          "weight": 15
+        },
+        {
+          "id": "e-Madrid-TorrejndeArdoz",
+          "source": "Madrid",
+          "target": "TorrejndeArdoz",
+          "weight": 20
+        },
+        {
+          "id": "e-Terrassa-SantaColomadeGramenet",
+          "source": "Terrassa",
+          "target": "SantaColomadeGramenet",
+          "weight": 21
+        },
+        {
+          "id": "e-Matar-SantaColomadeGramenet",
+          "source": "Matar",
+          "target": "SantaColomadeGramenet",
+          "weight": 22
+        },
+        {
+          "id": "e-AlcaldeHenares-Alcobendas",
+          "source": "AlcaldeHenares",
+          "target": "Alcobendas",
+          "weight": 24
+        },
+        {
+          "id": "e-Barcelona-Matar",
+          "source": "Barcelona",
+          "target": "Matar",
+          "weight": 28
+        },
+        {
+          "id": "e-Madrid-AlcaldeHenares",
+          "source": "Madrid",
+          "target": "AlcaldeHenares",
+          "weight": 30
+        },
+        {
+          "id": "e-Bilbao-DonostiaSanSebastin",
+          "source": "Bilbao",
+          "target": "DonostiaSanSebastin",
+          "weight": 77
+        },
+        {
+          "id": "e-VitoriaGasteiz-DonostiaSanSebastin",
+          "source": "VitoriaGasteiz",
+          "target": "DonostiaSanSebastin",
+          "weight": 77
+        },
+        {
+          "id": "e-Alicante-Cartagena",
+          "source": "Alicante",
+          "target": "Cartagena",
+          "weight": 92
+        },
+        {
+          "id": "e-Jerez-Huelva",
+          "source": "Jerez",
+          "target": "Huelva",
+          "weight": 96
+        },
+        {
+          "id": "e-Bilbao-Logroo",
+          "source": "Bilbao",
+          "target": "Logroo",
+          "weight": 97
+        },
+        {
+          "id": "e-Burgos-Logroo",
+          "source": "Burgos",
+          "target": "Logroo",
+          "weight": 104
+        },
+        {
+          "id": "e-VitoriaGasteiz-Santander",
+          "source": "VitoriaGasteiz",
+          "target": "Santander",
+          "weight": 115
+        },
+        {
+          "id": "e-Crdoba-Granada",
+          "source": "Crdoba",
+          "target": "Granada",
+          "weight": 130
+        },
+        {
+          "id": "e-Mlaga-Crdoba",
+          "source": "Mlaga",
+          "target": "Crdoba",
+          "weight": 133
+        },
+        {
+          "id": "e-Valencia-ElxElche",
+          "source": "Valencia",
+          "target": "ElxElche",
+          "weight": 137
+        },
+        {
+          "id": "e-Valencia-Albacete",
+          "source": "Valencia",
+          "target": "Albacete",
+          "weight": 138
+        },
+        {
+          "id": "e-Alicante-Albacete",
+          "source": "Alicante",
+          "target": "Albacete",
+          "weight": 139
+        },
+        {
+          "id": "e-Seville-Algeciras",
+          "source": "Seville",
+          "target": "Algeciras",
+          "weight": 148
+        },
+        {
+          "id": "e-Zaragoza-Logroo",
+          "source": "Zaragoza",
+          "target": "Logroo",
+          "weight": 157
+        },
+        {
+          "id": "e-OviedoUviu-Santander",
+          "source": "OviedoUviu",
+          "target": "Santander",
+          "weight": 165
+        },
+        {
+          "id": "e-Mstoles-Salamanca",
+          "source": "Mstoles",
+          "target": "Salamanca",
+          "weight": 168
+        },
+        {
+          "id": "e-Alcorcn-Salamanca",
+          "source": "Alcorcn",
+          "target": "Salamanca",
+          "weight": 169
+        },
+        {
+          "id": "e-Mlaga-Almeria",
+          "source": "Mlaga",
+          "target": "Almeria",
+          "weight": 175
+        },
+        {
+          "id": "e-Seville-Badajoz",
+          "source": "Seville",
+          "target": "Badajoz",
+          "weight": 186
+        },
+        {
+          "id": "e-Alicante-CastelldelaPlana",
+          "source": "Alicante",
+          "target": "CastelldelaPlana",
+          "weight": 187
+        },
+        {
+          "id": "e-Barcelona-PalmadeMallorca",
+          "source": "Barcelona",
+          "target": "PalmadeMallorca",
+          "weight": 206
+        },
+        {
+          "id": "e-Gijn-Burgos",
+          "source": "Gijn",
+          "target": "Burgos",
+          "weight": 208
+        },
+        {
+          "id": "e-PalmadeMallorca-Badalona",
+          "source": "PalmadeMallorca",
+          "target": "Badalona",
+          "weight": 212
+        },
+        {
+          "id": "e-Crdoba-Badajoz",
+          "source": "Crdoba",
+          "target": "Badajoz",
+          "weight": 221
+        },
+        {
+          "id": "e-Gijn-ACorua",
+          "source": "Gijn",
+          "target": "ACorua",
+          "weight": 221
+        }
+      ]
+    },
+    "startNode": "LasPalmas",
+    "goalNode": "Gijn",
+    "useHeuristic": true
+  }
+}

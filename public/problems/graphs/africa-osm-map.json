@@ -1,0 +1,1808 @@
+{
+  "category": "graph",
+  "name": "Africa OSM Mesh",
+  "description": "Detailed continental city mesh for Africa sourced from OpenStreetMap.",
+  "tags": [
+    "osm",
+    "africa",
+    "continent"
+  ],
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        {
+          "id": "Kinshasa",
+          "label": "Kinshasa",
+          "x": 649,
+          "y": 550,
+          "heuristic": 4783
+        },
+        {
+          "id": "Lagos",
+          "label": "Lagos",
+          "x": 442,
+          "y": 431,
+          "heuristic": 4061
+        },
+        {
+          "id": "Tehran",
+          "label": "Tehran",
+          "x": 1275,
+          "y": 105,
+          "heuristic": 2465
+        },
+        {
+          "id": "Cairo",
+          "label": "Cairo",
+          "x": 925,
+          "y": 168,
+          "heuristic": 1120
+        },
+        {
+          "id": "Abidjan",
+          "label": "Abidjan",
+          "x": 313,
+          "y": 443,
+          "heuristic": 4589
+        },
+        {
+          "id": "Baghdad",
+          "label": "Baghdad",
+          "x": 1154,
+          "y": 132,
+          "heuristic": 1933
+        },
+        {
+          "id": "DaresSalaam",
+          "label": "Dar es-Salaam",
+          "x": 1065,
+          "y": 578,
+          "heuristic": 5235
+        },
+        {
+          "id": "Riyadh",
+          "label": "Riyadh",
+          "x": 1194,
+          "y": 228,
+          "heuristic": 2627
+        },
+        {
+          "id": "Luanda",
+          "label": "Luanda",
+          "x": 613,
+          "y": 600,
+          "heuristic": 5317
+        },
+        {
+          "id": "Alexandria",
+          "label": "Alexandria",
+          "x": 902,
+          "y": 155,
+          "heuristic": 941
+        },
+        {
+          "id": "Johannesburg",
+          "label": "Johannesburg",
+          "x": 870,
+          "y": 794,
+          "heuristic": 7151
+        },
+        {
+          "id": "Amman",
+          "label": "Amman",
+          "x": 1007,
+          "y": 147,
+          "heuristic": 1295
+        },
+        {
+          "id": "CapeTown",
+          "label": "Cape Town",
+          "x": 703,
+          "y": 880,
+          "heuristic": 8014
+        },
+        {
+          "id": "AddisAbaba",
+          "label": "Addis Ababa",
+          "x": 1056,
+          "y": 402,
+          "heuristic": 3552
+        },
+        {
+          "id": "Durban",
+          "label": "Durban",
+          "x": 921,
+          "y": 834,
+          "heuristic": 7581
+        },
+        {
+          "id": "Jeddah",
+          "label": "Jeddah",
+          "x": 1063,
+          "y": 263,
+          "heuristic": 2350
+        },
+        {
+          "id": "Algiers",
+          "label": "Algiers",
+          "x": 436,
+          "y": 93,
+          "heuristic": 1828
+        },
+        {
+          "id": "Casablanca",
+          "label": "Casablanca",
+          "x": 251,
+          "y": 129,
+          "heuristic": 2856
+        },
+        {
+          "id": "Nairobi",
+          "label": "Nairobi",
+          "x": 1022,
+          "y": 517,
+          "heuristic": 4568
+        },
+        {
+          "id": "Maroua",
+          "label": "Maroua",
+          "x": 632,
+          "y": 384,
+          "heuristic": 3185
+        },
+        {
+          "id": "Athens",
+          "label": "Athens",
+          "x": 795,
+          "y": 80,
+          "heuristic": 0
+        },
+        {
+          "id": "Ibadan",
+          "label": "Ibadan",
+          "x": 451,
+          "y": 420,
+          "heuristic": 3945
+        },
+        {
+          "id": "Antalya",
+          "label": "Antalya",
+          "x": 916,
+          "y": 92,
+          "heuristic": 627
+        },
+        {
+          "id": "Khartoum",
+          "label": "Khartoum",
+          "x": 948,
+          "y": 329,
+          "heuristic": 2637
+        },
+        {
+          "id": "Giza",
+          "label": "Giza",
+          "x": 925,
+          "y": 169,
+          "heuristic": 1124
+        },
+        {
+          "id": "Mogadishu",
+          "label": "Mogadishu",
+          "x": 1170,
+          "y": 480,
+          "heuristic": 4563
+        },
+        {
+          "id": "Dakar",
+          "label": "Dakar",
+          "x": 80,
+          "y": 339,
+          "heuristic": 4795
+        },
+        {
+          "id": "Kano",
+          "label": "Kano",
+          "x": 531,
+          "y": 369,
+          "heuristic": 3260
+        },
+        {
+          "id": "Omdurman",
+          "label": "Omdurman",
+          "x": 947,
+          "y": 328,
+          "heuristic": 2627
+        },
+        {
+          "id": "Accra",
+          "label": "Accra",
+          "x": 379,
+          "y": 441,
+          "heuristic": 4341
+        },
+        {
+          "id": "Adana",
+          "label": "Adana",
+          "x": 996,
+          "y": 91,
+          "heuristic": 1028
+        },
+        {
+          "id": "Gaziantep",
+          "label": "Gaziantep",
+          "x": 1032,
+          "y": 90,
+          "heuristic": 1207
+        },
+        {
+          "id": "Konya",
+          "label": "Konya",
+          "x": 947,
+          "y": 81,
+          "heuristic": 768
+        },
+        {
+          "id": "Basra",
+          "label": "Basra",
+          "x": 1213,
+          "y": 163,
+          "heuristic": 2356
+        },
+        {
+          "id": "anlurfa",
+          "label": "Şanlıurfa",
+          "x": 1056,
+          "y": 89,
+          "heuristic": 1329
+        },
+        {
+          "id": "Aleppo",
+          "label": "Aleppo",
+          "x": 1028,
+          "y": 100,
+          "heuristic": 1206
+        },
+        {
+          "id": "Tripoli",
+          "label": "Tripoli",
+          "x": 612,
+          "y": 136,
+          "heuristic": 1110
+        },
+        {
+          "id": "Goma",
+          "label": "Goma",
+          "x": 890,
+          "y": 521,
+          "heuristic": 4444
+        },
+        {
+          "id": "Douala",
+          "label": "Douala",
+          "x": 551,
+          "y": 457,
+          "heuristic": 4033
+        },
+        {
+          "id": "Isfahan",
+          "label": "Isfahan",
+          "x": 1280,
+          "y": 139,
+          "heuristic": 2591
+        },
+        {
+          "id": "Hargeisa",
+          "label": "Hargeisa",
+          "x": 1148,
+          "y": 396,
+          "heuristic": 3757
+        },
+        {
+          "id": "Brazzaville",
+          "label": "Brazzaville",
+          "x": 648,
+          "y": 550,
+          "heuristic": 4778
+        },
+        {
+          "id": "Ouagadougou",
+          "label": "Ouagadougou",
+          "x": 356,
+          "y": 365,
+          "heuristic": 3791
+        },
+        {
+          "id": "Mosul",
+          "label": "Mosul",
+          "x": 1132,
+          "y": 98,
+          "heuristic": 1725
+        },
+        {
+          "id": "Meru",
+          "label": "Meru",
+          "x": 1037,
+          "y": 502,
+          "heuristic": 4451
+        },
+        {
+          "id": "Yaound",
+          "label": "Yaoundé",
+          "x": 583,
+          "y": 459,
+          "heuristic": 3990
+        },
+        {
+          "id": "Bamako",
+          "label": "Bamako",
+          "x": 244,
+          "y": 362,
+          "heuristic": 4216
+        },
+        {
+          "id": "Diyarbakr",
+          "label": "Diyarbakır",
+          "x": 1082,
+          "y": 81,
+          "heuristic": 1445
+        },
+        {
+          "id": "Mersin",
+          "label": "Mersin",
+          "x": 984,
+          "y": 93,
+          "heuristic": 971
+        },
+        {
+          "id": "Kigali",
+          "label": "Kigali",
+          "x": 906,
+          "y": 524,
+          "heuristic": 4488
+        },
+        {
+          "id": "Lusaka",
+          "label": "Lusaka",
+          "x": 874,
+          "y": 674,
+          "heuristic": 5956
+        },
+        {
+          "id": "Bamenda",
+          "label": "Bamenda",
+          "x": 559,
+          "y": 436,
+          "heuristic": 3815
+        },
+        {
+          "id": "AlHillah",
+          "label": "Al Hillah",
+          "x": 1154,
+          "y": 141,
+          "heuristic": 1972
+        },
+        {
+          "id": "Erbil",
+          "label": "Erbil",
+          "x": 1147,
+          "y": 100,
+          "heuristic": 1806
+        },
+        {
+          "id": "Karaj",
+          "label": "Karaj",
+          "x": 1268,
+          "y": 104,
+          "heuristic": 2427
+        },
+        {
+          "id": "Garoua",
+          "label": "Garoua",
+          "x": 615,
+          "y": 399,
+          "heuristic": 3352
+        },
+        {
+          "id": "MbujiMayi",
+          "label": "Mbuji-Mayi",
+          "x": 793,
+          "y": 570,
+          "heuristic": 4904
+        },
+        {
+          "id": "Conakry",
+          "label": "Conakry",
+          "x": 145,
+          "y": 396,
+          "heuristic": 4895
+        },
+        {
+          "id": "Rabat",
+          "label": "Rabat",
+          "x": 264,
+          "y": 124,
+          "heuristic": 2773
+        },
+        {
+          "id": "Harare",
+          "label": "Harare",
+          "x": 922,
+          "y": 701,
+          "heuristic": 6252
+        },
+        {
+          "id": "Hatay",
+          "label": "Hatay",
+          "x": 1011,
+          "y": 100,
+          "heuristic": 1119
+        },
+        {
+          "id": "Mecca",
+          "label": "Mecca",
+          "x": 1074,
+          "y": 264,
+          "heuristic": 2401
+        },
+        {
+          "id": "Sanaa",
+          "label": "Sana'a",
+          "x": 1150,
+          "y": 332,
+          "heuristic": 3219
+        },
+        {
+          "id": "Kumasi",
+          "label": "Kumasi",
+          "x": 355,
+          "y": 428,
+          "heuristic": 4315
+        },
+        {
+          "id": "Kampala",
+          "label": "Kampala",
+          "x": 949,
+          "y": 499,
+          "heuristic": 4284
+        },
+        {
+          "id": "Damascus",
+          "label": "Damascus",
+          "x": 1013,
+          "y": 130,
+          "heuristic": 1237
+        },
+        {
+          "id": "Antananarivo",
+          "label": "Antananarivo",
+          "x": 1208,
+          "y": 713,
+          "heuristic": 6796
+        },
+        {
+          "id": "PortHarcourt",
+          "label": "Port Harcourt",
+          "x": 505,
+          "y": 449,
+          "heuristic": 4063
+        },
+        {
+          "id": "Buea",
+          "label": "Buea",
+          "x": 543,
+          "y": 456,
+          "heuristic": 4038
+        },
+        {
+          "id": "Doha",
+          "label": "Doha",
+          "x": 1278,
+          "y": 221,
+          "heuristic": 2969
+        },
+        {
+          "id": "Mombasa",
+          "label": "Mombasa",
+          "x": 1072,
+          "y": 547,
+          "heuristic": 4954
+        },
+        {
+          "id": "Soweto",
+          "label": "Soweto",
+          "x": 867,
+          "y": 794,
+          "heuristic": 7152
+        },
+        {
+          "id": "Beirut",
+          "label": "Beirut",
+          "x": 999,
+          "y": 125,
+          "heuristic": 1149
+        },
+        {
+          "id": "Maputo",
+          "label": "Maputo",
+          "x": 948,
+          "y": 791,
+          "heuristic": 7169
+        },
+        {
+          "id": "AlNajaf",
+          "label": "Al-Najaf",
+          "x": 1153,
+          "y": 146,
+          "heuristic": 1985
+        },
+        {
+          "id": "Qazvin",
+          "label": "Qazvin",
+          "x": 1251,
+          "y": 99,
+          "heuristic": 2329
+        },
+        {
+          "id": "Maiduguri",
+          "label": "Maiduguri",
+          "x": 611,
+          "y": 371,
+          "heuristic": 3091
+        },
+        {
+          "id": "Ahwaz",
+          "label": "Ahwaz",
+          "x": 1228,
+          "y": 154,
+          "heuristic": 2390
+        },
+        {
+          "id": "Bahri",
+          "label": "Bahri",
+          "x": 948,
+          "y": 328,
+          "heuristic": 2629
+        },
+        {
+          "id": "Fez",
+          "label": "Fez",
+          "x": 296,
+          "y": 124,
+          "heuristic": 2612
+        },
+        {
+          "id": "BeninCity",
+          "label": "Benin City",
+          "x": 481,
+          "y": 432,
+          "heuristic": 3965
+        },
+        {
+          "id": "Lubumbashi",
+          "label": "Lubumbashi",
+          "x": 860,
+          "y": 632,
+          "heuristic": 5533
+        },
+        {
+          "id": "Aydin",
+          "label": "Aydin",
+          "x": 866,
+          "y": 81,
+          "heuristic": 361
+        },
+        {
+          "id": "Kahramanmara",
+          "label": "Kahramanmaraş",
+          "x": 1024,
+          "y": 84,
+          "heuristic": 1159
+        },
+        {
+          "id": "Mwanza",
+          "label": "Mwanza",
+          "x": 954,
+          "y": 530,
+          "heuristic": 4601
+        },
+        {
+          "id": "Medina",
+          "label": "Medina",
+          "x": 1071,
+          "y": 230,
+          "heuristic": 2123
+        },
+        {
+          "id": "NDjamena",
+          "label": "N'Djamena",
+          "x": 644,
+          "y": 368,
+          "heuristic": 3002
+        },
+        {
+          "id": "Onitsha",
+          "label": "Onitsha",
+          "x": 501,
+          "y": 434,
+          "heuristic": 3931
+        },
+        {
+          "id": "Qom",
+          "label": "Qom",
+          "x": 1266,
+          "y": 117,
+          "heuristic": 2452
+        },
+        {
+          "id": "Denizli",
+          "label": "Denizli",
+          "x": 888,
+          "y": 82,
+          "heuristic": 471
+        },
+        {
+          "id": "Gqeberha",
+          "label": "Gqeberha",
+          "x": 828,
+          "y": 880,
+          "heuristic": 8001
+        },
+        {
+          "id": "Ogbomosho",
+          "label": "Ogbomosho",
+          "x": 457,
+          "y": 412,
+          "heuristic": 3852
+        },
+        {
+          "id": "Niamey",
+          "label": "Niamey",
+          "x": 420,
+          "y": 352,
+          "heuristic": 3457
+        },
+        {
+          "id": "Aba",
+          "label": "Aba",
+          "x": 511,
+          "y": 445,
+          "heuristic": 4012
+        },
+        {
+          "id": "ShubraalKhayma",
+          "label": "Shubra al Khayma",
+          "x": 925,
+          "y": 167,
+          "heuristic": 1113
+        },
+        {
+          "id": "Monrovia",
+          "label": "Monrovia",
+          "x": 195,
+          "y": 432,
+          "heuristic": 4949
+        },
+        {
+          "id": "PointeNoire",
+          "label": "Pointe-Noire",
+          "x": 589,
+          "y": 556,
+          "heuristic": 4912
+        },
+        {
+          "id": "Marrakesh",
+          "label": "Marrakesh",
+          "x": 244,
+          "y": 151,
+          "heuristic": 2966
+        },
+        {
+          "id": "Sal",
+          "label": "Salé",
+          "x": 265,
+          "y": 124,
+          "heuristic": 2770
+        },
+        {
+          "id": "Blantyre",
+          "label": "Blantyre",
+          "x": 991,
+          "y": 678,
+          "heuristic": 6093
+        }
+      ],
+      "edges": [
+        {
+          "id": "e-Rabat-Sal",
+          "source": "Rabat",
+          "target": "Sal",
+          "weight": 4
+        },
+        {
+          "id": "e-Omdurman-Bahri",
+          "source": "Omdurman",
+          "target": "Bahri",
+          "weight": 6
+        },
+        {
+          "id": "e-Kinshasa-Brazzaville",
+          "source": "Kinshasa",
+          "target": "Brazzaville",
+          "weight": 7
+        },
+        {
+          "id": "e-Cairo-Giza",
+          "source": "Cairo",
+          "target": "Giza",
+          "weight": 7
+        },
+        {
+          "id": "e-Cairo-ShubraalKhayma",
+          "source": "Cairo",
+          "target": "ShubraalKhayma",
+          "weight": 9
+        },
+        {
+          "id": "e-Khartoum-Bahri",
+          "source": "Khartoum",
+          "target": "Bahri",
+          "weight": 9
+        },
+        {
+          "id": "e-Johannesburg-Soweto",
+          "source": "Johannesburg",
+          "target": "Soweto",
+          "weight": 16
+        },
+        {
+          "id": "e-Tehran-Karaj",
+          "source": "Tehran",
+          "target": "Karaj",
+          "weight": 39
+        },
+        {
+          "id": "e-Douala-Buea",
+          "source": "Douala",
+          "target": "Buea",
+          "weight": 54
+        },
+        {
+          "id": "e-AlHillah-AlNajaf",
+          "source": "AlHillah",
+          "target": "AlNajaf",
+          "weight": 54
+        },
+        {
+          "id": "e-PortHarcourt-Aba",
+          "source": "PortHarcourt",
+          "target": "Aba",
+          "weight": 54
+        },
+        {
+          "id": "e-Adana-Mersin",
+          "source": "Adana",
+          "target": "Mersin",
+          "weight": 65
+        },
+        {
+          "id": "e-Jeddah-Mecca",
+          "source": "Jeddah",
+          "target": "Mecca",
+          "weight": 69
+        },
+        {
+          "id": "e-Gaziantep-Kahramanmara",
+          "source": "Gaziantep",
+          "target": "Kahramanmara",
+          "weight": 70
+        },
+        {
+          "id": "e-Mosul-Erbil",
+          "source": "Mosul",
+          "target": "Erbil",
+          "weight": 81
+        },
+        {
+          "id": "e-Casablanca-Rabat",
+          "source": "Casablanca",
+          "target": "Rabat",
+          "weight": 86
+        },
+        {
+          "id": "e-Damascus-Beirut",
+          "source": "Damascus",
+          "target": "Beirut",
+          "weight": 88
+        },
+        {
+          "id": "e-Aleppo-Hatay",
+          "source": "Aleppo",
+          "target": "Hatay",
+          "weight": 90
+        },
+        {
+          "id": "e-Baghdad-AlHillah",
+          "source": "Baghdad",
+          "target": "AlHillah",
+          "weight": 92
+        },
+        {
+          "id": "e-Ibadan-Ogbomosho",
+          "source": "Ibadan",
+          "target": "Ogbomosho",
+          "weight": 92
+        },
+        {
+          "id": "e-Gaziantep-Aleppo",
+          "source": "Gaziantep",
+          "target": "Aleppo",
+          "weight": 98
+        },
+        {
+          "id": "e-Karaj-Qazvin",
+          "source": "Karaj",
+          "target": "Qazvin",
+          "weight": 102
+        },
+        {
+          "id": "e-Goma-Kigali",
+          "source": "Goma",
+          "target": "Kigali",
+          "weight": 104
+        },
+        {
+          "id": "e-Aydin-Denizli",
+          "source": "Aydin",
+          "target": "Denizli",
+          "weight": 110
+        },
+        {
+          "id": "e-Adana-Hatay",
+          "source": "Adana",
+          "target": "Hatay",
+          "weight": 115
+        },
+        {
+          "id": "e-Lagos-Ibadan",
+          "source": "Lagos",
+          "target": "Ibadan",
+          "weight": 117
+        },
+        {
+          "id": "e-Basra-Ahwaz",
+          "source": "Basra",
+          "target": "Ahwaz",
+          "weight": 124
+        },
+        {
+          "id": "e-Tehran-Qom",
+          "source": "Tehran",
+          "target": "Qom",
+          "weight": 125
+        },
+        {
+          "id": "e-Gaziantep-anlurfa",
+          "source": "Gaziantep",
+          "target": "anlurfa",
+          "weight": 126
+        },
+        {
+          "id": "e-Onitsha-Aba",
+          "source": "Onitsha",
+          "target": "Aba",
+          "weight": 131
+        },
+        {
+          "id": "e-BeninCity-Onitsha",
+          "source": "BeninCity",
+          "target": "Onitsha",
+          "weight": 132
+        },
+        {
+          "id": "e-anlurfa-Diyarbakr",
+          "source": "anlurfa",
+          "target": "Diyarbakr",
+          "weight": 153
+        },
+        {
+          "id": "e-Fez-Sal",
+          "source": "Fez",
+          "target": "Sal",
+          "weight": 166
+        },
+        {
+          "id": "e-Antalya-Denizli",
+          "source": "Antalya",
+          "target": "Denizli",
+          "weight": 173
+        },
+        {
+          "id": "e-Alexandria-ShubraalKhayma",
+          "source": "Alexandria",
+          "target": "ShubraalKhayma",
+          "weight": 175
+        },
+        {
+          "id": "e-Nairobi-Meru",
+          "source": "Nairobi",
+          "target": "Meru",
+          "weight": 175
+        },
+        {
+          "id": "e-Amman-Damascus",
+          "source": "Amman",
+          "target": "Damascus",
+          "weight": 177
+        },
+        {
+          "id": "e-Maroua-Garoua",
+          "source": "Maroua",
+          "target": "Garoua",
+          "weight": 177
+        },
+        {
+          "id": "e-Maroua-NDjamena",
+          "source": "Maroua",
+          "target": "NDjamena",
+          "weight": 186
+        },
+        {
+          "id": "e-Maroua-Maiduguri",
+          "source": "Maroua",
+          "target": "Maiduguri",
+          "weight": 188
+        },
+        {
+          "id": "e-Antalya-Konya",
+          "source": "Antalya",
+          "target": "Konya",
+          "weight": 192
+        },
+        {
+          "id": "e-Accra-Kumasi",
+          "source": "Accra",
+          "target": "Kumasi",
+          "weight": 202
+        },
+        {
+          "id": "e-Douala-Yaound",
+          "source": "Douala",
+          "target": "Yaound",
+          "weight": 202
+        },
+        {
+          "id": "e-Douala-Bamenda",
+          "source": "Douala",
+          "target": "Bamenda",
+          "weight": 219
+        },
+        {
+          "id": "e-Casablanca-Marrakesh",
+          "source": "Casablanca",
+          "target": "Marrakesh",
+          "weight": 222
+        },
+        {
+          "id": "e-Ibadan-BeninCity",
+          "source": "Ibadan",
+          "target": "BeninCity",
+          "weight": 223
+        },
+        {
+          "id": "e-Konya-Mersin",
+          "source": "Konya",
+          "target": "Mersin",
+          "weight": 224
+        },
+        {
+          "id": "e-Isfahan-Qom",
+          "source": "Isfahan",
+          "target": "Qom",
+          "weight": 231
+        },
+        {
+          "id": "e-Buea-Aba",
+          "source": "Buea",
+          "target": "Aba",
+          "weight": 233
+        },
+        {
+          "id": "e-Hatay-Beirut",
+          "source": "Hatay",
+          "target": "Beirut",
+          "weight": 264
+        },
+        {
+          "id": "e-Abidjan-Kumasi",
+          "source": "Abidjan",
+          "target": "Kumasi",
+          "weight": 306
+        },
+        {
+          "id": "e-DaresSalaam-Mombasa",
+          "source": "DaresSalaam",
+          "target": "Mombasa",
+          "weight": 310
+        },
+        {
+          "id": "e-Mosul-Diyarbakr",
+          "source": "Mosul",
+          "target": "Diyarbakr",
+          "weight": 310
+        },
+        {
+          "id": "e-Kigali-Mwanza",
+          "source": "Kigali",
+          "target": "Mwanza",
+          "weight": 316
+        },
+        {
+          "id": "e-Kampala-Mwanza",
+          "source": "Kampala",
+          "target": "Mwanza",
+          "weight": 318
+        },
+        {
+          "id": "e-Isfahan-Ahwaz",
+          "source": "Isfahan",
+          "target": "Ahwaz",
+          "weight": 319
+        },
+        {
+          "id": "e-Baghdad-Erbil",
+          "source": "Baghdad",
+          "target": "Erbil",
+          "weight": 323
+        },
+        {
+          "id": "e-Jeddah-Medina",
+          "source": "Jeddah",
+          "target": "Medina",
+          "weight": 328
+        },
+        {
+          "id": "e-Athens-Aydin",
+          "source": "Athens",
+          "target": "Aydin",
+          "weight": 361
+        },
+        {
+          "id": "e-Basra-AlNajaf",
+          "source": "Basra",
+          "target": "AlNajaf",
+          "weight": 371
+        },
+        {
+          "id": "e-Brazzaville-PointeNoire",
+          "source": "Brazzaville",
+          "target": "PointeNoire",
+          "weight": 384
+        },
+        {
+          "id": "e-Lusaka-Harare",
+          "source": "Lusaka",
+          "target": "Harare",
+          "weight": 399
+        },
+        {
+          "id": "e-Lagos-Accra",
+          "source": "Lagos",
+          "target": "Accra",
+          "weight": 410
+        },
+        {
+          "id": "e-Ouagadougou-Niamey",
+          "source": "Ouagadougou",
+          "target": "Niamey",
+          "weight": 415
+        },
+        {
+          "id": "e-Lusaka-Lubumbashi",
+          "source": "Lusaka",
+          "target": "Lubumbashi",
+          "weight": 426
+        },
+        {
+          "id": "e-Nairobi-Mombasa",
+          "source": "Nairobi",
+          "target": "Mombasa",
+          "weight": 441
+        },
+        {
+          "id": "e-Johannesburg-Maputo",
+          "source": "Johannesburg",
+          "target": "Maputo",
+          "weight": 452
+        },
+        {
+          "id": "e-Nairobi-Mwanza",
+          "source": "Nairobi",
+          "target": "Mwanza",
+          "weight": 456
+        },
+        {
+          "id": "e-Durban-Maputo",
+          "source": "Durban",
+          "target": "Maputo",
+          "weight": 459
+        },
+        {
+          "id": "e-Luanda-PointeNoire",
+          "source": "Luanda",
+          "target": "PointeNoire",
+          "weight": 474
+        },
+        {
+          "id": "e-Conakry-Monrovia",
+          "source": "Conakry",
+          "target": "Monrovia",
+          "weight": 477
+        },
+        {
+          "id": "e-Harare-Blantyre",
+          "source": "Harare",
+          "target": "Blantyre",
+          "weight": 479
+        },
+        {
+          "id": "e-Riyadh-Doha",
+          "source": "Riyadh",
+          "target": "Doha",
+          "weight": 490
+        },
+        {
+          "id": "e-Amman-ShubraalKhayma",
+          "source": "Amman",
+          "target": "ShubraalKhayma",
+          "weight": 490
+        },
+        {
+          "id": "e-Kano-Maiduguri",
+          "source": "Kano",
+          "target": "Maiduguri",
+          "weight": 504
+        },
+        {
+          "id": "e-Bamenda-Garoua",
+          "source": "Bamenda",
+          "target": "Garoua",
+          "weight": 516
+        },
+        {
+          "id": "e-AddisAbaba-Hargeisa",
+          "source": "AddisAbaba",
+          "target": "Hargeisa",
+          "weight": 586
+        },
+        {
+          "id": "e-Ouagadougou-Kumasi",
+          "source": "Ouagadougou",
+          "target": "Kumasi",
+          "weight": 631
+        },
+        {
+          "id": "e-Hargeisa-Sanaa",
+          "source": "Hargeisa",
+          "target": "Sanaa",
+          "weight": 644
+        },
+        {
+          "id": "e-Riyadh-Basra",
+          "source": "Riyadh",
+          "target": "Basra",
+          "weight": 660
+        },
+        {
+          "id": "e-CapeTown-Gqeberha",
+          "source": "CapeTown",
+          "target": "Gqeberha",
+          "weight": 664
+        },
+        {
+          "id": "e-Durban-Gqeberha",
+          "source": "Durban",
+          "target": "Gqeberha",
+          "weight": 683
+        },
+        {
+          "id": "e-Ouagadougou-Bamako",
+          "source": "Ouagadougou",
+          "target": "Bamako",
+          "weight": 703
+        },
+        {
+          "id": "e-Dakar-Conakry",
+          "source": "Dakar",
+          "target": "Conakry",
+          "weight": 705
+        },
+        {
+          "id": "e-Bamako-Conakry",
+          "source": "Bamako",
+          "target": "Conakry",
+          "weight": 713
+        },
+        {
+          "id": "e-Riyadh-Medina",
+          "source": "Riyadh",
+          "target": "Medina",
+          "weight": 719
+        },
+        {
+          "id": "e-MbujiMayi-Lubumbashi",
+          "source": "MbujiMayi",
+          "target": "Lubumbashi",
+          "weight": 749
+        },
+        {
+          "id": "e-Algiers-Fez",
+          "source": "Algiers",
+          "target": "Fez",
+          "weight": 792
+        },
+        {
+          "id": "e-Goma-MbujiMayi",
+          "source": "Goma",
+          "target": "MbujiMayi",
+          "weight": 797
+        },
+        {
+          "id": "e-Mecca-Sanaa",
+          "source": "Mecca",
+          "target": "Sanaa",
+          "weight": 818
+        },
+        {
+          "id": "e-Mogadishu-Hargeisa",
+          "source": "Mogadishu",
+          "target": "Hargeisa",
+          "weight": 849
+        },
+        {
+          "id": "e-Mogadishu-Meru",
+          "source": "Mogadishu",
+          "target": "Meru",
+          "weight": 883
+        },
+        {
+          "id": "e-Harare-Maputo",
+          "source": "Harare",
+          "target": "Maputo",
+          "weight": 918
+        },
+        {
+          "id": "e-Kinshasa-MbujiMayi",
+          "source": "Kinshasa",
+          "target": "MbujiMayi",
+          "weight": 939
+        },
+        {
+          "id": "e-Jeddah-Bahri",
+          "source": "Jeddah",
+          "target": "Bahri",
+          "weight": 959
+        },
+        {
+          "id": "e-Yaound-PointeNoire",
+          "source": "Yaound",
+          "target": "PointeNoire",
+          "weight": 964
+        },
+        {
+          "id": "e-Algiers-Tripoli",
+          "source": "Algiers",
+          "target": "Tripoli",
+          "weight": 1018
+        },
+        {
+          "id": "e-Athens-Tripoli",
+          "source": "Athens",
+          "target": "Tripoli",
+          "weight": 1110
+        },
+        {
+          "id": "e-Antananarivo-Blantyre",
+          "source": "Antananarivo",
+          "target": "Blantyre",
+          "weight": 1373
+        },
+        {
+          "id": "e-Khartoum-Omdurman",
+          "source": "Khartoum",
+          "target": "Omdurman",
+          "weight": 11
+        },
+        {
+          "id": "e-Giza-ShubraalKhayma",
+          "source": "Giza",
+          "target": "ShubraalKhayma",
+          "weight": 16
+        },
+        {
+          "id": "e-Casablanca-Sal",
+          "source": "Casablanca",
+          "target": "Sal",
+          "weight": 90
+        },
+        {
+          "id": "e-Karaj-Qom",
+          "source": "Karaj",
+          "target": "Qom",
+          "weight": 132
+        },
+        {
+          "id": "e-Tehran-Qazvin",
+          "source": "Tehran",
+          "target": "Qazvin",
+          "weight": 140
+        },
+        {
+          "id": "e-Baghdad-AlNajaf",
+          "source": "Baghdad",
+          "target": "AlNajaf",
+          "weight": 145
+        },
+        {
+          "id": "e-Gaziantep-Hatay",
+          "source": "Gaziantep",
+          "target": "Hatay",
+          "weight": 145
+        },
+        {
+          "id": "e-Mersin-Hatay",
+          "source": "Mersin",
+          "target": "Hatay",
+          "weight": 152
+        },
+        {
+          "id": "e-Aleppo-Kahramanmara",
+          "source": "Aleppo",
+          "target": "Kahramanmara",
+          "weight": 155
+        },
+        {
+          "id": "e-PortHarcourt-Onitsha",
+          "source": "PortHarcourt",
+          "target": "Onitsha",
+          "weight": 155
+        },
+        {
+          "id": "e-Adana-Kahramanmara",
+          "source": "Adana",
+          "target": "Kahramanmara",
+          "weight": 156
+        },
+        {
+          "id": "e-Rabat-Fez",
+          "source": "Rabat",
+          "target": "Fez",
+          "weight": 168
+        },
+        {
+          "id": "e-Hatay-Kahramanmara",
+          "source": "Hatay",
+          "target": "Kahramanmara",
+          "weight": 168
+        },
+        {
+          "id": "e-anlurfa-Kahramanmara",
+          "source": "anlurfa",
+          "target": "Kahramanmara",
+          "weight": 171
+        },
+        {
+          "id": "e-anlurfa-Aleppo",
+          "source": "anlurfa",
+          "target": "Aleppo",
+          "weight": 180
+        },
+        {
+          "id": "e-Cairo-Alexandria",
+          "source": "Cairo",
+          "target": "Alexandria",
+          "weight": 181
+        },
+        {
+          "id": "e-Adana-Gaziantep",
+          "source": "Adana",
+          "target": "Gaziantep",
+          "weight": 183
+        },
+        {
+          "id": "e-Alexandria-Giza",
+          "source": "Alexandria",
+          "target": "Giza",
+          "weight": 185
+        },
+        {
+          "id": "e-Qazvin-Qom",
+          "source": "Qazvin",
+          "target": "Qom",
+          "weight": 197
+        },
+        {
+          "id": "e-Lagos-Ogbomosho",
+          "source": "Lagos",
+          "target": "Ogbomosho",
+          "weight": 209
+        },
+        {
+          "id": "e-Maiduguri-NDjamena",
+          "source": "Maiduguri",
+          "target": "NDjamena",
+          "weight": 209
+        },
+        {
+          "id": "e-Amman-Beirut",
+          "source": "Amman",
+          "target": "Beirut",
+          "weight": 220
+        },
+        {
+          "id": "e-Mersin-Kahramanmara",
+          "source": "Mersin",
+          "target": "Kahramanmara",
+          "weight": 221
+        },
+        {
+          "id": "e-Bamenda-Buea",
+          "source": "Bamenda",
+          "target": "Buea",
+          "weight": 225
+        },
+        {
+          "id": "e-PortHarcourt-BeninCity",
+          "source": "PortHarcourt",
+          "target": "BeninCity",
+          "weight": 233
+        },
+        {
+          "id": "e-BeninCity-Aba",
+          "source": "BeninCity",
+          "target": "Aba",
+          "weight": 236
+        },
+        {
+          "id": "e-Casablanca-Fez",
+          "source": "Casablanca",
+          "target": "Fez",
+          "weight": 245
+        },
+        {
+          "id": "e-Lagos-BeninCity",
+          "source": "Lagos",
+          "target": "BeninCity",
+          "weight": 247
+        },
+        {
+          "id": "e-BeninCity-Ogbomosho",
+          "source": "BeninCity",
+          "target": "Ogbomosho",
+          "weight": 251
+        },
+        {
+          "id": "e-PortHarcourt-Buea",
+          "source": "PortHarcourt",
+          "target": "Buea",
+          "weight": 255
+        },
+        {
+          "id": "e-Yaound-Buea",
+          "source": "Yaound",
+          "target": "Buea",
+          "weight": 256
+        },
+        {
+          "id": "e-Adana-Konya",
+          "source": "Adana",
+          "target": "Konya",
+          "weight": 269
+        },
+        {
+          "id": "e-Gaziantep-Diyarbakr",
+          "source": "Gaziantep",
+          "target": "Diyarbakr",
+          "weight": 269
+        },
+        {
+          "id": "e-Antalya-Aydin",
+          "source": "Antalya",
+          "target": "Aydin",
+          "weight": 274
+        },
+        {
+          "id": "e-Yaound-Bamenda",
+          "source": "Yaound",
+          "target": "Bamenda",
+          "weight": 278
+        },
+        {
+          "id": "e-Garoua-Maiduguri",
+          "source": "Garoua",
+          "target": "Maiduguri",
+          "weight": 283
+        },
+        {
+          "id": "e-Douala-Aba",
+          "source": "Douala",
+          "target": "Aba",
+          "weight": 285
+        },
+        {
+          "id": "e-Rabat-Marrakesh",
+          "source": "Rabat",
+          "target": "Marrakesh",
+          "weight": 287
+        },
+        {
+          "id": "e-Marrakesh-Sal",
+          "source": "Marrakesh",
+          "target": "Sal",
+          "weight": 291
+        },
+        {
+          "id": "e-Diyarbakr-Kahramanmara",
+          "source": "Diyarbakr",
+          "target": "Kahramanmara",
+          "weight": 293
+        },
+        {
+          "id": "e-Konya-Denizli",
+          "source": "Konya",
+          "target": "Denizli",
+          "weight": 298
+        },
+        {
+          "id": "e-Aleppo-Beirut",
+          "source": "Aleppo",
+          "target": "Beirut",
+          "weight": 299
+        },
+        {
+          "id": "e-Hatay-Damascus",
+          "source": "Hatay",
+          "target": "Damascus",
+          "weight": 299
+        },
+        {
+          "id": "e-Aleppo-Damascus",
+          "source": "Aleppo",
+          "target": "Damascus",
+          "weight": 309
+        },
+        {
+          "id": "e-Tehran-Isfahan",
+          "source": "Tehran",
+          "target": "Isfahan",
+          "weight": 337
+        },
+        {
+          "id": "e-Mecca-Medina",
+          "source": "Mecca",
+          "target": "Medina",
+          "weight": 340
+        },
+        {
+          "id": "e-Buea-Onitsha",
+          "source": "Buea",
+          "target": "Onitsha",
+          "weight": 348
+        },
+        {
+          "id": "e-Ibadan-Onitsha",
+          "source": "Ibadan",
+          "target": "Onitsha",
+          "weight": 349
+        },
+        {
+          "id": "e-Antalya-Mersin",
+          "source": "Antalya",
+          "target": "Mersin",
+          "weight": 350
+        },
+        {
+          "id": "e-Isfahan-Karaj",
+          "source": "Isfahan",
+          "target": "Karaj",
+          "weight": 356
+        },
+        {
+          "id": "e-Baghdad-Mosul",
+          "source": "Baghdad",
+          "target": "Mosul",
+          "weight": 357
+        },
+        {
+          "id": "e-Onitsha-Ogbomosho",
+          "source": "Onitsha",
+          "target": "Ogbomosho",
+          "weight": 358
+        },
+        {
+          "id": "e-Garoua-NDjamena",
+          "source": "Garoua",
+          "target": "NDjamena",
+          "weight": 361
+        },
+        {
+          "id": "e-Kigali-Kampala",
+          "source": "Kigali",
+          "target": "Kampala",
+          "weight": 373
+        },
+        {
+          "id": "e-Diyarbakr-Erbil",
+          "source": "Diyarbakr",
+          "target": "Erbil",
+          "weight": 386
+        },
+        {
+          "id": "e-Fez-Marrakesh",
+          "source": "Fez",
+          "target": "Marrakesh",
+          "weight": 386
+        },
+        {
+          "id": "e-Kinshasa-PointeNoire",
+          "source": "Kinshasa",
+          "target": "PointeNoire",
+          "weight": 387
+        },
+        {
+          "id": "e-Basra-AlHillah",
+          "source": "Basra",
+          "target": "AlHillah",
+          "weight": 389
+        },
+        {
+          "id": "e-anlurfa-Mosul",
+          "source": "anlurfa",
+          "target": "Mosul",
+          "weight": 397
+        },
+        {
+          "id": "e-Konya-Aydin",
+          "source": "Konya",
+          "target": "Aydin",
+          "weight": 408
+        },
+        {
+          "id": "e-AlHillah-Erbil",
+          "source": "AlHillah",
+          "target": "Erbil",
+          "weight": 414
+        },
+        {
+          "id": "e-AlNajaf-Ahwaz",
+          "source": "AlNajaf",
+          "target": "Ahwaz",
+          "weight": 418
+        },
+        {
+          "id": "e-Goma-Mwanza",
+          "source": "Goma",
+          "target": "Mwanza",
+          "weight": 419
+        },
+        {
+          "id": "e-AlHillah-Ahwaz",
+          "source": "AlHillah",
+          "target": "Ahwaz",
+          "weight": 421
+        },
+        {
+          "id": "e-Abidjan-Accra",
+          "source": "Abidjan",
+          "target": "Accra",
+          "weight": 423
+        },
+        {
+          "id": "e-Isfahan-Qazvin",
+          "source": "Isfahan",
+          "target": "Qazvin",
+          "weight": 428
+        },
+        {
+          "id": "e-Goma-Kampala",
+          "source": "Goma",
+          "target": "Kampala",
+          "weight": 433
+        },
+        {
+          "id": "e-Soweto-Maputo",
+          "source": "Soweto",
+          "target": "Maputo",
+          "weight": 468
+        },
+        {
+          "id": "e-Athens-Denizli",
+          "source": "Athens",
+          "target": "Denizli",
+          "weight": 471
+        },
+        {
+          "id": "e-Amman-Hatay",
+          "source": "Amman",
+          "target": "Hatay",
+          "weight": 473
+        },
+        {
+          "id": "e-Cairo-Amman",
+          "source": "Cairo",
+          "target": "Amman",
+          "weight": 495
+        },
+        {
+          "id": "e-Ibadan-Accra",
+          "source": "Ibadan",
+          "target": "Accra",
+          "weight": 496
+        },
+        {
+          "id": "e-Amman-Giza",
+          "source": "Amman",
+          "target": "Giza",
+          "weight": 499
+        },
+        {
+          "id": "e-Johannesburg-Durban",
+          "source": "Johannesburg",
+          "target": "Durban",
+          "weight": 500
+        },
+        {
+          "id": "e-Nairobi-Kampala",
+          "source": "Nairobi",
+          "target": "Kampala",
+          "weight": 504
+        },
+        {
+          "id": "e-Durban-Soweto",
+          "source": "Durban",
+          "target": "Soweto",
+          "weight": 507
+        },
+        {
+          "id": "e-Meru-Mombasa",
+          "source": "Meru",
+          "target": "Mombasa",
+          "weight": 508
+        },
+        {
+          "id": "e-Kinshasa-Luanda",
+          "source": "Kinshasa",
+          "target": "Luanda",
+          "weight": 551
+        },
+        {
+          "id": "e-Luanda-Brazzaville",
+          "source": "Luanda",
+          "target": "Brazzaville",
+          "weight": 554
+        },
+        {
+          "id": "e-Lagos-Kumasi",
+          "source": "Lagos",
+          "target": "Kumasi",
+          "weight": 555
+        },
+        {
+          "id": "e-Meru-Kampala",
+          "source": "Meru",
+          "target": "Kampala",
+          "weight": 564
+        },
+        {
+          "id": "e-Alexandria-Amman",
+          "source": "Alexandria",
+          "target": "Amman",
+          "weight": 577
+        }
+      ]
+    },
+    "startNode": "Gqeberha",
+    "goalNode": "Athens",
+    "useHeuristic": true
+  }
+}

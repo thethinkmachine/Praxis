@@ -2,7 +2,7 @@ import type { AlgorithmRunner } from '@/types/algorithm';
 import type { GraphProblem } from '@/types/problem';
 import type { AlgorithmStep } from '@/types/step';
 import type { SearchState, SearchHighlight } from './types';
-import { reconstructPath, validateGraphProblem, buildAdjacencyList } from './types';
+import { reconstructPath, validateGraphProblem } from './types';
 import { deepClone } from '@/lib/deep-clone';
 import { createLog } from '@/algorithms/core/utils';
 
@@ -51,7 +51,7 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
   },
 
   *run(problem: GraphProblem): Generator<AlgorithmStep<SearchState, SearchHighlight>, void> {
-    const adj = buildAdjacencyList(problem.graph);
+    const adj = problem.graph.toAdjList();
     const labelOf = (id: string) =>
       problem.graph.nodes.find(n => n.id === id)?.label ?? id;
     let stepNum = 0;

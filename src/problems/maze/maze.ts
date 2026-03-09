@@ -1,4 +1,4 @@
-import type { GraphData, GraphEdge, GraphNode, GraphProblem, HeuristicConfig, HeuristicId, MazeProblem } from '@/types/problem';
+import { Graph, type GraphData, type GraphEdge, type GraphNode, type GraphProblem, type HeuristicConfig, type HeuristicId, type MazeProblem } from '@/types/problem';
 import { MAZE_STRATEGIES } from './strategies';
 import type { MazeGenerationStrategyId } from './strategies';
 
@@ -189,7 +189,7 @@ export function mazeProblemToGraphData(problem: MazeProblem): GraphData {
 export function mazeProblemToGraphProblem(problem: MazeProblem): GraphProblem {
   const normalized = normalizeMazeProblem(problem);
   return {
-    graph: mazeProblemToGraphData(normalized),
+    graph: new Graph(mazeProblemToGraphData(normalized)),
     startNode: normalized.startNode,
     goalNode: normalized.goalNode,
     useHeuristic: true,

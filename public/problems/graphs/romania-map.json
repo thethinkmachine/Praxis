@@ -1,0 +1,59 @@
+{
+  "category": "graph",
+  "name": "Romania Road Map",
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        { "id": "Oradea", "label": "Oradea", "x": 91, "y": 75, "heuristic": 380 },
+        { "id": "Zerind", "label": "Zerind", "x": 75, "y": 131, "heuristic": 374 },
+        { "id": "Arad", "label": "Arad", "x": 91, "y": 193, "heuristic": 366 },
+        { "id": "Timisoara", "label": "Timisoara", "x": 105, "y": 288, "heuristic": 329 },
+        { "id": "Lugoj", "label": "Lugoj", "x": 218, "y": 305, "heuristic": 244 },
+        { "id": "Mehadia", "label": "Mehadia", "x": 218, "y": 371, "heuristic": 241 },
+        { "id": "Drobeta", "label": "Drobeta", "x": 200, "y": 430, "heuristic": 242 },
+        { "id": "Craiova", "label": "Craiova", "x": 344, "y": 482, "heuristic": 160 },
+        { "id": "Pitesti", "label": "Pitesti", "x": 455, "y": 396, "heuristic": 100 },
+        { "id": "RimnicuVilcea", "label": "Rimnicu Vilcea", "x": 363, "y": 321, "heuristic": 193 },
+        { "id": "Sibiu", "label": "Sibiu", "x": 311, "y": 247, "heuristic": 253 },
+        { "id": "Fagaras", "label": "Fagaras", "x": 428, "y": 213, "heuristic": 176 },
+        { "id": "Bucharest", "label": "Bucharest", "x": 538, "y": 400, "heuristic": 0 },
+        { "id": "Giurgiu", "label": "Giurgiu", "x": 499, "y": 461, "heuristic": 77 },
+        { "id": "Urziceni", "label": "Urziceni", "x": 594, "y": 370, "heuristic": 80 },
+        { "id": "Hirsova", "label": "Hirsova", "x": 690, "y": 335, "heuristic": 151 },
+        { "id": "Eforie", "label": "Eforie", "x": 734, "y": 404, "heuristic": 161 },
+        { "id": "Vaslui", "label": "Vaslui", "x": 695, "y": 213, "heuristic": 199 },
+        { "id": "Iasi", "label": "Iasi", "x": 695, "y": 140, "heuristic": 226 },
+        { "id": "Neamt", "label": "Neamt", "x": 610, "y": 105, "heuristic": 234 }
+      ],
+      "edges": [
+        { "id": "e-Oradea-Zerind", "source": "Oradea", "target": "Zerind", "weight": 71 },
+        { "id": "e-Oradea-Sibiu", "source": "Oradea", "target": "Sibiu", "weight": 151 },
+        { "id": "e-Zerind-Arad", "source": "Zerind", "target": "Arad", "weight": 75 },
+        { "id": "e-Arad-Timisoara", "source": "Arad", "target": "Timisoara", "weight": 118 },
+        { "id": "e-Arad-Sibiu", "source": "Arad", "target": "Sibiu", "weight": 140 },
+        { "id": "e-Timisoara-Lugoj", "source": "Timisoara", "target": "Lugoj", "weight": 111 },
+        { "id": "e-Lugoj-Mehadia", "source": "Lugoj", "target": "Mehadia", "weight": 70 },
+        { "id": "e-Mehadia-Drobeta", "source": "Mehadia", "target": "Drobeta", "weight": 75 },
+        { "id": "e-Drobeta-Craiova", "source": "Drobeta", "target": "Craiova", "weight": 120 },
+        { "id": "e-Craiova-RimnicuVilcea", "source": "Craiova", "target": "RimnicuVilcea", "weight": 146 },
+        { "id": "e-Craiova-Pitesti", "source": "Craiova", "target": "Pitesti", "weight": 138 },
+        { "id": "e-Sibiu-RimnicuVilcea", "source": "Sibiu", "target": "RimnicuVilcea", "weight": 80 },
+        { "id": "e-Sibiu-Fagaras", "source": "Sibiu", "target": "Fagaras", "weight": 99 },
+        { "id": "e-RimnicuVilcea-Pitesti", "source": "RimnicuVilcea", "target": "Pitesti", "weight": 97 },
+        { "id": "e-Fagaras-Bucharest", "source": "Fagaras", "target": "Bucharest", "weight": 211 },
+        { "id": "e-Pitesti-Bucharest", "source": "Pitesti", "target": "Bucharest", "weight": 101 },
+        { "id": "e-Bucharest-Giurgiu", "source": "Bucharest", "target": "Giurgiu", "weight": 90 },
+        { "id": "e-Bucharest-Urziceni", "source": "Bucharest", "target": "Urziceni", "weight": 85 },
+        { "id": "e-Urziceni-Hirsova", "source": "Urziceni", "target": "Hirsova", "weight": 98 },
+        { "id": "e-Urziceni-Vaslui", "source": "Urziceni", "target": "Vaslui", "weight": 142 },
+        { "id": "e-Hirsova-Eforie", "source": "Hirsova", "target": "Eforie", "weight": 86 },
+        { "id": "e-Vaslui-Iasi", "source": "Vaslui", "target": "Iasi", "weight": 92 },
+        { "id": "e-Iasi-Neamt", "source": "Iasi", "target": "Neamt", "weight": 87 }
+      ]
+    },
+    "startNode": "Arad",
+    "goalNode": "Bucharest",
+    "useHeuristic": true
+  }
+}

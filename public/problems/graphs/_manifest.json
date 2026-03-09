@@ -1,0 +1,370 @@
+{
+  "version": 1,
+  "uninformed-search": [
+    {
+      "id": "africa-osm-map.json",
+      "name": "Africa OSM Mesh",
+      "description": "Detailed continental city mesh for Africa sourced from OpenStreetMap.",
+      "difficulty": "medium",
+      "estimatedSteps": 250,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "africa",
+        "continent",
+        "uninformed"
+      ]
+    },
+    {
+      "id": "australia-osm-map.json",
+      "name": "Australia OSM Mesh",
+      "description": "High-fidelity city mesh for Australia generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 150,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "uninformed"
+      ]
+    },
+    {
+      "id": "brazil-osm-map.json",
+      "name": "Brazil OSM Mesh",
+      "description": "High-fidelity city mesh for Brazil generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "uninformed"
+      ]
+    },
+    {
+      "id": "canada-osm-map.json",
+      "name": "Canada OSM Mesh",
+      "description": "High-fidelity city mesh for Canada generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "uninformed"
+      ]
+    },
+    {
+      "id": "france-osm-map.json",
+      "name": "France OSM Mesh",
+      "description": "High-fidelity city mesh for France generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "uninformed"
+      ]
+    },
+    {
+      "id": "germany-osm-map.json",
+      "name": "Germany OSM Mesh",
+      "description": "High-fidelity city mesh for Germany generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "uninformed"
+      ]
+    },
+    {
+      "id": "india-osm-map.json",
+      "name": "India OSM Mesh",
+      "description": "High-fidelity city mesh for India generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 200,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "uninformed"
+      ]
+    },
+    {
+      "id": "italy-osm-map.json",
+      "name": "Italy OSM Mesh",
+      "description": "High-fidelity city mesh for Italy generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "uninformed"
+      ]
+    },
+    {
+      "id": "japan-osm-map.json",
+      "name": "Japan OSM Mesh",
+      "description": "High-fidelity city mesh for Japan generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "uninformed"
+      ]
+    },
+    {
+      "id": "romania-map.json",
+      "name": "Romania Road Map",
+      "description": "A Custom Graph Problem",
+      "difficulty": "medium",
+      "estimatedSteps": 50,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "custom",
+        "graph",
+        "uninformed"
+      ]
+    },
+    {
+      "id": "russia-osm-map.json",
+      "name": "Russia OSM Mesh",
+      "description": "High-fidelity city mesh for Russia generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 200,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "uninformed"
+      ]
+    },
+    {
+      "id": "spain-osm-map.json",
+      "name": "Spain OSM Mesh",
+      "description": "High-fidelity city mesh for Spain generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "uninformed"
+      ]
+    },
+    {
+      "id": "usa-osm-map.json",
+      "name": "United OSM Mesh",
+      "description": "High-fidelity city mesh for United generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 200,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "uninformed"
+      ]
+    }
+  ],
+  "informed-search": [
+    {
+      "id": "africa-osm-map.json",
+      "name": "Africa OSM Mesh",
+      "description": "Detailed continental city mesh for Africa sourced from OpenStreetMap.",
+      "difficulty": "medium",
+      "estimatedSteps": 250,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "africa",
+        "continent",
+        "heuristic"
+      ]
+    },
+    {
+      "id": "australia-osm-map.json",
+      "name": "Australia OSM Mesh",
+      "description": "High-fidelity city mesh for Australia generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 150,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "heuristic"
+      ]
+    },
+    {
+      "id": "brazil-osm-map.json",
+      "name": "Brazil OSM Mesh",
+      "description": "High-fidelity city mesh for Brazil generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "heuristic"
+      ]
+    },
+    {
+      "id": "canada-osm-map.json",
+      "name": "Canada OSM Mesh",
+      "description": "High-fidelity city mesh for Canada generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "heuristic"
+      ]
+    },
+    {
+      "id": "france-osm-map.json",
+      "name": "France OSM Mesh",
+      "description": "High-fidelity city mesh for France generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "heuristic"
+      ]
+    },
+    {
+      "id": "germany-osm-map.json",
+      "name": "Germany OSM Mesh",
+      "description": "High-fidelity city mesh for Germany generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "heuristic"
+      ]
+    },
+    {
+      "id": "india-osm-map.json",
+      "name": "India OSM Mesh",
+      "description": "High-fidelity city mesh for India generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 200,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "heuristic"
+      ]
+    },
+    {
+      "id": "italy-osm-map.json",
+      "name": "Italy OSM Mesh",
+      "description": "High-fidelity city mesh for Italy generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "heuristic"
+      ]
+    },
+    {
+      "id": "japan-osm-map.json",
+      "name": "Japan OSM Mesh",
+      "description": "High-fidelity city mesh for Japan generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "heuristic"
+      ]
+    },
+    {
+      "id": "romania-map.json",
+      "name": "Romania Road Map",
+      "description": "A Custom Graph Problem",
+      "difficulty": "medium",
+      "estimatedSteps": 50,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "custom",
+        "graph",
+        "heuristic"
+      ]
+    },
+    {
+      "id": "russia-osm-map.json",
+      "name": "Russia OSM Mesh",
+      "description": "High-fidelity city mesh for Russia generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 200,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "heuristic"
+      ]
+    },
+    {
+      "id": "spain-osm-map.json",
+      "name": "Spain OSM Mesh",
+      "description": "High-fidelity city mesh for Spain generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 125,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "heuristic"
+      ]
+    },
+    {
+      "id": "usa-osm-map.json",
+      "name": "United OSM Mesh",
+      "description": "High-fidelity city mesh for United generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+      "difficulty": "medium",
+      "estimatedSteps": 200,
+      "hint": "Custom loaded problem",
+      "tags": [
+        "osm",
+        "real-world",
+        "detailed",
+        "heuristic"
+      ]
+    }
+  ],
+  "game-playing": []
+}

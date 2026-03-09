@@ -1,0 +1,762 @@
+{
+  "category": "graph",
+  "name": "Brazil OSM Mesh",
+  "description": "High-fidelity city mesh for Brazil generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+  "tags": [
+    "osm",
+    "real-world",
+    "detailed"
+  ],
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        {
+          "id": "SoPaulo",
+          "label": "São Paulo",
+          "x": 794,
+          "y": 699,
+          "heuristic": 2473
+        },
+        {
+          "id": "RiodeJaneiro",
+          "label": "Rio de Janeiro",
+          "x": 935,
+          "y": 681,
+          "heuristic": 2460
+        },
+        {
+          "id": "Braslia",
+          "label": "Brasília",
+          "x": 742,
+          "y": 483,
+          "heuristic": 1604
+        },
+        {
+          "id": "Fortaleza",
+          "label": "Fortaleza",
+          "x": 1129,
+          "y": 146,
+          "heuristic": 1128
+        },
+        {
+          "id": "Salvador",
+          "label": "Salvador",
+          "x": 1131,
+          "y": 404,
+          "heuristic": 1691
+        },
+        {
+          "id": "BeloHorizonte",
+          "label": "Belo Horizonte",
+          "x": 905,
+          "y": 598,
+          "heuristic": 2119
+        },
+        {
+          "id": "Manaus",
+          "label": "Manaus",
+          "x": 241,
+          "y": 129,
+          "heuristic": 1301
+        },
+        {
+          "id": "Curitiba",
+          "label": "Curitiba",
+          "x": 684,
+          "y": 752,
+          "heuristic": 2676
+        },
+        {
+          "id": "Recife",
+          "label": "Recife",
+          "x": 1280,
+          "y": 267,
+          "heuristic": 1671
+        },
+        {
+          "id": "Goinia",
+          "label": "Goiânia",
+          "x": 685,
+          "y": 507,
+          "heuristic": 1705
+        },
+        {
+          "id": "PortoAlegre",
+          "label": "Porto Alegre",
+          "x": 603,
+          "y": 880,
+          "heuristic": 3201
+        },
+        {
+          "id": "Belm",
+          "label": "Belém",
+          "x": 718,
+          "y": 82,
+          "heuristic": 11
+        },
+        {
+          "id": "Guarulhos",
+          "label": "Guarulhos",
+          "x": 798,
+          "y": 697,
+          "heuristic": 2465
+        },
+        {
+          "id": "Campinas",
+          "label": "Campinas",
+          "x": 776,
+          "y": 681,
+          "heuristic": 2399
+        },
+        {
+          "id": "SoLus",
+          "label": "São Luís",
+          "x": 890,
+          "y": 112,
+          "heuristic": 474
+        },
+        {
+          "id": "Macei",
+          "label": "Maceió",
+          "x": 1245,
+          "y": 311,
+          "heuristic": 1676
+        },
+        {
+          "id": "CampoGrande",
+          "label": "Campo Grande",
+          "x": 463,
+          "y": 613,
+          "heuristic": 2227
+        },
+        {
+          "id": "SoGonalo",
+          "label": "São Gonçalo",
+          "x": 943,
+          "y": 679,
+          "heuristic": 2454
+        },
+        {
+          "id": "Teresina",
+          "label": "Teresina",
+          "x": 952,
+          "y": 184,
+          "heuristic": 746
+        },
+        {
+          "id": "JooPessoa",
+          "label": "João Pessoa",
+          "x": 1280,
+          "y": 240,
+          "heuristic": 1629
+        },
+        {
+          "id": "SoBernardodoCampo",
+          "label": "São Bernardo do Campo",
+          "x": 797,
+          "y": 703,
+          "heuristic": 2491
+        },
+        {
+          "id": "DuquedeCaxias",
+          "label": "Duque de Caxias",
+          "x": 931,
+          "y": 678,
+          "heuristic": 2444
+        },
+        {
+          "id": "NovaIguau",
+          "label": "Nova Iguaçu",
+          "x": 925,
+          "y": 677,
+          "heuristic": 2437
+        },
+        {
+          "id": "Natal",
+          "label": "Natal",
+          "x": 1267,
+          "y": 204,
+          "heuristic": 1545
+        },
+        {
+          "id": "SantoAndr",
+          "label": "Santo André",
+          "x": 798,
+          "y": 702,
+          "heuristic": 2486
+        },
+        {
+          "id": "Osasco",
+          "label": "Osasco",
+          "x": 787,
+          "y": 699,
+          "heuristic": 2470
+        },
+        {
+          "id": "Sorocaba",
+          "label": "Sorocaba",
+          "x": 759,
+          "y": 698,
+          "heuristic": 2462
+        },
+        {
+          "id": "Uberlndia",
+          "label": "Uberlândia",
+          "x": 726,
+          "y": 570,
+          "heuristic": 1951
+        },
+        {
+          "id": "RibeiroPreto",
+          "label": "Ribeirão Preto",
+          "x": 745,
+          "y": 633,
+          "heuristic": 2203
+        },
+        {
+          "id": "SoJosdosCampos",
+          "label": "São José dos Campos",
+          "x": 825,
+          "y": 689,
+          "heuristic": 2441
+        },
+        {
+          "id": "Cuiab",
+          "label": "Cuiabá",
+          "x": 402,
+          "y": 477,
+          "heuristic": 1793
+        },
+        {
+          "id": "JaboatodosGuararapes",
+          "label": "Jaboatão dos Guararapes",
+          "x": 1277,
+          "y": 270,
+          "heuristic": 1671
+        },
+        {
+          "id": "Contagem",
+          "label": "Contagem",
+          "x": 899,
+          "y": 598,
+          "heuristic": 2114
+        },
+        {
+          "id": "Joinville",
+          "label": "Joinville",
+          "x": 702,
+          "y": 776,
+          "heuristic": 2773
+        },
+        {
+          "id": "FeiradeSantana",
+          "label": "Feira de Santana",
+          "x": 1111,
+          "y": 384,
+          "heuristic": 1596
+        },
+        {
+          "id": "Aracaju",
+          "label": "Aracaju",
+          "x": 1189,
+          "y": 346,
+          "heuristic": 1640
+        },
+        {
+          "id": "Linhares",
+          "label": "Linhares",
+          "x": 1066,
+          "y": 583,
+          "heuristic": 2198
+        },
+        {
+          "id": "Londrina",
+          "label": "Londrina",
+          "x": 606,
+          "y": 692,
+          "heuristic": 2457
+        },
+        {
+          "id": "JuizdeFora",
+          "label": "Juiz de Fora",
+          "x": 929,
+          "y": 649,
+          "heuristic": 2332
+        },
+        {
+          "id": "Florianpolis",
+          "label": "Florianópolis",
+          "x": 714,
+          "y": 812,
+          "heuristic": 2916
+        },
+        {
+          "id": "AparecidadeGoinia",
+          "label": "Aparecida de Goiânia",
+          "x": 685,
+          "y": 511,
+          "heuristic": 1720
+        },
+        {
+          "id": "Serra",
+          "label": "Serra",
+          "x": 1055,
+          "y": 603,
+          "heuristic": 2263
+        },
+        {
+          "id": "CamposdosGoytacazes",
+          "label": "Campos dos Goytacazes",
+          "x": 1013,
+          "y": 649,
+          "heuristic": 2392
+        },
+        {
+          "id": "BelfordRoxo",
+          "label": "Belford Roxo",
+          "x": 927,
+          "y": 677,
+          "heuristic": 2439
+        },
+        {
+          "id": "Niteri",
+          "label": "Niterói",
+          "x": 939,
+          "y": 681,
+          "heuristic": 2459
+        },
+        {
+          "id": "SoJosdoRioPreto",
+          "label": "São José do Rio Preto",
+          "x": 680,
+          "y": 623,
+          "heuristic": 2164
+        },
+        {
+          "id": "Ananindeua",
+          "label": "Ananindeua",
+          "x": 720,
+          "y": 80,
+          "heuristic": 0
+        },
+        {
+          "id": "VilaVelha",
+          "label": "Vila Velha",
+          "x": 1056,
+          "y": 609,
+          "heuristic": 2285
+        },
+        {
+          "id": "CaxiasdoSul",
+          "label": "Caxias do Sul",
+          "x": 605,
+          "y": 856,
+          "heuristic": 3105
+        },
+        {
+          "id": "PortoVelho",
+          "label": "Porto Velho",
+          "x": 80,
+          "y": 286,
+          "heuristic": 1899
+        }
+      ],
+      "edges": [
+        {
+          "id": "e-NovaIguau-BelfordRoxo",
+          "source": "NovaIguau",
+          "target": "BelfordRoxo",
+          "weight": 5
+        },
+        {
+          "id": "e-SoBernardodoCampo-SantoAndr",
+          "source": "SoBernardodoCampo",
+          "target": "SantoAndr",
+          "weight": 7
+        },
+        {
+          "id": "e-RiodeJaneiro-Niteri",
+          "source": "RiodeJaneiro",
+          "target": "Niteri",
+          "weight": 10
+        },
+        {
+          "id": "e-DuquedeCaxias-BelfordRoxo",
+          "source": "DuquedeCaxias",
+          "target": "BelfordRoxo",
+          "weight": 10
+        },
+        {
+          "id": "e-Belm-Ananindeua",
+          "source": "Belm",
+          "target": "Ananindeua",
+          "weight": 11
+        },
+        {
+          "id": "e-SoGonalo-Niteri",
+          "source": "SoGonalo",
+          "target": "Niteri",
+          "weight": 11
+        },
+        {
+          "id": "e-SoPaulo-Guarulhos",
+          "source": "SoPaulo",
+          "target": "Guarulhos",
+          "weight": 14
+        },
+        {
+          "id": "e-BeloHorizonte-Contagem",
+          "source": "BeloHorizonte",
+          "target": "Contagem",
+          "weight": 15
+        },
+        {
+          "id": "e-Recife-JaboatodosGuararapes",
+          "source": "Recife",
+          "target": "JaboatodosGuararapes",
+          "weight": 15
+        },
+        {
+          "id": "e-SoPaulo-SantoAndr",
+          "source": "SoPaulo",
+          "target": "SantoAndr",
+          "weight": 16
+        },
+        {
+          "id": "e-SoPaulo-Osasco",
+          "source": "SoPaulo",
+          "target": "Osasco",
+          "weight": 16
+        },
+        {
+          "id": "e-Goinia-AparecidadeGoinia",
+          "source": "Goinia",
+          "target": "AparecidadeGoinia",
+          "weight": 16
+        },
+        {
+          "id": "e-RiodeJaneiro-DuquedeCaxias",
+          "source": "RiodeJaneiro",
+          "target": "DuquedeCaxias",
+          "weight": 17
+        },
+        {
+          "id": "e-Serra-VilaVelha",
+          "source": "Serra",
+          "target": "VilaVelha",
+          "weight": 23
+        },
+        {
+          "id": "e-Osasco-Sorocaba",
+          "source": "Osasco",
+          "target": "Sorocaba",
+          "weight": 68
+        },
+        {
+          "id": "e-Guarulhos-SoJosdosCampos",
+          "source": "Guarulhos",
+          "target": "SoJosdosCampos",
+          "weight": 73
+        },
+        {
+          "id": "e-Campinas-Osasco",
+          "source": "Campinas",
+          "target": "Osasco",
+          "weight": 75
+        },
+        {
+          "id": "e-Linhares-Serra",
+          "source": "Linhares",
+          "target": "Serra",
+          "weight": 87
+        },
+        {
+          "id": "e-Salvador-FeiradeSantana",
+          "source": "Salvador",
+          "target": "FeiradeSantana",
+          "weight": 96
+        },
+        {
+          "id": "e-PortoAlegre-CaxiasdoSul",
+          "source": "PortoAlegre",
+          "target": "CaxiasdoSul",
+          "weight": 96
+        },
+        {
+          "id": "e-Recife-JooPessoa",
+          "source": "Recife",
+          "target": "JooPessoa",
+          "weight": 104
+        },
+        {
+          "id": "e-Curitiba-Joinville",
+          "source": "Curitiba",
+          "target": "Joinville",
+          "weight": 106
+        },
+        {
+          "id": "e-NovaIguau-JuizdeFora",
+          "source": "NovaIguau",
+          "target": "JuizdeFora",
+          "weight": 111
+        },
+        {
+          "id": "e-Joinville-Florianpolis",
+          "source": "Joinville",
+          "target": "Florianpolis",
+          "weight": 147
+        },
+        {
+          "id": "e-JooPessoa-Natal",
+          "source": "JooPessoa",
+          "target": "Natal",
+          "weight": 151
+        },
+        {
+          "id": "e-RibeiroPreto-SoJosdoRioPreto",
+          "source": "RibeiroPreto",
+          "target": "SoJosdoRioPreto",
+          "weight": 168
+        },
+        {
+          "id": "e-Braslia-Goinia",
+          "source": "Braslia",
+          "target": "Goinia",
+          "weight": 176
+        },
+        {
+          "id": "e-Macei-JaboatodosGuararapes",
+          "source": "Macei",
+          "target": "JaboatodosGuararapes",
+          "weight": 185
+        },
+        {
+          "id": "e-CamposdosGoytacazes-VilaVelha",
+          "source": "CamposdosGoytacazes",
+          "target": "VilaVelha",
+          "weight": 191
+        },
+        {
+          "id": "e-Macei-Aracaju",
+          "source": "Macei",
+          "target": "Aracaju",
+          "weight": 204
+        },
+        {
+          "id": "e-Campinas-RibeiroPreto",
+          "source": "Campinas",
+          "target": "RibeiroPreto",
+          "weight": 207
+        },
+        {
+          "id": "e-JuizdeFora-CamposdosGoytacazes",
+          "source": "JuizdeFora",
+          "target": "CamposdosGoytacazes",
+          "weight": 209
+        },
+        {
+          "id": "e-BeloHorizonte-JuizdeFora",
+          "source": "BeloHorizonte",
+          "target": "JuizdeFora",
+          "weight": 214
+        },
+        {
+          "id": "e-Uberlndia-SoJosdoRioPreto",
+          "source": "Uberlndia",
+          "target": "SoJosdoRioPreto",
+          "weight": 240
+        },
+        {
+          "id": "e-NovaIguau-SoJosdosCampos",
+          "source": "NovaIguau",
+          "target": "SoJosdosCampos",
+          "weight": 254
+        },
+        {
+          "id": "e-FeiradeSantana-Aracaju",
+          "source": "FeiradeSantana",
+          "target": "Aracaju",
+          "weight": 254
+        },
+        {
+          "id": "e-Uberlndia-AparecidadeGoinia",
+          "source": "Uberlndia",
+          "target": "AparecidadeGoinia",
+          "weight": 255
+        },
+        {
+          "id": "e-Curitiba-Sorocaba",
+          "source": "Curitiba",
+          "target": "Sorocaba",
+          "weight": 282
+        },
+        {
+          "id": "e-Curitiba-Londrina",
+          "source": "Curitiba",
+          "target": "Londrina",
+          "weight": 303
+        },
+        {
+          "id": "e-Florianpolis-CaxiasdoSul",
+          "source": "Florianpolis",
+          "target": "CaxiasdoSul",
+          "weight": 311
+        },
+        {
+          "id": "e-SoLus-Teresina",
+          "source": "SoLus",
+          "target": "Teresina",
+          "weight": 329
+        },
+        {
+          "id": "e-Fortaleza-Natal",
+          "source": "Fortaleza",
+          "target": "Natal",
+          "weight": 434
+        },
+        {
+          "id": "e-SoLus-Ananindeua",
+          "source": "SoLus",
+          "target": "Ananindeua",
+          "weight": 474
+        },
+        {
+          "id": "e-CampoGrande-Londrina",
+          "source": "CampoGrande",
+          "target": "Londrina",
+          "weight": 477
+        },
+        {
+          "id": "e-Fortaleza-Teresina",
+          "source": "Fortaleza",
+          "target": "Teresina",
+          "weight": 498
+        },
+        {
+          "id": "e-CampoGrande-Cuiab",
+          "source": "CampoGrande",
+          "target": "Cuiab",
+          "weight": 563
+        },
+        {
+          "id": "e-Salvador-Linhares",
+          "source": "Salvador",
+          "target": "Linhares",
+          "weight": 731
+        },
+        {
+          "id": "e-Manaus-PortoVelho",
+          "source": "Manaus",
+          "target": "PortoVelho",
+          "weight": 758
+        },
+        {
+          "id": "e-Cuiab-PortoVelho",
+          "source": "Cuiab",
+          "target": "PortoVelho",
+          "weight": 1137
+        },
+        {
+          "id": "e-DuquedeCaxias-NovaIguau",
+          "source": "DuquedeCaxias",
+          "target": "NovaIguau",
+          "weight": 15
+        },
+        {
+          "id": "e-SoPaulo-SoBernardodoCampo",
+          "source": "SoPaulo",
+          "target": "SoBernardodoCampo",
+          "weight": 19
+        },
+        {
+          "id": "e-RiodeJaneiro-SoGonalo",
+          "source": "RiodeJaneiro",
+          "target": "SoGonalo",
+          "weight": 21
+        },
+        {
+          "id": "e-Guarulhos-SantoAndr",
+          "source": "Guarulhos",
+          "target": "SantoAndr",
+          "weight": 21
+        },
+        {
+          "id": "e-DuquedeCaxias-Niteri",
+          "source": "DuquedeCaxias",
+          "target": "Niteri",
+          "weight": 23
+        },
+        {
+          "id": "e-RiodeJaneiro-BelfordRoxo",
+          "source": "RiodeJaneiro",
+          "target": "BelfordRoxo",
+          "weight": 26
+        },
+        {
+          "id": "e-Guarulhos-SoBernardodoCampo",
+          "source": "Guarulhos",
+          "target": "SoBernardodoCampo",
+          "weight": 27
+        },
+        {
+          "id": "e-SoGonalo-DuquedeCaxias",
+          "source": "SoGonalo",
+          "target": "DuquedeCaxias",
+          "weight": 29
+        },
+        {
+          "id": "e-Campinas-Sorocaba",
+          "source": "Campinas",
+          "target": "Sorocaba",
+          "weight": 78
+        },
+        {
+          "id": "e-SantoAndr-SoJosdosCampos",
+          "source": "SantoAndr",
+          "target": "SoJosdosCampos",
+          "weight": 84
+        },
+        {
+          "id": "e-Linhares-VilaVelha",
+          "source": "Linhares",
+          "target": "VilaVelha",
+          "weight": 108
+        },
+        {
+          "id": "e-JooPessoa-JaboatodosGuararapes",
+          "source": "JooPessoa",
+          "target": "JaboatodosGuararapes",
+          "weight": 117
+        },
+        {
+          "id": "e-Braslia-AparecidadeGoinia",
+          "source": "Braslia",
+          "target": "AparecidadeGoinia",
+          "weight": 185
+        },
+        {
+          "id": "e-Recife-Macei",
+          "source": "Recife",
+          "target": "Macei",
+          "weight": 200
+        },
+        {
+          "id": "e-Serra-CamposdosGoytacazes",
+          "source": "Serra",
+          "target": "CamposdosGoytacazes",
+          "weight": 210
+        },
+        {
+          "id": "e-Contagem-JuizdeFora",
+          "source": "Contagem",
+          "target": "JuizdeFora",
+          "weight": 219
+        }
+      ]
+    },
+    "startNode": "PortoAlegre",
+    "goalNode": "Ananindeua",
+    "useHeuristic": true
+  }
+}

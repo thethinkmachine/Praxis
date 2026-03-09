@@ -34,8 +34,62 @@ export interface GraphData {
   directed?: boolean;
 }
 
+export class Graph implements GraphData {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  directed?: boolean;
+
+  constructor(data: GraphData) {
+    this.nodes = data.nodes || [];
+    this.edges = data.edges || [];
+    this.directed = data.directed;
+  }
+
+  toAdjList(): Map<string, { neighbor: string; weight: number; edgeId: string }[]> {
+    const adj = new Map<string, { neighbor: string; weight: number; edgeId: string }[]>();
+    const nodes = new Map(this.nodes.map(n => [n.id, n]));
+    const getLabel = (id: string) => nodes.get(id)?.label ?? id;
+
+    this.nodes.forEach(n => adj.set(n.id, []));
+    this.edges.forEach(e => {
+      adj.get(e.source)?.push({ neighbor: e.target, weight: e.weight, edgeId: e.id });
+      if (!this.directed) {
+        adj.get(e.target)?.push({ neighbor: e.source, weight: e.weight, edgeId: e.id });
+      }
+    });
+
+    adj.forEach((neighbors) => {
+      neighbors.sort((a, b) => getLabel(a.neighbor).localeCompare(getLabel(b.neighbor)));
+    });
+
+    return adj;
+  }
+
+  toAdjMatrix(): { matrix: number[][], indexToId: string[], idToIndex: Map<string, number> } {
+    const n = this.nodes.length;
+    const indexToId = this.nodes.map(node => node.id);
+    const idToIndex = new Map(indexToId.map((id, idx) => [id, idx]));
+    
+    const matrix = Array(n).fill(0).map(() => Array(n).fill(Infinity));
+    for (let i = 0; i < n; i++) matrix[i][i] = 0;
+
+    for (const edge of this.edges) {
+      const u = idToIndex.get(edge.source);
+      const v = idToIndex.get(edge.target);
+      if (u !== undefined && v !== undefined) {
+        matrix[u][v] = Math.min(matrix[u][v], edge.weight);
+        if (!this.directed) {
+          matrix[v][u] = Math.min(matrix[v][u], edge.weight);
+        }
+      }
+    }
+
+    return { matrix, indexToId, idToIndex };
+  }
+}
+
 export interface GraphProblem {
-  graph: GraphData;
+  graph: Graph;
   startNode: string;
   goalNode: string;
   useHeuristic?: boolean;

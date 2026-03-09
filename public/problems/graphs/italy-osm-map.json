@@ -1,0 +1,924 @@
+{
+  "category": "graph",
+  "name": "Italy OSM Mesh",
+  "description": "High-fidelity city mesh for Italy generated from OpenStreetMap data. Guaranteed connectivity with realistic localized redundancy.",
+  "tags": [
+    "osm",
+    "real-world",
+    "detailed"
+  ],
+  "problem": {
+    "graph": {
+      "directed": false,
+      "nodes": [
+        {
+          "id": "Rome",
+          "label": "Rome",
+          "x": 683,
+          "y": 471,
+          "heuristic": 520
+        },
+        {
+          "id": "Milan",
+          "label": "Milan",
+          "x": 269,
+          "y": 168,
+          "heuristic": 203
+        },
+        {
+          "id": "Naples",
+          "label": "Naples",
+          "x": 904,
+          "y": 560,
+          "heuristic": 671
+        },
+        {
+          "id": "Turin",
+          "label": "Turin",
+          "x": 80,
+          "y": 201,
+          "heuristic": 326
+        },
+        {
+          "id": "Palermo",
+          "label": "Palermo",
+          "x": 792,
+          "y": 791,
+          "heuristic": 947
+        },
+        {
+          "id": "Genoa",
+          "label": "Genoa",
+          "x": 237,
+          "y": 257,
+          "heuristic": 300
+        },
+        {
+          "id": "Bologna",
+          "label": "Bologna",
+          "x": 539,
+          "y": 250,
+          "heuristic": 223
+        },
+        {
+          "id": "Florence",
+          "label": "Florence",
+          "x": 528,
+          "y": 311,
+          "heuristic": 304
+        },
+        {
+          "id": "Bari",
+          "label": "Bari",
+          "x": 1232,
+          "y": 536,
+          "heuristic": 743
+        },
+        {
+          "id": "Catania",
+          "label": "Catania",
+          "x": 1009,
+          "y": 843,
+          "heuristic": 1046
+        },
+        {
+          "id": "Verona",
+          "label": "Verona",
+          "x": 495,
+          "y": 170,
+          "heuristic": 121
+        },
+        {
+          "id": "Messina",
+          "label": "Messina",
+          "x": 1068,
+          "y": 784,
+          "heuristic": 985
+        },
+        {
+          "id": "Padua",
+          "label": "Padua",
+          "x": 606,
+          "y": 172,
+          "heuristic": 128
+        },
+        {
+          "id": "Parma",
+          "label": "Parma",
+          "x": 412,
+          "y": 224,
+          "heuristic": 205
+        },
+        {
+          "id": "Taranto",
+          "label": "Taranto",
+          "x": 1280,
+          "y": 591,
+          "heuristic": 821
+        },
+        {
+          "id": "Prato",
+          "label": "Prato",
+          "x": 509,
+          "y": 302,
+          "heuristic": 292
+        },
+        {
+          "id": "Brescia",
+          "label": "Brescia",
+          "x": 398,
+          "y": 161,
+          "heuristic": 138
+        },
+        {
+          "id": "Modena",
+          "label": "Modena",
+          "x": 487,
+          "y": 237,
+          "heuristic": 209
+        },
+        {
+          "id": "Trieste",
+          "label": "Trieste",
+          "x": 845,
+          "y": 152,
+          "heuristic": 209
+        },
+        {
+          "id": "ReggioCalabria",
+          "label": "Reggio Calabria",
+          "x": 1079,
+          "y": 792,
+          "heuristic": 997
+        },
+        {
+          "id": "Livorno",
+          "label": "Livorno",
+          "x": 410,
+          "y": 330,
+          "heuristic": 338
+        },
+        {
+          "id": "Ravenna",
+          "label": "Ravenna",
+          "x": 647,
+          "y": 257,
+          "heuristic": 241
+        },
+        {
+          "id": "Cagliari",
+          "label": "Cagliari",
+          "x": 260,
+          "y": 697,
+          "heuristic": 830
+        },
+        {
+          "id": "Foggia",
+          "label": "Foggia",
+          "x": 1067,
+          "y": 507,
+          "heuristic": 652
+        },
+        {
+          "id": "Salerno",
+          "label": "Salerno",
+          "x": 968,
+          "y": 573,
+          "heuristic": 702
+        },
+        {
+          "id": "Rimini",
+          "label": "Rimini",
+          "x": 693,
+          "y": 287,
+          "heuristic": 287
+        },
+        {
+          "id": "ReggionellEmilia",
+          "label": "Reggio nell'Emilia",
+          "x": 450,
+          "y": 233,
+          "heuristic": 208
+        },
+        {
+          "id": "Ferrara",
+          "label": "Ferrara",
+          "x": 574,
+          "y": 221,
+          "heuristic": 186
+        },
+        {
+          "id": "Latina",
+          "label": "Latina",
+          "x": 735,
+          "y": 507,
+          "heuristic": 573
+        },
+        {
+          "id": "TttariSassari",
+          "label": "Tàttari/Sassari",
+          "x": 190,
+          "y": 570,
+          "heuristic": 680
+        },
+        {
+          "id": "GiuglianoinCampania",
+          "label": "Giugliano in Campania",
+          "x": 898,
+          "y": 552,
+          "heuristic": 660
+        },
+        {
+          "id": "Bergamo",
+          "label": "Bergamo",
+          "x": 329,
+          "y": 148,
+          "heuristic": 158
+        },
+        {
+          "id": "Monza",
+          "label": "Monza",
+          "x": 280,
+          "y": 158,
+          "heuristic": 190
+        },
+        {
+          "id": "Forl",
+          "label": "Forlì",
+          "x": 627,
+          "y": 273,
+          "heuristic": 259
+        },
+        {
+          "id": "Trento",
+          "label": "Trento",
+          "x": 512,
+          "y": 117,
+          "heuristic": 51
+        },
+        {
+          "id": "Pescara",
+          "label": "Pescara",
+          "x": 899,
+          "y": 422,
+          "heuristic": 502
+        },
+        {
+          "id": "Syracuse",
+          "label": "Syracuse",
+          "x": 1035,
+          "y": 880,
+          "heuristic": 1098
+        },
+        {
+          "id": "Vicenza",
+          "label": "Vicenza",
+          "x": 565,
+          "y": 161,
+          "heuristic": 107
+        },
+        {
+          "id": "Bolzano",
+          "label": "Bolzano",
+          "x": 541,
+          "y": 80,
+          "heuristic": 0
+        },
+        {
+          "id": "Piacenza",
+          "label": "Piacenza",
+          "x": 333,
+          "y": 203,
+          "heuristic": 206
+        },
+        {
+          "id": "Novara",
+          "label": "Novara",
+          "x": 198,
+          "y": 169,
+          "heuristic": 242
+        },
+        {
+          "id": "Andria",
+          "label": "Andria",
+          "x": 1161,
+          "y": 527,
+          "heuristic": 707
+        },
+        {
+          "id": "Arezzo",
+          "label": "Arezzo",
+          "x": 607,
+          "y": 337,
+          "heuristic": 340
+        },
+        {
+          "id": "Ancona",
+          "label": "Ancona",
+          "x": 812,
+          "y": 324,
+          "heuristic": 363
+        },
+        {
+          "id": "Udine",
+          "label": "Udine",
+          "x": 777,
+          "y": 117,
+          "heuristic": 152
+        },
+        {
+          "id": "Pisa",
+          "label": "Pisa",
+          "x": 421,
+          "y": 316,
+          "heuristic": 318
+        },
+        {
+          "id": "Cesena",
+          "label": "Cesena",
+          "x": 652,
+          "y": 280,
+          "heuristic": 272
+        },
+        {
+          "id": "Pesaro",
+          "label": "Pesaro",
+          "x": 737,
+          "y": 300,
+          "heuristic": 313
+        },
+        {
+          "id": "Terni",
+          "label": "Terni",
+          "x": 702,
+          "y": 414,
+          "heuristic": 449
+        },
+        {
+          "id": "Barletta",
+          "label": "Barletta",
+          "x": 1160,
+          "y": 519,
+          "heuristic": 698
+        }
+      ],
+      "edges": [
+        {
+          "id": "e-Andria-Barletta",
+          "source": "Andria",
+          "target": "Barletta",
+          "weight": 10
+        },
+        {
+          "id": "e-Naples-GiuglianoinCampania",
+          "source": "Naples",
+          "target": "GiuglianoinCampania",
+          "weight": 11
+        },
+        {
+          "id": "e-Messina-ReggioCalabria",
+          "source": "Messina",
+          "target": "ReggioCalabria",
+          "weight": 13
+        },
+        {
+          "id": "e-Milan-Monza",
+          "source": "Milan",
+          "target": "Monza",
+          "weight": 15
+        },
+        {
+          "id": "e-Florence-Prato",
+          "source": "Florence",
+          "target": "Prato",
+          "weight": 18
+        },
+        {
+          "id": "e-Forl-Cesena",
+          "source": "Forl",
+          "target": "Cesena",
+          "weight": 19
+        },
+        {
+          "id": "e-Livorno-Pisa",
+          "source": "Livorno",
+          "target": "Pisa",
+          "weight": 20
+        },
+        {
+          "id": "e-Modena-ReggionellEmilia",
+          "source": "Modena",
+          "target": "ReggionellEmilia",
+          "weight": 24
+        },
+        {
+          "id": "e-Ravenna-Forl",
+          "source": "Ravenna",
+          "target": "Forl",
+          "weight": 25
+        },
+        {
+          "id": "e-Parma-ReggionellEmilia",
+          "source": "Parma",
+          "target": "ReggionellEmilia",
+          "weight": 27
+        },
+        {
+          "id": "e-Rimini-Cesena",
+          "source": "Rimini",
+          "target": "Cesena",
+          "weight": 27
+        },
+        {
+          "id": "e-Padua-Vicenza",
+          "source": "Padua",
+          "target": "Vicenza",
+          "weight": 30
+        },
+        {
+          "id": "e-Rimini-Pesaro",
+          "source": "Rimini",
+          "target": "Pesaro",
+          "weight": 32
+        },
+        {
+          "id": "e-Bergamo-Monza",
+          "source": "Bergamo",
+          "target": "Monza",
+          "weight": 33
+        },
+        {
+          "id": "e-Bologna-Modena",
+          "source": "Bologna",
+          "target": "Modena",
+          "weight": 37
+        },
+        {
+          "id": "e-Bologna-Ferrara",
+          "source": "Bologna",
+          "target": "Ferrara",
+          "weight": 44
+        },
+        {
+          "id": "e-Milan-Novara",
+          "source": "Milan",
+          "target": "Novara",
+          "weight": 45
+        },
+        {
+          "id": "e-Verona-Vicenza",
+          "source": "Verona",
+          "target": "Vicenza",
+          "weight": 45
+        },
+        {
+          "id": "e-Naples-Salerno",
+          "source": "Naples",
+          "target": "Salerno",
+          "weight": 46
+        },
+        {
+          "id": "e-Brescia-Bergamo",
+          "source": "Brescia",
+          "target": "Bergamo",
+          "weight": 46
+        },
+        {
+          "id": "e-Bari-Andria",
+          "source": "Bari",
+          "target": "Andria",
+          "weight": 49
+        },
+        {
+          "id": "e-Trento-Bolzano",
+          "source": "Trento",
+          "target": "Bolzano",
+          "weight": 51
+        },
+        {
+          "id": "e-Catania-Syracuse",
+          "source": "Catania",
+          "target": "Syracuse",
+          "weight": 52
+        },
+        {
+          "id": "e-Parma-Piacenza",
+          "source": "Parma",
+          "target": "Piacenza",
+          "weight": 57
+        },
+        {
+          "id": "e-Ancona-Pesaro",
+          "source": "Ancona",
+          "target": "Pesaro",
+          "weight": 58
+        },
+        {
+          "id": "e-Rome-Latina",
+          "source": "Rome",
+          "target": "Latina",
+          "weight": 59
+        },
+        {
+          "id": "e-Prato-Pisa",
+          "source": "Prato",
+          "target": "Pisa",
+          "weight": 59
+        },
+        {
+          "id": "e-Milan-Piacenza",
+          "source": "Milan",
+          "target": "Piacenza",
+          "weight": 60
+        },
+        {
+          "id": "e-Florence-Arezzo",
+          "source": "Florence",
+          "target": "Arezzo",
+          "weight": 61
+        },
+        {
+          "id": "e-Verona-Brescia",
+          "source": "Verona",
+          "target": "Brescia",
+          "weight": 61
+        },
+        {
+          "id": "e-Trieste-Udine",
+          "source": "Trieste",
+          "target": "Udine",
+          "weight": 62
+        },
+        {
+          "id": "e-Bologna-Forl",
+          "source": "Bologna",
+          "target": "Forl",
+          "weight": 63
+        },
+        {
+          "id": "e-Foggia-Barletta",
+          "source": "Foggia",
+          "target": "Barletta",
+          "weight": 64
+        },
+        {
+          "id": "e-Trento-Vicenza",
+          "source": "Trento",
+          "target": "Vicenza",
+          "weight": 66
+        },
+        {
+          "id": "e-Bologna-Prato",
+          "source": "Bologna",
+          "target": "Prato",
+          "weight": 71
+        },
+        {
+          "id": "e-Rome-Terni",
+          "source": "Rome",
+          "target": "Terni",
+          "weight": 76
+        },
+        {
+          "id": "e-Bari-Taranto",
+          "source": "Bari",
+          "target": "Taranto",
+          "weight": 80
+        },
+        {
+          "id": "e-Catania-ReggioCalabria",
+          "source": "Catania",
+          "target": "ReggioCalabria",
+          "weight": 83
+        },
+        {
+          "id": "e-Turin-Novara",
+          "source": "Turin",
+          "target": "Novara",
+          "weight": 85
+        },
+        {
+          "id": "e-Genoa-Piacenza",
+          "source": "Genoa",
+          "target": "Piacenza",
+          "weight": 94
+        },
+        {
+          "id": "e-Foggia-Salerno",
+          "source": "Foggia",
+          "target": "Salerno",
+          "weight": 109
+        },
+        {
+          "id": "e-Arezzo-Terni",
+          "source": "Arezzo",
+          "target": "Terni",
+          "weight": 118
+        },
+        {
+          "id": "e-Latina-GiuglianoinCampania",
+          "source": "Latina",
+          "target": "GiuglianoinCampania",
+          "weight": 124
+        },
+        {
+          "id": "e-Padua-Udine",
+          "source": "Padua",
+          "target": "Udine",
+          "weight": 128
+        },
+        {
+          "id": "e-Pescara-Terni",
+          "source": "Pescara",
+          "target": "Terni",
+          "weight": 129
+        },
+        {
+          "id": "e-Palermo-Catania",
+          "source": "Palermo",
+          "target": "Catania",
+          "weight": 167
+        },
+        {
+          "id": "e-Cagliari-TttariSassari",
+          "source": "Cagliari",
+          "target": "TttariSassari",
+          "weight": 174
+        },
+        {
+          "id": "e-Messina-Salerno",
+          "source": "Messina",
+          "target": "Salerno",
+          "weight": 285
+        },
+        {
+          "id": "e-Livorno-TttariSassari",
+          "source": "Livorno",
+          "target": "TttariSassari",
+          "weight": 346
+        },
+        {
+          "id": "e-Ravenna-Cesena",
+          "source": "Ravenna",
+          "target": "Cesena",
+          "weight": 31
+        },
+        {
+          "id": "e-Milan-Bergamo",
+          "source": "Milan",
+          "target": "Bergamo",
+          "weight": 45
+        },
+        {
+          "id": "e-Rimini-Forl",
+          "source": "Rimini",
+          "target": "Forl",
+          "weight": 46
+        },
+        {
+          "id": "e-Ravenna-Rimini",
+          "source": "Ravenna",
+          "target": "Rimini",
+          "weight": 49
+        },
+        {
+          "id": "e-Parma-Modena",
+          "source": "Parma",
+          "target": "Modena",
+          "weight": 50
+        },
+        {
+          "id": "e-Bari-Barletta",
+          "source": "Bari",
+          "target": "Barletta",
+          "weight": 53
+        },
+        {
+          "id": "e-Monza-Novara",
+          "source": "Monza",
+          "target": "Novara",
+          "weight": 53
+        },
+        {
+          "id": "e-Salerno-GiuglianoinCampania",
+          "source": "Salerno",
+          "target": "GiuglianoinCampania",
+          "weight": 54
+        },
+        {
+          "id": "e-Modena-Ferrara",
+          "source": "Modena",
+          "target": "Ferrara",
+          "weight": 59
+        },
+        {
+          "id": "e-Cesena-Pesaro",
+          "source": "Cesena",
+          "target": "Pesaro",
+          "weight": 59
+        },
+        {
+          "id": "e-Bologna-ReggionellEmilia",
+          "source": "Bologna",
+          "target": "ReggionellEmilia",
+          "weight": 61
+        },
+        {
+          "id": "e-Ravenna-Ferrara",
+          "source": "Ravenna",
+          "target": "Ferrara",
+          "weight": 66
+        },
+        {
+          "id": "e-Padua-Ferrara",
+          "source": "Padua",
+          "target": "Ferrara",
+          "weight": 67
+        },
+        {
+          "id": "e-Brescia-Piacenza",
+          "source": "Brescia",
+          "target": "Piacenza",
+          "weight": 68
+        },
+        {
+          "id": "e-Foggia-Andria",
+          "source": "Foggia",
+          "target": "Andria",
+          "weight": 68
+        },
+        {
+          "id": "e-Florence-Pisa",
+          "source": "Florence",
+          "target": "Pisa",
+          "weight": 69
+        },
+        {
+          "id": "e-Verona-Padua",
+          "source": "Verona",
+          "target": "Padua",
+          "weight": 69
+        },
+        {
+          "id": "e-Verona-Trento",
+          "source": "Verona",
+          "target": "Trento",
+          "weight": 71
+        },
+        {
+          "id": "e-Prato-Livorno",
+          "source": "Prato",
+          "target": "Livorno",
+          "weight": 73
+        },
+        {
+          "id": "e-Prato-Arezzo",
+          "source": "Prato",
+          "target": "Arezzo",
+          "weight": 78
+        },
+        {
+          "id": "e-Catania-Messina",
+          "source": "Catania",
+          "target": "Messina",
+          "weight": 87
+        },
+        {
+          "id": "e-Rimini-Ancona",
+          "source": "Rimini",
+          "target": "Ancona",
+          "weight": 91
+        },
+        {
+          "id": "e-Vicenza-Bolzano",
+          "source": "Vicenza",
+          "target": "Bolzano",
+          "weight": 107
+        },
+        {
+          "id": "e-Taranto-Andria",
+          "source": "Taranto",
+          "target": "Andria",
+          "weight": 116
+        },
+        {
+          "id": "e-Ancona-Cesena",
+          "source": "Ancona",
+          "target": "Cesena",
+          "weight": 117
+        },
+        {
+          "id": "e-Genoa-Novara",
+          "source": "Genoa",
+          "target": "Novara",
+          "weight": 118
+        },
+        {
+          "id": "e-Milan-Genoa",
+          "source": "Milan",
+          "target": "Genoa",
+          "weight": 119
+        },
+        {
+          "id": "e-ReggioCalabria-Syracuse",
+          "source": "ReggioCalabria",
+          "target": "Syracuse",
+          "weight": 120
+        },
+        {
+          "id": "e-Verona-Bolzano",
+          "source": "Verona",
+          "target": "Bolzano",
+          "weight": 121
+        },
+        {
+          "id": "e-Turin-Genoa",
+          "source": "Turin",
+          "target": "Genoa",
+          "weight": 123
+        },
+        {
+          "id": "e-Taranto-Barletta",
+          "source": "Taranto",
+          "target": "Barletta",
+          "weight": 124
+        },
+        {
+          "id": "e-Latina-Terni",
+          "source": "Latina",
+          "target": "Terni",
+          "weight": 124
+        },
+        {
+          "id": "e-Milan-Turin",
+          "source": "Milan",
+          "target": "Turin",
+          "weight": 126
+        },
+        {
+          "id": "e-Messina-Syracuse",
+          "source": "Messina",
+          "target": "Syracuse",
+          "weight": 128
+        },
+        {
+          "id": "e-Naples-Foggia",
+          "source": "Naples",
+          "target": "Foggia",
+          "weight": 129
+        },
+        {
+          "id": "e-Pescara-Ancona",
+          "source": "Pescara",
+          "target": "Ancona",
+          "weight": 139
+        },
+        {
+          "id": "e-Vicenza-Udine",
+          "source": "Vicenza",
+          "target": "Udine",
+          "weight": 143
+        },
+        {
+          "id": "e-Padua-Trieste",
+          "source": "Padua",
+          "target": "Trieste",
+          "weight": 151
+        },
+        {
+          "id": "e-Latina-Pescara",
+          "source": "Latina",
+          "target": "Pescara",
+          "weight": 155
+        },
+        {
+          "id": "e-Rome-Pescara",
+          "source": "Rome",
+          "target": "Pescara",
+          "weight": 156
+        },
+        {
+          "id": "e-Trieste-Vicenza",
+          "source": "Trieste",
+          "target": "Vicenza",
+          "weight": 174
+        },
+        {
+          "id": "e-Palermo-Messina",
+          "source": "Palermo",
+          "target": "Messina",
+          "weight": 193
+        },
+        {
+          "id": "e-Palermo-ReggioCalabria",
+          "source": "Palermo",
+          "target": "ReggioCalabria",
+          "weight": 200
+        }
+      ]
+    },
+    "startNode": "Syracuse",
+    "goalNode": "Bolzano",
+    "useHeuristic": true
+  }
+}
