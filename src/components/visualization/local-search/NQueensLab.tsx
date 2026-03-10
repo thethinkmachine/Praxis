@@ -50,7 +50,7 @@ function QueenBoard({ state, step, onSetQueen }: { state: number[]; step: LocalS
                 )}
                 style={{ fontSize: `clamp(12px, ${300 / state.length}px, 24px)` }}
               >
-                Q
+                ♛
               </span>
             )}
           </button>

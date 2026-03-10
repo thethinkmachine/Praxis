@@ -6,9 +6,18 @@ interface TspLabProps {
   problem: TspProblem;
   step: LocalSearchStep | null;
   onRegenerate: () => void;
+  onUpdateCities?: (cities: TspProblem['cities']) => void;
 }
 
-function RouteCanvas({ problem, route }: { problem: TspProblem; route: number[] }) {
+function RouteCanvas({
+  problem,
+  route,
+  onUpdateCities,
+}: {
+  problem: TspProblem;
+  route: number[];
+  onUpdateCities?: (cities: TspProblem['cities']) => void;
+}) {
   const cities = route.map(index => problem.cities[index]);
   const width = 520;
   const height = 360;
@@ -21,7 +30,29 @@ function RouteCanvas({ problem, route }: { problem: TspProblem; route: number[] 
 
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full rounded-xl border border-[var(--border)] bg-[#0d151f]">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="w-full rounded-xl border border-[var(--border)] bg-[#0d151f]"
+        onPointerMove={(e) => {
+          if (!onUpdateCities || e.buttons !== 1) return;
+          const target = e.target as SVGElement;
+          const cityIdAttr = target.closest('g')?.getAttribute('data-city-id');
+          if (!cityIdAttr) return;
+
+          const rect = e.currentTarget.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width * width;
+          const y = (e.clientY - rect.top) / rect.height * height;
+
+          // Inverse scaling
+          const realX = minX + ((x - 40) / (width - 80)) * (maxX - minX);
+          const realY = minY + ((y - 40) / (height - 80)) * (maxY - minY);
+
+          const nextCities = problem.cities.map(c => 
+            c.id === cityIdAttr ? { ...c, x: realX, y: realY } : c
+          );
+          onUpdateCities(nextCities);
+        }}
+      >
         {cities.map((city, index) => {
           const next = cities[(index + 1) % cities.length];
           return (
@@ -33,13 +64,14 @@ function RouteCanvas({ problem, route }: { problem: TspProblem; route: number[] 
               y2={scaleY(next.y)}
               stroke="rgba(83,200,128,0.72)"
               strokeWidth="3"
+              className="pointer-events-none"
             />
           );
         })}
         {problem.cities.map(city => (
-          <g key={city.id}>
-            <circle cx={scaleX(city.x)} cy={scaleY(city.y)} r="10" fill="#F2C94C" stroke="#0b1220" strokeWidth="2.5" />
-            <text x={scaleX(city.x)} y={scaleY(city.y) + 4} textAnchor="middle" fontSize="10" fill="#0b1220" fontWeight="700">
+          <g key={city.id} data-city-id={city.id} className={onUpdateCities ? 'cursor-move' : ''}>
+            <circle cx={scaleX(city.x)} cy={scaleY(city.y)} r="12" fill="#F2C94C" stroke="#0b1220" strokeWidth="2.5" />
+            <text x={scaleX(city.x)} y={scaleY(city.y) + 4} textAnchor="middle" fontSize="10" fill="#0b1220" fontWeight="700" className="pointer-events-none">
               {city.label ?? city.id}
             </text>
           </g>
@@ -49,7 +81,7 @@ function RouteCanvas({ problem, route }: { problem: TspProblem; route: number[] 
   );
 }
 
-export function TspBoardTab({ problem, step, onRegenerate }: TspLabProps) {
+export function TspBoardTab({ problem, step, onRegenerate, onUpdateCities }: TspLabProps) {
   const route = (step?.state.currentState as number[] | undefined) ?? problem.initialRoute ?? Array.from({ length: problem.cities.length }, (_, index) => index);
 
   return (
@@ -82,7 +114,7 @@ export function TspBoardTab({ problem, step, onRegenerate }: TspLabProps) {
   );
 }
 
-export function TspNeighborhoodTab({ problem, step, onRegenerate }: TspLabProps) {
+export function TspNeighborhoodTab({ problem, step, onRegenerate, onUpdateCities }: TspLabProps) {
   const route = (step?.state.currentState as number[] | undefined) ?? problem.initialRoute ?? Array.from({ length: problem.cities.length }, (_, index) => index);
 
   return (

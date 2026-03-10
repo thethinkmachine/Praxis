@@ -7,7 +7,7 @@ import { GraphColoringBoardTab, GraphColoringNeighborhoodTab } from '@/component
 import { LandscapeBoardTab, LandscapeNeighborhoodTab } from '@/components/visualization/local-search/LandscapeLab';
 import { NPuzzleBoardTab, NPuzzleNeighborhoodTab } from '@/components/visualization/local-search/NPuzzleLab';
 import { NQueensBoardTab, NQueensNeighborhoodTab } from '@/components/visualization/local-search/NQueensLab';
-import { ObjectiveTab, TrajectoryTab } from '@/components/visualization/local-search/LocalSearchShared';
+import { ObjectiveTab, TrajectoryTab, ViewOverlay } from '@/components/visualization/local-search/LocalSearchShared';
 import { TspBoardTab, TspNeighborhoodTab } from '@/components/visualization/local-search/TspLab';
 import type { LocalSearchStep } from '@/algorithms/local-search/types';
 import { useExecutionStore } from '@/store/execution.store';
@@ -59,6 +59,13 @@ export default function LocalSearchPage() {
   const labParam = (searchParams.get('lab') as LocalSearchProblem['kind'] | null) ?? 'n-queens';
   const [problem, setProblem] = useState<LocalSearchProblem>(() => createDefaultLocalSearchProblem(labParam));
   const step = useExecutionStore(state => state.currentStep as LocalSearchStep | null);
+  const currentIndex = useExecutionStore(state => state.currentIndex);
+  const resetExecution = useExecutionStore(state => state.reset);
+
+  const handleResetForSetup = () => {
+    resetExecution();
+    setProblem(prev => ({ ...prev }));
+  };
 
   useEffect(() => {
     if (problem.kind !== labParam) {
@@ -72,6 +79,7 @@ export default function LocalSearchPage() {
   };
 
   const updateProblem = (patch: Record<string, unknown>) => {
+    if (currentIndex > 0) return; // Prevent edits during active traces
     setProblem(prev => ({ ...prev, ...patch } as LocalSearchProblem));
   };
 
@@ -161,43 +169,65 @@ export default function LocalSearchPage() {
       </ConfigSection>
 
       <ConfigSection title="Metaheuristic Tuning" defaultOpen={false}>
-        <div className="space-y-3">
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Restarts</p>
-            <input type="number" min={0} value={problem.restartLimit ?? 8} onChange={(e) => updateProblem({ restartLimit: Math.max(0, Number(e.target.value) || 0) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Sideways Limit</p>
-            <input type="number" min={0} value={problem.sidewaysMoveLimit ?? 12} onChange={(e) => updateProblem({ sidewaysMoveLimit: Math.max(0, Number(e.target.value) || 0) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Beam Width</p>
-            <input type="number" min={2} value={problem.beamWidth ?? 4} onChange={(e) => updateProblem({ beamWidth: Math.max(2, Number(e.target.value) || 2) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Tabu Tenure</p>
-            <input type="number" min={1} value={problem.tabuTenure ?? 7} onChange={(e) => updateProblem({ tabuTenure: Math.max(1, Number(e.target.value) || 1) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Initial Temperature</p>
-            <input type="number" min={0.1} step={0.1} value={problem.initialTemperature ?? 10} onChange={(e) => updateProblem({ initialTemperature: Math.max(0.1, Number(e.target.value) || 0.1) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Cooling Rate</p>
-            <input type="number" min={0.5} max={0.999} step={0.005} value={problem.coolingRate ?? 0.94} onChange={(e) => updateProblem({ coolingRate: Math.max(0.5, Math.min(0.999, Number(e.target.value) || 0.94)) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Population Size</p>
-            <input type="number" min={4} value={problem.populationSize ?? 16} onChange={(e) => updateProblem({ populationSize: Math.max(4, Number(e.target.value) || 4) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Mutation Rate</p>
-            <input type="number" min={0} max={1} step={0.01} value={problem.mutationRate ?? 0.18} onChange={(e) => updateProblem({ mutationRate: Math.max(0, Math.min(1, Number(e.target.value) || 0)) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Crossover Rate</p>
-            <input type="number" min={0} max={1} step={0.01} value={problem.crossoverRate ?? 0.85} onChange={(e) => updateProblem({ crossoverRate: Math.max(0, Math.min(1, Number(e.target.value) || 0)) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-          </div>
+        <div className="space-y-4">
+          {algo === 'hill-climbing-random-restart' && (
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Restarts</p>
+              <input type="number" min={0} value={problem.restartLimit ?? 8} onChange={(e) => updateProblem({ restartLimit: Math.max(0, Number(e.target.value) || 0) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
+            </div>
+          )}
+          {algo === 'hill-climbing-sideways' && (
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Sideways Limit</p>
+              <input type="number" min={0} value={problem.sidewaysMoveLimit ?? 12} onChange={(e) => updateProblem({ sidewaysMoveLimit: Math.max(0, Number(e.target.value) || 0) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
+            </div>
+          )}
+          {(algo === 'local-beam-search' || algo === 'stochastic-beam-search') && (
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Beam Width</p>
+              <input type="number" min={2} value={problem.beamWidth ?? 4} onChange={(e) => updateProblem({ beamWidth: Math.max(2, Number(e.target.value) || 2) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
+            </div>
+          )}
+          {algo === 'tabu-search' && (
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Tabu Tenure</p>
+              <input type="number" min={1} value={problem.tabuTenure ?? 7} onChange={(e) => updateProblem({ tabuTenure: Math.max(1, Number(e.target.value) || 1) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
+            </div>
+          )}
+          {algo === 'simulated-annealing' && (
+            <>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Initial Temperature</p>
+                <input type="number" min={0.1} step={0.1} value={problem.initialTemperature ?? 10} onChange={(e) => updateProblem({ initialTemperature: Math.max(0.1, Number(e.target.value) || 0.1) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Cooling Rate</p>
+                <input type="number" min={0.5} max={0.999} step={0.005} value={problem.coolingRate ?? 0.94} onChange={(e) => updateProblem({ coolingRate: Math.max(0.5, Math.min(0.999, Number(e.target.value) || 0.94)) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
+              </div>
+            </>
+          )}
+          {algo === 'genetic-algorithm' && (
+            <>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Population Size</p>
+                <input type="number" min={4} value={problem.populationSize ?? 16} onChange={(e) => updateProblem({ populationSize: Math.max(4, Number(e.target.value) || 4) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Mutation Rate</p>
+                <input type="number" min={0} max={1} step={0.01} value={problem.mutationRate ?? 0.18} onChange={(e) => updateProblem({ mutationRate: Math.max(0, Math.min(1, Number(e.target.value) || 0)) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Crossover Rate</p>
+                <input type="number" min={0} max={1} step={0.01} value={problem.crossoverRate ?? 0.85} onChange={(e) => updateProblem({ crossoverRate: Math.max(0, Math.min(1, Number(e.target.value) || 0)) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
+              </div>
+            </>
+          )}
+          {/* Default message if no metaheuristic parameters apply */}
+          {!['hill-climbing-random-restart', 'hill-climbing-sideways', 'local-beam-search', 'stochastic-beam-search', 'tabu-search', 'simulated-annealing', 'genetic-algorithm'].includes(algo) && (
+            <p className="text-[10px] text-center text-[var(--text-3)] py-2 italic">
+              No specific tuning parameters for this algorithm.
+            </p>
+          )}
         </div>
       </ConfigSection>
 
@@ -316,50 +346,154 @@ export default function LocalSearchPage() {
   const boardTab = (() => {
     switch (problem.kind) {
       case 'n-queens':
-        return <NQueensBoardTab problem={problem} step={step} onSetQueen={(column, row) => setProblem(prev => {
-          if (prev.kind !== 'n-queens') return prev;
-          const next = [...(prev.initialState ?? createRandomState(prev.size, createSeededRandom(prev.randomSeed ?? 1337)))];
-          next[column] = row;
-          return { ...prev, initialState: next };
-        })} />;
+        return (
+          <div className="relative group h-full">
+            <NQueensBoardTab problem={problem} step={step as LocalSearchStep | null} onSetQueen={(column, row) => {
+              if (currentIndex > 0) return;
+              setProblem(prev => {
+                if (prev.kind !== 'n-queens') return prev;
+                const next = [...(prev.initialState ?? createRandomState(prev.size, createSeededRandom(prev.randomSeed ?? 1337)))];
+                next[column] = row;
+                return { ...prev, initialState: next };
+              });
+            }} />
+            <ViewOverlay active={currentIndex > 0} onReset={handleResetForSetup} />
+          </div>
+        );
       case 'tsp':
-        return <TspBoardTab problem={problem} step={step} onRegenerate={() => setProblem(createDefaultTspProblem(problem.cities.length))} />;
+        return (
+          <div className="relative group">
+            <TspBoardTab 
+              problem={problem} 
+              step={step as LocalSearchStep | null} 
+              onRegenerate={() => setProblem(createDefaultTspProblem(problem.cities.length))} 
+              onUpdateCities={(cities) => updateProblem({ cities })}
+            />
+            <ViewOverlay active={currentIndex > 0} onReset={handleResetForSetup} />
+          </div>
+        );
       case 'graph-coloring':
-        return <GraphColoringBoardTab problem={problem} step={step} onCycleNode={(index) => setProblem(prev => {
-          if (prev.kind !== 'graph-coloring') return prev;
-          const next = [...(prev.initialColors ?? Array.from({ length: prev.graph.nodes.length }, (_, idx) => idx % prev.colorCount))];
-          next[index] = (next[index] + 1) % prev.colorCount;
-          return { ...prev, initialColors: next };
-        })} />;
+        return (
+          <div className="relative group h-full">
+            <GraphColoringBoardTab 
+              problem={problem} 
+              step={step as LocalSearchStep | null} 
+              onCycleNode={(index) => {
+                if (currentIndex > 0) return;
+                setProblem(prev => {
+                  if (prev.kind !== 'graph-coloring') return prev;
+                  const next = [...(prev.initialColors ?? Array.from({ length: prev.graph.nodes.length }, (_, idx) => idx % prev.colorCount))];
+                  next[index] = (next[index] + 1) % prev.colorCount;
+                  return { ...prev, initialColors: next };
+                });
+              }} 
+              onUpdateGraph={(graph) => updateProblem({ graph })}
+            />
+            <ViewOverlay active={currentIndex > 0} onReset={handleResetForSetup} />
+          </div>
+        );
       case 'landscape':
-        return <LandscapeBoardTab problem={problem} step={step} />;
+        return (
+          <div className="relative group">
+            <LandscapeBoardTab
+              problem={problem}
+              step={step as LocalSearchStep | null}
+              onSetInitialState={(initialState) => updateProblem({ initialState })}
+            />
+            <ViewOverlay active={currentIndex > 0} onReset={handleResetForSetup} />
+          </div>
+        );
       case 'n-puzzle':
-        return <NPuzzleBoardTab problem={problem} step={step} onMoveTile={(tileIndex) => setProblem(prev => prev.kind === 'n-puzzle' ? movePuzzleTile(prev, tileIndex) : prev)} />;
+        return (
+          <div className="relative group h-full">
+            <NPuzzleBoardTab
+              problem={problem}
+              step={step as LocalSearchStep | null}
+              onMoveTile={(tileIndex) => {
+                if (currentIndex > 0) return;
+                setProblem(prev => prev.kind === 'n-puzzle' ? movePuzzleTile(prev, tileIndex) : prev);
+              }}
+            />
+            <ViewOverlay active={currentIndex > 0} onReset={handleResetForSetup} />
+          </div>
+        );
     }
   })();
 
   const neighborhoodTab = (() => {
     switch (problem.kind) {
       case 'n-queens':
-        return <NQueensNeighborhoodTab problem={problem} step={step} onSetQueen={(column, row) => setProblem(prev => {
-          if (prev.kind !== 'n-queens') return prev;
-          const next = [...(prev.initialState ?? createRandomState(prev.size, createSeededRandom(prev.randomSeed ?? 1337)))];
-          next[column] = row;
-          return { ...prev, initialState: next };
-        })} />;
+        return (
+          <div className="relative group">
+            <NQueensNeighborhoodTab problem={problem} step={step as LocalSearchStep | null} onSetQueen={(column, row) => {
+              if (currentIndex > 0) return;
+              setProblem(prev => {
+                if (prev.kind !== 'n-queens') return prev;
+                const next = [...(prev.initialState ?? createRandomState(prev.size, createSeededRandom(prev.randomSeed ?? 1337)))];
+                next[column] = row;
+                return { ...prev, initialState: next };
+              });
+            }} />
+            <ViewOverlay active={currentIndex > 0} onReset={handleResetForSetup} />
+          </div>
+        );
       case 'tsp':
-        return <TspNeighborhoodTab problem={problem} step={step} onRegenerate={() => setProblem(createDefaultTspProblem(problem.cities.length))} />;
+        return (
+          <div className="relative group">
+            <TspNeighborhoodTab 
+              problem={problem} 
+              step={step as LocalSearchStep | null} 
+              onRegenerate={() => setProblem(createDefaultTspProblem(problem.cities.length))} 
+              onUpdateCities={(cities) => updateProblem({ cities })}
+            />
+            <ViewOverlay active={currentIndex > 0} onReset={handleResetForSetup} />
+          </div>
+        );
       case 'graph-coloring':
-        return <GraphColoringNeighborhoodTab problem={problem} step={step} onCycleNode={(index) => setProblem(prev => {
-          if (prev.kind !== 'graph-coloring') return prev;
-          const next = [...(prev.initialColors ?? Array.from({ length: prev.graph.nodes.length }, (_, idx) => idx % prev.colorCount))];
-          next[index] = (next[index] + 1) % prev.colorCount;
-          return { ...prev, initialColors: next };
-        })} />;
+        return (
+          <div className="relative group">
+            <GraphColoringNeighborhoodTab 
+              problem={problem} 
+              step={step as LocalSearchStep | null} 
+              onCycleNode={(index) => {
+                if (currentIndex > 0) return;
+                setProblem(prev => {
+                  if (prev.kind !== 'graph-coloring') return prev;
+                  const next = [...(prev.initialColors ?? Array.from({ length: prev.graph.nodes.length }, (_, idx) => idx % prev.colorCount))];
+                  next[index] = (next[index] + 1) % prev.colorCount;
+                  return { ...prev, initialColors: next };
+                });
+              }} 
+              onUpdateGraph={(graph) => updateProblem({ graph })}
+            />
+            <ViewOverlay active={currentIndex > 0} onReset={handleResetForSetup} />
+          </div>
+        );
       case 'landscape':
-        return <LandscapeNeighborhoodTab problem={problem} step={step} />;
+        return (
+          <div className="relative group">
+            <LandscapeNeighborhoodTab 
+              problem={problem} 
+              step={step as LocalSearchStep | null} 
+              onSetInitialState={(initialState) => updateProblem({ initialState })}
+            />
+            <ViewOverlay active={currentIndex > 0} onReset={handleResetForSetup} />
+          </div>
+        );
       case 'n-puzzle':
-        return <NPuzzleNeighborhoodTab problem={problem} step={step} onMoveTile={(tileIndex) => setProblem(prev => prev.kind === 'n-puzzle' ? movePuzzleTile(prev, tileIndex) : prev)} />;
+        return (
+          <div className="relative group">
+            <NPuzzleNeighborhoodTab 
+              problem={problem} 
+              step={step as LocalSearchStep | null} 
+              onMoveTile={(tileIndex) => {
+                if (currentIndex > 0) return;
+                setProblem(prev => prev.kind === 'n-puzzle' ? movePuzzleTile(prev, tileIndex) : prev);
+              }}
+            />
+            <ViewOverlay active={currentIndex > 0} onReset={handleResetForSetup} />
+          </div>
+        );
     }
   })();
 
@@ -375,7 +509,7 @@ export default function LocalSearchPage() {
         { id: 'board', label: 'Problem View', content: boardTab },
         { id: 'neighborhood', label: 'Neighborhood', content: neighborhoodTab },
         { id: 'objective', label: 'Objective', content: <ObjectiveTab /> },
-        { id: 'trajectory', label: 'Trajectory', content: <TrajectoryTab step={step} /> },
+        { id: 'trajectory', label: 'Trajectory', content: <TrajectoryTab step={step as LocalSearchStep | null} /> },
       ]}
       titleActions={
         <div className="flex items-center gap-2">

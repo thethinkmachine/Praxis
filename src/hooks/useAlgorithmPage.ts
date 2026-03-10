@@ -16,7 +16,10 @@ function isEmptyGraphProblem(problem: unknown): boolean {
  * and algorithm loading when id/problem changes.
  */
 export function useAlgorithmPage(algorithmId: string, problem: unknown) {
-  const store = useExecutionStore();
+  const loadAlgorithm = useExecutionStore(state => state.loadAlgorithm);
+  const clear = useExecutionStore(state => state.clear);
+  const stepForward = useExecutionStore(state => state.stepForward);
+  
   usePlayback();
 
   const runner = useMemo(() => {
@@ -27,21 +30,21 @@ export function useAlgorithmPage(algorithmId: string, problem: unknown) {
   useEffect(() => {
     if (!runner) return;
     if (isEmptyGraphProblem(problem)) {
-      store.clear();
+      clear();
       return;
     }
-    store.loadAlgorithm(runner, problem, algorithmId);
+    loadAlgorithm(runner, problem, algorithmId);
     
     // Only jump to first step if we aren't preserving a previous index
     if (useExecutionStore.getState().currentIndex === -1) {
-      store.stepForward();
+      stepForward();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [algorithmId, problem]);
+  }, [algorithmId, problem, runner]);
 
-  const step = store.currentStep as AlgorithmStep | null;
-  const loadError = store.loadError;
-  const loadWarning = store.loadWarning;
+  const step = useExecutionStore(state => state.currentStep as AlgorithmStep | null);
+  const loadError = useExecutionStore(state => state.loadError);
+  const loadWarning = useExecutionStore(state => state.loadWarning);
 
-  return { runner, step, loadError, loadWarning, store };
+  return { runner, step, loadError, loadWarning };
 }

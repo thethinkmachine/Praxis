@@ -103,6 +103,7 @@ export function TraceNotes({ step, fallback }: { step: LocalSearchStep | null; f
   );
 }
 
+
 export function ObjectiveTab() {
   const engine = useExecutionStore(state => state.engine);
   const currentIndex = useExecutionStore(state => state.currentIndex);
@@ -262,3 +263,28 @@ export function TrajectoryTab({ step }: { step: LocalSearchStep | null }) {
     </div>
   );
 }
+
+export function ViewOverlay({ active, onReset }: { active: boolean; onReset: () => void }) {
+  if (!active) return null;
+  return (
+    <div className="absolute inset-x-0 top-6 z-20 flex justify-center pointer-events-none">
+      <div className="pointer-events-auto flex items-center gap-4 rounded-full border border-[var(--border)] bg-[var(--surface-2)]/95 px-4 py-2 shadow-xl backdrop-blur-md transition-all animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="flex items-center gap-2">
+          <div className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
+          <span className="text-[11px] font-medium text-[var(--text)]">Playback active: edits locked</span>
+        </div>
+        <div className="h-3 w-px bg-[var(--border)]" />
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onReset();
+          }}
+          className="text-[10px] font-bold uppercase tracking-wider text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors active:scale-95"
+        >
+          Reset to Setup
+        </button>
+      </div>
+    </div>
+  );
+}
+

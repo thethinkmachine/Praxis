@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { cn } from '@/lib/cn';
 import type { LandscapeProblem, LandscapeState } from '@/types/problem';
 import type { LocalSearchStep } from '@/algorithms/local-search/types';
 import { evaluateLandscape } from '@/problems/local-search/landscape';
@@ -7,9 +8,20 @@ import { CandidateList, SummaryCards, TraceNotes } from './LocalSearchShared';
 interface LandscapeLabProps {
   problem: LandscapeProblem;
   step: LocalSearchStep | null;
+  onSetInitialState?: (state: LandscapeState) => void;
 }
 
-function LandscapeSurface({ problem, current, best }: { problem: LandscapeProblem; current: LandscapeState; best: LandscapeState }) {
+function LandscapeSurface({
+  problem,
+  current,
+  best,
+  onSetInitialState,
+}: {
+  problem: LandscapeProblem;
+  current: LandscapeState;
+  best: LandscapeState;
+  onSetInitialState?: (state: LandscapeState) => void;
+}) {
   const width = 520;
   const height = 360;
   const xRange = problem.xRange ?? [-4, 4];
@@ -40,7 +52,25 @@ function LandscapeSurface({ problem, current, best }: { problem: LandscapeProble
 
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full rounded-xl border border-[var(--border)] bg-[#0d151f]">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className={cn(
+          'w-full rounded-xl border border-[var(--border)] bg-[#0d151f]',
+          onSetInitialState && 'cursor-crosshair'
+        )}
+        onClick={(e) => {
+          if (!onSetInitialState) return;
+          const rect = e.currentTarget.getBoundingClientRect();
+          const clickX = e.clientX - rect.left;
+          const clickY = e.clientY - rect.top;
+          const normalizedX = (clickX / rect.width) * width;
+          const normalizedY = (clickY / rect.height) * height;
+
+          const stateX = xRange[0] + (normalizedX / width) * (xRange[1] - xRange[0]);
+          const stateY = yRange[0] + ((height - normalizedY) / height) * (yRange[1] - yRange[0]);
+          onSetInitialState({ x: stateX, y: stateY });
+        }}
+      >
         {cells.map((cell, index) => (
           <rect
             key={index}
@@ -53,13 +83,13 @@ function LandscapeSurface({ problem, current, best }: { problem: LandscapeProble
           />
         ))}
         <circle cx={scaleX(best.x)} cy={scaleY(best.y)} r="9" fill="#53C880" stroke="#0b1220" strokeWidth="3" />
-        <circle cx={scaleX(current.x)} cy={scaleY(current.y)} r="9" fill="#F2C94C" stroke="#0b1220" strokeWidth="3" />
+        <circle cx={scaleX(current.x)} cy={scaleY(current.y)} r="9" fill="#F2C94C" stroke="#0b1220" strokeWidth="3" className="pointer-events-none" />
       </svg>
     </div>
   );
 }
 
-export function LandscapeBoardTab({ problem, step }: LandscapeLabProps) {
+export function LandscapeBoardTab({ problem, step, onSetInitialState }: LandscapeLabProps) {
   const current = (step?.state.currentState as LandscapeState | undefined) ?? problem.initialState ?? { x: 0, y: 0 };
   const best = (step?.state.bestState as LandscapeState | undefined) ?? current;
   return (
@@ -68,7 +98,12 @@ export function LandscapeBoardTab({ problem, step }: LandscapeLabProps) {
         <SummaryCards step={step} />
         <div className="grid gap-4 lg:grid-cols-[minmax(320px,1fr)_minmax(320px,0.95fr)]">
           <section>
-            <LandscapeSurface problem={problem} current={current} best={best} />
+            <LandscapeSurface
+              problem={problem}
+              current={current}
+              best={best}
+              onSetInitialState={onSetInitialState}
+            />
           </section>
           <section className="space-y-4">
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
@@ -86,7 +121,7 @@ export function LandscapeBoardTab({ problem, step }: LandscapeLabProps) {
   );
 }
 
-export function LandscapeNeighborhoodTab({ problem, step }: LandscapeLabProps) {
+export function LandscapeNeighborhoodTab({ problem, step, onSetInitialState }: LandscapeLabProps) {
   const current = (step?.state.currentState as LandscapeState | undefined) ?? problem.initialState ?? { x: 0, y: 0 };
   const best = (step?.state.bestState as LandscapeState | undefined) ?? current;
   return (
@@ -94,7 +129,12 @@ export function LandscapeNeighborhoodTab({ problem, step }: LandscapeLabProps) {
       <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4">
         <div className="grid gap-4 lg:grid-cols-[minmax(320px,0.8fr)_minmax(320px,1.2fr)]">
           <section>
-            <LandscapeSurface problem={problem} current={current} best={best} />
+            <LandscapeSurface
+              problem={problem}
+              current={current}
+              best={best}
+              onSetInitialState={onSetInitialState}
+            />
           </section>
           <section className="space-y-4">
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">

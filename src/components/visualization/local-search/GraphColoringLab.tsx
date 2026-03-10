@@ -1,5 +1,5 @@
 import { cn } from '@/lib/cn';
-import type { GraphColoringProblem } from '@/types/problem';
+import { Graph, type GraphColoringProblem } from '@/types/problem';
 import type { LocalSearchStep } from '@/algorithms/local-search/types';
 import { CandidateList, SummaryCards, TraceNotes } from './LocalSearchShared';
 import { normalizeGraphNodes } from '@/problems/local-search/graph-coloring';
@@ -8,11 +8,22 @@ interface GraphColoringLabProps {
   problem: GraphColoringProblem;
   step: LocalSearchStep | null;
   onCycleNode: (index: number) => void;
+  onUpdateGraph?: (graph: GraphColoringProblem['graph']) => void;
 }
 
 const PALETTE = ['#F2C94C', '#58A6FF', '#53C880', '#FF7B72', '#D2A8FF', '#56D4DD', '#FFA657', '#7EE787'];
 
-function ColoringCanvas({ problem, colors, onCycleNode }: { problem: GraphColoringProblem; colors: number[]; onCycleNode: (index: number) => void }) {
+function ColoringCanvas({
+  problem,
+  colors,
+  onCycleNode,
+  onUpdateGraph,
+}: {
+  problem: GraphColoringProblem;
+  colors: number[];
+  onCycleNode: (index: number) => void;
+  onUpdateGraph?: (graph: GraphColoringProblem['graph']) => void;
+}) {
   const nodes = normalizeGraphNodes(problem);
   const conflictCounts = (colors.length > 0 ? (nodes.map(() => 0)) : []);
   const nodeIndex = new Map(nodes.map((node, index) => [node.id, index]));
@@ -28,7 +39,25 @@ function ColoringCanvas({ problem, colors, onCycleNode }: { problem: GraphColori
 
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
-      <svg viewBox="-240 -240 480 480" className="w-full overflow-visible rounded-xl border border-[var(--border)] bg-[#0d151f]">
+      <svg
+        viewBox="-240 -240 480 480"
+        className="w-full overflow-visible rounded-xl border border-[var(--border)] bg-[#0d151f]"
+        onPointerMove={(e) => {
+          if (!onUpdateGraph || e.buttons !== 1) return;
+          const target = e.target as SVGElement;
+          const nodeIdAttr = target.closest('g')?.getAttribute('data-node-id');
+          if (!nodeIdAttr) return;
+
+          const rect = e.currentTarget.getBoundingClientRect();
+          const x = ((e.clientX - rect.left) / rect.width) * 480 - 240;
+          const y = ((e.clientY - rect.top) / rect.height) * 480 - 240;
+
+          const nextNodes = problem.graph.nodes.map(n => 
+            n.id === nodeIdAttr ? { ...n, x, y } : n
+          );
+          onUpdateGraph(new Graph({ ...problem.graph, nodes: nextNodes }));
+        }}
+      >
         {problem.graph.edges.map(edge => {
           const source = nodes[nodeIndex.get(edge.source) ?? 0];
           const target = nodes[nodeIndex.get(edge.target) ?? 0];
@@ -42,23 +71,30 @@ function ColoringCanvas({ problem, colors, onCycleNode }: { problem: GraphColori
               y2={target.y}
               stroke={isConflict ? '#FF7B72' : 'rgba(255,255,255,0.18)'}
               strokeWidth={isConflict ? 4 : 2}
+              className="pointer-events-none"
             />
           );
         })}
 
         {nodes.map((node, index) => (
-          <g key={node.id} transform={`translate(${node.x}, ${node.y})`} onClick={() => onCycleNode(index)} className="cursor-pointer">
+          <g
+            key={node.id}
+            data-node-id={node.id}
+            transform={`translate(${node.x}, ${node.y})`}
+            onClick={() => onCycleNode(index)}
+            className={onUpdateGraph ? 'cursor-move' : 'cursor-pointer'}
+          >
             <circle
               r="20"
               fill={PALETTE[colors[index] % PALETTE.length] ?? '#58A6FF'}
               stroke={conflictCounts[index] > 0 ? '#FF7B72' : '#0b1220'}
               strokeWidth="3"
             />
-            <text y="4" textAnchor="middle" fontSize="10" fill="#0b1220" fontWeight="700">
+            <text y="4" textAnchor="middle" fontSize="10" fill="#0b1220" fontWeight="700" className="pointer-events-none">
               {node.label ?? node.id}
             </text>
             {conflictCounts[index] > 0 && (
-              <text y="30" textAnchor="middle" fontSize="10" fill="#FF7B72">
+              <text y="30" textAnchor="middle" fontSize="10" fill="#FF7B72" className="pointer-events-none">
                 {`c=${conflictCounts[index]}`}
               </text>
             )}
@@ -69,7 +105,7 @@ function ColoringCanvas({ problem, colors, onCycleNode }: { problem: GraphColori
   );
 }
 
-export function GraphColoringBoardTab({ problem, step, onCycleNode }: GraphColoringLabProps) {
+export function GraphColoringBoardTab({ problem, step, onCycleNode, onUpdateGraph }: GraphColoringLabProps) {
   const colors = (step?.state.currentState as number[] | undefined) ?? problem.initialColors ?? Array.from({ length: problem.graph.nodes.length }, (_, index) => index % problem.colorCount);
 
   return (
@@ -78,7 +114,7 @@ export function GraphColoringBoardTab({ problem, step, onCycleNode }: GraphColor
         <SummaryCards step={step} />
         <div className="grid gap-4 lg:grid-cols-[minmax(320px,1fr)_minmax(320px,0.95fr)]">
           <section>
-            <ColoringCanvas problem={problem} colors={colors} onCycleNode={onCycleNode} />
+            <ColoringCanvas problem={problem} colors={colors} onCycleNode={onCycleNode} onUpdateGraph={onUpdateGraph} />
           </section>
           <section className="space-y-4">
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
@@ -96,7 +132,7 @@ export function GraphColoringBoardTab({ problem, step, onCycleNode }: GraphColor
   );
 }
 
-export function GraphColoringNeighborhoodTab({ problem, step, onCycleNode }: GraphColoringLabProps) {
+export function GraphColoringNeighborhoodTab({ problem, step, onCycleNode, onUpdateGraph }: GraphColoringLabProps) {
   const colors = (step?.state.currentState as number[] | undefined) ?? problem.initialColors ?? Array.from({ length: problem.graph.nodes.length }, (_, index) => index % problem.colorCount);
 
   return (
@@ -104,7 +140,7 @@ export function GraphColoringNeighborhoodTab({ problem, step, onCycleNode }: Gra
       <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4">
         <div className="grid gap-4 lg:grid-cols-[minmax(320px,0.75fr)_minmax(320px,1.25fr)]">
           <section>
-            <ColoringCanvas problem={problem} colors={colors} onCycleNode={onCycleNode} />
+            <ColoringCanvas problem={problem} colors={colors} onCycleNode={onCycleNode} onUpdateGraph={onUpdateGraph} />
           </section>
           <section className="space-y-4">
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
