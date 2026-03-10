@@ -322,38 +322,24 @@ export default function TopBar() {
               </Dialog.Close>
             </div>
 
-            {/* Content */}
+            {/* Body */}
             <div className="px-5 pb-5 space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-[var(--text-3)] uppercase tracking-wider font-medium w-16 shrink-0">Built by</span>
-                  <span className="text-xs text-[var(--text)]">Shreyan Chaubey</span>
+              <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)]/70 p-3">
+                <p className="text-sm text-[var(--text)] leading-relaxed">
+                  Praxis is an interactive playground for studying and comparing classical AI algorithms through visual execution traces, rich graph editors, and game-oriented labs.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)]/60 p-3">
+                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)]">Focus</p>
+                  <p className="mt-1 text-xs text-[var(--text-2)]">Search, game playing, and local search</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-[var(--text-3)] uppercase tracking-wider font-medium w-16 shrink-0">License</span>
-                  <span className="text-[11px] px-2 py-0.5 rounded border border-[#3FB950]/40 text-[#3FB950] bg-[#3FB950]/10 font-mono">
-                    CC BY-NC-SA 4.0
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-[var(--text-3)] uppercase tracking-wider font-medium w-16 shrink-0">GitHub</span>
-                  <a
-                    href="https://github.com/thethinkmachine"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-[#58A6FF] hover:underline font-mono"
-                  >
-                    github.com/thethinkmachine
-                  </a>
+                <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)]/60 p-3">
+                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)]">Mode</p>
+                  <p className="mt-1 text-xs text-[var(--text-2)]">Visualization-first learning</p>
                 </div>
               </div>
-            </div>
-
-            {/* Footer */}
-            <div className="px-5 py-2.5 border-t border-[var(--border)] bg-[var(--surface-2)]/70">
-              <p className="text-[10px] text-[var(--text-3)] text-center">
-                Press <KbdKey>Esc</KbdKey> or click outside to close
-              </p>
             </div>
           </Dialog.Content>
         </Dialog.Portal>
