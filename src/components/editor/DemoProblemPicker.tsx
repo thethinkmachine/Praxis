@@ -154,6 +154,7 @@ const FALLBACK_DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblem[]> = {
     },
   ],
   'game-playing': [],
+  'local-search': [],
 };
 
 const DIFFICULTY_COLORS = {

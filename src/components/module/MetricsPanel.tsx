@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { cn } from '@/lib/cn';
-import type { StepMetrics } from '@/types';
+import { ChevronDown, ChevronRight } from '@/components/shared/Icons';
+import type { AlgorithmCategory, StepMetrics } from '@/types';
 
 interface MetricsPanelProps {
   metrics: StepMetrics | null;
   phase?: string;
   description?: string;
+  algorithmCategory?: AlgorithmCategory;
 }
 
 const PHASE_COLORS: Record<string, string> = {
@@ -27,7 +30,6 @@ function fmtNum(v: number | undefined): string {
 }
 
 // Large-number card: value first (big), label below (small caps).
-// Mirrors the .stat / .stat-val / .stat-lbl pattern from the HTML reference.
 interface StatCardProps {
   label: string;
   value: React.ReactNode;
@@ -40,7 +42,6 @@ function StatCard({ label, value, valueColor }: StatCardProps) {
       <span
         className={cn(
           'font-mono font-light leading-none tracking-tight',
-          // large size when value is a short number, smaller for long strings
           typeof value === 'string' && value.length > 6 ? 'text-base' : 'text-2xl',
           valueColor ?? 'text-[#58A6FF]',
         )}
@@ -54,34 +55,76 @@ function StatCard({ label, value, valueColor }: StatCardProps) {
   );
 }
 
-export default function MetricsPanel({ metrics, phase, description }: MetricsPanelProps) {
+export default function MetricsPanel({ metrics, phase, description, algorithmCategory }: MetricsPanelProps) {
+  const [isOpen, setIsOpen] = useState(true);
   const phaseClass =
     phase ? (PHASE_COLORS[phase.toLowerCase()] ?? 'bg-[var(--surface-2)] text-[var(--text-2)]') : null;
 
   return (
     <div className="h-full flex flex-col bg-[var(--surface)] overflow-hidden">
-      {metrics ? (
+      <div 
+        className="px-3 py-1 bg-[var(--surface-2)] border-b border-[var(--border)] flex items-center gap-2 select-none cursor-pointer hover:bg-[var(--surface-3)] transition-colors"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="text-[var(--text-3)]">
+          {isOpen ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
+        </span>
+        <span className="text-[10px] font-semibold text-[var(--text-2)] uppercase tracking-wider flex-1">
+          Metrics
+        </span>
+        {phase && phaseClass && (
+          <span className={cn('text-[9px] px-1.5 py-0.5 rounded-full font-medium', phaseClass)}>
+            {phase}
+          </span>
+        )}
+      </div>
+
+      {isOpen && (
         <div className="flex-1 overflow-y-auto p-2 space-y-2">
-          {/* Phase indicator inside content */}
-          {phase && phaseClass && (
-            <div className="flex justify-end mb-1">
-              <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-medium', phaseClass)}>
-                {phase}
-              </span>
+          {metrics ? (
+            <>
+
+          {algorithmCategory === 'local-search' ? (
+            <>
+              <div className="grid grid-cols-2 gap-1.5">
+                <StatCard label="Iteration" value={fmtNum(metrics.iteration ?? metrics.currentDepth)} valueColor="text-[#58A6FF]" />
+                <StatCard label="Candidates" value={fmtNum(metrics.candidateCount ?? metrics.frontierSize)} valueColor="text-[#58A6FF]" />
+                <StatCard label="Objective" value={fmtNum(metrics.objectiveValue ?? metrics.conflictCount ?? metrics.pathCost)} valueColor="text-[#F0883E]" />
+                <StatCard label="Best" value={fmtNum(metrics.bestObjectiveValue ?? metrics.bestConflictCount ?? metrics.bestScore)} valueColor="text-[#3FB950]" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-1.5">
+                <StatCard label="Evaluated" value={fmtNum(metrics.neighborsEvaluated ?? metrics.nodesExpanded)} valueColor="text-[var(--text)]" />
+                <StatCard label="Restarts" value={fmtNum(metrics.restartCount)} valueColor="text-[var(--text)]" />
+                <StatCard label="Plateau" value={fmtNum(metrics.plateauLength)} valueColor="text-[var(--text-2)]" />
+                <StatCard
+                  label="Temp"
+                  value={fmtNum(metrics.temperature)}
+                  valueColor={metrics.temperature !== undefined ? 'text-[#D2A8FF]' : 'text-[var(--text-2)]'}
+                />
+              </div>
+
+              {(metrics.generation !== undefined || metrics.populationSize !== undefined || metrics.beamWidth !== undefined || metrics.tabuSize !== undefined) && (
+                <div className="grid grid-cols-2 gap-1.5">
+                  <StatCard label="Generation" value={fmtNum(metrics.generation)} valueColor="text-[var(--text)]" />
+                  <StatCard label="Population" value={fmtNum(metrics.populationSize)} valueColor="text-[var(--text)]" />
+                  <StatCard label="Beam" value={fmtNum(metrics.beamWidth)} valueColor="text-[var(--text-2)]" />
+                  <StatCard label="Tabu" value={fmtNum(metrics.tabuSize)} valueColor="text-[var(--text-2)]" />
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="grid grid-cols-2 gap-1.5">
+              <StatCard label="Expanded" value={fmtNum(metrics.nodesExpanded)} valueColor="text-[#58A6FF]" />
+              <StatCard label="Frontier" value={fmtNum(metrics.frontierSize)} valueColor="text-[#58A6FF]" />
+              <StatCard
+                label="Path Cost"
+                value={fmtNum(metrics.pathCost)}
+                valueColor={metrics.pathCost !== undefined && isFinite(metrics.pathCost) ? 'text-[#3FB950]' : 'text-[var(--text-2)]'}
+              />
+              <StatCard label="Depth" value={fmtNum(metrics.currentDepth)} valueColor="text-[var(--text)]" />
             </div>
           )}
-
-          {/* Primary search metrics */}
-          <div className="grid grid-cols-2 gap-1.5">
-            <StatCard label="Expanded" value={fmtNum(metrics.nodesExpanded)} valueColor="text-[#58A6FF]" />
-            <StatCard label="Frontier" value={fmtNum(metrics.frontierSize)} valueColor="text-[#58A6FF]" />
-            <StatCard
-              label="Path Cost"
-              value={fmtNum(metrics.pathCost)}
-              valueColor={metrics.pathCost !== undefined && isFinite(metrics.pathCost) ? 'text-[#3FB950]' : 'text-[var(--text-2)]'}
-            />
-            <StatCard label="Depth" value={fmtNum(metrics.currentDepth)} valueColor="text-[var(--text)]" />
-          </div>
 
           {/* Cost breakdown */}
           {(metrics.gCost !== undefined || metrics.hCost !== undefined || metrics.fCost !== undefined) && (
@@ -109,12 +152,14 @@ export default function MetricsPanel({ metrics, phase, description }: MetricsPan
               {description}
             </p>
           )}
-        </div>
-      ) : (
-        <div className="flex-1 flex items-center justify-center">
-          <span className="text-sm text-[var(--text-3)]">No metrics yet</span>
-        </div>
-      )}
-    </div>
-  );
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            <span className="text-sm text-[var(--text-3)]">No metrics yet</span>
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+);
 }

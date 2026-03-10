@@ -19,6 +19,23 @@ export interface StepMetrics {
   gCost?: number;
   hCost?: number;
   fCost?: number;
+  currentScore?: number;
+  bestScore?: number;
+  candidateCount?: number;
+  neighborsEvaluated?: number;
+  restartCount?: number;
+  plateauLength?: number;
+  temperature?: number;
+  conflictCount?: number;
+  bestConflictCount?: number;
+  iteration?: number;
+  stagnationSteps?: number;
+  generation?: number;
+  populationSize?: number;
+  beamWidth?: number;
+  tabuSize?: number;
+  objectiveValue?: number;
+  bestObjectiveValue?: number;
 }
 
 export type StepPhase =

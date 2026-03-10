@@ -1,7 +1,8 @@
 export type AlgorithmCategory =
   | 'uninformed-search'
   | 'informed-search'
-  | 'game-playing';
+  | 'game-playing'
+  | 'local-search';
 
 export interface AlgorithmMeta {
   id: string;

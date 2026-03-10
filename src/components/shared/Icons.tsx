@@ -65,4 +65,5 @@ export {
   Trash2,
   Flag,
   Hash,
+  Check,
 } from 'lucide-react';

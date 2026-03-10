@@ -123,11 +123,132 @@ export interface TicTacToeProblem {
   allowDepthPenalty?: boolean;
 }
 
+export interface NQueensProblem {
+  kind: 'n-queens';
+  size: number;
+  initialState?: number[];
+  maxSteps?: number;
+  randomSeed?: number;
+  sidewaysMoveLimit?: number;
+  restartLimit?: number;
+  candidateSampleSize?: number;
+  beamWidth?: number;
+  tabuTenure?: number;
+  populationSize?: number;
+  mutationRate?: number;
+  crossoverRate?: number;
+  initialTemperature?: number;
+  coolingRate?: number;
+  neighborhoodMode?: 'single-queen';
+}
+
+export interface TspCity {
+  id: string;
+  label?: string;
+  x: number;
+  y: number;
+}
+
+export interface TspProblem {
+  kind: 'tsp';
+  cities: TspCity[];
+  initialRoute?: number[];
+  maxSteps?: number;
+  randomSeed?: number;
+  sidewaysMoveLimit?: number;
+  restartLimit?: number;
+  candidateSampleSize?: number;
+  beamWidth?: number;
+  tabuTenure?: number;
+  populationSize?: number;
+  mutationRate?: number;
+  crossoverRate?: number;
+  initialTemperature?: number;
+  coolingRate?: number;
+  neighborhoodMode?: 'swap' | 'two-opt' | 'insert';
+  fixedStart?: boolean;
+}
+
+export interface GraphColoringProblem {
+  kind: 'graph-coloring';
+  graph: Graph;
+  colorCount: number;
+  initialColors?: number[];
+  maxSteps?: number;
+  randomSeed?: number;
+  sidewaysMoveLimit?: number;
+  restartLimit?: number;
+  candidateSampleSize?: number;
+  beamWidth?: number;
+  tabuTenure?: number;
+  populationSize?: number;
+  mutationRate?: number;
+  crossoverRate?: number;
+  initialTemperature?: number;
+  coolingRate?: number;
+  lockedNodes?: string[];
+}
+
+export type LandscapePreset = 'twin-peaks' | 'ridge' | 'crater' | 'rugged';
+
+export interface LandscapeState {
+  x: number;
+  y: number;
+}
+
+export interface LandscapeProblem {
+  kind: 'landscape';
+  preset: LandscapePreset;
+  xRange?: [number, number];
+  yRange?: [number, number];
+  stepSize?: number;
+  initialState?: LandscapeState;
+  maxSteps?: number;
+  randomSeed?: number;
+  sidewaysMoveLimit?: number;
+  restartLimit?: number;
+  candidateSampleSize?: number;
+  beamWidth?: number;
+  tabuTenure?: number;
+  populationSize?: number;
+  mutationRate?: number;
+  crossoverRate?: number;
+  initialTemperature?: number;
+  coolingRate?: number;
+}
+
+export interface NPuzzleProblem {
+  kind: 'n-puzzle';
+  size: 3 | 4;
+  tiles: number[];
+  maxSteps?: number;
+  randomSeed?: number;
+  sidewaysMoveLimit?: number;
+  restartLimit?: number;
+  candidateSampleSize?: number;
+  beamWidth?: number;
+  tabuTenure?: number;
+  populationSize?: number;
+  mutationRate?: number;
+  crossoverRate?: number;
+  initialTemperature?: number;
+  coolingRate?: number;
+  heuristic?: 'manhattan' | 'misplaced' | 'combined';
+  scrambleMoves?: number;
+}
+
+export type LocalSearchProblem =
+  | NQueensProblem
+  | TspProblem
+  | GraphColoringProblem
+  | LandscapeProblem
+  | NPuzzleProblem;
+
 // ---------------------------------------------------------------------------
 // Problem saving
 // ---------------------------------------------------------------------------
 
-export type ProblemCategory = 'graph' | 'maze' | 'game';
+export type ProblemCategory = 'graph' | 'maze' | 'game' | 'local-search';
 
 export interface SavedProblem {
   id: string;
@@ -141,4 +262,5 @@ export const ALGORITHM_TO_PROBLEM_CATEGORY: Record<import('./algorithm').Algorit
   'uninformed-search': 'graph',
   'informed-search': 'graph',
   'game-playing': 'game',
+  'local-search': 'local-search',
 };

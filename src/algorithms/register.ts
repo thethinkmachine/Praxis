@@ -25,6 +25,19 @@ import { bidirectionalAstarRunner } from './search/informed/bidirectional-astar'
 import { minimaxRunner } from './game-playing/minimax';
 import { alphaBetaRunner } from './game-playing/alpha-beta';
 import { negamaxRunner } from './game-playing/negamax';
+import { hillClimbingSteepestRunner } from './local-search/hill-climbing-steepest';
+import { hillClimbingSimpleRunner } from './local-search/hill-climbing-simple';
+import { hillClimbingFirstChoiceRunner } from './local-search/hill-climbing-first-choice';
+import { hillClimbingStochasticRunner } from './local-search/hill-climbing-stochastic';
+import { hillClimbingSidewaysRunner } from './local-search/hill-climbing-sideways';
+import { hillClimbingRandomRestartRunner } from './local-search/hill-climbing-random-restart';
+import { randomWalkRunner } from './local-search/random-walk';
+import { simulatedAnnealingRunner } from './local-search/simulated-annealing';
+import { localBeamSearchRunner } from './local-search/local-beam-search';
+import { stochasticBeamSearchRunner } from './local-search/stochastic-beam-search';
+import { tabuSearchRunner } from './local-search/tabu-search';
+import { geneticAlgorithmRunner } from './local-search/genetic-algorithm';
+import { minConflictsRunner } from './local-search/min-conflicts';
 
 export function registerAllAlgorithms() {
   // Uninformed Search
@@ -49,4 +62,19 @@ export function registerAllAlgorithms() {
   registry.register(minimaxRunner);
   registry.register(alphaBetaRunner);
   registry.register(negamaxRunner);
+
+  // Local Search
+  registry.register(randomWalkRunner);
+  registry.register(hillClimbingSimpleRunner);
+  registry.register(hillClimbingSteepestRunner);
+  registry.register(hillClimbingFirstChoiceRunner);
+  registry.register(hillClimbingStochasticRunner);
+  registry.register(hillClimbingSidewaysRunner);
+  registry.register(hillClimbingRandomRestartRunner);
+  registry.register(simulatedAnnealingRunner);
+  registry.register(localBeamSearchRunner);
+  registry.register(stochasticBeamSearchRunner);
+  registry.register(tabuSearchRunner);
+  registry.register(geneticAlgorithmRunner);
+  registry.register(minConflictsRunner);
 }

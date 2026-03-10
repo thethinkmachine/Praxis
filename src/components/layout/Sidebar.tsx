@@ -12,7 +12,7 @@ interface AlgorithmEntry {
 }
 
 interface CategoryEntry {
-  category: 'uninformed-search' | 'informed-search';
+  category: 'uninformed-search' | 'informed-search' | 'local-search';
   displayName: string;
   hint: string;
   icon: React.ReactNode;
@@ -54,6 +54,27 @@ const CATEGORIES: CategoryEntry[] = [
       { id: 'bidirectional-astar', name: 'Bidirectional A*', path: '/search/informed-search/bidirectional-astar' },
       { id: 'weighted-astar', name: 'Weighted A*', path: '/search/informed-search/weighted-astar' },
       { id: 'ida-star', name: 'IDA*', path: '/search/informed-search/ida-star' },
+    ],
+  },
+  {
+    category: 'local-search',
+    displayName: 'Local Search',
+    hint: 'Objective-driven improvement on complete candidate states',
+    icon: <span className="text-[10px] font-mono uppercase tracking-[0.18em]">LS</span>,
+    algorithms: [
+      { id: 'random-walk', name: 'Random Walk', path: '/local/random-walk' },
+      { id: 'hill-climbing-simple', name: 'Simple Hill', path: '/local/hill-climbing-simple' },
+      { id: 'hill-climbing-steepest', name: 'Steepest Hill', path: '/local/hill-climbing-steepest' },
+      { id: 'hill-climbing-first-choice', name: 'First-Choice Hill', path: '/local/hill-climbing-first-choice' },
+      { id: 'hill-climbing-stochastic', name: 'Stochastic Hill', path: '/local/hill-climbing-stochastic' },
+      { id: 'hill-climbing-sideways', name: 'Sideways Hill', path: '/local/hill-climbing-sideways' },
+      { id: 'hill-climbing-random-restart', name: 'Restart Hill', path: '/local/hill-climbing-random-restart' },
+      { id: 'simulated-annealing', name: 'Annealing', path: '/local/simulated-annealing' },
+      { id: 'local-beam-search', name: 'Local Beam', path: '/local/local-beam-search' },
+      { id: 'stochastic-beam-search', name: 'Stochastic Beam', path: '/local/stochastic-beam-search' },
+      { id: 'tabu-search', name: 'Tabu Search', path: '/local/tabu-search' },
+      { id: 'genetic-algorithm', name: 'Genetic Algorithm', path: '/local/genetic-algorithm' },
+      { id: 'min-conflicts', name: 'Min-Conflicts', path: '/local/min-conflicts' },
     ],
   },
 ];
@@ -155,7 +176,7 @@ export default function Sidebar() {
         <div className="mt-4 px-2">
           {!sidebarCollapsed && (
             <p className="px-2 pb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">
-              Search Families
+              Algorithm Families
             </p>
           )}
 

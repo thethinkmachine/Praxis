@@ -56,6 +56,43 @@ export const GAME_LABS: GameLabsByCategory = {
       status: 'live',
     },
   ],
+  'local-search': [
+    {
+      id: 'n-queens-lab',
+      name: 'N-Queens Lab',
+      description: 'Compare hill-climbing variants and min-conflicts on a conflict-driven local-search landscape.',
+      path: '/local/hill-climbing-steepest?lab=n-queens',
+      status: 'live',
+    },
+    {
+      id: 'tsp-lab',
+      name: 'TSP / Route Lab',
+      description: 'Study route-edit neighborhoods, annealing, beam search, tabu memory, and genetic recombination on tour optimization.',
+      path: '/local/simulated-annealing?lab=tsp',
+      status: 'live',
+    },
+    {
+      id: 'graph-coloring-lab',
+      name: 'Graph Coloring Lab',
+      description: 'Explore repair-based search, tabu memory, and stochastic local search on CSP-style graph coloring.',
+      path: '/local/min-conflicts?lab=graph-coloring',
+      status: 'live',
+    },
+    {
+      id: 'landscape-lab',
+      name: 'Landscape Lab',
+      description: 'See the objective surface directly and inspect how local-search trajectories react to peaks, ridges, and basins.',
+      path: '/local/simulated-annealing?lab=landscape',
+      status: 'live',
+    },
+    {
+      id: 'n-puzzle-lab',
+      name: 'N-Puzzle Lab',
+      description: 'Use a classic heuristic puzzle as a crossover lab to compare local-search behavior against a familiar state-space problem.',
+      path: '/local/tabu-search?lab=n-puzzle',
+      status: 'live',
+    },
+  ],
 };
 
 export function getLabsForCategory(category: AlgorithmCategory): GameLab[] {

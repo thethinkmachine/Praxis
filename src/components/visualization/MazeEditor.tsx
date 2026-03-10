@@ -4,6 +4,7 @@ import { useMazeStore } from '@/store/maze.store';
 import type { MazeOverlay } from '@/visualizations/adapters/maze.adapter';
 import { MAZE_STRATEGY_LABELS } from '@/problems/maze/strategies';
 import { usePreferencesStore } from '@/store/preferences.store';
+import Select from '@/components/shared/Select';
 
 interface MazeEditorProps {
   overlay?: MazeOverlay | null;
@@ -229,15 +230,15 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
           <div className="min-w-[260px] flex-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 p-3">
             <p className="pb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Generation</p>
             <div className="flex flex-wrap items-center gap-2">
-              <select
+              <Select
                 value={strategy}
-                onChange={(e) => setStrategy(e.target.value as typeof strategy)}
-                className="min-w-[180px] shrink-0 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[11px] font-mono text-[var(--text)]"
-              >
-                {Object.entries(MAZE_STRATEGY_LABELS).map(([id, label]) => (
-                  <option key={id} value={id}>{label}</option>
-                ))}
-              </select>
+                onValueChange={(val) => setStrategy(val as typeof strategy)}
+                options={Object.entries(MAZE_STRATEGY_LABELS).map(([id, label]) => ({
+                  value: id,
+                  label,
+                }))}
+                triggerClassName="min-w-[180px] h-9 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[11px] font-mono text-[var(--text)]"
+              />
 
               <button
                 onClick={generateMaze}

@@ -5,12 +5,13 @@ import { registry } from '@/algorithms/core/registry';
 import { useEditorStore } from '@/store/useEditorStore';
 import { useExecutionStore } from '@/store/execution.store';
 import AlgorithmPage from '@/components/module/AlgorithmPage';
-import ProblemConfigurator from '@/components/module/ProblemConfigurator';
+import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
 import type { TabDefinition } from '@/components/module/AlgorithmPage';
 import SVGGraphCanvas from '@/components/visualization/SVGGraphCanvas';
 import SVGAutoCanvas from '@/components/visualization/SVGAutoCanvas';
 import DemoProblemPicker from '@/components/editor/DemoProblemPicker';
-import { Dice5, Info } from '@/components/shared/Icons';
+import { Dice5, Info, ChevronDown } from '@/components/shared/Icons';
+import Select from '@/components/shared/Select';
 import { generateRandomGraph } from '@/lib/random-generators';
 import { INFORMED_HEURISTICS, getHeuristicDefinition } from '@/algorithms/search/informed/types';
 import { createGraphSearchAdapterFromProblem } from '@/visualizations/adapters/graph-search.adapter';
@@ -293,53 +294,55 @@ export default function SearchPage() {
           title={`Node: ${selectedNode.label ?? selectedNode.id}`}
           onBack={() => setSelected([])}
         >
-          <div className="space-y-4 text-xs">
-             <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Label</p>
-                <input
-                  type="text"
-                  value={selectedNode.label ?? ''}
-                  onChange={(e) => updateNode(selectedNode.id, { label: e.target.value })}
-                  className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
-                  placeholder={selectedNode.id}
-                />
-             </div>
-             <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Heuristic Value (h)</p>
-                <input
-                  type="number"
-                  step={0.1}
-                  value={selectedNode.heuristic ?? ''}
-                  onChange={(e) => updateNodeHeuristic(selectedNode.id, e.target.value)}
-                  className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
-                  placeholder="0.0"
-                />
-             </div>
-             <div className="pt-2 flex flex-col gap-2">
-                <button
-                  onClick={() => useEditorStore.getState().setStartNode(selectedNode.id)}
-                  className={cn(
-                    "w-full py-1.5 rounded border text-[10px] font-semibold uppercase tracking-wider transition-colors",
-                    editorStartId === selectedNode.id 
-                      ? "bg-[var(--purple)]/20 border-[var(--purple)]/50 text-[var(--purple)]"
-                      : "bg-[var(--surface-2)] border-[var(--border)] text-[var(--text-2)] hover:bg-[var(--surface-3)]"
-                  )}
-                >
-                  Set as Start
-                </button>
-                <button
-                  onClick={() => useEditorStore.getState().setGoalNode(selectedNode.id)}
-                  className={cn(
-                    "w-full py-1.5 rounded border text-[10px] font-semibold uppercase tracking-wider transition-colors",
-                    editorGoalId === selectedNode.id 
-                      ? "bg-[var(--success)]/20 border-[var(--success)]/50 text-[var(--success)]"
-                      : "bg-[var(--surface-2)] border-[var(--border)] text-[var(--text-2)] hover:bg-[var(--surface-3)]"
-                  )}
-                >
-                  Set as Goal
-                </button>
-             </div>
-          </div>
+          <ConfigSection title="Properties">
+            <div className="space-y-4">
+               <div>
+                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Label</p>
+                  <input
+                    type="text"
+                    value={selectedNode.label ?? ''}
+                    onChange={(e) => updateNode(selectedNode.id, { label: e.target.value })}
+                    className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                    placeholder={selectedNode.id}
+                  />
+               </div>
+               <div>
+                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Heuristic Value (h)</p>
+                  <input
+                    type="number"
+                    step={0.1}
+                    value={selectedNode.heuristic ?? ''}
+                    onChange={(e) => updateNodeHeuristic(selectedNode.id, e.target.value)}
+                    className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                    placeholder="0.0"
+                  />
+               </div>
+               <div className="pt-2 flex flex-col gap-2">
+                  <button
+                    onClick={() => useEditorStore.getState().setStartNode(selectedNode.id)}
+                    className={cn(
+                      "w-full py-1.5 rounded border text-[10px] font-semibold uppercase tracking-wider transition-colors",
+                      editorStartId === selectedNode.id 
+                        ? "bg-[var(--purple)]/20 border-[var(--purple)]/50 text-[var(--purple)]"
+                        : "bg-[var(--surface-2)] border-[var(--border)] text-[var(--text-2)] hover:bg-[var(--surface-3)]"
+                    )}
+                  >
+                    Set as Start
+                  </button>
+                  <button
+                    onClick={() => useEditorStore.getState().setGoalNode(selectedNode.id)}
+                    className={cn(
+                      "w-full py-1.5 rounded border text-[10px] font-semibold uppercase tracking-wider transition-colors",
+                      editorGoalId === selectedNode.id 
+                        ? "bg-[var(--success)]/20 border-[var(--success)]/50 text-[var(--success)]"
+                        : "bg-[var(--surface-2)] border-[var(--border)] text-[var(--text-2)] hover:bg-[var(--surface-3)]"
+                    )}
+                  >
+                    Set as Goal
+                  </button>
+               </div>
+            </div>
+          </ConfigSection>
         </ProblemConfigurator>
       );
     }
@@ -350,21 +353,23 @@ export default function SearchPage() {
           title={`Edge: ${selectedEdge.id}`}
           onBack={() => setSelected([])}
         >
-          <div className="space-y-4 text-xs">
-             <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Weight (Cost)</p>
-                <input
-                  type="number"
-                  step={1}
-                  value={selectedEdge.weight ?? 1}
-                  onChange={(e) => useEditorStore.getState().updateEdge(selectedEdge.id, { weight: Number(e.target.value) })}
-                  className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
-                />
-             </div>
-             <div className="text-[10px] text-[var(--text-3)] bg-[var(--surface-2)]/30 p-2 rounded border border-[var(--border)]">
-                Connects <span className="text-[var(--text-2)] font-mono">{selectedEdge.source}</span> and <span className="text-[var(--text-2)] font-mono">{selectedEdge.target}</span>
-             </div>
-          </div>
+          <ConfigSection title="Properties">
+            <div className="space-y-4">
+               <div>
+                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Weight (Cost)</p>
+                  <input
+                    type="number"
+                    step={1}
+                    value={selectedEdge.weight ?? 1}
+                    onChange={(e) => useEditorStore.getState().updateEdge(selectedEdge.id, { weight: Number(e.target.value) })}
+                    className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                  />
+               </div>
+               <div className="text-[10px] text-[var(--text-3)] bg-[var(--surface-2)]/30 p-2 rounded border border-[var(--border)]">
+                  Connects <span className="text-[var(--text-2)] font-mono">{selectedEdge.source}</span> and <span className="text-[var(--text-2)] font-mono">{selectedEdge.target}</span>
+               </div>
+            </div>
+          </ConfigSection>
         </ProblemConfigurator>
       );
     }
@@ -372,9 +377,8 @@ export default function SearchPage() {
 
     return (
       <ProblemConfigurator title="Global Config">
-        <div className="space-y-6 text-xs">
-          {/* Algorithm & Heuristic Selection */}
-          <div className="space-y-3">
+        <ConfigSection title="Heuristic Settings">
+          <div className="space-y-4">
             <div>
               <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Algorithm</p>
               <p className="text-[12px] text-[var(--text-2)] font-mono">{algo}</p>
@@ -384,15 +388,11 @@ export default function SearchPage() {
               <>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Heuristic Function</p>
-                  <select
+                  <Select
                     value={heuristicId}
-                    onChange={(e) => setHeuristicId(e.target.value as HeuristicId)}
-                    className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
-                  >
-                    {INFORMED_HEURISTICS.map((option) => (
-                      <option key={option.id} value={option.id}>{option.label}</option>
-                    ))}
-                  </select>
+                    onValueChange={(val) => setHeuristicId(val as HeuristicId)}
+                    options={INFORMED_HEURISTICS.map(h => ({ value: h.id, label: h.label }))}
+                  />
                   <p className="text-[10px] text-[var(--text-3)] mt-1.5 leading-relaxed">{heuristicDefinition.description}</p>
                 </div>
 
@@ -433,17 +433,17 @@ export default function SearchPage() {
               </div>
             )}
           </div>
+        </ConfigSection>
 
-          {/* Adjacency Table Section */}
-          <div className="border-t border-[var(--border)] pt-5">
-            <AdjacencyTable 
-              showHeuristics={isInformedAlgorithm} 
-              showWeights={isWeightedAlgorithm}
-              heuristicId={heuristicId}
-              heuristicScale={heuristicScale}
-            />
-          </div>
-        </div>
+        {/* Adjacency Table Section */}
+        <ConfigSection title="Adjacency Table" defaultOpen={false}>
+          <AdjacencyTable 
+            showHeuristics={isInformedAlgorithm} 
+            showWeights={isWeightedAlgorithm}
+            heuristicId={heuristicId}
+            heuristicScale={heuristicScale}
+          />
+        </ConfigSection>
       </ProblemConfigurator>
     );
   }, [algo, isInformedAlgorithm, heuristicId, heuristicDefinition.description, heuristicScale, editorNodes, editorStartId, editorGoalId, editorEdges, selectedIds, updateNode, updateNodeHeuristic, setSelected]);

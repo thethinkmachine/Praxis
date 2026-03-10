@@ -14,7 +14,14 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
 
   return (
     <button
-      onClick={() => navigate(buildRoute(meta, meta.category === 'game-playing' ? 'game' : 'graph'))}
+      onClick={() => navigate(buildRoute(
+        meta,
+        meta.category === 'game-playing'
+          ? 'game'
+          : meta.category === 'local-search'
+            ? 'local-search'
+            : 'graph',
+      ))}
       className={cn(
         'text-left w-full rounded-lg p-4 border border-[var(--border)] bg-[var(--surface)]/90',
         'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]/50 transition-colors group'

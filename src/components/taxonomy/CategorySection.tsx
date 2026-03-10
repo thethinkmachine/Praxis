@@ -5,12 +5,14 @@ const CATEGORY_LABELS: Record<AlgorithmCategory, string> = {
   'uninformed-search': 'Uninformed Search',
   'informed-search': 'Informed Search',
   'game-playing': 'Game Playing',
+  'local-search': 'Local Search',
 };
 
 const CATEGORY_ICONS: Record<AlgorithmCategory, string> = {
   'uninformed-search': 'SEARCH',
   'informed-search': 'H*',
   'game-playing': 'MINMAX',
+  'local-search': 'LOCAL',
 };
 
 interface CategorySectionProps {

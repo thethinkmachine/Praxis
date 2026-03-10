@@ -11,6 +11,9 @@ export function buildRoute(
   if (meta.category === 'game-playing' || problemCategory === 'game') {
     return `/play/${meta.category}/${meta.id}`;
   }
+  if (meta.category === 'local-search' || problemCategory === 'local-search') {
+    return `/local/${meta.id}`;
+  }
   if (problemCategory === 'maze') {
     return `/maze/${meta.id}`;
   }

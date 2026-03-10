@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { cn } from '@/lib/cn';
+import { ChevronDown, ChevronRight } from '@/components/shared/Icons';
 import { useEditorStore } from '@/store/useEditorStore';
 import type { AlgorithmStep, AlgorithmCategory } from '@/types';
 
@@ -8,9 +9,30 @@ interface StatePanelProps {
   algorithmCategory?: AlgorithmCategory;
 }
 
-function SectionHeader({ title, count }: { title: string; count?: number }) {
+function SectionHeader({ 
+  title, 
+  count, 
+  isCollapsed, 
+  onToggle 
+}: { 
+  title: string; 
+  count?: number; 
+  isCollapsed?: boolean; 
+  onToggle?: () => void;
+}) {
   return (
-    <div className="px-3 py-1 bg-[var(--surface-2)] border-b border-[var(--border)] flex items-center gap-2">
+    <div 
+      className={cn(
+        "px-3 py-1 bg-[var(--surface-2)] border-b border-[var(--border)] flex items-center gap-2 select-none",
+        onToggle && "cursor-pointer hover:bg-[var(--surface-3)]"
+      )}
+      onClick={onToggle}
+    >
+      {onToggle && (
+        <span className="text-[var(--text-3)]">
+          {isCollapsed ? <ChevronRight size={10} /> : <ChevronDown size={10} />}
+        </span>
+      )}
       <span className="text-[10px] font-semibold text-[var(--text-2)] uppercase tracking-wider">
         {title}
       </span>
@@ -19,6 +41,31 @@ function SectionHeader({ title, count }: { title: string; count?: number }) {
           {count}
         </span>
       )}
+    </div>
+  );
+}
+
+function Section({ 
+  title, 
+  count, 
+  children, 
+  defaultOpen = true 
+}: { 
+  title: string; 
+  count?: number; 
+  children: React.ReactNode; 
+  defaultOpen?: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <div>
+      <SectionHeader 
+        title={title} 
+        count={count} 
+        isCollapsed={!isOpen} 
+        onToggle={() => setIsOpen(!isOpen)} 
+      />
+      {isOpen && children}
     </div>
   );
 }
@@ -144,135 +191,130 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
       <div className="flex-1 overflow-y-auto text-xs divide-y divide-[var(--border)]">
         {/* ──── Search-oriented sections ──── */}
         {(algorithmCategory === 'uninformed-search' || algorithmCategory === 'informed-search' || algorithmCategory === undefined) && (
-            <>
-              {/* Current node */}
-              {!!st.currentNode && (
-                <div>
-                  <SectionHeader title="Current Node" />
-                  <div className="px-3 py-2">
-                    <ChipBadge
-                      variant="current"
-                      title={(() => {
-                        const nodeId = st.currentNode as string;
-                        const f = fCosts?.get(nodeId);
-                        const g = gCosts?.get(nodeId) ?? costs?.get(nodeId);
-                        const h = hCosts?.get(nodeId);
-                        const fmt = (n: number) => Number.isInteger(n) ? String(n) : n.toFixed(2);
-                        if (f !== undefined) return `f=${fmt(f)}`;
-                        if (g !== undefined && h !== undefined) return `g=${fmt(g)} h=${fmt(h)}`;
-                        if (g !== undefined) return `g=${fmt(g)}`;
-                        return st.heuristic !== undefined ? `h=${st.heuristic}` : undefined;
-                      })()}
-                    >
-                      {lbl(st.currentNode as string)}
-                    </ChipBadge>
-                    {(() => {
+          <>
+            {/* Current node */}
+            {!!st.currentNode && (
+              <Section title="Current Node">
+                <div className="px-3 py-2">
+                  <ChipBadge
+                    variant="current"
+                    title={(() => {
                       const nodeId = st.currentNode as string;
                       const f = fCosts?.get(nodeId);
                       const g = gCosts?.get(nodeId) ?? costs?.get(nodeId);
                       const h = hCosts?.get(nodeId);
                       const fmt = (n: number) => Number.isInteger(n) ? String(n) : n.toFixed(2);
-                      let detail: string | undefined;
-                      if (f !== undefined) {
-                        const gv = gCosts?.get(nodeId);
-                        const hv = hCosts?.get(nodeId);
-                        if (gv !== undefined && hv !== undefined) detail = `g=${fmt(gv)} h=${fmt(hv)} f=${fmt(f)}`;
-                        else detail = `f=${fmt(f)}`;
-                      } else if (g !== undefined && h !== undefined) {
-                        detail = `g=${fmt(g)} h=${fmt(h)}`;
-                      } else if (g !== undefined) {
-                        detail = `g=${fmt(g)}`;
-                      } else if (st.heuristic !== undefined) {
-                        detail = `h=${st.heuristic}`;
-                      }
-                      return detail ? (
-                        <span className="ml-2 text-[10px] text-[var(--text-2)] font-mono">{detail}</span>
-                      ) : null;
+                      if (f !== undefined) return `f=${fmt(f)}`;
+                      if (g !== undefined && h !== undefined) return `g=${fmt(g)} h=${fmt(h)}`;
+                      if (g !== undefined) return `g=${fmt(g)}`;
+                      return st.heuristic !== undefined ? `h=${st.heuristic}` : undefined;
                     })()}
-                  </div>
+                  >
+                    {lbl(st.currentNode as string)}
+                  </ChipBadge>
+                  {(() => {
+                    const nodeId = st.currentNode as string;
+                    const f = fCosts?.get(nodeId);
+                    const g = gCosts?.get(nodeId) ?? costs?.get(nodeId);
+                    const h = hCosts?.get(nodeId);
+                    const fmt = (n: number) => Number.isInteger(n) ? String(n) : n.toFixed(2);
+                    let detail: string | undefined;
+                    if (f !== undefined) {
+                      const gv = gCosts?.get(nodeId);
+                      const hv = hCosts?.get(nodeId);
+                      if (gv !== undefined && hv !== undefined) detail = `g=${fmt(gv)} h=${fmt(hv)} f=${fmt(f)}`;
+                      else detail = `f=${fmt(f)}`;
+                    } else if (g !== undefined && h !== undefined) {
+                      detail = `g=${fmt(g)} h=${fmt(h)}`;
+                    } else if (g !== undefined) {
+                      detail = `g=${fmt(g)}`;
+                    } else if (st.heuristic !== undefined) {
+                      detail = `h=${st.heuristic}`;
+                    }
+                    return detail ? (
+                      <span className="ml-2 text-[10px] text-[var(--text-2)] font-mono">{detail}</span>
+                    ) : null;
+                  })()}
                 </div>
-              )}
+              </Section>
+            )}
 
-              {/* Open list / Frontier */}
-              <div>
-                <SectionHeader title="Open List" count={frontier.length} />
-                {frontier.length > 0 ? (
-                  <div className="px-3 py-2 flex flex-wrap gap-1.5">
-                    {frontier.map((node, i) => {
-                      const isObj = typeof node === 'object' && node !== null;
-                      const id = isObj ? (node as Record<string, unknown>).id as string : String(node);
-                      const isCurrent = id === (st.currentNode as string | undefined);
-                      const detail = hasCosts
-                        ? getFrontierDetail(id, fCosts, gCosts, hCosts, costs)
+            {/* Open list / Frontier */}
+            <Section title="Open List" count={frontier.length}>
+              {frontier.length > 0 ? (
+                <div className="px-3 py-2 flex flex-wrap gap-1.5">
+                  {frontier.map((node, i) => {
+                    const isObj = typeof node === 'object' && node !== null;
+                    const id = isObj ? (node as Record<string, unknown>).id as string : String(node);
+                    const isCurrent = id === (st.currentNode as string | undefined);
+                    const detail = hasCosts
+                      ? getFrontierDetail(id, fCosts, gCosts, hCosts, costs)
+                      : undefined;
+                    return (
+                      <ChipBadge
+                        key={`${id}-${i}`}
+                        title={detail}
+                        variant={isCurrent ? 'current' : 'frontier'}
+                      >
+                        {lbl(id)}
+                      </ChipBadge>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="px-3 py-1 text-[var(--text-3)]">Empty</div>
+              )}
+            </Section>
+
+            {/* Closed list / Explored set */}
+            <Section title="Closed List" count={exploredArr.length}>
+              {exploredArr.length > 0 ? (
+                <div className="px-3 py-2 flex flex-wrap gap-1.5">
+                  {exploredArr.map((id, i) => {
+                    const detail = costs?.get(id) !== undefined
+                      ? `d=${Number.isInteger(costs.get(id)!) ? costs.get(id) : costs.get(id)!.toFixed(2)}`
+                      : gCosts?.get(id) !== undefined
+                        ? `g=${Number.isInteger(gCosts.get(id)!) ? gCosts.get(id) : gCosts.get(id)!.toFixed(2)}`
                         : undefined;
-                      return (
-                        <ChipBadge
-                          key={`${id}-${i}`}
-                          title={detail}
-                          variant={isCurrent ? 'current' : 'frontier'}
-                        >
-                          {lbl(id)}
-                        </ChipBadge>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="px-3 py-1 text-[var(--text-3)]">Empty</div>
-                )}
-              </div>
-
-              {/* Closed list / Explored set */}
-              <div>
-                <SectionHeader title="Closed List" count={exploredArr.length} />
-                {exploredArr.length > 0 ? (
-                  <div className="px-3 py-2 flex flex-wrap gap-1.5">
-                    {exploredArr.map((id, i) => {
-                      const detail = costs?.get(id) !== undefined
-                        ? `d=${Number.isInteger(costs.get(id)!) ? costs.get(id) : costs.get(id)!.toFixed(2)}`
-                        : gCosts?.get(id) !== undefined
-                          ? `g=${Number.isInteger(gCosts.get(id)!) ? gCosts.get(id) : gCosts.get(id)!.toFixed(2)}`
-                          : undefined;
-                      return (
-                        <ChipBadge
-                          key={`${id}-${i}`}
-                          variant="explored"
-                          title={detail}
-                        >
-                          {lbl(id)}
-                        </ChipBadge>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="px-3 py-1 text-[var(--text-3)]">Empty</div>
-                )}
-              </div>
-
-              {/* Solution path (shown when goal is reached) */}
-              {currentPath.length > 0 && (
-                <div>
-                  <SectionHeader title="Solution Path" count={currentPath.length - 1} />
-                  <div className="px-3 py-2 flex flex-wrap items-center gap-1">
-                    {currentPath.map((node, i) => (
-                      <span key={i} className="inline-flex items-center gap-1">
-                        <ChipBadge variant="path">
-                          {lbl(String(node))}
-                        </ChipBadge>
-                        {i < currentPath.length - 1 && (
-                          <span className="text-[9px] text-[var(--text-3)]">&rarr;</span>
-                        )}
-                      </span>
-                    ))}
-                  </div>
+                    return (
+                      <ChipBadge
+                        key={`${id}-${i}`}
+                        variant="explored"
+                        title={detail}
+                      >
+                        {lbl(id)}
+                      </ChipBadge>
+                    );
+                  })}
                 </div>
+              ) : (
+                <div className="px-3 py-1 text-[var(--text-3)]">Empty</div>
               )}
-            </>
-          )}
+            </Section>
+
+            {/* Solution path (shown when goal is reached) */}
+            {currentPath.length > 0 && (
+              <Section title="Solution Path" count={currentPath.length - 1}>
+                <div className="px-3 py-2 flex flex-wrap items-center gap-1">
+                  {currentPath.map((node, i) => (
+                    <span key={i} className="inline-flex items-center gap-1">
+                      <ChipBadge variant="path">
+                        {lbl(String(node))}
+                      </ChipBadge>
+                      {i < currentPath.length - 1 && (
+                        <span className="text-[9px] text-[var(--text-3)]">&rarr;</span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              </Section>
+            )}
+          </>
+        )}
 
         {algorithmCategory === 'game-playing' && (
           <>
-            <div>
-              <SectionHeader title="Position" />
+            <Section title="Position">
               <div className="px-3 py-2 space-y-1 text-[11px] text-[var(--text-2)]">
                 <div className="flex items-center justify-between gap-2">
                   <span>Current player</span>
@@ -287,10 +329,9 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
                   <span className="font-mono text-[var(--text)]">{String(st.terminalWinner ?? '-')}</span>
                 </div>
               </div>
-            </div>
+            </Section>
 
-            <div>
-              <SectionHeader title="Best Move" />
+            <Section title="Best Move">
               <div className="px-3 py-2 space-y-1 text-[11px] text-[var(--text-2)]">
                 <div className="flex items-center justify-between gap-2">
                   <span>Current candidate</span>
@@ -315,10 +356,9 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
                   </div>
                 )}
               </div>
-            </div>
+            </Section>
 
-            <div>
-              <SectionHeader title="Evaluated Moves" count={Array.isArray(st.evaluatedMoves) ? st.evaluatedMoves.length : 0} />
+            <Section title="Evaluated Moves" count={Array.isArray(st.evaluatedMoves) ? st.evaluatedMoves.length : 0}>
               {Array.isArray(st.evaluatedMoves) && st.evaluatedMoves.length > 0 ? (
                 <div className="py-1">
                   {st.evaluatedMoves.map((item, index) => {
@@ -336,10 +376,9 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
               ) : (
                 <div className="px-3 py-1 text-[var(--text-3)]">Empty</div>
               )}
-            </div>
+            </Section>
 
-            <div>
-              <SectionHeader title="Recursion Stack" count={Array.isArray(st.recursionStack) ? st.recursionStack.length : 0} />
+            <Section title="Recursion Stack" count={Array.isArray(st.recursionStack) ? st.recursionStack.length : 0}>
               {Array.isArray(st.recursionStack) && st.recursionStack.length > 0 ? (
                 <div className="py-1">
                   {st.recursionStack.map((frame, index) => {
@@ -360,7 +399,160 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
               ) : (
                 <div className="px-3 py-1 text-[var(--text-3)]">Empty</div>
               )}
-            </div>
+            </Section>
+          </>
+        )}
+
+        {algorithmCategory === 'local-search' && (
+          <>
+            <Section title="Current State">
+              <div className="px-3 py-2 space-y-1 text-[11px] text-[var(--text-2)]">
+                <div className="flex items-center justify-between gap-2">
+                  <span>{String(st.stateLabel ?? 'State')}</span>
+                  <span className="font-mono text-[var(--text)] text-right">{String(st.currentSummary ?? '-')}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span>{String(st.objectiveLabel ?? 'Objective')}</span>
+                  <span className="font-mono text-[var(--text)]">{String(st.currentDisplayValue ?? st.currentValue ?? '-')}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span>Score</span>
+                  <span className="font-mono text-[var(--text)]">{String(st.currentScore ?? '-')}</span>
+                </div>
+                {Array.isArray(st.currentStats) && st.currentStats.map((item, index) => {
+                  const stat = item as { label?: string; value?: string | number };
+                  return (
+                    <div key={`${stat.label ?? 'stat'}-${index}`} className="flex items-center justify-between gap-2">
+                      <span>{String(stat.label ?? 'stat')}</span>
+                      <span className="font-mono text-[var(--text)]">{String(stat.value ?? '-')}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </Section>
+
+            <Section title="Best So Far">
+              <div className="px-3 py-2 space-y-1 text-[11px] text-[var(--text-2)]">
+                <div className="flex items-center justify-between gap-2">
+                  <span>{String(st.stateLabel ?? 'State')}</span>
+                  <span className="font-mono text-[var(--text)] text-right">{String(st.bestSummary ?? '-')}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span>{String(st.objectiveLabel ?? 'Objective')}</span>
+                  <span className="font-mono text-[var(--text)]">{String(st.bestDisplayValue ?? st.bestValue ?? '-')}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span>Restarts</span>
+                  <span className="font-mono text-[var(--text)]">{String(st.restartCount ?? 0)}</span>
+                </div>
+                {Array.isArray(st.bestStats) && st.bestStats.map((item, index) => {
+                  const stat = item as { label?: string; value?: string | number };
+                  return (
+                    <div key={`${stat.label ?? 'best'}-${index}`} className="flex items-center justify-between gap-2">
+                      <span>{String(stat.label ?? 'stat')}</span>
+                      <span className="font-mono text-[var(--text)]">{String(stat.value ?? '-')}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </Section>
+
+            <Section title={Array.isArray(st.populationPreview) && st.populationPreview.length > 0 ? 'Candidates / Population' : 'Candidate Moves'} count={Array.isArray(st.candidateMoves) ? st.candidateMoves.length : 0}>
+              {Array.isArray(st.candidateMoves) && st.candidateMoves.length > 0 ? (
+                <div className="py-1">
+                  {st.candidateMoves.map((candidate, index) => {
+                    const item = candidate as { label?: string; displayValue?: string; delta?: number };
+                    return (
+                      <NodeEntry
+                        key={`${item.label ?? 'candidate'}-${index}`}
+                        id={String(index)}
+                        label={String(item.label ?? 'candidate')}
+                        detail={`${String(st.objectiveLabel ?? 'value')}=${String(item.displayValue ?? '-')} Δ=${String(item.delta ?? '-')}`}
+                      />
+                    );
+                  })}
+                </div>
+              ) : Array.isArray(st.populationPreview) && st.populationPreview.length > 0 ? (
+                <div className="py-1">
+                  {st.populationPreview.map((member, index) => {
+                    const item = member as { summary?: string; displayValue?: string };
+                    return (
+                      <NodeEntry
+                        key={`${item.summary ?? 'member'}-${index}`}
+                        id={String(index)}
+                        label={String(item.summary ?? 'member')}
+                        detail={String(item.displayValue ?? '-')}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="px-3 py-1 text-[var(--text-3)]">No candidate preview</div>
+              )}
+            </Section>
+
+            <Section title="Run State">
+              <div className="px-3 py-2 space-y-1 text-[11px] text-[var(--text-2)]">
+                <div className="flex items-center justify-between gap-2">
+                  <span>Iteration</span>
+                  <span className="font-mono text-[var(--text)]">{String(st.iteration ?? 0)}</span>
+                </div>
+                {st.generation !== undefined && st.generation !== null && (
+                  <div className="flex items-center justify-between gap-2">
+                    <span>Generation</span>
+                    <span className="font-mono text-[var(--text)]">{String(st.generation)}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-2">
+                  <span>Plateau length</span>
+                  <span className="font-mono text-[var(--text)]">{String(st.plateauLength ?? 0)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span>Sideways</span>
+                  <span className="font-mono text-[var(--text)]">
+                    {st.sidewaysMoveLimit == null
+                      ? String(st.sidewaysMovesUsed ?? 0)
+                      : `${String(st.sidewaysMovesUsed ?? 0)} / ${String(st.sidewaysMoveLimit)}`}
+                  </span>
+                </div>
+                {st.beamWidth !== undefined && st.beamWidth !== null && (
+                  <div className="flex items-center justify-between gap-2">
+                    <span>Beam width</span>
+                    <span className="font-mono text-[var(--text)]">{String(st.beamWidth)}</span>
+                  </div>
+                )}
+                {st.populationSize !== undefined && st.populationSize !== null && (
+                  <div className="flex items-center justify-between gap-2">
+                    <span>Population</span>
+                    <span className="font-mono text-[var(--text)]">{String(st.populationSize)}</span>
+                  </div>
+                )}
+                {st.tabuSize !== undefined && st.tabuSize !== null && (
+                  <div className="flex items-center justify-between gap-2">
+                    <span>Tabu size</span>
+                    <span className="font-mono text-[var(--text)]">{String(st.tabuSize)}</span>
+                  </div>
+                )}
+                {st.temperature !== undefined && st.temperature !== null && (
+                  <div className="flex items-center justify-between gap-2">
+                    <span>Temperature</span>
+                    <span className="font-mono text-[var(--text)]">{Number(st.temperature).toFixed(3)}</span>
+                  </div>
+                )}
+              </div>
+            </Section>
+
+            {Array.isArray(st.tabuEntries) && st.tabuEntries.length > 0 && (
+              <Section title="Tabu List" count={st.tabuEntries.length}>
+                <div className="px-3 py-2 flex flex-wrap gap-1.5">
+                  {st.tabuEntries.map((entry, index) => (
+                    <ChipBadge key={`${entry}-${index}`} variant="explored">
+                      {String(entry)}
+                    </ChipBadge>
+                  ))}
+                </div>
+              </Section>
+            )}
           </>
         )}
       </div>

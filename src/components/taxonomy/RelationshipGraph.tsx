@@ -10,18 +10,21 @@ const GROUP_COLORS: Record<string, string> = {
   uninformed: '#58A6FF',
   informed: '#D2A8FF',
   game: '#F2C94C',
+  local: '#53C880',
 };
 
 const CATEGORY_TO_GROUP: Record<AlgorithmCategory, string> = {
   'uninformed-search': 'uninformed',
   'informed-search': 'informed',
   'game-playing': 'game',
+  'local-search': 'local',
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
   'uninformed-search': 'search',
   'informed-search': 'zap',
   'game-playing': 'game',
+  'local-search': 'sparkles',
 };
 
 const RELATIONSHIP_DESCRIPTIONS: Record<string, string> = {
@@ -55,6 +58,16 @@ const FALLBACK_EDGE_LABELS: Record<string, string> = {
   'iddfs→ida-star': 'f-threshold',
   'minimax→alpha-beta': 'prunes',
   'minimax→negamax': 'symmetric',
+  'random-walk→simulated-annealing': 'related',
+  'hill-climbing-simple→hill-climbing-steepest': 'related',
+  'hill-climbing-steepest→hill-climbing-sideways': 'related',
+  'hill-climbing-steepest→hill-climbing-random-restart': 'related',
+  'hill-climbing-steepest→hill-climbing-stochastic': 'related',
+  'hill-climbing-steepest→hill-climbing-first-choice': 'related',
+  'local-beam-search→stochastic-beam-search': 'related',
+  'stochastic-beam-search→genetic-algorithm': 'related',
+  'hill-climbing-sideways→tabu-search': 'related',
+  'hill-climbing-steepest→min-conflicts': 'related',
 };
 
 /** 
@@ -69,7 +82,20 @@ const ALGO_RANK: Record<string, number> = {
   'astar': 4,
   'rbfs': 5, 'weighted-astar': 5,
   'sma-star': 6, 'bidirectional-astar': 6, 'ida-star': 6,
-  'minimax': 10, 'alpha-beta': 11, 'negamax': 12
+  'random-walk': 9,
+  'hill-climbing-simple': 10,
+  'hill-climbing-steepest': 11,
+  'hill-climbing-first-choice': 12,
+  'hill-climbing-stochastic': 12,
+  'hill-climbing-sideways': 13,
+  'hill-climbing-random-restart': 14,
+  'simulated-annealing': 14,
+  'local-beam-search': 15,
+  'stochastic-beam-search': 16,
+  'tabu-search': 17,
+  'genetic-algorithm': 18,
+  'min-conflicts': 19,
+  'minimax': 20, 'alpha-beta': 21, 'negamax': 22
 };
 
 function getRelationshipLabel(source: AlgorithmMeta, target: AlgorithmMeta): string {
@@ -243,6 +269,10 @@ export default function RelationshipGraph({ algorithms, onFullscreen, isFullscre
       game: { 
         x: width * 0.5, 
         y: height * (0.5 - 0.32 * clusterSpread) 
+      },
+      local: {
+        x: width * 0.5,
+        y: height * (0.5 + 0.44 * clusterSpread)
       },
     };
 

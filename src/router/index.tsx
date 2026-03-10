@@ -6,6 +6,7 @@ const HomePage = React.lazy(() => import('@/pages/HomePage'));
 const SearchPage = React.lazy(() => import('@/pages/SearchPage'));
 const MazePage = React.lazy(() => import('@/pages/MazePage'));
 const GamePage = React.lazy(() => import('@/pages/GamePage'));
+const LocalSearchPage = React.lazy(() => import('@/pages/LocalSearchPage'));
 const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage'));
 
 const PageLoader = () => (
@@ -51,6 +52,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageLoader />}>
             <GamePage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'local/:algo',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <LocalSearchPage />
           </Suspense>
         ),
       },

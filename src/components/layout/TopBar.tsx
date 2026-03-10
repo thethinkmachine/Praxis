@@ -13,6 +13,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   'uninformed-search': 'Uninformed',
   'informed-search': 'Informed',
   'game-playing': 'Game Playing',
+  'local-search': 'Local Search',
   bfs: 'BFS', dfs: 'DFS', dls: 'Depth-Limited', iddfs: 'IDDFS',
   ucs: 'UCS',
   'bidirectional-bfs': 'Bidirectional BFS',
@@ -23,6 +24,20 @@ const SEGMENT_LABELS: Record<string, string> = {
   minimax: 'Minimax',
   'alpha-beta': 'Alpha-Beta',
   negamax: 'Negamax',
+  local: 'Local Search',
+  'random-walk': 'Random Walk',
+  'hill-climbing-simple': 'Simple Hill',
+  'hill-climbing-steepest': 'Steepest Hill',
+  'hill-climbing-first-choice': 'First-Choice Hill',
+  'hill-climbing-stochastic': 'Stochastic Hill',
+  'hill-climbing-sideways': 'Sideways Hill',
+  'hill-climbing-random-restart': 'Restart Hill',
+  'simulated-annealing': 'Annealing',
+  'local-beam-search': 'Local Beam',
+  'stochastic-beam-search': 'Stochastic Beam',
+  'tabu-search': 'Tabu Search',
+  'genetic-algorithm': 'Genetic Algorithm',
+  'min-conflicts': 'Min-Conflicts',
 };
 
 interface ShortcutEntry {

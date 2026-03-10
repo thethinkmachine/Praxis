@@ -204,6 +204,7 @@ export default function AlgorithmPage({
                   metrics={step?.metrics ?? null}
                   phase={step?.phase}
                   description={step?.description}
+                  algorithmCategory={category}
                 />
               </div>
             </div>
