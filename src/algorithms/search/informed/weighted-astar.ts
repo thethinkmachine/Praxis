@@ -77,7 +77,8 @@ export const weightedAstarRunner: AlgorithmRunner<WeightedAStarProblem, Informed
   *run(problem: WeightedAStarProblem): Generator<AlgorithmStep<InformedSearchState, SearchHighlight>, void> {
     const w = problem.weight ?? 1.5;
     const adj = problem.graph.toAdjList();
-    const labelOf = (id: string) => problem.graph.nodes.find(n => n.id === id)?.label ?? id;
+    const nodeLabelMap = new Map(problem.graph.nodes.map(n => [n.id, n.label ?? n.id]));
+    const labelOf = (id: string) => nodeLabelMap.get(id) ?? id;
     const h = createHeuristicEvaluator(problem);
     const fw = (g: number, hVal: number) => g + w * hVal;
 

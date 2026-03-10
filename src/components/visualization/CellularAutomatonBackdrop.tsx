@@ -1,6 +1,7 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useState } from 'react';
 import { cn } from '@/lib/cn';
 import { usePreferencesStore } from '@/store/preferences.store';
+import { useInView } from 'react-intersection-observer';
 
 // A collection of interesting 1D Cellular Automaton rules
 const RULES_1D = [30, 45, 54, 57, 60, 62, 73, 75, 86, 89, 90, 105, 109, 110, 150];
@@ -17,27 +18,39 @@ type CAMode = '1D' | '2D';
 export default function CellularAutomatonBackdrop({
   className,
   cellSize = 8,
-  intervalMs = 60,
+  intervalMs = 120, // Increased default interval to slow down the frame rate
   changeRuleIntervalMs = 12000,
 }: CellularAutomatonBackdropProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const darkMode = usePreferencesStore((s) => s.darkMode);
+
+  // Use Intersection Observer to detect when the canvas is visible
+  const { ref: inViewRef, inView } = useInView({
+    threshold: 0,
+    triggerOnce: false,
+  });
+
+  // Combine refs
+  const setRefs = (node: HTMLCanvasElement | null) => {
+    (canvasRef as any).current = node;
+    inViewRef(node);
+  };
 
   // Compute theme colors
   const colors = useMemo(() => {
     if (darkMode) {
       return {
         bg: '#0b0f14',
-        cellPrimary: 'rgba(95, 179, 255, 0.4)',  // Boosted from 0.12
-        cellSecondary: 'rgba(83, 200, 128, 0.25)', // Boosted from 0.08
-        cellTertiary: 'rgba(186, 163, 255, 0.3)',  // Boosted from 0.1
+        cellPrimary: 'rgba(95, 179, 255, 0.4)',
+        cellSecondary: 'rgba(83, 200, 128, 0.25)',
+        cellTertiary: 'rgba(186, 163, 255, 0.3)',
       };
     } else {
       return {
         bg: '#edf2f7',
-        cellPrimary: 'rgba(40, 113, 185, 0.35)', // Boosted from 0.1
-        cellSecondary: 'rgba(63, 185, 80, 0.25)', // Boosted from 0.06
-        cellTertiary: 'rgba(130, 80, 223, 0.25)', // Boosted from 0.06
+        cellPrimary: 'rgba(40, 113, 185, 0.35)',
+        cellSecondary: 'rgba(63, 185, 80, 0.25)',
+        cellTertiary: 'rgba(130, 80, 223, 0.25)',
       };
     }
   }, [darkMode]);
@@ -61,7 +74,7 @@ export default function CellularAutomatonBackdrop({
     let ruleSet = [0, 0, 0, 0, 0, 0, 0, 0];
     
     // Animation frame tracking
-    let animationId: number;
+    let animationId: number | undefined;
     let lastDrawTime = 0;
     let lastModeChangeTime = 0;
 
@@ -74,11 +87,6 @@ export default function CellularAutomatonBackdrop({
       for (let i = 0; i < 8; i++) {
         ruleSet[i] = (ruleDec >> i) & 1;
       }
-    };
-
-    const getRandomRule1D = () => {
-      const remainingRules = RULES_1D.filter(r => r !== currentRule);
-      return remainingRules[Math.floor(Math.random() * remainingRules.length)];
     };
 
     // Initialize or resize the CA grid
@@ -157,75 +165,104 @@ export default function CellularAutomatonBackdrop({
       ruleSequence = ([...RULES_1D, '2D'] as (number | '2D')[]).sort(() => Math.random() - 0.5);
     };
 
+    let isRunning = false;
+
     const draw = (timestamp: number) => {
+      if (!isRunning) return; // Exit loop if no longer running
+
       if (!lastDrawTime) lastDrawTime = timestamp;
       if (!lastModeChangeTime) lastModeChangeTime = timestamp;
 
-      if (timestamp - lastModeChangeTime > changeRuleIntervalMs) {
-        if (ruleSequence.length === 0) refreshSequence();
-        const next = ruleSequence.pop();
-        
-        if (next === '2D') {
-          mode = '2D';
-        } else {
-          mode = '1D';
-          setRule1D(next as number);
+      // Only process when element is in view to save computational resources
+      if (inView) {
+        if (timestamp - lastModeChangeTime > changeRuleIntervalMs) {
+          if (ruleSequence.length === 0) refreshSequence();
+          const next = ruleSequence.pop();
+          
+          if (next === '2D') {
+            mode = '2D';
+          } else {
+            mode = '1D';
+            setRule1D(next as number);
+          }
+          
+          resetState();
+          lastModeChangeTime = timestamp;
         }
-        
-        resetState();
-        lastModeChangeTime = timestamp;
-      }
 
-      if (timestamp - lastDrawTime > intervalMs) {
-        ctx.fillStyle = colors.bg;
-        ctx.fillRect(0, 0, width, height);
+        if (timestamp - lastDrawTime > intervalMs) {
+          ctx.fillStyle = colors.bg;
+          ctx.fillRect(0, 0, width, height);
 
-        if (mode === '1D') {
-          generateNext1D();
-          for (let r = 0; r < history1D.length; r++) {
-            const rowData = history1D[history1D.length - 1 - r];
-            for (let c = 0; c < rowData.length; c++) {
-              if (rowData[c] === 1) {
-                if ((c * r + currentRule) % 5 === 0) ctx.fillStyle = colors.cellSecondary;
-                else if ((c + r) % 7 === 0) ctx.fillStyle = colors.cellTertiary;
-                else ctx.fillStyle = colors.cellPrimary;
-                ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+          if (mode === '1D') {
+            generateNext1D();
+            for (let r = 0; r < history1D.length; r++) {
+              const rowData = history1D[history1D.length - 1 - r];
+              for (let c = 0; c < rowData.length; c++) {
+                if (rowData[c] === 1) {
+                  if ((c * r + currentRule) % 5 === 0) ctx.fillStyle = colors.cellSecondary;
+                  else if ((c + r) % 7 === 0) ctx.fillStyle = colors.cellTertiary;
+                  else ctx.fillStyle = colors.cellPrimary;
+                  ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+                }
+              }
+            }
+          } else {
+            generateNext2D();
+            for (let r = 0; r < rows; r++) {
+              for (let c = 0; c < cols; c++) {
+                if (state2D[r][c] === 1) {
+                  if ((c + r) % 5 === 0) ctx.fillStyle = colors.cellSecondary;
+                  else if ((c * r) % 7 === 0) ctx.fillStyle = colors.cellTertiary;
+                  else ctx.fillStyle = colors.cellPrimary;
+                  ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+                }
               }
             }
           }
-        } else {
-          generateNext2D();
-          for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-              if (state2D[r][c] === 1) {
-                if ((c + r) % 5 === 0) ctx.fillStyle = colors.cellSecondary;
-                else if ((c * r) % 7 === 0) ctx.fillStyle = colors.cellTertiary;
-                else ctx.fillStyle = colors.cellPrimary;
-                ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
-              }
-            }
-          }
+          lastDrawTime = timestamp;
         }
-        lastDrawTime = timestamp;
       }
+
       animationId = requestAnimationFrame(draw);
     };
 
     setRule1D(30);
     initGrid();
-    animationId = requestAnimationFrame(draw);
 
-    const handleResize = () => initGrid();
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationId);
+    // Start or stop animation based on visibility
+    if (inView) {
+      if (!isRunning) {
+        isRunning = true;
+        lastDrawTime = 0; // Reset timer when coming back into view
+        lastModeChangeTime = performance.now() - (performance.now() - lastModeChangeTime); // try to resume where we left off
+        animationId = requestAnimationFrame(draw);
+      }
+    } else {
+      isRunning = false;
+      if (typeof animationId !== 'undefined') {
+          cancelAnimationFrame(animationId);
+      }
+    }
+
+    const handleResize = () => {
+      if (inView) initGrid();
     };
-  }, [cellSize, intervalMs, changeRuleIntervalMs, colors]);
+
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      isRunning = false;
+      window.removeEventListener('resize', handleResize);
+      if (typeof animationId !== 'undefined') {
+          cancelAnimationFrame(animationId);
+      }
+    };
+  }, [cellSize, intervalMs, changeRuleIntervalMs, colors, inView]);
 
   return (
     <canvas
-      ref={canvasRef}
+      ref={setRefs}
       className={cn("w-full h-full block", className)}
       style={{ imageRendering: 'pixelated' }}
     />

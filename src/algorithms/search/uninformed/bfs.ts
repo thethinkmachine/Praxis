@@ -52,8 +52,8 @@ export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
 
   *run(problem: GraphProblem): Generator<AlgorithmStep<SearchState, SearchHighlight>, void> {
     const adj = problem.graph.toAdjList();
-    const labelOf = (id: string) =>
-      problem.graph.nodes.find(n => n.id === id)?.label ?? id;
+    const nodeLabelMap = new Map(problem.graph.nodes.map(n => [n.id, n.label ?? n.id]));
+    const labelOf = (id: string) => nodeLabelMap.get(id) ?? id;
     const frontier: string[] = [problem.startNode];
     const frontierSet = new Set<string>([problem.startNode]);
     const explored = new Set<string>();

@@ -52,8 +52,8 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
 
   *run(problem: GraphProblem): Generator<AlgorithmStep<SearchState, SearchHighlight>, void> {
     const adj = problem.graph.toAdjList();
-    const labelOf = (id: string) =>
-      problem.graph.nodes.find(n => n.id === id)?.label ?? id;
+    const nodeLabelMap = new Map(problem.graph.nodes.map(n => [n.id, n.label ?? n.id]));
+    const labelOf = (id: string) => nodeLabelMap.get(id) ?? id;
     let stepNum = 0;
     const maxDepth = problem.graph.nodes.length;
 

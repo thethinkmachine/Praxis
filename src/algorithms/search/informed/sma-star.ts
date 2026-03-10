@@ -97,7 +97,8 @@ export const smaStarRunner: AlgorithmRunner<SMAStarProblem, SMAStarState, Search
 
   *run(problem: SMAStarProblem): Generator<AlgorithmStep<SMAStarState, SearchHighlight>, void> {
     const adj = problem.graph.toAdjList();
-    const labelOf = (id: string) => problem.graph.nodes.find(n => n.id === id)?.label ?? id;
+    const nodeLabelMap = new Map(problem.graph.nodes.map(n => [n.id, n.label ?? n.id]));
+    const labelOf = (id: string) => nodeLabelMap.get(id) ?? id;
     const h = createHeuristicEvaluator(problem);
     const memoryLimit = Math.max(2, Math.floor(problem.memoryLimit ?? 64));
 

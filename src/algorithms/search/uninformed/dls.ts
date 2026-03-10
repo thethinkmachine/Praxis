@@ -58,8 +58,8 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
 
   *run(problem: DLSProblem): Generator<AlgorithmStep<SearchState, SearchHighlight>, void> {
     const adj = problem.graph.toAdjList();
-    const labelOf = (id: string) =>
-      problem.graph.nodes.find(n => n.id === id)?.label ?? id;
+    const nodeLabelMap = new Map(problem.graph.nodes.map(n => [n.id, n.label ?? n.id]));
+    const labelOf = (id: string) => nodeLabelMap.get(id) ?? id;
     const { depthLimit } = problem;
     const stack: [string, string | null, number][] = [[problem.startNode, null, 0]];
     const explored = new Set<string>();

@@ -10,19 +10,89 @@ import TerminalPanel from '../module/TerminalPanel';
 import { cn } from '@/lib/cn';
 import { Activity, Zap, Layers, Target, Terminal } from '@/components/shared/Icons';
 
-export default function AppShell() {
-  const darkMode = usePreferencesStore(s => s.darkMode);
+function LatestLogDisplay() {
+  const lastLog = useExecutionStore(s => s.logs.length > 0 ? s.logs[s.logs.length - 1] : null);
+
+  if (!lastLog) {
+    return <span className="opacity-40 italic">Ready</span>;
+  }
+
+  return (
+    <span className={cn(
+      "opacity-90",
+      lastLog.level === 'success' && 'text-[var(--success)]',
+      lastLog.level === 'warn' && 'text-[var(--warning)]',
+      lastLog.level === 'error' && 'text-[var(--danger)]'
+    )}>
+      <span className="opacity-50 mr-2">[{new Date(lastLog.timestamp).toLocaleTimeString([], { hour12: false, minute: '2-digit', second: '2-digit' })}]</span>
+      {lastLog.message}
+    </span>
+  );
+}
+
+function StatusBar() {
   const terminalExpanded = usePreferencesStore(s => s.terminalExpanded);
   const toggle = usePreferencesStore(s => s.toggle);
-  const { pathname } = useLocation();
 
   const isPlaying = useExecutionStore(s => s.isPlaying);
   const currentIndex = useExecutionStore(s => s.currentIndex);
   const totalSteps = useExecutionStore(s => s.totalSteps);
   const step = useExecutionStore(s => s.currentStep);
-  const logs = useExecutionStore(s => s.logs);
 
-  const lastLog = logs.length > 0 ? logs[logs.length - 1] : null;
+  return (
+    <footer 
+      onClick={() => toggle('terminalExpanded')}
+      className="ide-statusbar h-7 px-3 flex items-center justify-between text-[10px] font-mono text-[var(--text-2)] shrink-0 cursor-pointer hover:bg-[var(--surface-3)]/40 transition-colors"
+    >
+      <div className="flex items-center gap-4 overflow-hidden flex-1">
+         <div className="flex items-center gap-1.5 shrink-0">
+           <div className={cn(
+             'w-2 h-2 rounded-full',
+             isPlaying ? 'bg-[var(--success)] animate-pulse' : 'bg-[var(--text-3)]'
+           )} />
+           <span className="uppercase tracking-wider">
+             {isPlaying ? 'Running' : (currentIndex >= totalSteps - 1 && totalSteps > 0) ? 'Finished' : 'Idle'}
+           </span>
+         </div>
+         
+         <div className="w-px h-3 bg-[var(--border-strong)] shrink-0" />
+         
+         <div className="flex-1 truncate">
+           <LatestLogDisplay />
+         </div>
+      </div>
+
+      <div className="flex items-center gap-4 shrink-0 px-2">
+        {step && (
+          <div className="hidden md:flex items-center gap-4">
+            <div className="flex items-center gap-1.5 text-[var(--accent)]" title="Step">
+              <Zap size={10} />
+              <span>{currentIndex + 1}/{totalSteps}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[var(--warning)]" title="Frontier Size">
+              <Layers size={10} />
+              <span>F:{step.metrics.frontierSize}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[var(--success)]" title="Nodes Expanded">
+              <Target size={10} />
+              <span>E:{step.metrics.nodesExpanded}</span>
+            </div>
+          </div>
+        )}
+        <div className="hidden sm:flex items-center gap-1.5 opacity-60">
+           <Terminal size={10} className={cn(terminalExpanded && "text-[var(--accent)]")} />
+           <span>Output</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+export default function AppShell() {
+  const darkMode = usePreferencesStore(s => s.darkMode);
+  const terminalExpanded = usePreferencesStore(s => s.terminalExpanded);
+  const toggle = usePreferencesStore(s => s.toggle);
+  const { pathname } = useLocation();
 
   // Apply/remove data-theme on the <html> element so that the CSS rule
   //   :root[data-theme="light"] { ... }
@@ -74,64 +144,7 @@ export default function AppShell() {
             )}
           </AnimatePresence>
  
-          <footer 
-            onClick={() => toggle('terminalExpanded')}
-            className="ide-statusbar h-7 px-3 flex items-center justify-between text-[10px] font-mono text-[var(--text-2)] shrink-0 cursor-pointer hover:bg-[var(--surface-3)]/40 transition-colors"
-          >
-            <div className="flex items-center gap-4 overflow-hidden flex-1">
-               <div className="flex items-center gap-1.5 shrink-0">
-                 <div className={cn(
-                   'w-2 h-2 rounded-full',
-                   isPlaying ? 'bg-[var(--success)] animate-pulse' : 'bg-[var(--text-3)]'
-                 )} />
-                 <span className="uppercase tracking-wider">
-                   {isPlaying ? 'Running' : (currentIndex >= totalSteps - 1 && totalSteps > 0) ? 'Finished' : 'Idle'}
-                 </span>
-               </div>
-               
-               <div className="w-px h-3 bg-[var(--border-strong)] shrink-0" />
-               
-               {/* Show latest log or a placeholder */}
-               <div className="flex-1 truncate">
-                 {lastLog ? (
-                   <span className={cn(
-                     "opacity-90",
-                     lastLog.level === 'success' && 'text-[var(--success)]',
-                     lastLog.level === 'warn' && 'text-[var(--warning)]',
-                     lastLog.level === 'error' && 'text-[var(--danger)]'
-                   )}>
-                     <span className="opacity-50 mr-2">[{new Date(lastLog.timestamp).toLocaleTimeString([], { hour12: false, minute: '2-digit', second: '2-digit' })}]</span>
-                     {lastLog.message}
-                   </span>
-                 ) : (
-                   <span className="opacity-40 italic">Ready</span>
-                 )}
-               </div>
-            </div>
- 
-            <div className="flex items-center gap-4 shrink-0 px-2">
-              {step && (
-                <div className="hidden md:flex items-center gap-4">
-                  <div className="flex items-center gap-1.5 text-[var(--accent)]" title="Step">
-                    <Zap size={10} />
-                    <span>{currentIndex + 1}/{totalSteps}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[var(--warning)]" title="Frontier Size">
-                    <Layers size={10} />
-                    <span>F:{step.metrics.frontierSize}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[var(--success)]" title="Nodes Expanded">
-                    <Target size={10} />
-                    <span>E:{step.metrics.nodesExpanded}</span>
-                  </div>
-                </div>
-              )}
-              <div className="hidden sm:flex items-center gap-1.5 opacity-60">
-                 <Terminal size={10} className={cn(terminalExpanded && "text-[var(--accent)]")} />
-                 <span>Output</span>
-              </div>
-            </div>
-          </footer>
+          <StatusBar />
         </div>
       </div>
     </div>

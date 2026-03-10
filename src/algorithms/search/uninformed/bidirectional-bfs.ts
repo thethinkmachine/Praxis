@@ -81,7 +81,8 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
       }
     });
 
-    const labelOf = (id: string) => problem.graph.nodes.find(n => n.id === id)?.label ?? id;
+    const nodeLabelMap = new Map(problem.graph.nodes.map(n => [n.id, n.label ?? n.id]));
+    const labelOf = (id: string) => nodeLabelMap.get(id) ?? id;
 
     const frontierF: string[] = [problem.startNode];
     const frontierB: string[] = [problem.goalNode];
