@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Fuse from 'fuse.js';
 import { registry } from '@/algorithms/core/registry';
 import { buildRoute } from '@/lib/buildRoute';
-import { GAME_LABS, type GameLab } from '@/lib/game-labs';
+import { DISCOVERY_ITEMS_BY_CATEGORY, type DiscoveryItem } from '@/lib/discovery-items';
 import { Search, Gamepad2 } from '@/components/shared/Icons';
 import AlgorithmBadge from '@/components/shared/AlgorithmBadge';
 import { cn } from '@/lib/cn';
@@ -12,7 +12,7 @@ import type { AlgorithmMeta, AlgorithmCategory } from '@/types/algorithm';
 
 type SearchItem =
   | { type: 'algorithm'; id: string; route: string; meta: AlgorithmMeta; groupLabel: string }
-  | { type: 'game'; id: string; route: string; lab: GameLab; category: AlgorithmCategory; groupLabel: string };
+  | { type: 'module'; id: string; route: string; item: DiscoveryItem; category: AlgorithmCategory; groupLabel: string };
 
 interface DropdownPosition {
   left: number;
@@ -20,9 +20,9 @@ interface DropdownPosition {
   width: number;
 }
 
-function flattenLabs(): Array<{ category: AlgorithmCategory; lab: GameLab }> {
-  return Object.entries(GAME_LABS).flatMap(([category, labs]) =>
-    (labs ?? []).map((lab) => ({ category: category as AlgorithmCategory, lab })),
+function flattenDiscoveryItems(): Array<{ category: AlgorithmCategory; item: DiscoveryItem }> {
+  return Object.entries(DISCOVERY_ITEMS_BY_CATEGORY).flatMap(([category, items]) =>
+    (items ?? []).map((item) => ({ category: category as AlgorithmCategory, item })),
   );
 }
 
@@ -39,7 +39,7 @@ export default function AlgorithmSearch() {
     return registry.getAll().map((entry) => entry.runner.meta);
   }, []);
 
-  const allLabs = useMemo(() => flattenLabs().filter((item) => !!item.lab.path), []);
+  const allDiscoveryItems = useMemo(() => flattenDiscoveryItems().filter((entry) => !!entry.item.path), []);
 
   const algorithmFuse = useMemo(() => new Fuse(allAlgorithms, {
     keys: ['name', 'shortName', 'description', 'category', 'tags'],
@@ -47,11 +47,11 @@ export default function AlgorithmSearch() {
     includeScore: true,
   }), [allAlgorithms]);
 
-  const gameFuse = useMemo(() => new Fuse(allLabs, {
-    keys: ['lab.name', 'lab.description', 'category'],
+  const discoveryFuse = useMemo(() => new Fuse(allDiscoveryItems, {
+    keys: ['item.name', 'item.description', 'category'],
     threshold: 0.4,
     includeScore: true,
-  }), [allLabs]);
+  }), [allDiscoveryItems]);
 
   const algorithmResults = useMemo(() => {
     if (!query.trim()) return [];
@@ -64,19 +64,19 @@ export default function AlgorithmSearch() {
     }));
   }, [algorithmFuse, query]);
 
-  const gameResults = useMemo(() => {
+  const moduleResults = useMemo(() => {
     if (!query.trim()) return [];
-    return gameFuse.search(query).slice(0, 4).map(({ item }) => ({
-      type: 'game' as const,
-      id: item.lab.id,
-      route: item.lab.path!,
-      lab: item.lab,
+    return discoveryFuse.search(query).slice(0, 4).map(({ item }) => ({
+      type: 'module' as const,
+      id: item.item.id,
+      route: item.item.path!,
+      item: item.item,
       category: item.category,
-      groupLabel: 'Games',
+      groupLabel: 'Modules',
     }));
-  }, [gameFuse, query]);
+  }, [discoveryFuse, query]);
 
-  const flatResults: SearchItem[] = useMemo(() => [...algorithmResults, ...gameResults], [algorithmResults, gameResults]);
+  const flatResults: SearchItem[] = useMemo(() => [...algorithmResults, ...moduleResults], [algorithmResults, moduleResults]);
 
   const showDropdown = open && query.trim().length > 0;
 
@@ -190,13 +190,13 @@ export default function AlgorithmSearch() {
                 </div>
               )}
 
-              {gameResults.length > 0 && (
+              {moduleResults.length > 0 && (
                 <div>
                   <div className="px-3 py-2 text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)] bg-[var(--surface-2)]/70">
-                    Games
+                    Modules
                   </div>
-                  {gameResults.map((item, gameIndex) => {
-                    const index = algorithmResults.length + gameIndex;
+                  {moduleResults.map((item, itemIndex) => {
+                    const index = algorithmResults.length + itemIndex;
                     return (
                       <button
                         key={item.id}
@@ -211,8 +211,8 @@ export default function AlgorithmSearch() {
                           <Gamepad2 size={14} />
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block text-sm font-medium text-[var(--text)]">{item.lab.name}</span>
-                          <span className="block text-xs text-[var(--text-2)] line-clamp-1">{item.lab.description}</span>
+                          <span className="block text-sm font-medium text-[var(--text)]">{item.item.name}</span>
+                          <span className="block text-xs text-[var(--text-2)] line-clamp-1">{item.item.description}</span>
                         </span>
                       </button>
                     );
@@ -222,8 +222,8 @@ export default function AlgorithmSearch() {
             </div>
           ) : (
             <div className="px-4 py-5 text-center">
-              <p className="text-sm text-[var(--text)]">No matching algorithms or labs</p>
-              <p className="mt-1 text-xs text-[var(--text-3)]">Try an algorithm name, heuristic, or lab title.</p>
+              <p className="text-sm text-[var(--text)]">No matching algorithms or modules</p>
+              <p className="mt-1 text-xs text-[var(--text-3)]">Try an algorithm name, heuristic, game, or sandbox title.</p>
             </div>
           )}
         </div>,
@@ -249,7 +249,7 @@ export default function AlgorithmSearch() {
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search algorithms and games..."
+          placeholder="Search algorithms, games, and sandboxes..."
           className={cn(
             'w-full pl-9 pr-16 py-3 rounded-xl text-sm font-mono',
             'bg-[var(--surface)] border border-[var(--border)] shadow-[0_14px_40px_rgba(0,0,0,0.32)]',

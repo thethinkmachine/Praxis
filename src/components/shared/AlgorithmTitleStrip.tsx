@@ -15,6 +15,7 @@ interface AlgorithmTitleStripProps {
   loadError: string | null;
   loadWarning?: string | null;
   problemCategory?: ProblemCategory;
+  buildAlgorithmRoute?: (algorithmId: string) => string;
   /** Show the gear/config toggle button */
   showConfigButton?: boolean;
   /** Is config panel currently open */
@@ -36,6 +37,7 @@ export default function AlgorithmTitleStrip({
   loadError,
   loadWarning,
   problemCategory = 'graph',
+  buildAlgorithmRoute,
   showConfigButton = false,
   configOpen = false,
   onToggleConfig,
@@ -107,7 +109,7 @@ export default function AlgorithmTitleStrip({
                         <button
                           key={siblingMeta.id}
                           onClick={() => {
-                            navigate(buildRoute({ category: meta.category, id: siblingMeta.id }, problemCategory));
+                            navigate(buildAlgorithmRoute?.(siblingMeta.id) ?? buildRoute({ category: meta.category, id: siblingMeta.id }, problemCategory));
                           }}
                           className={cn(
                             'w-full truncate text-left px-2.5 py-1.5 rounded text-xs font-medium transition-colors mb-px',

@@ -48,6 +48,8 @@ export interface AlgorithmPageProps {
   tabs: TabDefinition[];
   /** Action buttons rendered in the title strip's right side (Random button, Demo picker, etc.) */
   titleActions?: React.ReactNode;
+  /** Optional route builder used by the title strip's algorithm switcher. */
+  buildAlgorithmRoute?: (algorithmId: string) => string;
   /** Callback fired when the user selects "Load Demo" from the Problem dropdown.
    *  The page should respond by opening its DemoProblemPicker. */
   onDemoRequest?: () => void;
@@ -66,6 +68,7 @@ export default function AlgorithmPage({
   onProblemImport,
   tabs,
   titleActions,
+  buildAlgorithmRoute,
   configPanel,
   defaultConfigOpen = true,
   onDemoRequest,
@@ -118,6 +121,7 @@ export default function AlgorithmPage({
         loadError={loadError}
         loadWarning={loadWarning}
         problemCategory={problemCategory}
+        buildAlgorithmRoute={buildAlgorithmRoute}
         showConfigButton={hasConfig}
         configOpen={hasConfig && configOpen}
         onToggleConfig={() => setConfigOpen(v => !v)}

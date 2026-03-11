@@ -1,40 +1,6 @@
-import { Graph, type GraphEdge, type GraphNode, type GraphColoringProblem, type LandscapePreset, type LandscapeProblem, type LocalSearchProblem, type NPuzzleProblem, type NQueensProblem, type TspCity, type TspProblem } from '@/types/problem';
+import { Graph, type GraphEdge, type GraphNode, type GraphColoringProblem, type LandscapePreset, type LandscapeProblem, type NPuzzleProblem, type NQueensProblem, type TspCity, type TspProblem } from '@/types/problem';
 import { createSeededRandom } from './n-queens';
 import { scrambleTiles } from './n-puzzle';
-
-export interface LocalSearchLabDefinition {
-  id: LocalSearchProblem['kind'];
-  name: string;
-  description: string;
-}
-
-export const LOCAL_SEARCH_LABS: LocalSearchLabDefinition[] = [
-  {
-    id: 'n-queens',
-    name: 'N-Queens',
-    description: 'Conflict-driven discrete local search with clear local maxima, plateaus, and repair behavior.',
-  },
-  {
-    id: 'tsp',
-    name: 'TSP / Route',
-    description: 'Tour optimization over Euclidean city layouts using swap, 2-opt, or insertion neighborhoods.',
-  },
-  {
-    id: 'graph-coloring',
-    name: 'Graph Coloring',
-    description: 'Constraint satisfaction over sparse graphs, useful for tabu search and min-conflicts.',
-  },
-  {
-    id: 'landscape',
-    name: 'Landscape',
-    description: 'A continuous objective surface for making ridges, plateaus, and annealing behavior visible.',
-  },
-  {
-    id: 'n-puzzle',
-    name: 'N-Puzzle',
-    description: 'A crossover lab that contrasts heuristic local search behavior with a classic state-space problem.',
-  },
-];
 
 export function createDefaultNQueensProblem(size = 8): NQueensProblem {
   return {
@@ -178,17 +144,3 @@ export function createDefaultNPuzzleProblem(size: 3 | 4 = 3): NPuzzleProblem {
   };
 }
 
-export function createDefaultLocalSearchProblem(kind: LocalSearchProblem['kind']): LocalSearchProblem {
-  switch (kind) {
-    case 'n-queens':
-      return createDefaultNQueensProblem();
-    case 'tsp':
-      return createDefaultTspProblem();
-    case 'graph-coloring':
-      return createDefaultGraphColoringProblem();
-    case 'landscape':
-      return createDefaultLandscapeProblem();
-    case 'n-puzzle':
-      return createDefaultNPuzzleProblem();
-  }
-}

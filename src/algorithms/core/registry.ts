@@ -15,12 +15,20 @@ class AlgorithmRegistry {
 
   /** Register a full entry (runner + optional component) */
   register(entry: RegistryEntry | AnyRunner): void {
-    if ('meta' in entry && 'run' in entry) {
-      // Plain runner passed directly
-      this.entries.set((entry as AnyRunner).meta.id, { runner: entry as AnyRunner });
-    } else {
-      this.entries.set((entry as RegistryEntry).runner.meta.id, entry as RegistryEntry);
+    const normalized = 'meta' in entry && 'run' in entry
+      ? { runner: entry as AnyRunner }
+      : entry as RegistryEntry;
+    const id = normalized.runner.meta.id;
+
+    if (this.entries.has(id)) {
+      throw new Error(`Algorithm "${id}" is already registered`);
     }
+
+    this.entries.set(id, normalized);
+  }
+
+  registerMany(entries: Array<RegistryEntry | AnyRunner>): void {
+    entries.forEach(entry => this.register(entry));
   }
 
   get(id: string): RegistryEntry | undefined {

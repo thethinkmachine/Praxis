@@ -48,7 +48,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'play/:category/:algo',
+        path: 'play/:labId/:algo',
         element: (
           <Suspense fallback={<PageLoader />}>
             <GamePage />

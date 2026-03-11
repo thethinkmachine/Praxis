@@ -288,13 +288,13 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
                 <div className="flex items-center justify-between gap-2">
                   <span>Current candidate</span>
                   <span className="font-mono text-[var(--text)]">
-                    {typeof st.currentMove === 'number' ? `cell ${Number(st.currentMove) + 1}` : '-'}
+                    {typeof st.currentMove === 'number' ? `move ${Number(st.currentMove) + 1}` : '-'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
                   <span>Best move</span>
                   <span className="font-mono text-[var(--text)]">
-                    {typeof st.bestMove === 'number' ? `cell ${Number(st.bestMove) + 1}` : '-'}
+                    {typeof st.bestMove === 'number' ? `move ${Number(st.bestMove) + 1}` : '-'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
@@ -319,7 +319,7 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
                       <NodeEntry
                         key={`${move.move ?? 'm'}-${index}`}
                         id={String(move.move ?? index)}
-                        label={typeof move.move === 'number' ? `cell ${move.move + 1}` : 'move'}
+                        label={typeof move.move === 'number' ? `move ${move.move + 1}` : 'move'}
                         detail={move.score === undefined ? undefined : String(move.score)}
                       />
                     );
@@ -335,7 +335,7 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
                 <div className="py-1">
                   {st.recursionStack.map((frame, index) => {
                     const item = frame as { depth?: number; role?: string; move?: number | null; bestScore?: number | null };
-                    const moveLabel = typeof item.move === 'number' ? `cell ${item.move + 1}` : 'root';
+                    const moveLabel = typeof item.move === 'number' ? `move ${item.move + 1}` : 'root';
                     const roleLabel = item.role ? `${String(item.role).toUpperCase()} d${String(item.depth ?? 0)}` : `d${String(item.depth ?? 0)}`;
                     const detail = item.bestScore == null ? moveLabel : `${moveLabel} best=${item.bestScore}`;
                     return (

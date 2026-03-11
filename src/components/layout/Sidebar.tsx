@@ -18,7 +18,7 @@ interface CategoryEntry {
 
 const HOME_DESTINATIONS = [
   { id: 'algorithms', label: 'Algorithms', to: '/', icon: <Search size={14} /> },
-  { id: 'games', label: 'Games', to: '/?tab=games', icon: <Gamepad2 size={14} /> },
+  { id: 'games', label: 'Playgrounds', to: '/?tab=games', icon: <Gamepad2 size={14} /> },
   { id: 'graph', label: 'Graph', to: '/?tab=graph', icon: <Network size={14} /> },
 ] as const;
 

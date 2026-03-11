@@ -14,11 +14,11 @@ import { Search, Gamepad2, Network, Play, Pause } from '@/components/shared/Icon
 import { cn } from '@/lib/cn';
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/lib/constants';
 import type { AlgorithmCategory } from '@/types/algorithm';
-import { getLabsForCategory, GAME_LABS } from '@/lib/game-labs';
+import { DISCOVERY_ITEMS_BY_CATEGORY, getDiscoveryItemsForCategory } from '@/lib/discovery-items';
 
 const HOME_TABS = [
   { id: 'algorithms', label: 'Algorithms', icon: Search, hint: 'Browse registered algorithms' },
-  { id: 'games', label: 'Game Labs', icon: Gamepad2, hint: 'Open game-driven modules' },
+  { id: 'games', label: 'Playgrounds', icon: Gamepad2, hint: 'Open games, sandboxes, and labs' },
   { id: 'graph', label: 'Relationship Graph', icon: Network, hint: 'Explore algorithm families visually' },
 ] as const;
 
@@ -28,10 +28,10 @@ export default function HomePage() {
   const [graphFullscreen, setGraphFullscreen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const liveGamesCount = useMemo(() => {
-    return Object.values(GAME_LABS)
+  const liveModuleCount = useMemo(() => {
+    return Object.values(DISCOVERY_ITEMS_BY_CATEGORY)
       .flat()
-      .filter(lab => lab.status === 'live').length;
+      .filter((item) => item.status === 'live').length;
   }, []);
 
   const handleTabChange = useCallback((value: string) => {
@@ -98,7 +98,7 @@ export default function HomePage() {
       <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col overflow-hidden">
         <HomeTitleStrip
           algorithmCount={metas.length}
-          liveGamesCount={liveGamesCount}
+          liveModuleCount={liveModuleCount}
         />
 
         {/* Hero Section — hidden when graph tab is active */}
@@ -139,7 +139,7 @@ export default function HomePage() {
                 {metas.length} algorithms
               </span>
               <span className="text-xs px-2.5 py-1 rounded-md bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] font-mono">
-                {liveGamesCount} live games
+                {liveModuleCount} live modules
               </span>
             </div>
 
@@ -182,49 +182,55 @@ export default function HomePage() {
         <TabsContent value="games" className="relative z-10 flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="mx-auto max-w-5xl space-y-5">
             <SurfaceCard>
-              <p className="text-[11px] font-mono uppercase tracking-wider text-[var(--text-3)]">Game Labs</p>
-              <h2 className="mt-1 text-lg font-semibold text-[var(--text)]">Playground Modules by Category</h2>
+              <p className="text-[11px] font-mono uppercase tracking-wider text-[var(--text-3)]">Playgrounds</p>
+              <h2 className="mt-1 text-lg font-semibold text-[var(--text)]">Games, Sandboxes, and Labs by Category</h2>
               <p className="mt-1 text-sm text-[var(--text-2)]">
-                Every algorithm family can have its own game lab. Live labs open directly; planned labs are listed as coming soon.
+                Maze is treated as a game, Graph Sandbox is the editable testing surface, and local-search modules stay grouped as labs.
               </p>
             </SurfaceCard>
 
             {CATEGORY_ORDER.map((category) => {
-              const labs = getLabsForCategory(category);
+              const items = getDiscoveryItemsForCategory(category);
               return (
                 <SurfaceCard key={category} tone="muted" className="rounded-xl">
                   <div className="mb-3 flex items-center justify-between gap-2">
                     <h3 className="text-sm font-semibold text-[var(--text)]">{CATEGORY_LABELS[category]}</h3>
                     <span className="text-[10px] font-mono text-[var(--text-3)] uppercase tracking-wider">
-                      {labs.length > 0 ? `${labs.length} lab${labs.length > 1 ? 's' : ''}` : 'No labs yet'}
+                      {items.length > 0 ? `${items.length} module${items.length > 1 ? 's' : ''}` : 'No modules yet'}
                     </span>
                   </div>
 
-                  {labs.length === 0 ? (
+                  {items.length === 0 ? (
                     <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface-2)]/60 px-3 py-4">
-                      <p className="text-sm text-[var(--text-2)]">Coming soon: category-specific games for this algorithm family.</p>
+                      <p className="text-sm text-[var(--text-2)]">Coming soon: category-specific modules for this algorithm family.</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {labs.map((lab) => (
-                        lab.path ? (
+                      {items.map((item) => (
+                        item.path ? (
                           <NavigationTile
-                            key={lab.id}
-                            to={lab.path}
-                            title={lab.name}
-                            description={lab.description}
-                            badge="Live"
+                            key={item.id}
+                            to={item.path}
+                            title={item.name}
+                            description={item.description}
+                            badge={item.kind === 'game' ? 'Game' : item.kind === 'sandbox' ? 'Sandbox' : 'Lab'}
                             badgeTone="success"
                           />
                         ) : (
-                          <SurfaceCard key={lab.id} tone="muted" padding="sm" className="rounded-lg">
+                          <SurfaceCard key={item.id} tone="muted" padding="sm" className="rounded-lg">
                             <div className="flex items-center justify-between gap-2">
-                              <p className="text-sm font-semibold text-[var(--text)]">{lab.name}</p>
+                              <p className="text-sm font-semibold text-[var(--text)]">{item.name}</p>
                               <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-[var(--border)] text-[var(--text-3)]">
-                                {lab.status === 'coming-soon' ? 'COMING SOON' : 'LAB'}
+                                {item.status === 'coming-soon'
+                                  ? 'COMING SOON'
+                                  : item.kind === 'game'
+                                    ? 'GAME'
+                                    : item.kind === 'sandbox'
+                                      ? 'SANDBOX'
+                                      : 'LAB'}
                               </span>
                             </div>
-                            <p className="mt-1 text-xs text-[var(--text-2)]">{lab.description}</p>
+                            <p className="mt-1 text-xs text-[var(--text-2)]">{item.description}</p>
                           </SurfaceCard>
                         )
                       ))}

@@ -127,6 +127,10 @@ describe('Validation', () => {
     expect(result.valid).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
   });
+
+  it('rejects duplicate algorithm registrations', () => {
+    expect(() => registerAllAlgorithms()).toThrow(/already registered/);
+  });
 });
 
 describe('Local Search', () => {

@@ -39,42 +39,53 @@ import { tabuSearchRunner } from './local-search/tabu-search';
 import { geneticAlgorithmRunner } from './local-search/genetic-algorithm';
 import { minConflictsRunner } from './local-search/min-conflicts';
 
+const UNINFORMED_SEARCH_RUNNERS = [
+  bfsRunner,
+  dfsRunner,
+  dlsRunner,
+  iddfsRunner,
+  ucsRunner,
+  bidirectionalBfsRunner,
+  bidirectionalUcsRunner,
+];
+
+const INFORMED_SEARCH_RUNNERS = [
+  greedyBfsRunner,
+  astarRunner,
+  rbfsRunner,
+  smaStarRunner,
+  bidirectionalAstarRunner,
+  weightedAstarRunner,
+  idaStarRunner,
+];
+
+const GAME_PLAYING_RUNNERS = [
+  minimaxRunner,
+  alphaBetaRunner,
+  negamaxRunner,
+];
+
+const LOCAL_SEARCH_RUNNERS = [
+  randomWalkRunner,
+  hillClimbingSimpleRunner,
+  hillClimbingSteepestRunner,
+  hillClimbingFirstChoiceRunner,
+  hillClimbingStochasticRunner,
+  hillClimbingSidewaysRunner,
+  hillClimbingRandomRestartRunner,
+  simulatedAnnealingRunner,
+  localBeamSearchRunner,
+  stochasticBeamSearchRunner,
+  tabuSearchRunner,
+  geneticAlgorithmRunner,
+  minConflictsRunner,
+];
+
 export function registerAllAlgorithms() {
-  // Uninformed Search
-  registry.register(bfsRunner);
-  registry.register(dfsRunner);
-  registry.register(dlsRunner);
-  registry.register(iddfsRunner);
-  registry.register(ucsRunner);
-  registry.register(bidirectionalBfsRunner);
-  registry.register(bidirectionalUcsRunner);
-
-  // Informed Search
-  registry.register(greedyBfsRunner);
-  registry.register(astarRunner);
-  registry.register(rbfsRunner);
-  registry.register(smaStarRunner);
-  registry.register(bidirectionalAstarRunner);
-  registry.register(weightedAstarRunner);
-  registry.register(idaStarRunner);
-
-  // Game Playing
-  registry.register(minimaxRunner);
-  registry.register(alphaBetaRunner);
-  registry.register(negamaxRunner);
-
-  // Local Search
-  registry.register(randomWalkRunner);
-  registry.register(hillClimbingSimpleRunner);
-  registry.register(hillClimbingSteepestRunner);
-  registry.register(hillClimbingFirstChoiceRunner);
-  registry.register(hillClimbingStochasticRunner);
-  registry.register(hillClimbingSidewaysRunner);
-  registry.register(hillClimbingRandomRestartRunner);
-  registry.register(simulatedAnnealingRunner);
-  registry.register(localBeamSearchRunner);
-  registry.register(stochasticBeamSearchRunner);
-  registry.register(tabuSearchRunner);
-  registry.register(geneticAlgorithmRunner);
-  registry.register(minConflictsRunner);
+  registry.registerMany([
+    ...UNINFORMED_SEARCH_RUNNERS,
+    ...INFORMED_SEARCH_RUNNERS,
+    ...GAME_PLAYING_RUNNERS,
+    ...LOCAL_SEARCH_RUNNERS,
+  ]);
 }

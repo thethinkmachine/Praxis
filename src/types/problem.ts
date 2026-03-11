@@ -123,6 +123,8 @@ export interface TicTacToeProblem {
   allowDepthPenalty?: boolean;
 }
 
+export type GameProblem = TicTacToeProblem;
+
 export interface NQueensProblem {
   kind: 'n-queens';
   size: number;

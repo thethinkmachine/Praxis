@@ -2,10 +2,10 @@ import { TopBarControls } from '@/components/layout/TopBar';
 
 interface HomeTitleStripProps {
   algorithmCount: number;
-  liveGamesCount: number;
+  liveModuleCount: number;
 }
 
-export default function HomeTitleStrip({ algorithmCount, liveGamesCount }: HomeTitleStripProps) {
+export default function HomeTitleStrip({ algorithmCount, liveModuleCount }: HomeTitleStripProps) {
   return (
     <div className="relative z-20 shrink-0 border-b border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-sm">
       <div className="flex min-h-10 items-center gap-3 px-3 py-2">
@@ -16,7 +16,7 @@ export default function HomeTitleStrip({ algorithmCount, liveGamesCount }: HomeT
           <div className="min-w-0">
             <p className="truncate text-[13px] font-semibold text-[var(--text)]">Praxis</p>
             <p className="truncate text-[10px] uppercase tracking-[0.14em] text-[var(--text-3)]">
-              Taxonomy, live labs, and concept map
+              Taxonomy, interactive modules, and concept map
             </p>
           </div>
         </div>
@@ -26,7 +26,7 @@ export default function HomeTitleStrip({ algorithmCount, liveGamesCount }: HomeT
             {algorithmCount} algorithms
           </span>
           <span className="ui-pill ui-pill-success whitespace-nowrap px-1.5 py-0.5 text-[9px]">
-            {liveGamesCount} live games
+            {liveModuleCount} live modules
           </span>
         </div>
 
