@@ -11,6 +11,7 @@ interface CellularAutomatonBackdropProps {
   cellSize?: number;
   intervalMs?: number;
   changeRuleIntervalMs?: number;
+  paused?: boolean;
 }
 
 type CAMode = '1D' | '2D';
@@ -20,8 +21,11 @@ export default function CellularAutomatonBackdrop({
   cellSize = 8,
   intervalMs = 120, // Increased default interval to slow down the frame rate
   changeRuleIntervalMs = 12000,
+  paused = false,
 }: CellularAutomatonBackdropProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pausedRef = useRef(paused);
+  useEffect(() => { pausedRef.current = paused; }, [paused]);
   const darkMode = usePreferencesStore((s) => s.darkMode);
 
   // Use Intersection Observer to detect when the canvas is visible
@@ -195,7 +199,7 @@ export default function CellularAutomatonBackdrop({
           ctx.fillRect(0, 0, width, height);
 
           if (mode === '1D') {
-            generateNext1D();
+            if (!pausedRef.current) generateNext1D();
             for (let r = 0; r < history1D.length; r++) {
               const rowData = history1D[history1D.length - 1 - r];
               for (let c = 0; c < rowData.length; c++) {
@@ -208,7 +212,7 @@ export default function CellularAutomatonBackdrop({
               }
             }
           } else {
-            generateNext2D();
+            if (!pausedRef.current) generateNext2D();
             for (let r = 0; r < rows; r++) {
               for (let c = 0; c < cols; c++) {
                 if (state2D[r][c] === 1) {

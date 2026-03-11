@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/cn';
 import { Search, Gamepad2, Network, ChevronRight } from '@/components/shared/Icons';
 
@@ -92,10 +91,9 @@ export default function Sidebar() {
   }
 
   return (
-    <motion.aside
-      animate={{ width: isHovered ? 232 : 48 }}
-      transition={{ duration: 0.2, ease: 'easeInOut' }}
-      className="relative flex h-full shrink-0 flex-col overflow-hidden border-r border-[var(--border)]"
+    <aside
+      style={{ width: isHovered ? 232 : 48 }}
+      className="relative flex h-full shrink-0 flex-col overflow-hidden border-r border-[var(--border)] transition-[width] duration-200 ease-in-out"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -168,38 +166,36 @@ export default function Sidebar() {
                 )}
               </button>
 
-              <AnimatePresence initial={false}>
-                {isHovered && openCategories[cat.category] && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="ml-5 mt-px border-l border-[var(--border)] pl-3 pb-1">
-                      {cat.algorithms.map((algo) => (
-                        <NavLink
-                          key={algo.id}
-                          to={algo.path}
-                          className={({ isActive }) => cn(
-                            'flex items-center rounded-md px-2 py-1.5 text-[12px] font-mono transition-colors',
-                            isActive
-                              ? 'text-[var(--accent)] bg-[var(--accent-soft)]'
-                              : 'text-[var(--text-3)] hover:bg-[var(--surface-2)] hover:text-[var(--text-2)]',
-                          )}
-                        >
-                          <span className="truncate">{algo.name}</span>
-                        </NavLink>
-                      ))}
-                    </div>
-                  </motion.div>
+              <div
+                key={cat.category + '-collapse'}
+                className={cn(
+                  'grid transition-[grid-template-rows] duration-150 ease-in-out',
+                  isHovered && openCategories[cat.category] ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
                 )}
-              </AnimatePresence>
+              >
+                <div className="overflow-hidden">
+                  <div className="ml-5 mt-px border-l border-[var(--border)] pl-3 pb-1">
+                    {cat.algorithms.map((algo) => (
+                      <NavLink
+                        key={algo.id}
+                        to={algo.path}
+                        className={({ isActive }) => cn(
+                          'flex items-center rounded-md px-2 py-1.5 text-[12px] font-mono transition-colors',
+                          isActive
+                            ? 'text-[var(--accent)] bg-[var(--accent-soft)]'
+                            : 'text-[var(--text-3)] hover:bg-[var(--surface-2)] hover:text-[var(--text-2)]',
+                        )}
+                      >
+                        <span className="truncate">{algo.name}</span>
+                      </NavLink>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
       </nav>
-    </motion.aside>
+    </aside>
   );
 }

@@ -10,20 +10,39 @@ interface HeaderTabsProps {
   mode?: 'button' | 'tabs';
 }
 
-export default function HeaderTabs({ tabs, activeTab, onTabChange, className, size = 'default', mode = 'button' }: HeaderTabsProps) {
-  const itemClass = (disabled?: boolean) => cn(
-    'ui-btn ui-btn-ghost whitespace-nowrap rounded-lg font-medium',
-    size === 'compact' ? 'h-8 px-2 text-[11px]' : 'h-8 px-2.5 text-[11px] font-mono tracking-wide',
-    'data-[active=true]:border-[var(--accent)]/35 data-[active=true]:bg-[var(--accent-soft)] data-[active=true]:text-[var(--text)]',
-    disabled && 'cursor-not-allowed opacity-50',
+const tabItemBase = (size: 'compact' | 'default', disabled?: boolean) =>
+  cn(
+    // Layout & shape
+    'relative inline-flex items-center gap-1.5 whitespace-nowrap',
+    'select-none outline-none transition-colors duration-150',
+    // Size
+    size === 'compact'
+      ? 'h-9 px-2.5 text-[11px]'
+      : 'h-10 px-3 text-[11px] font-mono tracking-wide',
+    // Default state
+    'text-[var(--text-3)] hover:text-[var(--text-2)]',
+    // Active state — bright text + accent underline via after-pseudo
+    'data-[active=true]:text-[var(--text)]',
+    // Underline indicator
+    'after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:rounded-t-full',
+    'after:bg-[var(--accent)] after:opacity-0 after:transition-opacity after:duration-150',
+    'data-[active=true]:after:opacity-100',
+    disabled && 'cursor-not-allowed opacity-40',
   );
 
+export default function HeaderTabs({ tabs, activeTab, onTabChange, className, size = 'default', mode = 'button' }: HeaderTabsProps) {
   if (mode === 'tabs') {
     return (
-      <Tabs.List className={cn('flex min-w-0 items-center gap-1 overflow-x-auto scrollbar-none', className)}>
+      <Tabs.List className={cn('flex min-w-0 items-center overflow-x-auto scrollbar-none', className)}>
         {tabs.map((tab) => (
-          <Tabs.Trigger key={tab.id} value={tab.id} disabled={tab.disabled} className={itemClass(tab.disabled)} data-active={activeTab === tab.id}>
-            {tab.icon}
+          <Tabs.Trigger
+            key={tab.id}
+            value={tab.id}
+            disabled={tab.disabled}
+            className={tabItemBase(size, tab.disabled)}
+            data-active={activeTab === tab.id}
+          >
+            {tab.icon && <span className="opacity-70 data-[active=true]:opacity-100">{tab.icon}</span>}
             <span>{tab.label}</span>
           </Tabs.Trigger>
         ))}
@@ -32,16 +51,16 @@ export default function HeaderTabs({ tabs, activeTab, onTabChange, className, si
   }
 
   return (
-    <div className={cn('flex min-w-0 items-center gap-1 overflow-x-auto scrollbar-none', className)}>
+    <div className={cn('flex min-w-0 items-center overflow-x-auto scrollbar-none', className)}>
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onTabChange?.(tab.id)}
           disabled={tab.disabled}
-          className={itemClass(tab.disabled)}
+          className={tabItemBase(size, tab.disabled)}
           data-active={activeTab === tab.id}
         >
-          {tab.icon}
+          {tab.icon && <span className="opacity-70">{tab.icon}</span>}
           <span>{tab.label}</span>
         </button>
       ))}

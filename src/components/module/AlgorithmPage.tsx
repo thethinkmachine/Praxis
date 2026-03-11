@@ -151,9 +151,7 @@ export default function AlgorithmPage({
             collapsedSize="0"
             onResize={handleConfigResize}
           >
-            <PanelWrapper title="Configuration">
-              {configPanel}
-            </PanelWrapper>
+            {configPanel}
           </Panel>
         )}
         {hasConfig && <ResizeHandle orientation="horizontal" />}
@@ -201,18 +199,14 @@ export default function AlgorithmPage({
         {/* State + Metrics panel */}
         <Panel defaultSize="20" minSize="10" maxSize="40" collapsible collapsedSize="0">
           <PanelWrapper title="State & Metrics">
-            <div className="h-full flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-y-auto">
-                <StatePanel step={step} algorithmCategory={category} />
-              </div>
-              <div className="shrink-0 border-t border-[var(--border)]">
-                <MetricsPanel
-                  metrics={step?.metrics ?? null}
-                  phase={step?.phase}
-                  description={step?.description}
-                  algorithmCategory={category}
-                />
-              </div>
+            <div className="h-full overflow-y-auto custom-scrollbar">
+              <StatePanel step={step} algorithmCategory={category} />
+              <MetricsPanel
+                metrics={step?.metrics ?? null}
+                phase={step?.phase}
+                description={step?.description}
+                algorithmCategory={category}
+              />
             </div>
           </PanelWrapper>
         </Panel>
@@ -221,7 +215,7 @@ export default function AlgorithmPage({
 
         {/* Pseudocode panel */}
         <Panel defaultSize={hasConfig ? '15' : '20'} minSize="10" maxSize="40" collapsible collapsedSize="0">
-          <PanelWrapper title="Pseudocode">
+          <PanelWrapper title="Pseudocode" subtitle={runner.meta.name}>
             <PseudocodePanel
               lines={runner.pseudocode}
               activeLine={step?.pseudocodeLine ?? -1}

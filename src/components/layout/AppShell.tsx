@@ -1,6 +1,5 @@
 import { useEffect, useCallback } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import { usePreferencesStore } from '@/store/usePreferencesStore';
@@ -131,20 +130,19 @@ export default function AppShell() {
             </div>
           </main>
 
-          {/* Integrated Terminal Drawer */}
-          <AnimatePresence initial={false}>
-            {terminalExpanded && (
-              <motion.div 
-                initial={{ height: 0 }}
-                animate={{ height: 180 }}
-                exit={{ height: 0 }}
-                transition={{ duration: 0.22, ease: "easeInOut" }}
-                className="overflow-hidden border-t border-[var(--border)] bg-[var(--surface)]"
-              >
-                <TerminalPanel />
-              </motion.div>
+          {/* Integrated Terminal Drawer — CSS grid-rows collapse, always mounted */}
+          <div
+            className={cn(
+              'grid transition-[grid-template-rows] duration-[220ms] ease-in-out overflow-hidden border-t border-[var(--border)] bg-[var(--surface)]',
+              terminalExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
             )}
-          </AnimatePresence>
+          >
+            <div className="overflow-hidden">
+              <div className="h-[180px]">
+                <TerminalPanel />
+              </div>
+            </div>
+          </div>
  
           <StatusBar />
         </div>

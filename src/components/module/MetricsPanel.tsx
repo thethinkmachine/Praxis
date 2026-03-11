@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { cn } from '@/lib/cn';
 import CollapsibleSection from '@/components/shared/CollapsibleSection';
 import EmptyState from '@/components/shared/EmptyState';
@@ -33,31 +32,25 @@ function fmtNum(v: number | undefined): string {
 
 // Large-number card: value first (big), label below (small caps).
 export default function MetricsPanel({ metrics, phase, description, algorithmCategory }: MetricsPanelProps) {
-  const [isOpen, setIsOpen] = useState(true);
   const phaseClass =
     phase ? (PHASE_COLORS[phase.toLowerCase()] ?? 'bg-[var(--surface-2)] text-[var(--text-2)]') : null;
 
   return (
-    <div className="ui-panel h-full flex flex-col overflow-hidden">
-      <div
-        className="ui-panel-header flex cursor-pointer items-center gap-2 px-3 py-1 select-none transition-colors hover:bg-[var(--surface-3)]"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span className="text-[10px] font-semibold text-[var(--text-2)] uppercase tracking-wider flex-1">
-          Metrics
-        </span>
+    <CollapsibleSection
+      title="Metrics"
+      headerClassName="sticky top-0 z-10"
+    >
+      <div className="space-y-2">
         {phase && phaseClass && (
-          <span className={cn('text-[9px] px-1.5 py-0.5 font-medium', phaseClass)}>
-            {phase}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className={cn('text-[9px] px-1.5 py-0.5 font-medium rounded-full', phaseClass)}>
+              {phase}
+            </span>
+          </div>
         )}
-      </div>
-
-      {isOpen && (
-        <div className="flex-1 overflow-y-auto p-2 space-y-2">
-          {metrics ? (
-            <>
-          {algorithmCategory === 'local-search' ? (
+        {metrics ? (
+          <>
+            {algorithmCategory === 'local-search' ? (
             <>
               <div className="grid grid-cols-2 gap-1.5">
                 <StatTile label="Iteration" value={fmtNum(metrics.iteration ?? metrics.currentDepth)} valueColor="text-[var(--accent)]" />
@@ -127,10 +120,9 @@ export default function MetricsPanel({ metrics, phase, description, algorithmCat
           )}
           </>
         ) : (
-          <EmptyState title="No metrics yet" compact className="min-h-[120px]" />
+          <EmptyState title="No metrics yet" compact className="min-h-[80px]" />
         )}
       </div>
-    )}
-  </div>
-);
+    </CollapsibleSection>
+  );
 }

@@ -10,7 +10,7 @@ import HeaderTabs from '@/components/shared/HeaderTabs';
 import SurfaceCard from '@/components/shared/SurfaceCard';
 import NavigationTile from '@/components/shared/NavigationTile';
 import CellularAutomatonBackdrop from '@/components/visualization/CellularAutomatonBackdrop';
-import { Search, Gamepad2, Network } from '@/components/shared/Icons';
+import { Search, Gamepad2, Network, Play, Pause } from '@/components/shared/Icons';
 import { cn } from '@/lib/cn';
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/lib/constants';
 import type { AlgorithmCategory } from '@/types/algorithm';
@@ -91,6 +91,7 @@ export default function HomePage() {
   }, [graphFullscreen]);
 
   const isGraphTab = activeTab === 'graph';
+  const [animPaused, setAnimPaused] = useState(false);
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -109,8 +110,18 @@ export default function HomePage() {
         >
           {/* Backdrop - Cellular Automaton */}
           <div className="absolute inset-0 opacity-[0.4] blur-[0.5px] pointer-events-none overflow-hidden rounded-xl">
-            <CellularAutomatonBackdrop intervalMs={50} changeRuleIntervalMs={10000} cellSize={10} />
+            <CellularAutomatonBackdrop intervalMs={50} changeRuleIntervalMs={10000} cellSize={10} paused={animPaused} />
           </div>
+
+          {/* Play/Pause toggle */}
+          <button
+            onClick={() => setAnimPaused((p) => !p)}
+            className="absolute bottom-2 right-2 z-20 flex h-6 w-6 items-center justify-center rounded-md text-[var(--text-3)] opacity-40 transition-opacity hover:opacity-100 hover:bg-[var(--surface-2)] hover:text-[var(--text-2)]"
+            aria-label={animPaused ? 'Play animation' : 'Pause animation'}
+            title={animPaused ? 'Play' : 'Pause'}
+          >
+            {animPaused ? <Play size={11} /> : <Pause size={11} />}
+          </button>
 
           {/* Overlay Content */}
           <div className="relative z-10 px-4 sm:px-6 py-6 flex flex-col items-center text-center gap-4 bg-gradient-to-b from-[var(--surface)]/70 to-[var(--surface-2)]/40 backdrop-blur-[2px] rounded-xl">

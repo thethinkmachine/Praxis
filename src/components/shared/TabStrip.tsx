@@ -8,8 +8,8 @@ interface TabStripProps {
 
 export default function TabStrip({ tabs, activeTab, onTabChange }: TabStripProps) {
   return (
-    <div className="px-3 pt-1 border-b border-[var(--border)]/80 bg-[var(--surface)]/55 backdrop-blur-sm shrink-0">
-      <HeaderTabs tabs={tabs} activeTab={activeTab} onTabChange={onTabChange} />
+    <div className="border-b border-[var(--border)] bg-[var(--surface)]/55 backdrop-blur-sm shrink-0">
+      <HeaderTabs tabs={tabs} activeTab={activeTab} onTabChange={onTabChange} size="compact" />
     </div>
   );
 }

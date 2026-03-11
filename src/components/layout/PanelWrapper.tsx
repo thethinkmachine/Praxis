@@ -1,23 +1,27 @@
 import type { ReactNode } from 'react';
-import { GripVertical, Eye, EyeOff } from '@/components/shared/Icons';
+import { Eye, EyeOff } from '@/components/shared/Icons';
 import { cn } from '@/lib/cn';
 
 interface PanelWrapperProps {
   title: string;
+  subtitle?: string;
   children: ReactNode;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
   className?: string;
   headerLeading?: ReactNode;
+  headerTrailing?: ReactNode;
 }
 
 export default function PanelWrapper({
   title,
+  subtitle,
   children,
   collapsed = false,
   onToggleCollapse,
   className,
   headerLeading,
+  headerTrailing,
 }: PanelWrapperProps) {
   return (
     <div
@@ -26,18 +30,21 @@ export default function PanelWrapper({
         className,
       )}
     >
-      {/* Header with drag handle */}
-      <div className="drag-handle ui-panel-header flex items-center gap-1.5 px-2 py-1.5 cursor-grab active:cursor-grabbing shrink-0">
-        <GripVertical size={12} className="text-[var(--text-3)]" />
+      {/* Header */}
+      <div className="flex h-9 shrink-0 items-center gap-2 border-b border-[var(--border-strong)] bg-[var(--titlebar)] px-3">
+        <span className="h-[18px] w-[2px] shrink-0 rounded-full bg-[var(--accent)]/50" />
         {headerLeading}
-        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]/80" />
-        <span className="ide-title text-[var(--text-2)] flex-1 truncate select-none">
+        <span className="flex-1 truncate select-none text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text)]">
           {title}
         </span>
+        {subtitle && (
+          <span className="shrink-0 truncate text-[10px] font-mono text-[var(--text-3)] max-w-[140px]">{subtitle}</span>
+        )}
+        {headerTrailing}
         {onToggleCollapse && (
           <button
             onClick={onToggleCollapse}
-            className="p-0.5 rounded text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors border border-transparent hover:border-[var(--border)]"
+            className="flex h-5 w-5 items-center justify-center rounded text-[var(--text-3)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--text-2)]"
             aria-label={collapsed ? 'Expand panel' : 'Collapse panel'}
           >
             {collapsed ? <EyeOff size={12} /> : <Eye size={12} />}
