@@ -24,8 +24,7 @@ import type { SVGNodeVM, SVGEdgeVM, NodeVisualState } from './svg-graph.types';
 // ---------------------------------------------------------------------------
 interface SVGAutoCanvasProps {
   elements: ElementDefinition[];
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  stylesheet?: unknown; // API-compat with CytoscapeRenderer — not used
+  stylesheet?: unknown;
   className?: string;
 }
 
