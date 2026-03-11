@@ -23,7 +23,7 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
             : 'graph',
       ))}
       className={cn(
-        'text-left w-full rounded-lg p-4 border border-[var(--border)] bg-[var(--surface)]/90',
+        'ui-panel text-left w-full rounded-xl p-4',
         'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]/50 transition-colors group'
       )}
     >
@@ -36,10 +36,10 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
           {meta.complete !== undefined && (
             <span
               className={cn(
-                'text-[10px] px-1.5 py-0.5 rounded font-medium',
+                'ui-pill text-[10px] px-1.5 py-0.5 font-medium',
                 meta.complete
-                  ? 'bg-[#3FB950]/15 text-[#3FB950] border border-[#3FB950]/35'
-                  : 'bg-[#FF7B72]/15 text-[#FF7B72] border border-[#FF7B72]/35'
+                  ? 'ui-pill-success'
+                  : 'ui-pill-danger'
               )}
             >
               {meta.complete ? '✓ Complete' : '✗'}
@@ -48,10 +48,10 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
           {meta.optimal !== undefined && (
             <span
               className={cn(
-                'text-[10px] px-1.5 py-0.5 rounded font-medium',
+                'ui-pill text-[10px] px-1.5 py-0.5 font-medium',
                 meta.optimal
-                  ? 'bg-[#3FB950]/15 text-[#3FB950] border border-[#3FB950]/35'
-                  : 'bg-[#F0883E]/15 text-[#F0883E] border border-[#F0883E]/35'
+                  ? 'ui-pill-success'
+                  : 'ui-pill-warning'
               )}
             >
               {meta.optimal ? '★ Optimal' : '○'}

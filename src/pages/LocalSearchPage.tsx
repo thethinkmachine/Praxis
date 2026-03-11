@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import AlgorithmPage from '@/components/module/AlgorithmPage';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
+import PresetPickerDialog from '@/components/shared/PresetPickerDialog';
 import Select from '@/components/shared/Select';
 import { GraphColoringBoardTab, GraphColoringNeighborhoodTab } from '@/components/visualization/local-search/GraphColoringLab';
 import { LandscapeBoardTab, LandscapeNeighborhoodTab } from '@/components/visualization/local-search/LandscapeLab';
@@ -9,6 +10,8 @@ import { NPuzzleBoardTab, NPuzzleNeighborhoodTab } from '@/components/visualizat
 import { NQueensBoardTab, NQueensNeighborhoodTab } from '@/components/visualization/local-search/NQueensLab';
 import { ObjectiveTab, TrajectoryTab, ViewOverlay } from '@/components/visualization/local-search/LocalSearchShared';
 import { TspBoardTab, TspNeighborhoodTab } from '@/components/visualization/local-search/TspLab';
+import { Dice5 } from '@/components/shared/Icons';
+import { TitleBarActionButton, TitleBarActionGroup } from '@/components/shared/TitleBarAction';
 import type { LocalSearchStep } from '@/algorithms/local-search/types';
 import { useExecutionStore } from '@/store/execution.store';
 import { Graph, type GraphColoringProblem, type LandscapePreset, type LocalSearchProblem, type NPuzzleProblem, type NQueensProblem, type TspProblem } from '@/types/problem';
@@ -53,9 +56,36 @@ function movePuzzleTile(problem: NPuzzleProblem, tileIndex: number): NPuzzleProb
   return { ...problem, tiles: next };
 }
 
+interface NumberFieldConfig {
+  key: keyof LocalSearchProblem;
+  label: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  fallback: number;
+}
+
+const METAHEURISTIC_FIELDS: Partial<Record<string, NumberFieldConfig[]>> = {
+  'hill-climbing-random-restart': [{ key: 'restartLimit', label: 'Restarts', min: 0, fallback: 8 }],
+  'hill-climbing-sideways': [{ key: 'sidewaysMoveLimit', label: 'Sideways Limit', min: 0, fallback: 12 }],
+  'local-beam-search': [{ key: 'beamWidth', label: 'Beam Width', min: 2, fallback: 4 }],
+  'stochastic-beam-search': [{ key: 'beamWidth', label: 'Beam Width', min: 2, fallback: 4 }],
+  'tabu-search': [{ key: 'tabuTenure', label: 'Tabu Tenure', min: 1, fallback: 7 }],
+  'simulated-annealing': [
+    { key: 'initialTemperature', label: 'Initial Temperature', min: 0.1, step: 0.1, fallback: 10 },
+    { key: 'coolingRate', label: 'Cooling Rate', min: 0.5, max: 0.999, step: 0.005, fallback: 0.94 },
+  ],
+  'genetic-algorithm': [
+    { key: 'populationSize', label: 'Population Size', min: 4, fallback: 16 },
+    { key: 'mutationRate', label: 'Mutation Rate', min: 0, max: 1, step: 0.01, fallback: 0.18 },
+    { key: 'crossoverRate', label: 'Crossover Rate', min: 0, max: 1, step: 0.01, fallback: 0.85 },
+  ],
+};
+
 export default function LocalSearchPage() {
   const { algo = 'hill-climbing-steepest' } = useParams<{ algo: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [demoDialogOpen, setDemoDialogOpen] = useState(false);
   const labParam = (searchParams.get('lab') as LocalSearchProblem['kind'] | null) ?? 'n-queens';
   const [problem, setProblem] = useState<LocalSearchProblem>(() => createDefaultLocalSearchProblem(labParam));
   const step = useExecutionStore(state => state.currentStep as LocalSearchStep | null);
@@ -135,95 +165,45 @@ export default function LocalSearchPage() {
       </ConfigSection>
 
       <ConfigSection title="Common Controls">
-        <div className="space-y-3">
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Random Seed</p>
+        {[
+          { key: 'randomSeed', label: 'Random Seed', fallback: 1337 },
+          { key: 'maxSteps', label: 'Max Steps / Generations', min: 1, fallback: 120 },
+          { key: 'candidateSampleSize', label: 'Candidate Sample Size', min: 1, fallback: 8 },
+        ].map((field) => (
+          <div key={field.key}>
+            <p className="mb-1.5 text-[10px] uppercase tracking-wider text-[var(--text-3)]">{field.label}</p>
             <input
               type="number"
-              value={problem.randomSeed ?? 1337}
-              onChange={(e) => updateProblem({ randomSeed: Number(e.target.value) })}
-              className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+              min={field.min}
+              value={Number(problem[field.key as keyof LocalSearchProblem] ?? field.fallback)}
+              onChange={(e) => updateProblem({ [field.key]: field.min ? Math.max(field.min, Number(e.target.value) || field.fallback) : Number(e.target.value) })}
+              className="ui-input w-full px-2 py-1.5 font-mono"
             />
           </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Max Steps / Generations</p>
-            <input
-              type="number"
-              min={1}
-              value={problem.maxSteps ?? 120}
-              onChange={(e) => updateProblem({ maxSteps: Math.max(1, Number(e.target.value) || 1) })}
-              className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
-            />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Candidate Sample Size</p>
-            <input
-              type="number"
-              min={1}
-              value={problem.candidateSampleSize ?? 8}
-              onChange={(e) => updateProblem({ candidateSampleSize: Math.max(1, Number(e.target.value) || 1) })}
-              className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
-            />
-          </div>
-        </div>
+        ))}
       </ConfigSection>
 
       <ConfigSection title="Metaheuristic Tuning" defaultOpen={false}>
         <div className="space-y-4">
-          {algo === 'hill-climbing-random-restart' && (
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Restarts</p>
-              <input type="number" min={0} value={problem.restartLimit ?? 8} onChange={(e) => updateProblem({ restartLimit: Math.max(0, Number(e.target.value) || 0) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
+          {(METAHEURISTIC_FIELDS[algo] ?? []).map((field) => (
+            <div key={String(field.key)}>
+              <p className="mb-1.5 text-[10px] uppercase tracking-wider text-[var(--text-3)]">{field.label}</p>
+              <input
+                type="number"
+                min={field.min}
+                max={field.max}
+                step={field.step}
+                value={Number(problem[field.key] ?? field.fallback)}
+                onChange={(e) => {
+                  const raw = Number(e.target.value);
+                  const bounded = Math.max(field.min ?? raw, field.max === undefined ? raw : Math.min(field.max, raw || field.fallback));
+                  updateProblem({ [field.key]: bounded });
+                }}
+                className="ui-input w-full px-2 py-1.5 font-mono"
+              />
             </div>
-          )}
-          {algo === 'hill-climbing-sideways' && (
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Sideways Limit</p>
-              <input type="number" min={0} value={problem.sidewaysMoveLimit ?? 12} onChange={(e) => updateProblem({ sidewaysMoveLimit: Math.max(0, Number(e.target.value) || 0) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-            </div>
-          )}
-          {(algo === 'local-beam-search' || algo === 'stochastic-beam-search') && (
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Beam Width</p>
-              <input type="number" min={2} value={problem.beamWidth ?? 4} onChange={(e) => updateProblem({ beamWidth: Math.max(2, Number(e.target.value) || 2) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-            </div>
-          )}
-          {algo === 'tabu-search' && (
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Tabu Tenure</p>
-              <input type="number" min={1} value={problem.tabuTenure ?? 7} onChange={(e) => updateProblem({ tabuTenure: Math.max(1, Number(e.target.value) || 1) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-            </div>
-          )}
-          {algo === 'simulated-annealing' && (
-            <>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Initial Temperature</p>
-                <input type="number" min={0.1} step={0.1} value={problem.initialTemperature ?? 10} onChange={(e) => updateProblem({ initialTemperature: Math.max(0.1, Number(e.target.value) || 0.1) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Cooling Rate</p>
-                <input type="number" min={0.5} max={0.999} step={0.005} value={problem.coolingRate ?? 0.94} onChange={(e) => updateProblem({ coolingRate: Math.max(0.5, Math.min(0.999, Number(e.target.value) || 0.94)) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-              </div>
-            </>
-          )}
-          {algo === 'genetic-algorithm' && (
-            <>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Population Size</p>
-                <input type="number" min={4} value={problem.populationSize ?? 16} onChange={(e) => updateProblem({ populationSize: Math.max(4, Number(e.target.value) || 4) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Mutation Rate</p>
-                <input type="number" min={0} max={1} step={0.01} value={problem.mutationRate ?? 0.18} onChange={(e) => updateProblem({ mutationRate: Math.max(0, Math.min(1, Number(e.target.value) || 0)) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Crossover Rate</p>
-                <input type="number" min={0} max={1} step={0.01} value={problem.crossoverRate ?? 0.85} onChange={(e) => updateProblem({ crossoverRate: Math.max(0, Math.min(1, Number(e.target.value) || 0)) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
-              </div>
-            </>
-          )}
-          {/* Default message if no metaheuristic parameters apply */}
-          {!['hill-climbing-random-restart', 'hill-climbing-sideways', 'local-beam-search', 'stochastic-beam-search', 'tabu-search', 'simulated-annealing', 'genetic-algorithm'].includes(algo) && (
+          ))}
+          {!(METAHEURISTIC_FIELDS[algo]?.length) && (
             <p className="text-[10px] text-center text-[var(--text-3)] py-2 italic">
               No specific tuning parameters for this algorithm.
             </p>
@@ -305,7 +285,7 @@ export default function LocalSearchPage() {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Step Size</p>
-              <input type="number" min={0.1} step={0.05} value={problem.stepSize ?? 0.45} onChange={(e) => updateProblem({ stepSize: Math.max(0.1, Number(e.target.value) || 0.1) })} className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none" />
+              <input type="number" min={0.1} step={0.05} value={problem.stepSize ?? 0.45} onChange={(e) => updateProblem({ stepSize: Math.max(0.1, Number(e.target.value) || 0.1) })} className="ui-input w-full px-2 py-1.5 font-mono" />
             </div>
           </div>
         </ConfigSection>
@@ -341,7 +321,7 @@ export default function LocalSearchPage() {
         </ConfigSection>
       )}
     </ProblemConfigurator>
-  ), [problem]);
+  ), [problem, algo]);
 
   const boardTab = (() => {
     switch (problem.kind) {
@@ -498,40 +478,42 @@ export default function LocalSearchPage() {
   })();
 
   return (
-    <AlgorithmPage
-      algorithmId={algo}
-      problem={problem}
-      problemForActions={problem}
-      category="local-search"
-      problemCategory="local-search"
-      onProblemImport={(nextProblem) => setProblem(normalizeImportedProblem(nextProblem))}
-      tabs={[
-        { id: 'board', label: 'Problem View', content: boardTab },
-        { id: 'neighborhood', label: 'Neighborhood', content: neighborhoodTab },
-        { id: 'objective', label: 'Objective', content: <ObjectiveTab /> },
-        { id: 'trajectory', label: 'Trajectory', content: <TrajectoryTab step={step as LocalSearchStep | null} /> },
-      ]}
-      titleActions={
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={randomizeCurrent}
-            className="flex h-7 items-center gap-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors"
-          >
-            Randomize
-          </button>
-          {LOCAL_SEARCH_LABS.map(lab => (
-            <button
-              key={lab.id}
-              onClick={() => setLab(lab.id)}
-              className="h-7 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors whitespace-nowrap"
-            >
-              {lab.name}
-            </button>
-          ))}
-        </div>
-      }
-      configPanel={configPanel}
-      defaultConfigOpen
-    />
+    <>
+      <AlgorithmPage
+        algorithmId={algo}
+        problem={problem}
+        problemForActions={problem}
+        category="local-search"
+        problemCategory="local-search"
+        onProblemImport={(nextProblem) => setProblem(normalizeImportedProblem(nextProblem))}
+        tabs={[
+          { id: 'board', label: 'Problem View', content: boardTab },
+          { id: 'neighborhood', label: 'Neighborhood', content: neighborhoodTab },
+          { id: 'objective', label: 'Objective', content: <ObjectiveTab /> },
+          { id: 'trajectory', label: 'Trajectory', content: <TrajectoryTab step={step as LocalSearchStep | null} /> },
+        ]}
+        titleActions={
+          <TitleBarActionGroup>
+            <TitleBarActionButton onClick={randomizeCurrent} icon={<Dice5 size={12} />} label="Randomize" title="Randomize current problem" />
+          </TitleBarActionGroup>
+        }
+        configPanel={configPanel}
+        defaultConfigOpen
+        onDemoRequest={() => setDemoDialogOpen(true)}
+      />
+      <PresetPickerDialog
+        open={demoDialogOpen}
+        onOpenChange={setDemoDialogOpen}
+        title="Choose a Local Search Demo"
+        subtitle="Load the default setup for one of the local search labs"
+        items={LOCAL_SEARCH_LABS.map((lab) => ({
+          id: lab.id,
+          name: lab.name,
+          description: lab.description,
+          tags: ['local-search', 'default setup'],
+        }))}
+        onSelect={(labId) => setLab(labId as LocalSearchProblem['kind'])}
+      />
+    </>
   );
 }

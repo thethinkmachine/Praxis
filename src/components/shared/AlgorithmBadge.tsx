@@ -1,4 +1,5 @@
 import { cn } from '@/lib/cn';
+import StatusBadge from '@/components/shared/StatusBadge';
 import type { AlgorithmCategory } from '@/types';
 
 interface AlgorithmBadgeProps {
@@ -13,22 +14,22 @@ const CATEGORY_CONFIG: Record<
   'uninformed-search': {
     label: 'Uninformed Search',
     icon: 'US //',
-    colorClass: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    colorClass: 'ui-pill-accent',
   },
   'informed-search': {
     label: 'Informed Search',
     icon: 'IS //',
-    colorClass: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
+    colorClass: 'ui-pill-purple',
   },
   'game-playing': {
     label: 'Game Playing',
     icon: 'GP //',
-    colorClass: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+    colorClass: 'ui-pill-warning',
   },
   'local-search': {
     label: 'Local Search',
     icon: 'LS //',
-    colorClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+    colorClass: 'ui-pill-success',
   },
 };
 
@@ -37,17 +38,23 @@ export default function AlgorithmBadge({ category, size = 'sm' }: AlgorithmBadge
   if (!config) return null;
 
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-full border font-medium',
-        config.colorClass,
-        size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1'
-      )}
+    <StatusBadge
+      tone={
+        config.colorClass === 'ui-pill-accent'
+          ? 'accent'
+          : config.colorClass === 'ui-pill-purple'
+            ? 'purple'
+            : config.colorClass === 'ui-pill-warning'
+              ? 'warning'
+              : 'success'
+      }
+      size={size === 'sm' ? 'sm' : 'md'}
+      className="font-medium"
     >
       <span className={cn('font-mono uppercase', size === 'sm' ? 'text-[9px]' : 'text-[10px]')}>
         {config.icon}
       </span>
       {config.label}
-    </span>
+    </StatusBadge>
   );
 }

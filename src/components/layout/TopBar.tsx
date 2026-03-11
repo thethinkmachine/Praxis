@@ -4,6 +4,8 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/cn';
 import { usePreferencesStore } from '@/store/usePreferencesStore';
 import { Sun, Moon, Keyboard, Info, X, Maximize2, Minimize2 } from '@/components/shared/Icons';
+import DialogHeader from '@/components/shared/DialogHeader';
+import SurfaceCard from '@/components/shared/SurfaceCard';
 
 const SEGMENT_LABELS: Record<string, string> = {
   search: 'Search',
@@ -168,7 +170,7 @@ export function TopBarControls() {
       <button
         onClick={() => toggle('darkMode')}
         title={darkMode ? 'Switch to light mode (T)' : 'Switch to dark mode (T)'}
-        className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface)] hover:border-[var(--border)] transition-colors"
+        className="ui-btn ui-btn-ghost ui-btn-icon h-8 rounded-md"
       >
         {darkMode ? <Sun size={16} /> : <Moon size={16} />}
       </button>
@@ -177,14 +179,14 @@ export function TopBarControls() {
       <button
         onClick={toggleFullscreen}
         title={isFullscreen ? 'Exit fullscreen (F)' : 'Enter fullscreen (F)'}
-        className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface)] hover:border-[var(--border)] transition-colors"
+        className="ui-btn ui-btn-ghost ui-btn-icon h-8 rounded-md"
       >
         {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
       </button>
 
       <button
         onClick={() => setShowShortcuts(true)}
-        className="flex h-8 items-center gap-1.5 rounded-md border border-transparent px-2 text-[11px] font-medium text-[var(--text-2)] transition-colors hover:border-[var(--border)] hover:bg-[var(--surface)]/70 hover:text-[var(--text)]"
+        className="ui-btn ui-btn-ghost h-8 rounded-md px-2 text-[11px]"
         title="Keyboard shortcuts (?)"
       >
         <Keyboard size={12} />
@@ -193,7 +195,7 @@ export function TopBarControls() {
 
       <button
         onClick={() => setShowAbout(true)}
-        className="flex h-8 items-center gap-1.5 rounded-md border border-transparent px-2 text-[11px] font-medium text-[var(--text-2)] transition-colors hover:border-[var(--border)] hover:bg-[var(--surface)]/70 hover:text-[var(--text)]"
+        className="ui-btn ui-btn-ghost h-8 rounded-md px-2 text-[11px]"
         title="About Praxis"
       >
         <Info size={12} />
@@ -203,32 +205,16 @@ export function TopBarControls() {
       {/* Shortcuts modal */}
       <Dialog.Root open={showShortcuts} onOpenChange={setShowShortcuts}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-50 bg-[#060b11]/70 backdrop-blur-[3px] animate-in fade-in duration-200" />
+          <Dialog.Overlay className="ui-overlay fixed inset-0 z-50 animate-in fade-in duration-200" />
           <Dialog.Content
             className={cn(
               'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
               'w-full max-w-md mx-4',
-              'ide-surface-elevated rounded-xl shadow-2xl overflow-hidden',
+              'ui-panel-elevated rounded-xl overflow-hidden',
               'animate-in zoom-in-95 fade-in duration-200',
             )}
           >
-            {/* Header */}
-            <div className="flex items-start justify-between px-5 pt-5 pb-3">
-              <div>
-                <Dialog.Title className="text-sm font-semibold text-[var(--text)]">Keyboard Shortcuts</Dialog.Title>
-                <Dialog.Description className="mt-0.5 text-xs text-[var(--text-2)]">Keyboard shortcuts for Praxis</Dialog.Description>
-              </div>
-              <Dialog.Close
-                className={cn(
-                  'flex items-center justify-center w-6 h-6 rounded',
-                  'text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]',
-                  'transition-colors text-base leading-none mt-0.5',
-                )}
-                aria-label="Close shortcuts"
-              >
-                <X size={14} />
-              </Dialog.Close>
-            </div>
+            <DialogHeader title="Keyboard Shortcuts" description="Keyboard shortcuts for Praxis" closeLabel="Close shortcuts" />
 
             {/* Sections */}
             <div className="px-5 pb-5 space-y-4 max-h-[60vh] overflow-y-auto">
@@ -265,55 +251,46 @@ export function TopBarControls() {
       {/* About modal */}
       <Dialog.Root open={showAbout} onOpenChange={setShowAbout}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-50 bg-[#060b11]/70 backdrop-blur-[3px] animate-in fade-in duration-200" />
+          <Dialog.Overlay className="ui-overlay fixed inset-0 z-50 animate-in fade-in duration-200" />
           <Dialog.Content
             className={cn(
               'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
               'w-full max-w-sm mx-4',
-              'ide-surface-elevated rounded-xl shadow-2xl overflow-hidden',
+              'ui-panel-elevated rounded-xl overflow-hidden',
               'animate-in zoom-in-95 fade-in duration-200',
             )}
           >
-            {/* Header */}
-            <div className="flex items-start justify-between px-5 pt-5 pb-3">
-              <div>
-                <Dialog.Title className="text-2xl font-bold logo-font bg-gradient-to-r from-[#58A6FF] to-[#D2A8FF] bg-clip-text text-transparent">
-                  Praxis
-                </Dialog.Title>
-                <Dialog.Description className="mt-1 text-xs text-[var(--text-2)]">
-                  Interactive AI Algorithm Visualization
-                </Dialog.Description>
-              </div>
-              <Dialog.Close
-                className={cn(
-                  'flex items-center justify-center w-6 h-6 rounded',
-                  'text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]',
-                  'transition-colors text-base leading-none mt-0.5',
-                )}
-                aria-label="Close about"
-              >
-                <X size={14} />
-              </Dialog.Close>
-            </div>
+            <DialogHeader
+              title="Praxis"
+              description="Symbolic AI Algorithm Library & Playground"
+              closeLabel="Close about"
+              titleClassName="text-4xl font-bold font-mono tracking-tight text-[var(--text)]"
+            />
 
             {/* Body */}
             <div className="px-5 pb-5 space-y-4">
-              <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)]/70 p-3">
+              <SurfaceCard tone="muted" padding="sm" className="rounded-lg">
                 <p className="text-sm text-[var(--text)] leading-relaxed">
-                  Praxis is an interactive playground for studying and comparing classical AI algorithms through visual execution traces, rich graph editors, and game-oriented labs.
+                  Praxis aims to be a GOFAI playground and a comprehensive, continuously expanding algorithm library.
                 </p>
-              </div>
+              </SurfaceCard>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)]/60 p-3">
-                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)]">Focus</p>
-                  <p className="mt-1 text-xs text-[var(--text-2)]">Search, game playing, and local search</p>
-                </div>
-                <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)]/60 p-3">
-                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)]">Mode</p>
-                  <p className="mt-1 text-xs text-[var(--text-2)]">Visualization-first learning</p>
-                </div>
-              </div>
+              <SurfaceCard tone="muted" padding="sm" className="rounded-lg space-y-1.5">
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)]">Author</p>
+                <p className="text-sm font-medium text-[var(--text)]">Shreyan Chaubey</p>
+                <p className="text-[11px] text-[var(--text-3)]">
+                  License:{' '}
+                  <span className="font-mono text-[var(--text-2)]">CC-BY-NC-SA 4.0</span>
+                </p>
+                <a
+                  href="https://github.com/thethinkmachine"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] text-[var(--accent)] hover:underline"
+                >
+                  github.com/thethinkmachine
+                </a>
+              </SurfaceCard>
             </div>
           </Dialog.Content>
         </Dialog.Portal>

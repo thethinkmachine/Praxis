@@ -7,8 +7,12 @@ import { createEmptyBoard } from '@/lib/tic-tac-toe';
 import { useExecutionStore } from '@/store/execution.store';
 import AlgorithmPage from '@/components/module/AlgorithmPage';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
+import PresetPickerDialog from '@/components/shared/PresetPickerDialog';
 import Select from '@/components/shared/Select';
+import { Dice5, RotateCcw } from '@/components/shared/Icons';
+import { TitleBarActionButton, TitleBarActionGroup } from '@/components/shared/TitleBarAction';
 import TicTacToeLab from '@/components/visualization/TicTacToeLab';
+import StatTile from '@/components/shared/StatTile';
 
 type ScenarioId = 'empty' | 'fork-trap' | 'forced-block' | 'endgame-win';
 
@@ -51,6 +55,7 @@ function cycleCell(cell: TicTacToeCell): TicTacToeCell {
 export default function GamePage() {
   const { algo = 'minimax' } = useParams<{ category: string; algo: string }>();
   const [problem, setProblem] = useState<TicTacToeProblem>(createDefaultProblem);
+  const [demoDialogOpen, setDemoDialogOpen] = useState(false);
   const step = useExecutionStore(state => state.currentStep as AlgorithmStep<TicTacToeTraceState, TicTacToeTraceHighlight> | null);
   const board = problem.board ?? createEmptyBoard();
 
@@ -105,7 +110,7 @@ export default function GamePage() {
             <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)]">Presets</p>
             <button
               onClick={() => setScenario('empty')}
-              className="px-2 py-1 rounded border border-[var(--border)] bg-[var(--surface-2)] hover:border-[var(--accent)]/60 text-[10px] text-[var(--text-2)] transition-colors inline-block whitespace-nowrap"
+              className="ui-btn h-7 rounded-md px-2 text-[10px] inline-flex whitespace-nowrap"
             >
               Clear
             </button>
@@ -119,7 +124,7 @@ export default function GamePage() {
               <button
                 key={id}
                 onClick={() => setScenario(id)}
-                className="w-full text-left px-2 py-1.5 rounded border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] text-[11px] font-mono transition-colors"
+                className="ui-btn w-full justify-start rounded-md px-2 py-1.5 text-[11px] font-mono"
               >
                 {label}
               </button>
@@ -130,62 +135,68 @@ export default function GamePage() {
 
       <ConfigSection title="Board Summary" defaultOpen={false}>
         <div className="grid grid-cols-3 gap-2">
-          <div className="rounded border border-[var(--border)] bg-[var(--surface-2)] p-2 text-center">
-            <p className="text-[10px] font-mono text-[var(--text-3)]">X</p>
-            <p className="mt-0.5 text-xs font-semibold text-[var(--text)]">{board.filter(cell => cell === 'X').length}</p>
-          </div>
-          <div className="rounded border border-[var(--border)] bg-[var(--surface-2)] p-2 text-center">
-            <p className="text-[10px] font-mono text-[var(--text-3)]">O</p>
-            <p className="mt-0.5 text-xs font-semibold text-[var(--text)]">{board.filter(cell => cell === 'O').length}</p>
-          </div>
-          <div className="rounded border border-[var(--border)] bg-[var(--surface-2)] p-2 text-center">
-            <p className="text-[10px] font-mono text-[var(--text-3)]">Empty</p>
-            <p className="mt-0.5 text-xs font-semibold text-[var(--text)]">{board.filter(cell => cell == null).length}</p>
-          </div>
+          <StatTile label="X" value={String(board.filter(cell => cell === 'X').length)} compact className="text-center" />
+          <StatTile label="O" value={String(board.filter(cell => cell === 'O').length)} compact className="text-center" />
+          <StatTile label="Empty" value={String(board.filter(cell => cell == null).length)} compact className="text-center" />
         </div>
       </ConfigSection>
     </ProblemConfigurator>
   ), [board, problem.currentPlayer, problem.maximizingPlayer]);
 
   return (
-    <AlgorithmPage
-      algorithmId={algo}
-      problem={problem}
-      problemForActions={problem}
-      category="game-playing"
-      problemCategory="game"
-      onProblemImport={(nextProblem) => setProblem({ ...createDefaultProblem(), ...(nextProblem as TicTacToeProblem), kind: 'tic-tac-toe' })}
-      tabs={[
-        {
-          id: 'board',
-          label: 'Board',
-          content: <TicTacToeLab problem={problem} step={step} onCycleCell={handleCycleCell} />,
-        },
-      ]}
-      titleActions={
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setScenario('empty')}
-            className="h-7 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors whitespace-nowrap"
-          >
-            Clear
-          </button>
-          <button
-            onClick={() => setScenario('fork-trap')}
-            className="h-7 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors whitespace-nowrap"
-          >
-            Fork Trap
-          </button>
-          <button
-            onClick={() => setScenario('endgame-win')}
-            className="h-7 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors whitespace-nowrap"
-          >
-            Endgame
-          </button>
-        </div>
-      }
-      configPanel={configPanel}
-      defaultConfigOpen
-    />
+    <>
+      <AlgorithmPage
+        algorithmId={algo}
+        problem={problem}
+        problemForActions={problem}
+        category="game-playing"
+        problemCategory="game"
+        onProblemImport={(nextProblem) => setProblem({ ...createDefaultProblem(), ...(nextProblem as TicTacToeProblem), kind: 'tic-tac-toe' })}
+        tabs={[
+          {
+            id: 'board',
+            label: 'Problem View',
+            content: <TicTacToeLab problem={problem} step={step} onCycleCell={handleCycleCell} />,
+          },
+        ]}
+        titleActions={
+          <TitleBarActionGroup>
+            <TitleBarActionButton onClick={() => setScenario('empty')} icon={<RotateCcw size={12} />} label="Clear" title="Clear board" />
+            <TitleBarActionButton onClick={() => setScenario('fork-trap')} icon={<Dice5 size={12} />} label="Fork Trap" title="Load fork trap scenario" />
+            <TitleBarActionButton onClick={() => setScenario('endgame-win')} icon={<Dice5 size={12} />} label="Endgame" title="Load endgame scenario" />
+          </TitleBarActionGroup>
+        }
+        configPanel={configPanel}
+        defaultConfigOpen
+        onDemoRequest={() => setDemoDialogOpen(true)}
+      />
+      <PresetPickerDialog
+        open={demoDialogOpen}
+        onOpenChange={setDemoDialogOpen}
+        title="Choose a Demo Position"
+        subtitle="Load a preset tic-tac-toe scenario"
+        items={[
+          {
+            id: 'fork-trap',
+            name: 'Fork Trap',
+            description: 'A tactical position where the maximizing player must spot an incoming fork.',
+            tags: ['midgame', 'tactics'],
+          },
+          {
+            id: 'forced-block',
+            name: 'Forced Block',
+            description: 'A defensive setup that tests whether the algorithm blocks an immediate threat.',
+            tags: ['defense', 'forced move'],
+          },
+          {
+            id: 'endgame-win',
+            name: 'Endgame Win',
+            description: 'A late-game position with a concrete winning continuation to evaluate.',
+            tags: ['endgame', 'winning line'],
+          },
+        ]}
+        onSelect={(scenarioId) => setScenario(scenarioId as ScenarioId)}
+      />
+    </>
   );
 }

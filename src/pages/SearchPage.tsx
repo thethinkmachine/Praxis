@@ -11,12 +11,17 @@ import SVGGraphCanvas from '@/components/visualization/SVGGraphCanvas';
 import SVGAutoCanvas from '@/components/visualization/SVGAutoCanvas';
 import DemoProblemPicker from '@/components/editor/DemoProblemPicker';
 import { Dice5, Info, ChevronDown } from '@/components/shared/Icons';
+import { TitleBarActionButton } from '@/components/shared/TitleBarAction';
 import Select from '@/components/shared/Select';
+import EmptyState from '@/components/shared/EmptyState';
+import InfoCard from '@/components/shared/InfoCard';
+import HeuristicConfigSection from '@/components/shared/HeuristicConfigSection';
 import { generateRandomGraph } from '@/lib/random-generators';
 import { INFORMED_HEURISTICS, getHeuristicDefinition } from '@/algorithms/search/informed/types';
 import { createGraphSearchAdapterFromProblem } from '@/visualizations/adapters/graph-search.adapter';
 import { getGraphSearchStyles } from '@/visualizations/cytoscapeStyles/graph-search.styles';
 import { buildSearchTreeElements } from '@/visualizations/adapters/search-tree.adapter';
+import { evaluationFormula } from '@/lib/evaluationFormula';
 
 import type { AlgorithmStep } from '@/types/step';
 import { Graph, type GraphProblem, type HeuristicId } from '@/types/problem';
@@ -26,15 +31,6 @@ import AdjacencyTable from '@/components/editor/AdjacencyTable';
 // Algorithm categorization for UI behavior
 const INFORMED_ALGOS = new Set(['greedy-bfs', 'astar', 'rbfs', 'sma-star', 'bidirectional-astar', 'weighted-astar', 'ida-star']);
 const UNWEIGHTED_ALGOS = new Set(['bfs', 'dfs', 'dls', 'iddfs', 'bidirectional-bfs']);
-
-function evaluationFormula(algo: string): string {
-  if (algo === 'greedy-bfs') return 'f(n) = h(n)';
-  if (algo === 'weighted-astar') return 'f(n) = g(n) + w * h(n)';
-  if (algo === 'bidirectional-astar') return 'f_f(n) = g_f(n) + h_f(n),   f_b(n) = g_b(n) + h_b(n)';
-  if (algo === 'rbfs' || algo === 'sma-star') return 'f(n) = g(n) + h(n) with memory-bounded best-first control';
-  if (algo === 'astar' || algo === 'ida-star') return 'f(n) = g(n) + h(n)';
-  return 'Heuristic scoring is not used by this algorithm.';
-}
 
 export default function SearchPage() {
   const { algo = 'bfs' } = useParams<{ category: string; algo: string }>();
@@ -201,7 +197,7 @@ export default function SearchPage() {
   const tabs: TabDefinition[] = useMemo(() => [
     {
       id: 'graph',
-      label: 'Graph View',
+      label: 'Problem View',
       content: (
         <SVGGraphCanvas
           algorithmElements={algorithmElements}
@@ -220,32 +216,28 @@ export default function SearchPage() {
       content: treeElements.length > 0 ? (
         <SVGAutoCanvas elements={treeElements} />
       ) : (
-        <div className="h-full flex items-center justify-center bg-[var(--bg)]">
-          <div className="text-center space-y-1.5">
-            <p className="text-sm text-[var(--text-3)]">No search tree yet</p>
-            <p className="text-xs text-[var(--text-3)]">
-              Step through the algorithm to build the exploration tree
-            </p>
-          </div>
-        </div>
+        <EmptyState
+          title="No search tree yet"
+          description="Step through the algorithm to build the exploration tree."
+          className="bg-[var(--bg)]"
+        />
       ),
     },
   ], [algorithmElements, stylesheet, step, runner, handleDemoSelect, treeElements]);
 
   // ── Title actions ────────────────────────────────────────────────────
   const titleActions = useMemo(() => (
-    <button
+    <TitleBarActionButton
       onClick={() => {
         const weighted = isWeightedAlgorithm;
         const { nodes, edges } = generateRandomGraph(6 + Math.floor(Math.random() * 5), 0.25, weighted);
         const ids = nodes.map(n => n.id);
         useEditorStore.getState().loadGraph(nodes, edges, ids[0], ids[ids.length - 1], false);
       }}
-      className="flex h-7 w-7 items-center justify-center rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors"
+      icon={<Dice5 size={12} />}
+      label="Randomize"
       title="Generate random graph"
-    >
-      <Dice5 size={12} />
-    </button>
+    />
   ), [algo, isWeightedAlgorithm]);
 
   // ── Problem import handler ───────────────────────────────────────────
@@ -297,7 +289,7 @@ export default function SearchPage() {
                     type="text"
                     value={selectedNode.label ?? ''}
                     onChange={(e) => updateNode(selectedNode.id, { label: e.target.value })}
-                    className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                    className="ui-input w-full px-2 py-1.5 font-mono"
                     placeholder={selectedNode.id}
                   />
                </div>
@@ -308,7 +300,7 @@ export default function SearchPage() {
                     step={0.1}
                     value={selectedNode.heuristic ?? ''}
                     onChange={(e) => updateNodeHeuristic(selectedNode.id, e.target.value)}
-                    className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                    className="ui-input w-full px-2 py-1.5 font-mono"
                     placeholder="0.0"
                   />
                </div>
@@ -316,10 +308,10 @@ export default function SearchPage() {
                   <button
                     onClick={() => useEditorStore.getState().setStartNode(selectedNode.id)}
                     className={cn(
-                      "w-full py-1.5 rounded border text-[10px] font-semibold uppercase tracking-wider transition-colors",
+                      "ui-btn w-full py-1.5 text-[10px] font-semibold uppercase tracking-wider",
                       editorStartId === selectedNode.id 
-                        ? "bg-[var(--purple)]/20 border-[var(--purple)]/50 text-[var(--purple)]"
-                        : "bg-[var(--surface-2)] border-[var(--border)] text-[var(--text-2)] hover:bg-[var(--surface-3)]"
+                        ? "ui-pill-purple border-[color:var(--pill-purple-border)] text-[var(--pill-purple-text)]"
+                        : ""
                     )}
                   >
                     Set as Start
@@ -327,10 +319,10 @@ export default function SearchPage() {
                   <button
                     onClick={() => useEditorStore.getState().setGoalNode(selectedNode.id)}
                     className={cn(
-                      "w-full py-1.5 rounded border text-[10px] font-semibold uppercase tracking-wider transition-colors",
+                      "ui-btn w-full py-1.5 text-[10px] font-semibold uppercase tracking-wider",
                       editorGoalId === selectedNode.id 
-                        ? "bg-[var(--success)]/20 border-[var(--success)]/50 text-[var(--success)]"
-                        : "bg-[var(--surface-2)] border-[var(--border)] text-[var(--text-2)] hover:bg-[var(--surface-3)]"
+                        ? "ui-pill-success border-[color:var(--pill-success-border)] text-[var(--pill-success-text)]"
+                        : ""
                     )}
                   >
                     Set as Goal
@@ -357,7 +349,7 @@ export default function SearchPage() {
                     step={1}
                     value={selectedEdge.weight ?? 1}
                     onChange={(e) => useEditorStore.getState().updateEdge(selectedEdge.id, { weight: Number(e.target.value) })}
-                    className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                    className="ui-input w-full px-2 py-1.5 font-mono"
                   />
                </div>
                <div className="text-[10px] text-[var(--text-3)] bg-[var(--surface-2)]/30 p-2 rounded border border-[var(--border)]">
@@ -380,52 +372,35 @@ export default function SearchPage() {
             </div>
 
             {isInformedAlgorithm && (
-              <>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Heuristic Function</p>
-                  <Select
-                    value={heuristicId}
-                    onValueChange={(val) => setHeuristicId(val as HeuristicId)}
-                    options={INFORMED_HEURISTICS.map(h => ({ value: h.id, label: h.label }))}
-                  />
-                  <p className="text-[10px] text-[var(--text-3)] mt-1.5 leading-relaxed">{heuristicDefinition.description}</p>
-                </div>
-
-                {heuristicId !== 'manual-node' && heuristicId !== 'zero' && (
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Scale (w)</p>
-                      <input
-                        type="number"
-                        min={0.1}
-                        step={0.1}
-                        value={heuristicScale}
-                        onChange={(e) => setHeuristicScale(Math.max(0.1, Number(e.target.value) || 0.1))}
-                        className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
-                      />
+              <HeuristicConfigSection
+                heuristicId={heuristicId}
+                onHeuristicIdChange={(val) => setHeuristicId(val as HeuristicId)}
+                heuristicOptions={INFORMED_HEURISTICS.map(h => ({ value: h.id, label: h.label }))}
+                description={heuristicDefinition.description}
+                heuristicScale={heuristicScale}
+                onHeuristicScaleChange={setHeuristicScale}
+                afterScale={heuristicId !== 'manual-node' && heuristicId !== 'zero' ? (
+                  <InfoCard title="Caution: Spatial Reference" className="border-[var(--warning)]/30 border-l-2">
+                    <div className="flex items-center gap-1.5 text-[var(--warning)]">
+                      <Info size={10} />
+                      <p className="text-[9px] uppercase font-bold tracking-widest">Coordinate-sensitive heuristic</p>
                     </div>
-                    
-                    <div className="rounded border border-[var(--warning)]/30 bg-[var(--surface-2)]/30 p-2.5 space-y-1.5 border-l-2">
-                       <div className="flex items-center gap-1.5 text-[var(--warning)]">
-                          <Info size={10} />
-                          <p className="text-[9px] uppercase font-bold tracking-widest">Caution: Spatial Reference</p>
-                       </div>
-                       <p className="text-[10px] text-[var(--text-3)] leading-relaxed italic">
-                         Geometric heuristics like <span className="text-[var(--text-2)] font-mono">{heuristicId.split('-')[0]}</span> depend on node coordinates. 
-                         You will need to <span className="text-[var(--text-2)] font-semibold">rearrange nodes on the canvas</span> to physically represent the distances you want.
-                       </p>
-                    </div>
-                  </div>
-                )}
-              </>
+                    <p className="text-[10px] italic leading-relaxed text-[var(--text-3)]">
+                      Geometric heuristics like <span className="font-mono text-[var(--text-2)]">{heuristicId.split('-')[0]}</span> depend on node coordinates.
+                      You will need to <span className="font-semibold text-[var(--text-2)]">rearrange nodes on the canvas</span> to physically represent the distances you want.
+                    </p>
+                  </InfoCard>
+                ) : null}
+                footer={<InfoCard title="Cost Model"><p className="font-mono text-[11px] text-[var(--text)]">{evaluationFormula(algo)}</p></InfoCard>}
+              />
             )}
 
             {!isInformedAlgorithm && (
-              <div className="rounded border border-[var(--border)] p-2.5 bg-[var(--surface-2)]/30">
+              <InfoCard>
                 <p className="text-[10px] text-[var(--text-2)] leading-relaxed">
                   This algorithm operates on unweighted graphs or ignores heuristic estimates.
                 </p>
-              </div>
+              </InfoCard>
             )}
           </div>
         </ConfigSection>
@@ -454,7 +429,7 @@ export default function SearchPage() {
         tabs={tabs}
         titleActions={titleActions}
         configPanel={configPanel}
-        defaultConfigOpen={isInformedAlgorithm}
+        defaultConfigOpen
         onDemoRequest={() => setDemoDialogOpen(true)}
       />
       <DemoProblemPicker

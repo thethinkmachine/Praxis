@@ -45,11 +45,11 @@ function TransportButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'flex h-8 w-8 items-center justify-center rounded-lg border transition-colors', // Reduced h-10 w-10 to h-8 w-8
+        'ui-btn ui-btn-icon flex h-8 w-8 rounded-lg',
         accent
-          ? 'border-[var(--accent)]/45 bg-[var(--accent-soft)] text-[var(--accent)] hover:border-[var(--accent)]/70'
-          : 'border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--accent)]/35',
-        disabled && 'cursor-not-allowed opacity-40 hover:border-[var(--border)] hover:text-[var(--text-2)]',
+          ? 'ui-btn-accent'
+          : '',
+        disabled && 'hover:text-inherit',
       )}
     >
       {children}
@@ -153,7 +153,7 @@ export default function ControlPanel() {
               <Tooltip.Trigger asChild>
                 <button
                   onClick={() => setSpeed(clampSpeed(speed - 5))}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:text-[var(--text)]"
+                  className="ui-btn ui-btn-icon h-8 w-8 rounded-lg"
                 >
                   <Minus size={13} />
                 </button>
@@ -170,7 +170,7 @@ export default function ControlPanel() {
               <Tooltip.Trigger asChild>
                 <button
                   onClick={() => setSpeed(1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:text-[var(--text)]"
+                  className="ui-btn ui-btn-icon h-8 w-8 rounded-lg"
                 >
                   <RotateCcw size={13} />
                 </button>
@@ -182,7 +182,7 @@ export default function ControlPanel() {
               <Tooltip.Trigger asChild>
                 <button
                   onClick={() => setSpeed(clampSpeed(speed + 5))}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:text-[var(--text)]"
+                  className="ui-btn ui-btn-icon h-8 w-8 rounded-lg"
                 >
                   <Plus size={13} />
                 </button>
@@ -192,8 +192,8 @@ export default function ControlPanel() {
           </div>
 
           {truncated && (
-            <span className="shrink-0 flex items-center gap-1 text-[10px] px-2 py-1 rounded-xl bg-[#F0883E]/10 text-[#F0883E] border border-[#F0883E]/25 whitespace-nowrap">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#F0883E] animate-pulse" />
+            <span className="ui-pill ui-pill-warning shrink-0 flex items-center gap-1 text-[10px] px-2 py-1 whitespace-nowrap">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--warning)] animate-pulse" />
               Truncated
             </span>
           )}

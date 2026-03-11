@@ -1,6 +1,9 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Compass, Home, Search, SplitSquareVertical } from 'lucide-react';
+import { ArrowLeft, Compass, Home, Search, SplitSquareVertical } from '@/components/shared/Icons';
 import CellularAutomatonBackdrop from '@/components/visualization/CellularAutomatonBackdrop';
+import SurfaceCard from '@/components/shared/SurfaceCard';
+import NavigationTile from '@/components/shared/NavigationTile';
+import StatusBadge from '@/components/shared/StatusBadge';
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
@@ -15,15 +18,11 @@ export default function NotFoundPage() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(95,179,255,0.16),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(83,200,128,0.12),transparent_28%)]" />
 
         <div className="relative z-10 grid min-h-full grid-cols-1 gap-4 p-4 sm:p-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.9fr)]">
-          <section className="flex flex-col justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)]/72 p-6 backdrop-blur-[5px] sm:p-8">
+          <SurfaceCard tone="muted" padding="lg" className="flex flex-col justify-between rounded-2xl sm:p-8">
             <div className="space-y-6">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-md border border-[var(--border)] bg-[var(--surface-2)] px-2.5 py-1 text-[11px] font-mono uppercase tracking-[0.22em] text-[var(--text-3)]">
-                  Error / 404
-                </span>
-                <span className="rounded-md border border-[var(--accent)]/30 bg-[var(--accent-soft)] px-2.5 py-1 text-[11px] font-mono uppercase tracking-[0.18em] text-[var(--accent)]">
-                  Route Unresolved
-                </span>
+                <StatusBadge size="md">Error / 404</StatusBadge>
+                <StatusBadge tone="accent" size="md">Route Unresolved</StatusBadge>
               </div>
 
               <div className="space-y-4">
@@ -40,7 +39,7 @@ export default function NotFoundPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)]/45 p-4">
+              <SurfaceCard tone="strong" className="rounded-2xl bg-[var(--bg)]/45">
                 <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.2em] text-[var(--text-3)]">
                   <SplitSquareVertical size={14} />
                   Failed Route
@@ -48,73 +47,44 @@ export default function NotFoundPage() {
                 <code className="mt-3 block overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--titlebar)] px-4 py-3 font-mono text-sm text-[var(--text)]">
                   {pathname}
                 </code>
-              </div>
+              </SurfaceCard>
             </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={() => navigate(-1)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 text-sm font-mono uppercase tracking-[0.18em] text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/50 hover:bg-[var(--accent-soft)] hover:text-[var(--text)]"
+                className="ui-btn px-4 py-3 text-sm font-mono uppercase tracking-[0.18em]"
               >
                 <ArrowLeft size={16} />
                 Go Back
               </button>
               <Link
                 to="/"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-4 py-3 text-sm font-mono font-semibold uppercase tracking-[0.18em] text-[var(--bg)] transition-transform hover:scale-[1.01]"
+                className="ui-btn ui-btn-accent px-4 py-3 text-sm font-mono font-semibold uppercase tracking-[0.18em] transition-transform hover:scale-[1.01]"
               >
                 <Home size={16} />
                 Return Home
               </Link>
             </div>
-          </section>
+          </SurfaceCard>
 
           <aside className="grid gap-4">
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/78 p-5 backdrop-blur-[5px]">
+            <SurfaceCard tone="muted" padding="lg" className="rounded-2xl">
               <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-[var(--text-3)]">
                 Recovery Options
               </p>
               <div className="mt-4 grid gap-3">
-                <Link
-                  to="/"
-                  className="group rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/75 p-4 transition-colors hover:border-[var(--accent)]/60 hover:bg-[var(--accent-soft)]"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-2 text-[var(--accent)]">
-                      <Compass size={16} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[var(--text)]">Open taxonomy</p>
-                      <p className="mt-1 text-xs text-[var(--text-2)]">Browse the full algorithm catalog from the home workspace.</p>
-                    </div>
-                  </div>
-                </Link>
-
-                <Link
-                  to="/?tab=algorithms"
-                  className="group rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/75 p-4 transition-colors hover:border-[var(--accent)]/60 hover:bg-[var(--accent-soft)]"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-2 text-[var(--success)]">
-                      <Search size={16} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[var(--text)]">Search modules</p>
-                      <p className="mt-1 text-xs text-[var(--text-2)]">Use the homepage search to jump back into a registered algorithm or lab.</p>
-                    </div>
-                  </div>
-                </Link>
+                <NavigationTile to="/" title="Open taxonomy" description="Browse the full algorithm catalog from the home workspace." icon={<Compass size={16} />} tone="accent" />
+                <NavigationTile to="/?tab=algorithms" title="Search modules" description="Use the homepage search to jump back into a registered algorithm or lab." icon={<Search size={16} />} tone="success" />
               </div>
-            </div>
+            </SurfaceCard>
 
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/78 p-5 backdrop-blur-[5px]">
+            <SurfaceCard tone="muted" padding="lg" className="rounded-2xl">
               <div className="flex items-center justify-between">
                 <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-[var(--text-3)]">
                   Route Diagnostics
                 </p>
-                <span className="rounded-md border border-[var(--border)] px-2 py-1 text-[10px] font-mono uppercase tracking-[0.16em] text-[var(--text-3)]">
-                  Unreachable
-                </span>
+                <StatusBadge>Unreachable</StatusBadge>
               </div>
 
               <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--bg)]/55 p-4">
@@ -155,7 +125,7 @@ export default function NotFoundPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </SurfaceCard>
           </aside>
         </div>
       </div>

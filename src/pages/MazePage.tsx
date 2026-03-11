@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import AlgorithmPage from '@/components/module/AlgorithmPage';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
+import PresetPickerDialog from '@/components/shared/PresetPickerDialog';
 import Select from '@/components/shared/Select';
 import type { TabDefinition } from '@/components/module/AlgorithmPage';
 import SVGAutoCanvas from '@/components/visualization/SVGAutoCanvas';
@@ -16,33 +17,14 @@ import { buildSearchTreeElements } from '@/visualizations/adapters/search-tree.a
 import { deserializeMazeReplay, serializeMazeReplay } from '@/problems/maze/maze';
 import { MAZE_STRATEGY_LABELS } from '@/problems/maze/strategies';
 import { MAZE_DEMOS, buildMazeDemo } from '@/problems/maze/demos';
+import { Copy, Dice5 } from '@/components/shared/Icons';
+import { TitleBarActionButton, TitleBarActionGroup } from '@/components/shared/TitleBarAction';
+import EmptyState from '@/components/shared/EmptyState';
+import InfoCard from '@/components/shared/InfoCard';
+import HeuristicConfigSection from '@/components/shared/HeuristicConfigSection';
+import { evaluationFormula } from '@/lib/evaluationFormula';
 
-const MAZE_ALGORITHMS = [
-  'bfs',
-  'dfs',
-  'dls',
-  'iddfs',
-  'ucs',
-  'bidirectional-bfs',
-  'bidirectional-ucs',
-  'greedy-bfs',
-  'astar',
-  'rbfs',
-  'sma-star',
-  'bidirectional-astar',
-  'weighted-astar',
-  'ida-star',
-] as const;
 const MAZE_UNINFORMED_ALGOS = new Set(['bfs', 'dfs', 'dls', 'iddfs', 'ucs', 'bidirectional-bfs', 'bidirectional-ucs']);
-
-function evaluationFormula(algo: string): string {
-  if (algo === 'greedy-bfs') return 'f(n) = h(n)';
-  if (algo === 'weighted-astar') return 'f(n) = g(n) + w * h(n)';
-  if (algo === 'bidirectional-astar') return 'f_f(n) = g_f(n) + h_f(n),   f_b(n) = g_b(n) + h_b(n)';
-  if (algo === 'rbfs' || algo === 'sma-star') return 'f(n) = g(n) + h(n) with memory-bounded best-first control';
-  if (algo === 'astar' || algo === 'ida-star') return 'f(n) = g(n) + h(n)';
-  return 'Heuristic scoring is not used by this algorithm.';
-}
 
 function isMazeProblem(value: unknown): value is MazeProblem {
   if (!value || typeof value !== 'object') return false;
@@ -52,6 +34,7 @@ function isMazeProblem(value: unknown): value is MazeProblem {
 export default function MazePage() {
   const { algo = 'bfs' } = useParams<{ algo?: string }>();
   const [searchParams] = useSearchParams();
+  const [demoDialogOpen, setDemoDialogOpen] = useState(false);
 
   const mazeProblem = useMazeStore(s => s.problem);
   const setMazeProblem = useMazeStore(s => s.setProblem);
@@ -140,7 +123,7 @@ export default function MazePage() {
   const tabs: TabDefinition[] = useMemo(() => [
     {
       id: 'maze-board',
-      label: 'Maze Board',
+      label: 'Problem View',
       content: <MazeEditor overlay={overlay} className="h-full" />,
     },
     {
@@ -149,12 +132,11 @@ export default function MazePage() {
       content: treeElements.length > 0
         ? <div className="h-full overflow-hidden"><SVGAutoCanvas elements={treeElements} /></div>
         : (
-          <div className="h-full flex items-center justify-center bg-[var(--bg)]">
-            <div className="text-center space-y-1.5">
-              <p className="text-sm text-[var(--text-3)]">No search tree yet</p>
-              <p className="text-xs text-[var(--text-3)]">Edit the maze and step through to build the tree</p>
-            </div>
-          </div>
+          <EmptyState
+            title="No search tree yet"
+            description="Edit the maze and step through the run to build the tree."
+            className="bg-[var(--bg)]"
+          />
         ),
     },
   ], [overlay, treeElements]);
@@ -168,49 +150,55 @@ export default function MazePage() {
   }, [algo, mazeProblem]);
 
   const titleActions = useMemo(() => (
-    <div className="flex items-center gap-1.5">
-      <button
+    <TitleBarActionGroup>
+      <TitleBarActionButton
         onClick={() => {
           setSeed(Date.now());
           generateMaze();
         }}
-        className="h-7 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60"
-      >
-        New Seed
-      </button>
-      <button
+        icon={<Dice5 size={12} />}
+        label="Randomize"
+        title="Generate a new maze seed"
+      />
+      <TitleBarActionButton
         onClick={copyReplayLink}
-        className="h-7 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60"
-      >
-        {copied ? 'Copied' : 'Copy Replay Link'}
-      </button>
-    </div>
+        icon={<Copy size={12} />}
+        label={copied ? 'Copied' : 'Copy Replay'}
+        title="Copy replay link"
+      />
+    </TitleBarActionGroup>
   ), [copied, copyReplayLink, generateMaze, setSeed]);
 
   const configPanel = useMemo(() => (
     <ProblemConfigurator title="Maze Config">
-      <ConfigSection title="Algorithm Selection">
-        <div className="grid grid-cols-2 gap-1.5">
-          {MAZE_ALGORITHMS.map((id) => (
-            <Link
-              key={id}
-              to={`/maze/${id}`}
-              className={`px-2 py-1 rounded border font-mono text-[11px] ${id === algo
-                ? 'border-[var(--accent)]/60 text-[var(--accent)] bg-[var(--accent-soft)]'
-                : 'border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)]'}`}
-            >
-              {id}
-            </Link>
-          ))}
-        </div>
-      </ConfigSection>
-
       {isInformedAlgorithm && (
         <ConfigSection title="Heuristic Settings">
-          <div className="space-y-4">
-            {algo === 'weighted-astar' && (
+          <HeuristicConfigSection
+            heuristicId={heuristicId}
+            onHeuristicIdChange={(nextId) => {
+              const params = (nextId !== 'manual-node' && nextId !== 'zero' && heuristicScale !== 1)
+                ? { scale: heuristicScale }
+                : undefined;
+              setMazeProblem({
+                ...mazeProblem,
+                heuristic: { id: nextId as HeuristicId, params },
+              });
+            }}
+            heuristicOptions={INFORMED_HEURISTICS.map(h => ({ value: h.id, label: h.label }))}
+            description={heuristicDefinition.description}
+            heuristicScale={heuristicScale}
+            onHeuristicScaleChange={(nextScale) => {
+              setMazeProblem({
+                ...mazeProblem,
+                heuristic: {
+                  id: heuristicId,
+                  params: nextScale === 1 ? undefined : { scale: nextScale },
+                },
+              });
+            }}
+            beforeSelect={algo === 'weighted-astar' ? (
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Inflation Weight (w)</p>
+                <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-3)]">Inflation Weight (w)</p>
                 <input
                   type="number"
                   min={1}
@@ -218,58 +206,16 @@ export default function MazePage() {
                   step={0.5}
                   value={weightedAStarWeight}
                   onChange={(e) => setWeightedAStarWeight(Math.max(1, Number(e.target.value) || 1))}
-                  className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                  className="ui-input w-full px-2 py-1.5 font-mono"
                 />
-                <p className="text-[9px] text-[var(--text-3)] mt-1">w=1 → optimal (A*). Higher = faster but suboptimal.</p>
+                <p className="mt-1 text-[9px] text-[var(--text-3)]">w=1 -&gt; optimal (A*). Higher = faster but suboptimal.</p>
               </div>
-            )}
-
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Function</p>
-              <Select
-                value={heuristicId}
-                onValueChange={(nextId) => {
-                  const params = (nextId !== 'manual-node' && nextId !== 'zero' && heuristicScale !== 1)
-                    ? { scale: heuristicScale }
-                    : undefined;
-                  setMazeProblem({
-                    ...mazeProblem,
-                    heuristic: { id: nextId as HeuristicId, params },
-                  });
-                }}
-                options={INFORMED_HEURISTICS.map(h => ({ value: h.id, label: h.label }))}
-              />
-              <p className="text-[9px] text-[var(--text-3)] mt-1">{heuristicDefinition.description}</p>
-            </div>
-
-            {heuristicId !== 'manual-node' && heuristicId !== 'zero' && (
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Scale</p>
-                <input
-                  type="number"
-                  min={0.1}
-                  step={0.1}
-                  value={heuristicScale}
-                  onChange={(e) => {
-                    const nextScale = Math.max(0.1, Number(e.target.value) || 0.1);
-                    setMazeProblem({
-                      ...mazeProblem,
-                      heuristic: {
-                        id: heuristicId,
-                        params: nextScale === 1 ? undefined : { scale: nextScale },
-                      },
-                    });
-                  }}
-                  className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
-                />
-              </div>
-            )}
-
-            {heuristicId === 'manual-node' && (
+            ) : null}
+            afterSelect={heuristicId === 'manual-node' ? (
               <div className="space-y-2">
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1">Per-Cell h(n) Table</p>
-                <div className="rounded border border-[var(--border)] overflow-hidden">
-                  <div className="grid grid-cols-[1fr_80px] text-[10px] font-semibold uppercase tracking-wider text-[var(--text-3)] bg-[var(--surface-2)] px-2 py-1">
+                <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-3)]">Per-Cell h(n) Table</p>
+                <div className="overflow-hidden rounded border border-[var(--border)]">
+                  <div className="grid grid-cols-[1fr_80px] bg-[var(--surface-2)] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-3)]">
                     <span>Cell</span>
                     <span className="text-right">h(n)</span>
                   </div>
@@ -277,8 +223,8 @@ export default function MazePage() {
                     {[...graphProblem.graph.nodes]
                       .sort((a, b) => (a.label ?? a.id).localeCompare(b.label ?? b.id))
                       .map((node) => (
-                        <div key={node.id} className="grid grid-cols-[1fr_80px] items-center px-2 py-1 gap-2">
-                          <span className="truncate text-[11px] text-[var(--text-2)] font-mono" title={node.id}>
+                        <div key={node.id} className="grid grid-cols-[1fr_80px] items-center gap-2 px-2 py-1">
+                          <span className="truncate font-mono text-[11px] text-[var(--text-2)]" title={node.id}>
                             {node.label ?? node.id}
                           </span>
                           <input
@@ -298,27 +244,27 @@ export default function MazePage() {
                               setMazeProblem({
                                 ...mazeProblem,
                                 manualHeuristicValues: nextManual,
-                                heuristic: { id: 'manual-node' }
+                                heuristic: { id: 'manual-node' },
                               });
                             }}
-                            className="w-full px-1.5 py-0.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] text-right font-mono focus:border-[var(--accent)]/50 outline-none"
+                            className="ui-input w-full px-1.5 py-0.5 text-right font-mono"
                           />
                         </div>
                       ))}
                   </div>
                 </div>
               </div>
+            ) : null}
+            footer={(
+              <InfoCard title="Cost Model">
+                <div className="space-y-1 text-[11px]">
+                  <p className="leading-tight text-[var(--text-2)]"><span className="font-mono text-[var(--text)]">g(n)</span> Path cost from start</p>
+                  <p className="leading-tight text-[var(--text-2)]"><span className="font-mono text-[var(--text)]">h(n)</span> Estimate to goal</p>
+                  <p className="mt-2 rounded border border-[var(--border)]/50 bg-[var(--surface)]/40 py-1 text-center font-mono text-[var(--text)]">{evaluationFormula(algo)}</p>
+                </div>
+              </InfoCard>
             )}
-
-            <div className="rounded border border-[var(--border)] p-2.5 bg-[var(--surface-2)]/30 space-y-1.5">
-              <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] font-bold">Cost Model</p>
-              <div className="space-y-1 text-[11px]">
-                 <p className="text-[var(--text-2)] leading-tight"><span className="font-mono text-[var(--text)]">g(n)</span> Path cost from start</p>
-                 <p className="text-[var(--text-2)] leading-tight"><span className="font-mono text-[var(--text)]">h(n)</span> Estimate to goal</p>
-                 <p className="text-[var(--text)] font-mono pt-1 text-center bg-[var(--surface)]/40 rounded py-1 mt-2 border border-[var(--border)]/50">{evaluationFormula(algo)}</p>
-              </div>
-            </div>
-          </div>
+          />
         </ConfigSection>
       )}
 
@@ -331,7 +277,7 @@ export default function MazePage() {
             max={200}
             value={depthLimit}
             onChange={(e) => setDepthLimit(Math.max(1, Number(e.target.value) || 1))}
-            className="w-full px-2 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+            className="ui-input w-full px-2 py-1.5 font-mono"
           />
         </ConfigSection>
       )}
@@ -349,7 +295,7 @@ export default function MazePage() {
                   max={80}
                   value={mazeProblem.rows}
                   onChange={(e) => setDimensions(Number(e.target.value) || mazeProblem.rows, mazeProblem.cols)}
-                  className="w-full px-2 py-1 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                  className="ui-input w-full px-2 py-1 font-mono"
                 />
               </label>
               <label className="flex items-center gap-1">
@@ -360,7 +306,7 @@ export default function MazePage() {
                   max={80}
                   value={mazeProblem.cols}
                   onChange={(e) => setDimensions(mazeProblem.rows, Number(e.target.value) || mazeProblem.cols)}
-                  className="w-full px-2 py-1 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] font-mono focus:border-[var(--accent)]/50 outline-none"
+                  className="ui-input w-full px-2 py-1 font-mono"
                 />
               </label>
             </div>
@@ -382,7 +328,7 @@ export default function MazePage() {
                 setStrategy(demo.strategy);
                 setMazeProblem(buildMazeDemo(demo));
               }}
-              className="w-full text-left px-2 py-1.5 rounded border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] text-[11px] font-mono transition-colors"
+              className="ui-btn w-full justify-start rounded-md px-2 py-1.5 text-[11px] font-mono"
             >
               {demo.name}
             </button>
@@ -399,16 +345,38 @@ export default function MazePage() {
   }, [setMazeProblem]);
 
   return (
-    <AlgorithmPage
-      algorithmId={algo}
-      problem={graphProblem}
-      problemForActions={mazeProblem}
-      category={runner?.meta.category ?? 'uninformed-search'}
-      problemCategory="maze"
-      onProblemImport={handleImport}
-      tabs={tabs}
-      titleActions={titleActions}
-      configPanel={configPanel}
-    />
+    <>
+      <AlgorithmPage
+        algorithmId={algo}
+        problem={graphProblem}
+        problemForActions={mazeProblem}
+        category={runner?.meta.category ?? 'uninformed-search'}
+        problemCategory="maze"
+        onProblemImport={handleImport}
+        tabs={tabs}
+        titleActions={titleActions}
+        configPanel={configPanel}
+        defaultConfigOpen
+        onDemoRequest={() => setDemoDialogOpen(true)}
+      />
+      <PresetPickerDialog
+        open={demoDialogOpen}
+        onOpenChange={setDemoDialogOpen}
+        title="Choose a Maze Demo"
+        subtitle="Load a ready-made maze layout into the workspace"
+        items={MAZE_DEMOS.map((demo) => ({
+          id: demo.id,
+          name: demo.name,
+          description: `${demo.rows} x ${demo.cols} maze using ${demo.strategy.replace(/-/g, ' ')} generation.`,
+          tags: [demo.strategy, `seed ${demo.seed}`],
+        }))}
+        onSelect={(demoId) => {
+          const demo = MAZE_DEMOS.find((entry) => entry.id === demoId);
+          if (!demo) return;
+          setStrategy(demo.strategy);
+          setMazeProblem(buildMazeDemo(demo));
+        }}
+      />
+    </>
   );
 }

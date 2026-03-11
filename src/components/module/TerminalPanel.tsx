@@ -3,6 +3,7 @@ import { useExecutionStore } from '@/store/execution.store';
 import { usePreferencesStore } from '@/store/preferences.store';
 import { cn } from '@/lib/cn';
 import { Terminal, Trash2, ChevronDown } from '@/components/shared/Icons';
+import EmptyState from '@/components/shared/EmptyState';
 
 export default function TerminalPanel() {
   const logs = useExecutionStore((s) => s.logs);
@@ -51,9 +52,7 @@ export default function TerminalPanel() {
         className="flex-1 overflow-y-auto p-2 space-y-0.5 text-[11px] custom-scrollbar selection:bg-[var(--accent-soft)]"
       >
         {logs.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-[var(--text-3)] opacity-50">
-            No output yet
-          </div>
+          <EmptyState title="No output yet" compact className="text-[var(--text-3)] opacity-60" />
         ) : (
           logs.map((log) => (
             <div key={log.id} className="flex gap-2 group hover:bg-[var(--surface-2)]/50 rounded px-1 -mx-1">

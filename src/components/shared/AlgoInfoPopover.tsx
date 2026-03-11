@@ -1,9 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/cn';
+import { X } from '@/components/shared/Icons';
 import type { AlgorithmMeta } from '@/types';
 
 interface AlgoInfoPopoverProps {
   meta: AlgorithmMeta;
+  anchorRef: RefObject<HTMLElement | null>;
   onClose: () => void;
 }
 
@@ -45,8 +48,30 @@ function buildTradeoffs(meta: AlgorithmMeta): string[] {
   ];
 }
 
-export default function AlgoInfoPopover({ meta, onClose }: AlgoInfoPopoverProps) {
+export default function AlgoInfoPopover({ meta, anchorRef, onClose }: AlgoInfoPopoverProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ top: 52, left: 16 });
+
+  useEffect(() => {
+    const updatePosition = () => {
+      const anchor = anchorRef.current;
+      if (!anchor) return;
+
+      const rect = anchor.getBoundingClientRect();
+      const width = Math.min(620, window.innerWidth - 32);
+      const nextLeft = Math.min(Math.max(16, rect.right - width), window.innerWidth - width - 16);
+      const nextTop = Math.max(16, rect.bottom + 10);
+      setPosition({ top: nextTop, left: nextLeft });
+    };
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [anchorRef]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -58,7 +83,10 @@ export default function AlgoInfoPopover({ meta, onClose }: AlgoInfoPopoverProps)
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const anchor = anchorRef.current;
+      if (anchor && anchor.contains(target)) return;
+      if (ref.current && !ref.current.contains(target)) {
         onClose();
       }
     };
@@ -72,13 +100,14 @@ export default function AlgoInfoPopover({ meta, onClose }: AlgoInfoPopoverProps)
   const narrative = buildNarrative(meta);
   const tradeoffs = buildTradeoffs(meta);
 
-  return (
+  return createPortal((
     <div
       ref={ref}
+      style={{ top: position.top, left: position.left }}
       className={cn(
-        'absolute left-0 top-full z-30 mt-2',
-        'w-[620px] max-w-[calc(100vw-2rem)]',
-        'overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-[0_24px_70px_rgba(0,0,0,0.42)]',
+        'ui-panel-elevated fixed z-[120]',
+        'w-[min(620px,calc(100vw-2rem))]',
+        'overflow-hidden rounded-2xl',
       )}
     >
       <div className="border-b border-[var(--border)] bg-[linear-gradient(180deg,rgba(88,166,255,0.08),transparent)] px-5 py-4">
@@ -91,10 +120,10 @@ export default function AlgoInfoPopover({ meta, onClose }: AlgoInfoPopoverProps)
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] transition-colors hover:text-[var(--text)]"
+            className="ui-btn ui-btn-icon h-8 w-8 rounded-xl"
             aria-label="Close info panel"
           >
-            ×
+            <X size={14} />
           </button>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-[var(--text-2)]">{narrative}</p>
@@ -186,5 +215,5 @@ export default function AlgoInfoPopover({ meta, onClose }: AlgoInfoPopoverProps)
         </div>
       </div>
     </div>
-  );
+  ), document.body);
 }

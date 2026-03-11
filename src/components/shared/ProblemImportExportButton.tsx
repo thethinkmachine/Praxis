@@ -1,9 +1,11 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { cn } from '@/lib/cn';
+import { Check, ChevronDown, Copy, Database, Download, FolderOpen, Save, Upload, X } from '@/components/shared/Icons';
 import { useProblemImportExport } from '@/hooks/useProblemImportExport';
 import { useSavedProblemsStore } from '@/store/savedProblems.store';
 import type { ProblemCategory } from '@/types/problem';
+import { dropdownMenuContentClass, dropdownMenuItemClass, dropdownMenuLabelClass } from '@/components/shared/DropdownActionMenu';
 
 interface ProblemImportExportButtonProps {
     problem: unknown;
@@ -94,30 +96,25 @@ export default function ProblemImportExportButton({
         }
     }
 
-    const itemClass =
-        'flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--text)] hover:bg-[var(--accent)]/10 hover:text-[var(--accent)] cursor-pointer outline-none';
-
     return (
         <>
             <DropdownMenu.Root open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setConfirmDelete(null); setNaming(false); } }}>
                 <DropdownMenu.Trigger asChild>
                     <button
                         className={cn(
-                            'flex h-7 items-center gap-1.5 rounded px-2.5 text-[11px]',
-                            'bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)]',
-                            'hover:text-[var(--text)] hover:border-[var(--accent)] transition-colors',
+                            'ui-btn h-7 rounded-lg px-2.5 text-[11px]',
                         )}
                         aria-label="Problem actions"
                     >
-                        <span>⇅</span>
+                        <Database size={12} />
                         Problem
-                        <span className="text-[var(--text-3)]">▾</span>
+                        <ChevronDown size={12} className="text-[var(--text-3)]" />
                     </button>
                 </DropdownMenu.Trigger>
 
                 <DropdownMenu.Portal>
                     <DropdownMenu.Content
-                        className="z-50 min-w-[200px] bg-[var(--surface-2)] border border-[var(--border)] rounded shadow-lg py-1"
+                        className={dropdownMenuContentClass('min-w-[220px]')}
                         sideOffset={4}
                         align="end"
                     >
@@ -126,13 +123,9 @@ export default function ProblemImportExportButton({
                             <>
                                 <DropdownMenu.Item
                                     onSelect={() => { setOpen(false); onDemoRequest(); }}
-                                    className={itemClass}
+                                    className={dropdownMenuItemClass()}
                                 >
-                                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
-                                        <ellipse cx="8" cy="3.5" rx="6" ry="2" stroke="currentColor" strokeWidth="1.4" />
-                                        <path d="M2 3.5v4c0 1.105 2.686 2 6 2s6-.895 6-2v-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-                                        <path d="M2 7.5v4c0 1.105 2.686 2 6 2s6-.895 6-2v-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-                                    </svg>
+                                    <FolderOpen size={12} className="shrink-0" />
                                     Browse Demo Problems
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Separator className="my-1 h-px bg-[var(--border)]" />
@@ -151,20 +144,21 @@ export default function ProblemImportExportButton({
                                     onChange={(e) => setNameInput(e.target.value)}
                                     onKeyDown={handleSaveKeyDown}
                                     placeholder="Problem name..."
-                                    className="flex-1 text-xs px-2 py-1 rounded bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] outline-none focus:border-[var(--accent)]"
+                                    className="ui-input flex-1 text-xs px-2 py-1"
                                     aria-label="Problem name"
                                 />
                                 <button
                                     onClick={handleSaveConfirm}
                                     disabled={!nameInput.trim()}
-                                    className="text-xs px-2 py-1 rounded bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30 disabled:opacity-40 transition-colors"
+                                    className="ui-btn ui-btn-active h-7 rounded-md px-2 text-xs"
                                 >
+                                    <Check size={12} />
                                     Save
                                 </button>
                             </div>
                         ) : (
-                            <DropdownMenu.Item onSelect={(e) => { e.preventDefault(); handleSaveStart(); }} className={itemClass}>
-                                <span>💾</span>
+                            <DropdownMenu.Item onSelect={(e) => { e.preventDefault(); handleSaveStart(); }} className={dropdownMenuItemClass()}>
+                                <Save size={12} className="shrink-0" />
                                 Save Problem
                             </DropdownMenu.Item>
                         )}
@@ -172,7 +166,7 @@ export default function ProblemImportExportButton({
                         <DropdownMenu.Separator className="my-1 h-px bg-[var(--border)]" />
 
                         {/* Load saved */}
-                        <DropdownMenu.Label className="px-3 py-1 text-[10px] font-semibold text-[var(--text-3)] uppercase tracking-wider">
+                        <DropdownMenu.Label className={dropdownMenuLabelClass()}>
                             Saved
                         </DropdownMenu.Label>
 
@@ -195,14 +189,14 @@ export default function ProblemImportExportButton({
                                     <button
                                         onClick={(e) => handleDelete(e, sp.id)}
                                         className={cn(
-                                            'shrink-0 text-[10px] px-1 rounded mr-3',
+                                            'shrink-0 text-[10px] px-1 rounded mr-3 inline-flex items-center justify-center',
                                             confirmDelete === sp.id
                                                 ? 'text-[var(--danger)] bg-[var(--danger)]/10'
                                                 : 'text-[var(--text-3)] hover:text-[var(--danger)]',
                                         )}
                                         title={confirmDelete === sp.id ? 'Click again to confirm' : 'Delete'}
                                     >
-                                        {confirmDelete === sp.id ? 'confirm?' : '×'}
+                                        {confirmDelete === sp.id ? 'confirm?' : <X size={11} />}
                                     </button>
                                 </div>
                             ))
@@ -211,12 +205,12 @@ export default function ProblemImportExportButton({
                         <DropdownMenu.Separator className="my-1 h-px bg-[var(--border)]" />
 
                         {/* Import / Export */}
-                        <DropdownMenu.Item onSelect={exportProblem} className={itemClass}>
-                            <span>↓</span>
+                        <DropdownMenu.Item onSelect={exportProblem} className={dropdownMenuItemClass()}>
+                            <Download size={12} className="shrink-0" />
                             Export Problem JSON
                         </DropdownMenu.Item>
-                        <DropdownMenu.Item onSelect={importProblem} className={itemClass}>
-                            <span>↑</span>
+                        <DropdownMenu.Item onSelect={importProblem} className={dropdownMenuItemClass()}>
+                            <Upload size={12} className="shrink-0" />
                             Import Problem JSON
                         </DropdownMenu.Item>
                     </DropdownMenu.Content>

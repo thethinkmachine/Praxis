@@ -3,6 +3,7 @@ import type cytoscape from 'cytoscape';
 import type { ElementDefinition, StylesheetStyle } from 'cytoscape';
 import { useCytoscape } from '@/hooks/useCytoscape';
 import { cn } from '@/lib/cn';
+import { LayoutGrid } from '@/components/shared/Icons';
 
 interface CytoscapeRendererProps {
   elements: ElementDefinition[];
@@ -57,9 +58,10 @@ export default function CytoscapeRenderer({
       <button
         onClick={handleFit}
         title="Fit to screen"
-        className="absolute bottom-3 right-3 text-xs px-2 py-1 rounded bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] hover:text-[var(--text)] hover:border-[#58A6FF] transition-colors"
+        className="ui-btn absolute bottom-3 right-3 h-8 rounded-lg px-2.5 text-xs"
       >
-        ⊡ Fit
+        <LayoutGrid size={12} />
+        Fit
       </button>
     </div>
   );

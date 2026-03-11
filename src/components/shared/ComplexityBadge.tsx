@@ -1,5 +1,6 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { cn } from '@/lib/cn';
+import StatusBadge from '@/components/shared/StatusBadge';
 
 interface ComplexityBadgeProps {
   label: string;
@@ -9,16 +10,13 @@ interface ComplexityBadgeProps {
 
 export default function ComplexityBadge({ label, value, tooltip }: ComplexityBadgeProps) {
   const badge = (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded border border-[var(--border)] bg-[var(--surface-2)]',
-        'text-xs px-2 py-0.5 font-mono',
-        tooltip && 'cursor-help'
-      )}
+    <StatusBadge
+      className={cn('font-mono text-xs', tooltip && 'cursor-help')}
+      size="md"
     >
       <span className="text-[var(--text-2)]">{label}:</span>
       <span className="text-[var(--accent)]">{value}</span>
-    </span>
+    </StatusBadge>
   );
 
   if (!tooltip) return badge;

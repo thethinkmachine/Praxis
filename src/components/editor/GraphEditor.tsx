@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { cn } from '@/lib/cn';
 import EditorToolbar, { type EditorMode } from './EditorToolbar';
+import { LayoutGrid } from '@/components/shared/Icons';
 import { useEditorStore } from '@/store/useEditorStore';
 import { useCytoscape } from '@/hooks/useCytoscape';
 import type { StylesheetStyle } from 'cytoscape';
@@ -256,9 +257,10 @@ export default function GraphEditor({
         {/* Fit button */}
         <button
           onClick={() => fit()}
-          className="absolute bottom-3 right-3 text-xs px-2 py-1 rounded bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] hover:text-[var(--text)] transition-colors"
+          className="ui-btn absolute bottom-3 right-3 h-8 rounded-lg px-2.5 text-xs"
         >
-          ⊡ Fit
+          <LayoutGrid size={12} />
+          Fit
         </button>
 
         {/* Mode hint */}
@@ -272,26 +274,26 @@ export default function GraphEditor({
         {/* Context menu */}
         {contextMenu && (
           <div
-            className={cn('absolute z-50 bg-[var(--surface-2)] border border-[var(--border)] rounded shadow-lg py-1 min-w-[140px]')}
+            className={cn('ui-menu absolute z-[110] rounded-lg py-1 min-w-[160px]')}
             style={{ left: contextMenu.x, top: contextMenu.y }}
           >
             {contextMenu.type === 'node' && (
               <>
                 <button
-                  className="w-full text-left text-xs px-3 py-1.5 text-[#D2A8FF] hover:bg-[#D2A8FF]/10"
+                  className="ui-menu-item ui-menu-item-purple"
                   onClick={() => { setStartNode(contextMenu.targetId); setContextMenu(null); }}
                 >
                   Set as Start
                 </button>
                 <button
-                  className="w-full text-left text-xs px-3 py-1.5 text-[#3FB950] hover:bg-[#3FB950]/10"
+                  className="ui-menu-item ui-menu-item-success"
                   onClick={() => { setGoalNode(contextMenu.targetId); setContextMenu(null); }}
                 >
                   Set as Goal
                 </button>
                 <div className="border-t border-[var(--border)] my-1" />
                 <button
-                  className="w-full text-left text-xs px-3 py-1.5 text-[#FF7B72] hover:bg-[#FF7B72]/10"
+                  className="ui-menu-item ui-menu-item-danger"
                   onClick={() => { removeNode(contextMenu.targetId); setContextMenu(null); }}
                 >
                   Delete Node
@@ -300,14 +302,14 @@ export default function GraphEditor({
             )}
             {contextMenu.type === 'edge' && (
               <button
-                className="w-full text-left text-xs px-3 py-1.5 text-[#FF7B72] hover:bg-[#FF7B72]/10"
+                className="ui-menu-item ui-menu-item-danger"
                 onClick={() => { removeEdge(contextMenu.targetId); setContextMenu(null); }}
               >
                 Delete Edge
               </button>
             )}
             <button
-              className="w-full text-left text-xs px-3 py-1.5 text-[var(--text-2)] hover:bg-[var(--surface-2)]"
+              className="ui-menu-item"
               onClick={() => setContextMenu(null)}
             >
               Cancel

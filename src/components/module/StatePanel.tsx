@@ -1,48 +1,13 @@
 import { useMemo, useState } from 'react';
 import { cn } from '@/lib/cn';
-import { ChevronDown, ChevronRight } from '@/components/shared/Icons';
+import EmptyState from '@/components/shared/EmptyState';
+import CollapsibleSection from '@/components/shared/CollapsibleSection';
 import { useEditorStore } from '@/store/useEditorStore';
 import type { AlgorithmStep, AlgorithmCategory } from '@/types';
 
 interface StatePanelProps {
   step: AlgorithmStep | null;
   algorithmCategory?: AlgorithmCategory;
-}
-
-function SectionHeader({ 
-  title, 
-  count, 
-  isCollapsed, 
-  onToggle 
-}: { 
-  title: string; 
-  count?: number; 
-  isCollapsed?: boolean; 
-  onToggle?: () => void;
-}) {
-  return (
-    <div 
-      className={cn(
-        "px-3 py-1 bg-[var(--surface-2)] border-b border-[var(--border)] flex items-center gap-2 select-none",
-        onToggle && "cursor-pointer hover:bg-[var(--surface-3)]"
-      )}
-      onClick={onToggle}
-    >
-      {onToggle && (
-        <span className="text-[var(--text-3)]">
-          {isCollapsed ? <ChevronRight size={10} /> : <ChevronDown size={10} />}
-        </span>
-      )}
-      <span className="text-[10px] font-semibold text-[var(--text-2)] uppercase tracking-wider">
-        {title}
-      </span>
-      {count !== undefined && (
-        <span className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded-full bg-[var(--border)]/50 text-[var(--text-3)] leading-none">
-          {count}
-        </span>
-      )}
-    </div>
-  );
 }
 
 function Section({ 
@@ -56,18 +21,7 @@ function Section({
   children: React.ReactNode; 
   defaultOpen?: boolean;
 }) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-  return (
-    <div>
-      <SectionHeader 
-        title={title} 
-        count={count} 
-        isCollapsed={!isOpen} 
-        onToggle={() => setIsOpen(!isOpen)} 
-      />
-      {isOpen && children}
-    </div>
-  );
+  return <CollapsibleSection title={title} count={count} defaultOpen={defaultOpen} bodyClassName="p-0">{children}</CollapsibleSection>;
 }
 
 type ChipVariant = 'frontier' | 'current' | 'explored' | 'path';
@@ -167,9 +121,7 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
 
   if (!step) {
     return (
-      <div className="h-full flex items-center justify-center bg-[var(--surface)]">
-        <span className="text-sm text-[var(--text-3)]">No step selected</span>
-      </div>
+      <EmptyState title="No step selected" description="Run or step through an algorithm to inspect its active state." className="bg-[var(--surface)]" />
     );
   }
 

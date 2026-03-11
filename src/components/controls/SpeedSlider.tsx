@@ -24,10 +24,10 @@ export default function SpeedSlider({ value, onChange }: SpeedSliderProps) {
             key={s}
             onClick={() => onChange(s)}
             className={cn(
-              'relative text-[10px] font-medium tabular-nums px-2 py-1 transition-all duration-100 outline-none focus-visible:ring-1 focus-visible:ring-[#58A6FF]',
+              'relative text-[10px] font-medium tabular-nums px-2 py-1 transition-all duration-100 outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]',
               i > 0 && 'border-l border-[var(--border)]',
               value === s
-                ? 'bg-[#58A6FF] text-[#0D1117] shadow-inner'
+                ? 'bg-[var(--accent)] text-[var(--bg)] shadow-inner'
                 : 'text-[var(--text-3)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]',
             )}
           >

@@ -1,6 +1,7 @@
 import type { TspProblem } from '@/types/problem';
 import type { LocalSearchStep } from '@/algorithms/local-search/types';
 import { CandidateList, SummaryCards, TraceNotes } from './LocalSearchShared';
+import SurfaceCard from '@/components/shared/SurfaceCard';
 
 interface TspLabProps {
   problem: TspProblem;
@@ -29,7 +30,7 @@ function RouteCanvas({
   const scaleY = (y: number) => 40 + ((y - minY) / Math.max(maxY - minY, 1)) * (height - 80);
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
+    <SurfaceCard tone="muted" className="rounded-2xl">
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="w-full rounded-xl border border-[var(--border)] bg-[#0d151f]"
@@ -77,7 +78,7 @@ function RouteCanvas({
           </g>
         ))}
       </svg>
-    </div>
+    </SurfaceCard>
   );
 }
 
@@ -91,21 +92,18 @@ export function TspBoardTab({ problem, step, onRegenerate, onUpdateCities }: Tsp
         <div className="grid gap-4 lg:grid-cols-[minmax(320px,1fr)_minmax(320px,0.95fr)]">
           <section className="space-y-4">
             <RouteCanvas problem={problem} route={route} />
-            <button
-              onClick={onRegenerate}
-              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)] transition-colors hover:border-[var(--accent)]/50 hover:bg-[var(--accent-soft)]/50"
-            >
+            <button onClick={onRegenerate} className="ui-btn w-full justify-center rounded-xl px-3 py-2 text-sm">
               Regenerate City Layout
             </button>
           </section>
           <section className="space-y-4">
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
+            <SurfaceCard tone="muted" className="rounded-2xl">
               <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">Tour Summary</p>
               <h2 className="mt-1 text-lg font-semibold text-[var(--text)]">Current Route</h2>
               <p className="mt-3 text-sm leading-relaxed text-[var(--text-2)]">
                 {step?.state.currentSummary ?? 'Run the algorithm to inspect the active tour.'}
               </p>
-            </div>
+            </SurfaceCard>
             <TraceNotes step={step} fallback="TSP local search improves a tour by editing the visiting order rather than growing a path from a start node." />
           </section>
         </div>
@@ -123,21 +121,18 @@ export function TspNeighborhoodTab({ problem, step, onRegenerate, onUpdateCities
         <div className="grid gap-4 lg:grid-cols-[minmax(320px,0.75fr)_minmax(320px,1.25fr)]">
           <section className="space-y-4">
             <RouteCanvas problem={problem} route={route} />
-            <button
-              onClick={onRegenerate}
-              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)] transition-colors hover:border-[var(--accent)]/50 hover:bg-[var(--accent-soft)]/50"
-            >
+            <button onClick={onRegenerate} className="ui-btn w-full justify-center rounded-xl px-3 py-2 text-sm">
               Regenerate City Layout
             </button>
           </section>
           <section className="space-y-4">
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
+            <SurfaceCard tone="muted" className="rounded-2xl">
               <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">Neighborhood</p>
               <h2 className="mt-1 text-lg font-semibold text-[var(--text)]">Route Edits</h2>
               <p className="mt-2 text-sm text-[var(--text-2)]">
                 The neighborhood operator controls whether the route is modified by swapping cities, reversing a segment, or inserting one city elsewhere.
               </p>
-            </div>
+            </SurfaceCard>
             <CandidateList
               candidates={step?.state.candidateMoves ?? []}
               acceptedMove={step?.state.acceptedMove ?? null}

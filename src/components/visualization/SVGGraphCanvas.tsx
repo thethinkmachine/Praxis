@@ -891,10 +891,7 @@ export default function SVGGraphCanvas({
         {/* ── HTML Overlays ──────────────────────────────────────────── */}
 
         {/* Mode badge (top-left) */}
-        <div
-          className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium pointer-events-none select-none border border-[var(--border)]"
-          style={{ background: 'var(--surface)', backdropFilter: 'blur(8px)' }}
-        >
+        <div className="ui-panel absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium pointer-events-none select-none">
           <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: modeColors[mode] }} />
           <span className="text-[var(--text-2)]">{modeLabels[mode]}</span>
         </div>
@@ -910,30 +907,30 @@ export default function SVGGraphCanvas({
         {/* Context menu */}
         {contextMenu && (
           <div
-            className="fixed z-50 bg-[var(--surface-2)] border border-[var(--border)] rounded shadow-lg py-1 min-w-[140px]"
+            className="ui-menu fixed z-[110] rounded-lg py-1 min-w-[160px]"
             style={{ left: contextMenu.x, top: contextMenu.y }}
           >
             {contextMenu.type === 'node' && (
               <>
-                <button className="w-full text-left text-xs px-3 py-1.5 text-[var(--text)] hover:bg-[var(--surface)]"
+                <button className="ui-menu-item text-[var(--text)]"
                   onClick={() => openRename(contextMenu.targetId, contextMenu.x, contextMenu.y)}>
                   Rename Node
                 </button>
-                <button className="w-full text-left text-xs px-3 py-1.5 text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+                <button className="ui-menu-item ui-menu-item-accent"
                   onClick={() => openHeuristicEdit(contextMenu.targetId, contextMenu.x, contextMenu.y)}>
                   Edit h(n)
                 </button>
                 <div className="border-t border-[var(--border)] my-1" />
-                <button className="w-full text-left text-xs px-3 py-1.5 text-[#D2A8FF] hover:bg-[#D2A8FF]/10"
+                <button className="ui-menu-item ui-menu-item-purple"
                   onClick={() => { setStartNode(contextMenu.targetId); setContextMenu(null); }}>
                   Set as Start
                 </button>
-                <button className="w-full text-left text-xs px-3 py-1.5 text-[#3FB950] hover:bg-[#3FB950]/10"
+                <button className="ui-menu-item ui-menu-item-success"
                   onClick={() => { setGoalNode(contextMenu.targetId); setContextMenu(null); }}>
                   Set as Goal
                 </button>
                 <div className="border-t border-[var(--border)] my-1" />
-                <button className="w-full text-left text-xs px-3 py-1.5 text-[#FF7B72] hover:bg-[#FF7B72]/10"
+                <button className="ui-menu-item ui-menu-item-danger"
                   onClick={() => { removeNode(contextMenu.targetId); setContextMenu(null); }}>
                   Delete Node
                 </button>
@@ -941,18 +938,18 @@ export default function SVGGraphCanvas({
             )}
             {contextMenu.type === 'edge' && (
               <>
-                <button className="w-full text-left text-xs px-3 py-1.5 text-[var(--text)] hover:bg-[var(--surface)]"
+                <button className="ui-menu-item text-[var(--text)]"
                   onClick={() => openWeightEdit(contextMenu.targetId, contextMenu.x, contextMenu.y)}>
                   Edit Weight
                 </button>
                 <div className="border-t border-[var(--border)] my-1" />
-                <button className="w-full text-left text-xs px-3 py-1.5 text-[#FF7B72] hover:bg-[#FF7B72]/10"
+                <button className="ui-menu-item ui-menu-item-danger"
                   onClick={() => { removeEdge(contextMenu.targetId); setContextMenu(null); }}>
                   Delete Edge
                 </button>
               </>
             )}
-            <button className="w-full text-left text-xs px-3 py-1.5 text-[var(--text-2)] hover:bg-[var(--surface-2)]"
+            <button className="ui-menu-item"
               onClick={() => setContextMenu(null)}>
               Cancel
             </button>
@@ -967,7 +964,7 @@ export default function SVGGraphCanvas({
               type="text"
               value={renameValue}
               onChange={e => setRenameValue(e.target.value)}
-              className="bg-[var(--surface)] border border-[var(--border)] text-[var(--text)] rounded px-2 py-1 text-sm w-32 outline-none focus:border-[#58A6FF]/60 shadow-lg"
+              className="ui-input px-2 py-1 text-sm w-32 shadow-lg"
               placeholder="Node label"
               onKeyDown={e => { if (e.key === 'Enter') commitRename(); else if (e.key === 'Escape') cancelRename(); }}
               onBlur={commitRename}
@@ -985,7 +982,7 @@ export default function SVGGraphCanvas({
               min="0.01"
               step="1"
               onChange={e => setWeightValue(e.target.value)}
-              className="bg-[var(--surface)] border border-[var(--border)] text-[var(--text)] rounded px-2 py-1 text-sm w-32 outline-none focus:border-[#58A6FF]/60 shadow-lg"
+              className="ui-input px-2 py-1 text-sm w-32 shadow-lg"
               placeholder="Weight"
               onKeyDown={e => { if (e.key === 'Enter') commitWeight(); else if (e.key === 'Escape') cancelWeight(); }}
               onBlur={commitWeight}
@@ -1001,7 +998,7 @@ export default function SVGGraphCanvas({
               type="number"
               value={heuristicValue}
               step="0.1"
-              className="bg-[var(--surface)] border border-[var(--border)] text-[var(--text)] rounded px-2 py-1 text-sm w-32 outline-none focus:border-[#58A6FF]/60 shadow-lg"
+              className="ui-input px-2 py-1 text-sm w-32 shadow-lg"
               placeholder="h(n)"
               onChange={e => setHeuristicValue(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') commitHeuristic(); else if (e.key === 'Escape') cancelHeuristic(); }}

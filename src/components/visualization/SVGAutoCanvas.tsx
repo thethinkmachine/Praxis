@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import * as d3 from 'd3';
 import { cn } from '@/lib/cn';
 import GraphMinimap from '@/components/visualization/GraphMinimap';
+import { LayoutGrid } from '@/components/shared/Icons';
 import { usePreferencesStore } from '@/store/preferences.store';
 import type { ElementDefinition } from 'cytoscape';
 import {
@@ -485,7 +486,10 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
         </g>
       </svg>
       <div className="absolute bottom-3 right-3">
-        <button onClick={() => fit()} className="text-xs px-2 py-1 rounded bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] hover:text-[var(--text)] transition-colors">⊡ Fit</button>
+        <button onClick={() => fit()} className="ui-btn h-8 rounded-lg px-2.5 text-xs">
+          <LayoutGrid size={12} />
+          Fit
+        </button>
       </div>
       <GraphMinimap nodes={nodeVMs} transform={transform} canvasWidth={canvasDims.w} canvasHeight={canvasDims.h} />
     </div>

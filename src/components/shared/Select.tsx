@@ -14,6 +14,7 @@ interface SelectProps {
   placeholder?: string;
   className?: string;
   triggerClassName?: string;
+  variant?: 'default' | 'toolbar';
 }
 
 export default function Select({
@@ -23,12 +24,14 @@ export default function Select({
   placeholder = 'Select...',
   className,
   triggerClassName,
+  variant = 'default',
 }: SelectProps) {
   return (
     <SelectPrimitive.Root value={value} onValueChange={onValueChange}>
       <SelectPrimitive.Trigger
         className={cn(
-          'flex h-9 w-full items-center justify-between rounded border border-[var(--border)] bg-[var(--surface-2)] px-3 py-2 text-xs text-[var(--text)] outline-none focus:border-[var(--accent)]/50 focus:ring-1 focus:ring-[var(--accent)]/50 disabled:cursor-not-allowed disabled:opacity-50 font-mono transition-colors group',
+          'ui-input flex items-center justify-between text-xs disabled:cursor-not-allowed disabled:opacity-50 font-mono group',
+          variant === 'toolbar' ? 'h-9 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[11px] text-[var(--text)]' : 'h-9 w-full px-3 py-2',
           triggerClassName
         )}
       >
@@ -41,7 +44,7 @@ export default function Select({
       <SelectPrimitive.Portal>
         <SelectPrimitive.Content
           className={cn(
-            'relative z-[100] min-w-[var(--radix-select-trigger-width)] max-h-[300px] overflow-hidden rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] shadow-xl animate-in fade-in-0 slide-in-from-top-1',
+            'ui-panel relative z-[100] min-w-[var(--radix-select-trigger-width)] max-h-[300px] overflow-hidden rounded-xl text-[var(--text)] animate-in fade-in-0 slide-in-from-top-1',
             className
           )}
           position="popper"

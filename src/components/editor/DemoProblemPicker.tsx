@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/cn';
+import { Database, X } from '@/components/shared/Icons';
 import type { AlgorithmCategory } from '@/types';
 
 interface DemoProblem {
@@ -266,10 +267,7 @@ export default function DemoProblemPicker({
           {trigger ?? (
             <button
               className={cn(
-                'flex h-7 items-center gap-1.5 rounded px-2.5 text-[11px]',
-                'bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)]',
-                'hover:text-[var(--text)] hover:border-[#58A6FF] hover:bg-[#58A6FF]/5',
-                'transition-colors font-medium',
+                'ui-btn h-7 rounded-lg px-2.5 text-[11px] font-medium',
               )}
             >
               <DatabaseIcon />
@@ -280,11 +278,11 @@ export default function DemoProblemPicker({
       )}
 
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/60 z-40 backdrop-blur-[2px]" />
+        <Dialog.Overlay className="ui-overlay fixed inset-0 z-40" />
         <Dialog.Content
           className={cn(
             'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
-            'w-full max-w-lg bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl',
+            'ui-panel-elevated w-full max-w-lg rounded-xl',
             'focus:outline-none overflow-hidden',
           )}
         >
@@ -300,12 +298,10 @@ export default function DemoProblemPicker({
             </div>
             <Dialog.Close
               className={cn(
-                'flex items-center justify-center w-6 h-6 rounded',
-                'text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]',
-                'transition-colors text-base leading-none',
+                'ui-btn ui-btn-ghost ui-btn-icon h-6 w-6 rounded',
               )}
             >
-              ×
+              <X size={14} />
             </Dialog.Close>
           </div>
 
@@ -326,11 +322,11 @@ export default function DemoProblemPicker({
                     onClick={() => setFilter(value)}
                     disabled={count === 0}
                     className={cn(
-                      'text-[11px] px-2.5 py-1 rounded-full font-medium border transition-colors',
+                      'ui-pill text-[11px] px-2.5 py-1 font-medium border transition-colors',
                       'disabled:opacity-30 disabled:cursor-not-allowed',
                       isActive
                         ? value === 'all'
-                          ? 'bg-[#58A6FF]/15 text-[#58A6FF] border-[#58A6FF]/40'
+                          ? 'ui-pill-accent'
                           : DIFFICULTY_COLORS[value as 'easy' | 'medium' | 'hard']
                         : 'bg-transparent text-[var(--text-2)] border-[var(--border)] hover:text-[var(--text)] hover:border-[var(--text-3)]',
                     )}
@@ -353,9 +349,8 @@ export default function DemoProblemPicker({
                   <button
                     onClick={() => handleSelect(p.id)}
                     className={cn(
-                      'w-full text-left rounded-lg p-3.5 border border-[var(--border)]',
-                      'bg-[var(--surface-2)]/60',
-                      'hover:border-[#58A6FF] hover:bg-[#58A6FF]/5',
+                      'ui-panel-muted w-full text-left rounded-lg p-3.5',
+                      'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]/30',
                       'active:scale-[0.995]',
                       'transition-all duration-150 group cursor-pointer',
                     )}
@@ -400,7 +395,7 @@ export default function DemoProblemPicker({
                             className={cn(
                               'text-[10px] px-1.5 py-0.5 rounded font-medium',
                               'bg-[var(--surface-2)] text-[var(--text-3)] border border-[var(--border)]',
-                              'group-hover:border-[#58A6FF]/30 transition-colors',
+                              'group-hover:border-[var(--accent)]/30 transition-colors',
                             )}
                           >
                             {tag}

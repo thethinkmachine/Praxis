@@ -94,6 +94,7 @@ export default function AppShell() {
   const toggle = usePreferencesStore(s => s.toggle);
   const { pathname } = useLocation();
   const isAlgoPage = /^\/(?:search|play|local|maze)\//.test(pathname);
+  const showStandaloneTopBar = pathname !== '/' && !isAlgoPage;
 
   // Apply/remove data-theme on the <html> element so that the CSS rule
   //   :root[data-theme="light"] { ... }
@@ -122,7 +123,7 @@ export default function AppShell() {
       <div className="ide-surface-elevated h-full rounded-xl overflow-hidden flex">
         <Sidebar />
         <div className="flex flex-col flex-1 min-w-0">
-          {!isAlgoPage && <TopBar />}
+          {showStandaloneTopBar && <TopBar />}
           <main className="relative flex-1 overflow-hidden">
             <div className="absolute inset-0 ide-grid-bg opacity-[0.18] pointer-events-none" />
             <div className="relative z-10 h-full">

@@ -5,6 +5,7 @@ import type { MazeOverlay } from '@/visualizations/adapters/maze.adapter';
 import { MAZE_STRATEGY_LABELS } from '@/problems/maze/strategies';
 import { usePreferencesStore } from '@/store/preferences.store';
 import Select from '@/components/shared/Select';
+import { Dice5, Eraser, Mountain, MoveRight, Flag } from '@/components/shared/Icons';
 
 interface MazeEditorProps {
   overlay?: MazeOverlay | null;
@@ -17,6 +18,14 @@ const TOOL_LABELS = {
   terrain: 'Terrain',
   start: 'Start',
   goal: 'Goal',
+} as const;
+
+const TOOL_ICONS = {
+  wall: Mountain,
+  erase: Eraser,
+  terrain: MoveRight,
+  start: Dice5,
+  goal: Flag,
 } as const;
 
 const CELL_SIZE = 24;
@@ -199,12 +208,16 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
                   key={key}
                   onClick={() => setTool(key)}
                   className={cn(
-                    'px-3 py-2 rounded-xl text-[11px] font-mono border transition-colors whitespace-nowrap',
+                    'ui-btn px-3 py-2 rounded-xl text-[11px] font-mono whitespace-nowrap',
                     tool === key
-                      ? 'text-[var(--text)] border-[var(--accent)]/45 bg-[var(--accent-soft)]'
-                      : 'text-[var(--text-2)] border-transparent hover:text-[var(--text)] hover:bg-[var(--surface)]',
+                      ? 'ui-btn-active text-[var(--text)]'
+                      : '',
                   )}
                 >
+                  {(() => {
+                    const Icon = TOOL_ICONS[key];
+                    return <Icon size={12} />;
+                  })()}
                   {TOOL_LABELS[key]}
                 </button>
               ))}
@@ -237,25 +250,29 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
                   value: id,
                   label,
                 }))}
-                triggerClassName="min-w-[180px] h-9 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[11px] font-mono text-[var(--text)]"
+                variant="toolbar"
+                triggerClassName="min-w-[180px]"
               />
 
               <button
                 onClick={generateMaze}
-                className="shrink-0 rounded-xl border border-[var(--accent)]/40 bg-[var(--accent-soft)] px-3 py-2 text-[11px] font-mono text-[var(--accent)] transition-colors hover:border-[var(--accent)]/70"
+                className="ui-btn ui-btn-active shrink-0 rounded-xl px-3 py-2 text-[11px] font-mono"
               >
+                <Dice5 size={12} />
                 Generate Maze
               </button>
               <button
                 onClick={clearWalls}
-                className="shrink-0 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[11px] font-mono text-[var(--text-2)] transition-colors hover:text-[var(--text)]"
+                className="ui-btn shrink-0 rounded-xl px-3 py-2 text-[11px] font-mono"
               >
+                <Eraser size={12} />
                 Clear Walls
               </button>
               <button
                 onClick={clearTerrain}
-                className="shrink-0 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[11px] font-mono text-[var(--text-2)] transition-colors hover:text-[var(--text)]"
+                className="ui-btn shrink-0 rounded-xl px-3 py-2 text-[11px] font-mono"
               >
+                <Mountain size={12} />
                 Reset Terrain
               </button>
             </div>
