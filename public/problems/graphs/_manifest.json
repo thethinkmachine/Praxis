@@ -181,6 +181,15 @@
         "detailed",
         "uninformed"
       ]
+    },
+    {
+      "id": "eight-puzzle.json",
+      "name": "8-Puzzle Search Space",
+      "description": "A sliding tile puzzle search trace. Demonstrates beautiful grid rendering and move actions.",
+      "difficulty": "easy",
+      "estimatedSteps": 10,
+      "hint": "Watch the grid update at each step!",
+      "tags": ["grid", "puzzle", "action-labels"]
     }
   ],
   "informed-search": [
@@ -364,6 +373,15 @@
         "detailed",
         "heuristic"
       ]
+    },
+    {
+      "id": "eight-puzzle.json",
+      "name": "8-Puzzle (Heuristic)",
+      "description": "8-Puzzle search with h-costs and action labels. Perfect for A* visualization.",
+      "difficulty": "easy",
+      "estimatedSteps": 8,
+      "hint": "Heuristics guide the tile moves toward the goal.",
+      "tags": ["grid", "puzzle", "A*", "heuristic"]
     }
   ],
   "game-playing": []

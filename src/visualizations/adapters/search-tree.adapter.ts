@@ -1,4 +1,5 @@
 import type { ElementDefinition } from 'cytoscape';
+import { Graph } from '@/types/problem';
 
 // ---------------------------------------------------------------------------
 // Search Tree Adapter
@@ -17,6 +18,8 @@ interface SearchTreeOptions {
   gCosts?: Map<string, number>;
   hCosts?: Map<string, number>;
   fCosts?: Map<string, number>;
+  /** The problem graph (to look up edge labels/actions) */
+  graph?: Graph;
 }
 
 interface SearchHighlight {
@@ -100,7 +103,8 @@ export function buildSearchTreeElements(
 ): ElementDefinition[] {
   if (pathMap.size === 0) return [];
 
-  const { startNode, goalNode, labelMap, gCosts, hCosts, fCosts } = options;
+  const { startNode, goalNode, labelMap, gCosts, hCosts, fCosts, graph } = options;
+  const adj = graph?.toAdjList();
 
   // -- Invert pathMap to children-map ----------------------------------------
   const childrenMap = new Map<string, string[]>();
@@ -184,11 +188,23 @@ export function buildSearchTreeElements(
 
         const inPath = pathSet.has(nodeId) && pathSet.has(childId);
         const edgeClasses = inPath ? 'directed path-edge' : 'directed';
+
+        // Try to find the action/label for this edge
+        let edgeLabel: string | undefined;
+        if (adj) {
+          const edge = adj.get(nodeId)?.find((e: { neighbor: string; edgeId: string }) => e.neighbor === childId);
+          if (edge && edge.edgeId && !edge.edgeId.startsWith('e-')) {
+            // If edgeId is not generic (like e-0, e-1), use it as a label/action
+            edgeLabel = edge.edgeId;
+          }
+        }
+
         edgeElements.push({
           data: {
             id: `t-e-${nodeId}-${childId}`,
             source: `t-${nodeId}`,
             target: `t-${childId}`,
+            label: edgeLabel,
           },
           classes: edgeClasses,
         });

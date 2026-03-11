@@ -10,6 +10,8 @@ interface ProblemImportExportButtonProps {
     algorithmId: string;
     onImport: (problem: unknown) => void;
     problemCategory: ProblemCategory;
+    /** When provided, renders a "Load Demo..." item at the top of the dropdown. */
+    onDemoRequest?: () => void;
 }
 
 export default function ProblemImportExportButton({
@@ -17,6 +19,7 @@ export default function ProblemImportExportButton({
     algorithmId,
     onImport,
     problemCategory,
+    onDemoRequest,
 }: ProblemImportExportButtonProps) {
     const [open, setOpen] = useState(false);
 
@@ -100,7 +103,7 @@ export default function ProblemImportExportButton({
                 <DropdownMenu.Trigger asChild>
                     <button
                         className={cn(
-                            'flex items-center gap-1.5 text-xs px-3 py-1.5 rounded',
+                            'flex h-7 items-center gap-1.5 rounded px-2.5 text-[11px]',
                             'bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)]',
                             'hover:text-[var(--text)] hover:border-[var(--accent)] transition-colors',
                         )}
@@ -118,6 +121,24 @@ export default function ProblemImportExportButton({
                         sideOffset={4}
                         align="end"
                     >
+                        {/* Load Demo — only shown when consumer provides the callback */}
+                        {onDemoRequest && (
+                            <>
+                                <DropdownMenu.Item
+                                    onSelect={() => { setOpen(false); onDemoRequest(); }}
+                                    className={itemClass}
+                                >
+                                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+                                        <ellipse cx="8" cy="3.5" rx="6" ry="2" stroke="currentColor" strokeWidth="1.4" />
+                                        <path d="M2 3.5v4c0 1.105 2.686 2 6 2s6-.895 6-2v-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                                        <path d="M2 7.5v4c0 1.105 2.686 2 6 2s6-.895 6-2v-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                                    </svg>
+                                    Browse Demo Problems
+                                </DropdownMenu.Item>
+                                <DropdownMenu.Separator className="my-1 h-px bg-[var(--border)]" />
+                            </>
+                        )}
+
                         {/* Save — inline input or trigger */}
                         {naming ? (
                             <div

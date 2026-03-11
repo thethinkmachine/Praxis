@@ -40,6 +40,7 @@ export default function SearchPage() {
   const { algo = 'bfs' } = useParams<{ category: string; algo: string }>();
   const [heuristicId, setHeuristicId] = useState<HeuristicId>('manual-node');
   const [heuristicScale, setHeuristicScale] = useState(1);
+  const [demoDialogOpen, setDemoDialogOpen] = useState(false);
 
   // ── Runner (for meta.category in SVGGraphCanvas) ─────────────────────
   const runner = useMemo(() => registry.get(algo)?.runner ?? null, [algo]);
@@ -189,6 +190,7 @@ export default function SearchPage() {
         gCosts,
         hCosts,
         fCosts,
+        graph: displayProblem.graph,
       });
     } catch {
       return [];
@@ -232,26 +234,19 @@ export default function SearchPage() {
 
   // ── Title actions ────────────────────────────────────────────────────
   const titleActions = useMemo(() => (
-    <div className="flex items-center gap-2">
-      <button
-        onClick={() => {
-          const weighted = isWeightedAlgorithm;
-          const { nodes, edges } = generateRandomGraph(6 + Math.floor(Math.random() * 5), 0.25, weighted);
-          const ids = nodes.map(n => n.id);
-          useEditorStore.getState().loadGraph(nodes, edges, ids[0], ids[ids.length - 1], false);
-        }}
-        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors"
-        title="Generate random graph"
-      >
-        <Dice5 size={12} />
-        Random
-      </button>
-      <DemoProblemPicker
-        algorithmCategory={runner?.meta.category ?? 'uninformed-search'}
-        onSelect={handleDemoSelect}
-      />
-    </div>
-  ), [algo, runner, handleDemoSelect]);
+    <button
+      onClick={() => {
+        const weighted = isWeightedAlgorithm;
+        const { nodes, edges } = generateRandomGraph(6 + Math.floor(Math.random() * 5), 0.25, weighted);
+        const ids = nodes.map(n => n.id);
+        useEditorStore.getState().loadGraph(nodes, edges, ids[0], ids[ids.length - 1], false);
+      }}
+      className="flex h-7 w-7 items-center justify-center rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors"
+      title="Generate random graph"
+    >
+      <Dice5 size={12} />
+    </button>
+  ), [algo, isWeightedAlgorithm]);
 
   // ── Problem import handler ───────────────────────────────────────────
   const handleImport = useCallback((imported: unknown) => {
@@ -449,16 +444,25 @@ export default function SearchPage() {
   }, [algo, isInformedAlgorithm, heuristicId, heuristicDefinition.description, heuristicScale, editorNodes, editorStartId, editorGoalId, editorEdges, selectedIds, updateNode, updateNodeHeuristic, setSelected]);
 
   return (
-    <AlgorithmPage
-      algorithmId={algo}
-      problem={algoProblem}
-      category={runner?.meta.category ?? 'uninformed-search'}
-      problemCategory="graph"
-      onProblemImport={handleImport}
-      tabs={tabs}
-      titleActions={titleActions}
-      configPanel={configPanel}
-      defaultConfigOpen={isInformedAlgorithm}
-    />
+    <>
+      <AlgorithmPage
+        algorithmId={algo}
+        problem={algoProblem}
+        category={runner?.meta.category ?? 'uninformed-search'}
+        problemCategory="graph"
+        onProblemImport={handleImport}
+        tabs={tabs}
+        titleActions={titleActions}
+        configPanel={configPanel}
+        defaultConfigOpen={isInformedAlgorithm}
+        onDemoRequest={() => setDemoDialogOpen(true)}
+      />
+      <DemoProblemPicker
+        algorithmCategory={runner?.meta.category ?? 'uninformed-search'}
+        onSelect={handleDemoSelect}
+        open={demoDialogOpen}
+        onOpenChange={setDemoDialogOpen}
+      />
+    </>
   );
 }

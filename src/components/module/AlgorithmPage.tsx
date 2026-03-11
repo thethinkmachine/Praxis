@@ -48,6 +48,9 @@ export interface AlgorithmPageProps {
   tabs: TabDefinition[];
   /** Action buttons rendered in the title strip's right side (Random button, Demo picker, etc.) */
   titleActions?: React.ReactNode;
+  /** Callback fired when the user selects "Load Demo" from the Problem dropdown.
+   *  The page should respond by opening its DemoProblemPicker. */
+  onDemoRequest?: () => void;
   /** Configuration UI shown in collapsible left sidebar. If undefined, no sidebar is rendered. */
   configPanel?: React.ReactNode;
   /** Whether the configuration sidebar should be open by default. Defaults to true. */
@@ -65,6 +68,7 @@ export default function AlgorithmPage({
   titleActions,
   configPanel,
   defaultConfigOpen = true,
+  onDemoRequest,
 }: AlgorithmPageProps) {
   const { runner, step, loadError, loadWarning } = useAlgorithmPage(algorithmId, problem);
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? '');
@@ -117,8 +121,9 @@ export default function AlgorithmPage({
         showConfigButton={hasConfig}
         configOpen={hasConfig && configOpen}
         onToggleConfig={() => setConfigOpen(v => !v)}
+        unifiedMode
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {titleActions}
           </div>
         }
@@ -128,6 +133,7 @@ export default function AlgorithmPage({
             algorithmId={algorithmId}
             problemCategory={problemCategory}
             onImport={onProblemImport}
+            onDemoRequest={onDemoRequest}
           />
         }
       />

@@ -64,18 +64,20 @@ function borderIntersection(
 function getEdgeEndpoints(
   sx: number, sy: number,
   tx: number, ty: number,
-  srcHasCosts: boolean,
-  tgtHasCosts: boolean,
+  srcW: number,
+  srcH: number,
+  tgtW: number,
+  tgtH: number,
 ) {
   const dx = tx - sx;
   const dy = ty - sy;
   if (dx === 0 && dy === 0) return { x1: sx, y1: sy, x2: tx, y2: ty };
 
   const angle = Math.atan2(dy, dx);
-  const srcHW = (srcHasCosts ? NODE_W_WIDE : NODE_W) / 2;
-  const srcHH = (srcHasCosts ? NODE_H_TALL : NODE_H) / 2;
-  const tgtHW = (tgtHasCosts ? NODE_W_WIDE : NODE_W) / 2;
-  const tgtHH = (tgtHasCosts ? NODE_H_TALL : NODE_H) / 2;
+  const srcHW = srcW / 2;
+  const srcHH = srcH / 2;
+  const tgtHW = tgtW / 2;
+  const tgtHH = tgtH / 2;
 
   const src = borderIntersection(sx, sy, angle, srcHW, srcHH);
   const tgt = borderIntersection(tx, ty, angle + Math.PI, tgtHW, tgtHH);
@@ -85,6 +87,73 @@ function getEdgeEndpoints(
 
 function formatCost(v: number): string {
   return Number.isInteger(v) ? String(v) : v.toFixed(1);
+}
+
+function isGridState(label: string): number[] | null {
+  // Matches labels like "1 2 3 | 4 0 5 | 6 7 8" or IDs like "1,2,3,4,0,5,6,7,8"
+  const clean = label.replace(/[|\n]/g, ' ');
+  const parts = clean.trim().split(/\s+/);
+  if (parts.length === 9 || parts.length === 16) {
+    const numbers = parts.map(p => {
+      const n = parseInt(p, 10);
+      return isNaN(n) ? -1 : n;
+    });
+    if (numbers.every(n => n >= 0 && n < 16)) return numbers;
+  }
+  return null;
+}
+
+function renderGrid(tiles: number[], size: number, totalW: number, darkMode: boolean) {
+  const cellSize = totalW / size;
+  const padding = 1.5;
+  const innerSize = cellSize - padding * 2;
+
+  return (
+    <g transform={`translate(${-totalW / 2}, ${-totalW / 2})`}>
+      {tiles.map((tile, i) => {
+        const r = Math.floor(i / size);
+        const c = i % size;
+        if (tile === 0) return (
+             <rect
+              key={i}
+              x={c * cellSize + padding}
+              y={r * cellSize + padding}
+              width={innerSize}
+              height={innerSize}
+              rx={3}
+              fill={darkMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(0,0,0,0.05)'}
+              stroke="none"
+            />
+        );
+
+        return (
+          <g key={i} transform={`translate(${c * cellSize + padding}, ${r * cellSize + padding})`}>
+            <rect
+              width={innerSize}
+              height={innerSize}
+              rx={3}
+              fill={darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0,0,0,0.03)'}
+              stroke={darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0,0,0,0.1)'}
+              strokeWidth={0.5}
+            />
+            <text
+              x={innerSize / 2}
+              y={innerSize / 2}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={size === 4 ? 8 : 10}
+              fontWeight="bold"
+              fill={darkMode ? '#8b949e' : '#24292f'}
+              fontFamily="Outfit, sans-serif"
+              style={{ pointerEvents: 'none' }}
+            >
+              {tile}
+            </text>
+          </g>
+        );
+      })}
+    </g>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -148,6 +217,7 @@ interface ParsedEdge {
   isDirected: boolean;
   isPath: boolean;
   isPruned: boolean;
+  label?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -164,7 +234,6 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
 
   const [transform, setTransform] = useState<d3.ZoomTransform>(d3.zoomIdentity);
   const [canvasDims, setCanvasDims] = useState({ w: 800, h: 600 });
-  // Bump to trigger re-render after layout positions are computed
   const [layoutVersion, setLayoutVersion] = useState(0);
 
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -172,7 +241,7 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
   const prevNodeKeyRef = useRef<string>('');
   const fitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── Parse elements (structure + visual state, no positions) ───────────────
+  // ── Parse elements ───────────────────────────────────────────────────────
 
   const { parsedNodes, parsedEdges } = useMemo(() => {
     const parsedNodes: ParsedNode[] = [];
@@ -180,7 +249,6 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
 
     for (const el of elements) {
       if (el.data?.source != null) {
-        // Edge
         const classes = parseClasses(el.classes);
         parsedEdges.push({
           id: el.data.id as string,
@@ -190,9 +258,9 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
           isDirected: classes.includes('directed') || Boolean(el.data?.directed),
           isPath: classes.includes('path-edge'),
           isPruned: classes.includes('pruned-edge'),
+          label: el.data?.label as string,
         });
       } else {
-        // Node
         const id = el.data?.id as string;
         const classes = parseClasses(el.classes);
         const rawLabel = (el.data?.label as string) ?? id ?? '';
@@ -217,19 +285,14 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
         });
       }
     }
-
     return { parsedNodes, parsedEdges };
   }, [elements]);
-
-  // ── Topology change → D3 force layout ────────────────────────────────────
 
   useEffect(() => {
     if (parsedNodes.length === 0) return;
 
-    // Check if ALL nodes have pre-supplied positions from el.position
     const allHaveElPos = parsedNodes.every(n => n.elX != null && n.elY != null);
     if (allHaveElPos) {
-      // Use element positions directly — no force layout needed
       for (const n of parsedNodes) {
         positionsRef.current.set(n.id, { x: n.elX!, y: n.elY! });
       }
@@ -239,27 +302,20 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
       return;
     }
 
-    // Check topology change (by sorted node ID key)
     const nodeKey = parsedNodes.map(n => n.id).sort().join('\0');
-    if (nodeKey === prevNodeKeyRef.current) return; // visual-only update
+    if (nodeKey === prevNodeKeyRef.current) return;
     prevNodeKeyRef.current = nodeKey;
 
-    // D3 force simulation — identical to runAutoLayout in useGraphInteractions
     type SimNode = { id: string; x: number; y: number } & d3.SimulationNodeDatum;
     const simNodes: SimNode[] = parsedNodes.map(n => ({
       id: n.id,
       x: positionsRef.current.get(n.id)?.x ?? (Math.random() - 0.5) * 600,
       y: positionsRef.current.get(n.id)?.y ?? (Math.random() - 0.5) * 400,
     }));
-
     const simEdges = parsedEdges.map(e => ({ source: e.sourceId, target: e.targetId }));
 
     const simulation = d3.forceSimulation<SimNode>(simNodes)
-      .force('link',
-        d3.forceLink(simEdges.map(e => ({ ...e })))
-          .id(d => (d as SimNode).id)
-          .distance(130),
-      )
+      .force('link', d3.forceLink(simEdges.map(e => ({ ...e }))).id(d => (d as SimNode).id).distance(130))
       .force('charge', d3.forceManyBody().strength(-400))
       .force('center', d3.forceCenter(0, 0))
       .force('collision', d3.forceCollide(65))
@@ -273,17 +329,11 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
         y: Math.round((n.y ?? 0) / GRID_SNAP) * GRID_SNAP,
       });
     }
-
     setLayoutVersion(v => v + 1);
-
     if (fitTimerRef.current) clearTimeout(fitTimerRef.current);
     fitTimerRef.current = setTimeout(() => fit(), 50);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parsedNodes, parsedEdges]);
 
-  // ── Build final view models (uses layoutVersion to re-read positionsRef) ──
-
-  // (layoutVersion in deps ensures this re-runs after positions are stored)
   const nodeVMs: SVGNodeVM[] = useMemo(() => parsedNodes.map(n => ({
     id: n.id,
     label: n.label,
@@ -295,12 +345,9 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
     gCost: n.gCost,
     hCost: n.hCost,
     fCost: n.fCost,
-  })),
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  [parsedNodes, layoutVersion]);
+  })), [parsedNodes, layoutVersion]);
 
-  const edgeVMs: SVGEdgeVM[] = useMemo(() => parsedEdges.map(e => ({ ...e })),
-    [parsedEdges]);
+  const edgeVMs: SVGEdgeVM[] = useMemo(() => parsedEdges.map(e => ({ ...e })), [parsedEdges]);
 
   const nodeVMMap = useMemo(() => {
     const m = new Map<string, SVGNodeVM>();
@@ -308,47 +355,29 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
     return m;
   }, [nodeVMs]);
 
-  // ── D3 zoom/pan (once) ────────────────────────────────────────────────────
-
   useEffect(() => {
     const svg = svgRef.current;
-    const mainGroup = mainGroupRef.current;
-    if (!svg || !mainGroup) return;
-
+    if (!svg || !mainGroupRef.current) return;
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.1, 4])
-      .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
-        d3.select(mainGroup).attr('transform', event.transform.toString());
+      .on('zoom', (event) => {
+        d3.select(mainGroupRef.current).attr('transform', event.transform.toString());
         setTransform(event.transform);
       });
-
     zoomBehaviorRef.current = zoom;
     d3.select(svg).call(zoom);
-
-    const preventCtxMenu = (e: Event) => e.preventDefault();
-    svg.addEventListener('contextmenu', preventCtxMenu);
-
-    return () => {
-      d3.select(svg).on('.zoom', null);
-      svg.removeEventListener('contextmenu', preventCtxMenu);
-    };
+    return () => { d3.select(svg).on('.zoom', null); };
   }, []);
-
-  // ── Container resize ─────────────────────────────────────────────────────
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const observer = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        setCanvasDims({ w: entry.contentRect.width, h: entry.contentRect.height });
-      }
+      for (const entry of entries) setCanvasDims({ w: entry.contentRect.width, h: entry.contentRect.height });
     });
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-
-  // ── Fit ──────────────────────────────────────────────────────────────────
 
   const fit = useCallback((padding = 50) => {
     const svg = svgRef.current;
@@ -357,196 +386,97 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     for (const n of nodeVMs) {
-      if (n.x < minX) minX = n.x;
-      if (n.y < minY) minY = n.y;
-      if (n.x > maxX) maxX = n.x;
-      if (n.y > maxY) maxY = n.y;
+      minX = Math.min(minX, n.x); minY = Math.min(minY, n.y);
+      maxX = Math.max(maxX, n.x); maxY = Math.max(maxY, n.y);
     }
 
-    minX -= 40; minY -= 25; maxX += 40; maxY += 25;
-    const bw = (maxX - minX) + padding * 2;
-    const bh = (maxY - minY) + padding * 2;
-    const width = svg.clientWidth;
-    const height = svg.clientHeight;
+    minX -= 40; minY -= 40; maxX += 40; maxY += 40;
+    const bw = (maxX - minX) + padding * 2, bh = (maxY - minY) + padding * 2;
+    const width = svg.clientWidth, height = svg.clientHeight;
+    const scale = Math.min(width / bw, height / bh, 1.5);
+    const newTransform = d3.zoomIdentity.translate(width / 2, height / 2).scale(scale).translate(-(minX + maxX) / 2, -(minY + maxY) / 2);
 
-    const scale = Math.min(width / bw, height / bh, 2);
-    const cx = (minX + maxX) / 2;
-    const cy = (minY + maxY) / 2;
-
-    const newTransform = d3.zoomIdentity
-      .translate(width / 2, height / 2)
-      .scale(scale)
-      .translate(-cx, -cy);
-
-    d3.select(svg)
-      .transition()
-      .duration(500)
-      .call(zoom.transform as unknown as (t: d3.Transition<SVGSVGElement, unknown, null, undefined>) => void, newTransform);
+    d3.select(svg).transition().duration(500).call(zoom.transform as any, newTransform);
   }, [nodeVMs]);
 
-  // Cleanup
-  useEffect(() => {
-    return () => { if (fitTimerRef.current) clearTimeout(fitTimerRef.current); };
-  }, []);
-
-  // ── Render ───────────────────────────────────────────────────────────────
-
   return (
-    <div
-      ref={containerRef}
-      className={cn('h-full relative overflow-hidden dot-grid bg-[var(--bg)]', className)}
-    >
-      <svg
-        ref={svgRef}
-        className="w-full h-full"
-        style={{ cursor: 'grab' }}
-      >
+    <div ref={containerRef} className={cn('h-full relative overflow-hidden dot-grid bg-[var(--bg)]', className)}>
+      <svg ref={svgRef} className="w-full h-full" style={{ cursor: 'grab' }}>
         <SvgDefs />
-
         <g ref={mainGroupRef} className="main-group">
-          {/* ── Edge layer ───────────────────────────────────────── */}
+          {/* ── Edges ── */}
           <g>
             {edgeVMs.map(edge => {
-              const srcNode = nodeVMMap.get(edge.sourceId);
-              const tgtNode = nodeVMMap.get(edge.targetId);
+              const srcNode = nodeVMMap.get(edge.sourceId), tgtNode = nodeVMMap.get(edge.targetId);
               if (!srcNode || !tgtNode) return null;
 
-              const srcHasCosts = srcNode.gCost != null || srcNode.hCost != null;
-              const tgtHasCosts = tgtNode.gCost != null || tgtNode.hCost != null;
-              const { x1, y1, x2, y2 } = getEdgeEndpoints(
-                srcNode.x, srcNode.y, tgtNode.x, tgtNode.y,
-                srcHasCosts, tgtHasCosts,
-              );
+              const srcGrid = isGridState(srcNode.label), tgtGrid = isGridState(tgtNode.label);
+              const srcW = srcGrid ? (srcGrid.length === 16 ? 110 : 90) : (srcNode.gCost != null ? 100 : 76);
+              const srcH = srcGrid ? (srcGrid.length === 16 ? 130 : 104) : (srcNode.gCost != null ? 56 : 38);
+              const tgtW = tgtGrid ? (tgtGrid.length === 16 ? 110 : 90) : (tgtNode.gCost != null ? 100 : 76);
+              const tgtH = tgtGrid ? (tgtGrid.length === 16 ? 130 : 104) : (tgtNode.gCost != null ? 56 : 38);
 
-              const style = edge.isPath ? activeEdgeColors.path
-                : edge.isPruned ? activeEdgeColors.pruned
-                : edge.isDirected ? activeEdgeColors.directed
-                : activeEdgeColors.normal;
+              const { x1, y1, x2, y2 } = getEdgeEndpoints(srcNode.x, srcNode.y, tgtNode.x, tgtNode.y, srcW, srcH, tgtW, tgtH);
+              const style = edge.isPath ? activeEdgeColors.path : edge.isPruned ? activeEdgeColors.pruned : edge.isDirected ? activeEdgeColors.directed : activeEdgeColors.normal;
+              const markerEnd = edge.isDirected ? (edge.isPath ? 'url(#ac-arrow-path)' : 'url(#ac-arrow-default)') : undefined;
 
-              const markerEnd = edge.isDirected
-                ? (edge.isPath ? 'url(#ac-arrow-path)' : 'url(#ac-arrow-default)')
-                : undefined;
-
-              const mx = (srcNode.x + tgtNode.x) / 2;
-              const my = (srcNode.y + tgtNode.y) / 2;
+              const lx = (x1 + x2) / 2, ly = (y1 + y2) / 2;
 
               return (
                 <g key={edge.id}>
-                  {/* Visible line */}
-                  <line
-                    x1={x1} y1={y1} x2={x2} y2={y2}
-                    stroke={style.stroke}
-                    strokeWidth={style.width}
-                    opacity={style.opacity}
-                    markerEnd={markerEnd}
-                    strokeDasharray={'dasharray' in style ? (style as { dasharray: string }).dasharray : undefined}
-                    style={{ transition: 'stroke 0.3s ease, stroke-width 0.3s ease, opacity 0.3s ease' }}
-                  />
-                  {/* Weight label */}
-                  {edge.weight !== 1 && (
-                    <g transform={`translate(${mx}, ${my})`}>
-                      <rect
-                        x={-14} y={-8}
-                        width={28} height={16}
-                        rx={3}
-                        fill={darkMode ? '#0F1117' : '#FFFFFF'}
-                        fillOpacity={darkMode ? 0.88 : 0.92}
-                      />
-                      <text
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                        fill={darkMode ? '#5A6478' : '#6B7280'}
-                        fontSize={10}
-                        fontFamily="JetBrains Mono, Fira Code, monospace"
-                        style={{ pointerEvents: 'none' }}
-                      >
-                        {edge.weight}
-                      </text>
+                  {edge.isPath && <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={darkMode ? '#58A6FF' : '#2563EB'} strokeWidth={10} opacity={0.12} strokeLinecap="round" />}
+                  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={style.stroke} strokeWidth={style.width} opacity={style.opacity} markerEnd={markerEnd} strokeDasharray={'dasharray' in style ? (style as any).dasharray : undefined} />
+                  {edge.label && (
+                    <g transform={`translate(${lx}, ${ly})`}>
+                      <rect x={-12} y={-9} width={24} height={18} rx={6} fill={darkMode ? '#0d1117' : '#ffffff'} stroke={edge.isPath ? (darkMode ? '#58A6FF' : '#2563EB') : (darkMode ? '#30363d' : '#d0d7de')} strokeWidth={1} />
+                      <text textAnchor="middle" dominantBaseline="central" fill={edge.isPath ? (darkMode ? '#58A6FF' : '#0969da') : (darkMode ? '#8b949e' : '#57606a')} fontSize={11} fontWeight="800" fontFamily="JetBrains Mono, monospace">{edge.label}</text>
                     </g>
                   )}
-                  {/* Path glow */}
-                  {edge.isPath && (
-                    <line
-                      x1={x1} y1={y1} x2={x2} y2={y2}
-                      stroke={darkMode ? '#58A6FF' : '#2563EB'}
-                      strokeWidth={12}
-                      opacity={0.15}
-                      strokeLinecap="round"
-                      style={{ pointerEvents: 'none' }}
-                    />
+                  {edge.weight !== 1 && !edge.label && (
+                     <g transform={`translate(${lx}, ${ly})`}>
+                        <rect x={-14} y={-8} width={28} height={16} rx={3} fill={darkMode ? '#0F1117' : '#FFFFFF'} fillOpacity={0.9} />
+                        <text textAnchor="middle" dominantBaseline="central" fill={darkMode ? '#5A6478' : '#6B7280'} fontSize={10} fontFamily="monospace">{edge.weight}</text>
+                     </g>
                   )}
                 </g>
               );
             })}
           </g>
-
-          {/* ── Node layer ───────────────────────────────────────── */}
+          {/* ── Nodes ── */}
           <g>
             {nodeVMs.map(node => {
               const theme = activeNodeTheme[node.state];
-              const hasCosts = node.gCost != null || node.hCost != null;
-              const w = hasCosts ? NODE_W_WIDE : NODE_W;
-              const h = hasCosts ? NODE_H_TALL : NODE_H;
+              const grid = isGridState(node.label);
+              const CARD_W = grid ? (grid.length === 16 ? 110 : 90) : (node.gCost != null ? 100 : 76);
+              const CARD_H = grid ? (grid.length === 16 ? 130 : 104) : (node.gCost != null ? 56 : 38);
               const isExplored = node.state === 'explored';
 
-              let costStr = '';
-              if (node.gCost != null) costStr += `g=${formatCost(node.gCost)}`;
-              if (node.hCost != null) costStr += (costStr ? ' ' : '') + `h=${formatCost(node.hCost)}`;
-              if (node.fCost != null) costStr += (costStr ? ' ' : '') + `f=${formatCost(node.fCost)}`;
-
-              // Map glow filter IDs to the "ac-" prefixed versions in this component's defs
-              const filterMap: Record<string, string> = {
-                'glow-current': 'ac-glow-current',
-                'glow-frontier': 'ac-glow-frontier',
-                'glow-goal': 'ac-glow-goal',
-                'glow-start': 'ac-glow-start',
-                'glow-path': 'ac-glow-path',
-              };
-              const filterId = theme.glowFilter ? filterMap[theme.glowFilter] ?? theme.glowFilter : undefined;
+              const filterMap: any = { 'glow-current': 'ac-glow-current', 'glow-frontier': 'ac-glow-frontier', 'glow-goal': 'ac-glow-goal', 'glow-start': 'ac-glow-start', 'glow-path': 'ac-glow-path' };
+              const filterId = theme.glowFilter ? (filterMap[theme.glowFilter] ?? theme.glowFilter) : undefined;
 
               return (
-                <g
-                  key={node.id}
-                  transform={`translate(${node.x}, ${node.y})`}
-                  filter={filterId ? `url(#${filterId})` : undefined}
-                  opacity={isExplored ? 0.5 : 1}
-                  style={{ transition: 'filter 0.3s ease, opacity 0.3s ease' }}
-                >
-                  <rect
-                    x={-w / 2} y={-h / 2}
-                    width={w} height={h}
-                    rx={NODE_RX}
-                    fill={theme.fill}
-                    fillOpacity={theme.fillOpacity}
-                    stroke={theme.border}
-                    strokeWidth={theme.borderWidth}
-                    style={{ transition: 'fill 0.3s ease, stroke 0.3s ease, stroke-width 0.3s ease' }}
-                  />
-                  <text
-                    y={hasCosts ? -6 : 0}
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fill={theme.text}
-                    fontSize={11}
-                    fontFamily="JetBrains Mono, Fira Code, monospace"
-                    fontWeight={node.isStart || node.isGoal || node.state === 'path' ? 'bold' : 'normal'}
-                    style={{ pointerEvents: 'none', transition: 'fill 0.3s ease' }}
-                  >
-                    {node.label}
-                  </text>
-                  {costStr && (
-                    <text
-                      y={10}
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      fill={theme.text}
-                      fontSize={8}
-                      fontFamily="JetBrains Mono, Fira Code, monospace"
-                      opacity={0.7}
-                      style={{ pointerEvents: 'none' }}
-                    >
-                      {costStr}
-                    </text>
+                <g key={node.id} transform={`translate(${node.x}, ${node.y})`} filter={filterId ? `url(#${filterId})` : undefined} opacity={isExplored ? 0.45 : 1}>
+                  <rect x={-CARD_W / 2} y={-CARD_H / 2} width={CARD_W} height={CARD_H} rx={12} fill={theme.fill} fillOpacity={theme.fillOpacity} stroke={theme.border} strokeWidth={theme.borderWidth} />
+                  {grid ? (
+                    <g transform="translate(0, -6)">
+                      <text y={-CARD_H/2 + 16} textAnchor="middle" fill={theme.text} fontSize={8} fontWeight="bold" opacity={0.6}>{grid.length === 9 ? '8-PUZZLE' : '15-PUZZLE'}</text>
+                      <g transform="translate(0, 8)">{renderGrid(grid, grid.length === 16 ? 4 : 3, grid.length === 16 ? 90 : 70, darkMode)}</g>
+                    </g>
+                  ) : (
+                    <text y={node.gCost != null ? -8 : 0} textAnchor="middle" dominantBaseline="central" fill={theme.text} fontSize={11} fontWeight={node.state === 'path' ? 'bold' : 'normal'} fontFamily="monospace">{node.label}</text>
+                  )}
+                  {(node.gCost != null || node.hCost != null) && (
+                     <g transform={`translate(0, ${CARD_H / 2 - 13})`}>
+                        <rect x={-CARD_W/2 + 8} y={-8} width={CARD_W - 16} height={16} rx={8} fill={darkMode ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.6)'} stroke={theme.border} strokeWidth={0.5} strokeOpacity={0.2} />
+                        <text textAnchor="middle" dominantBaseline="central" fill={theme.text} fontSize={8} fontFamily="monospace">
+                           {node.gCost != null && `g=${formatCost(node.gCost)}`} {node.hCost != null && `h=${formatCost(node.hCost)}`} {node.fCost != null && `f=${formatCost(node.fCost)}`}
+                        </text>
+                     </g>
+                  )}
+                  {(node.isStart || node.isGoal) && (
+                    <g transform={`translate(0, ${CARD_H / 2 + 16})`}>
+                       <text textAnchor="middle" fill={node.isStart ? (darkMode ? '#d2a8ff' : '#6f42c1') : (darkMode ? '#3fb950' : '#1a7f37')} fontSize={9} fontWeight="bold">{node.isStart ? 'START' : 'GOAL'}</text>
+                    </g>
                   )}
                 </g>
               );
@@ -554,35 +484,10 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
           </g>
         </g>
       </svg>
-
-      {/* ── HTML Overlays ──────────────────────────────────────────── */}
-
-      {/* Fit button */}
       <div className="absolute bottom-3 right-3">
-        <button
-          onClick={() => fit()}
-          className="text-xs px-2 py-1 rounded bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] hover:text-[var(--text)] transition-colors"
-          title="Fit graph to view"
-        >
-          ⊡ Fit
-        </button>
+        <button onClick={() => fit()} className="text-xs px-2 py-1 rounded bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] hover:text-[var(--text)] transition-colors">⊡ Fit</button>
       </div>
-
-      {/* Minimap */}
-      <GraphMinimap
-        nodes={nodeVMs}
-        transform={transform}
-        canvasWidth={canvasDims.w}
-        canvasHeight={canvasDims.h}
-      />
-
-      {/* Zoom indicator */}
-      <div
-        className="absolute bottom-14 right-3 px-2 py-0.5 rounded text-[10px] font-mono tabular-nums text-[var(--text-3)] border border-[var(--border)] pointer-events-none select-none"
-        style={{ background: 'var(--surface)', backdropFilter: 'blur(8px)' }}
-      >
-        {Math.round(transform.k * 100)}%
-      </div>
+      <GraphMinimap nodes={nodeVMs} transform={transform} canvasWidth={canvasDims.w} canvasHeight={canvasDims.h} />
     </div>
   );
 }

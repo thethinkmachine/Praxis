@@ -37,6 +37,7 @@ export interface SVGEdgeVM {
   isDirected: boolean;
   isPath: boolean;
   isPruned: boolean;
+  label?: string;
 }
 
 /** Viewport transform state (mirrors d3.ZoomTransform fields) */

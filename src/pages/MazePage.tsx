@@ -168,19 +168,19 @@ export default function MazePage() {
   }, [algo, mazeProblem]);
 
   const titleActions = useMemo(() => (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       <button
         onClick={() => {
           setSeed(Date.now());
           generateMaze();
         }}
-        className="text-xs px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--accent)]/60"
+        className="h-7 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60"
       >
         New Seed
       </button>
       <button
         onClick={copyReplayLink}
-        className="text-xs px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--accent)]/60"
+        className="h-7 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60"
       >
         {copied ? 'Copied' : 'Copy Replay Link'}
       </button>

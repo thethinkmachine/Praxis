@@ -174,6 +174,9 @@ interface DemoProblemPickerProps {
   algorithmCategory: AlgorithmCategory;
   onSelect: (problemDef: any) => void;
   trigger?: React.ReactNode;
+  /** Controlled open state — when provided, the built-in trigger is not rendered. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 /** Inline database/bookmark SVG icon for the trigger button. */
@@ -209,6 +212,8 @@ export default function DemoProblemPicker({
   algorithmCategory,
   onSelect,
   trigger,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: DemoProblemPickerProps) {
   const [manifestData, setManifestData] = useState<Record<AlgorithmCategory, DemoProblem[]> | null>(null);
   const [filter, setFilter] = useState<DifficultyFilter>('all');
@@ -246,23 +251,33 @@ export default function DemoProblemPicker({
     }
   };
 
+  const isControlled = controlledOpen !== undefined;
+
   return (
-    <Dialog.Root onOpenChange={(open) => { if (!open) setFilter('all'); }}>
-      <Dialog.Trigger asChild>
-        {trigger ?? (
-          <button
-            className={cn(
-              'flex items-center gap-1.5 text-xs px-3 py-1.5 rounded',
-              'bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)]',
-              'hover:text-[var(--text)] hover:border-[#58A6FF] hover:bg-[#58A6FF]/5',
-              'transition-colors font-medium',
-            )}
-          >
-            <DatabaseIcon />
-            Load Demo
-          </button>
-        )}
-      </Dialog.Trigger>
+    <Dialog.Root
+      open={isControlled ? controlledOpen : undefined}
+      onOpenChange={(o) => {
+        if (!o) setFilter('all');
+        controlledOnOpenChange?.(o);
+      }}
+    >
+      {!isControlled && (
+        <Dialog.Trigger asChild>
+          {trigger ?? (
+            <button
+              className={cn(
+                'flex h-7 items-center gap-1.5 rounded px-2.5 text-[11px]',
+                'bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)]',
+                'hover:text-[var(--text)] hover:border-[#58A6FF] hover:bg-[#58A6FF]/5',
+                'transition-colors font-medium',
+              )}
+            >
+              <DatabaseIcon />
+              Load Demo
+            </button>
+          )}
+        </Dialog.Trigger>
+      )}
 
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 z-40 backdrop-blur-[2px]" />

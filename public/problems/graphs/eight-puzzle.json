@@ -1,0 +1,23 @@
+{
+  "problem": {
+    "graph": {
+      "nodes": [
+        { "id": "1 2 3 | 4 5 6 | 0 7 8", "label": "1 2 3 | 4 5 6 | 0 7 8", "x": 0, "y": 0, "heuristic": 2 },
+        { "id": "1 2 3 | 0 5 6 | 4 7 8", "label": "1 2 3 | 0 5 6 | 4 7 8", "x": -100, "y": 100, "heuristic": 3 },
+        { "id": "1 2 3 | 4 5 6 | 7 0 8", "label": "1 2 3 | 4 5 6 | 7 0 8", "x": 100, "y": 100, "heuristic": 1 },
+        { "id": "1 2 3 | 4 5 6 | 7 8 0", "label": "1 2 3 | 4 5 6 | 7 8 0", "x": 200, "y": 200, "heuristic": 0 },
+        { "id": "1 2 3 | 4 0 6 | 7 5 8", "label": "1 2 3 | 4 0 6 | 7 5 8", "x": 200, "y": 0, "heuristic": 2 }
+      ],
+      "edges": [
+        { "id": "Up", "source": "1 2 3 | 4 5 6 | 0 7 8", "target": "1 2 3 | 0 5 6 | 4 7 8", "weight": 1, "directed": true },
+        { "id": "Right", "source": "1 2 3 | 4 5 6 | 0 7 8", "target": "1 2 3 | 4 5 6 | 7 0 8", "weight": 1, "directed": true },
+        { "id": "Right", "source": "1 2 3 | 4 5 6 | 7 0 8", "target": "1 2 3 | 4 5 6 | 7 8 0", "weight": 1, "directed": true },
+        { "id": "Up", "source": "1 2 3 | 4 5 6 | 7 0 8", "target": "1 2 3 | 4 0 6 | 7 5 8", "weight": 1, "directed": true }
+      ],
+      "directed": true
+    },
+    "startNode": "1 2 3 | 4 5 6 | 0 7 8",
+    "goalNode": "1 2 3 | 4 5 6 | 7 8 0",
+    "useHeuristic": true
+  }
+}

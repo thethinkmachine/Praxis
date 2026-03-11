@@ -125,10 +125,10 @@ function KbdKey({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function TopBar() {
-  const { pathname } = useLocation();
+/** Utility toolbar buttons (theme, fullscreen, shortcuts, about) — used by both
+ *  the standalone TopBar on non-algorithm pages and the unified header on algorithm pages. */
+export function TopBarControls() {
   const { darkMode, toggle } = usePreferencesStore();
-  const crumbs = buildBreadcrumbs(pathname);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(!!document.fullscreenElement);
@@ -164,67 +164,41 @@ export default function TopBar() {
 
   return (
     <>
-      <header className={cn(
-        'ide-titlebar flex items-center justify-between h-10 px-2 sm:px-3 shrink-0 gap-2'
-      )}>
+      {/* Dark / light toggle */}
+      <button
+        onClick={() => toggle('darkMode')}
+        title={darkMode ? 'Switch to light mode (T)' : 'Switch to dark mode (T)'}
+        className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface)] hover:border-[var(--border)] transition-colors"
+      >
+        {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+      </button>
 
-        <nav className="flex-1 min-w-0 flex items-center gap-1 text-xs text-[var(--text-2)] font-mono px-2 py-1 rounded-md border border-[var(--border)] bg-[var(--surface)]/70">
-          {crumbs.map((crumb, i) => (
-            <span key={i} className="flex items-center gap-1 min-w-0">
-              {i > 0 && <span className="text-[var(--text-3)]">/</span>}
-              {i === crumbs.length - 1 ? (
-                <span className="text-[var(--text)] truncate">{crumb.label}</span>
-              ) : (
-                <Link
-                  to={crumb.path}
-                  className="text-[var(--text-2)] hover:text-[var(--text)] transition-colors truncate"
-                >
-                  {crumb.label}
-                </Link>
-              )}
-            </span>
-          ))}
-        </nav>
+      {/* Fullscreen toggle */}
+      <button
+        onClick={toggleFullscreen}
+        title={isFullscreen ? 'Exit fullscreen (F)' : 'Enter fullscreen (F)'}
+        className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface)] hover:border-[var(--border)] transition-colors"
+      >
+        {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+      </button>
 
-        {/* Right side */}
-        <div className="flex items-center gap-1 shrink-0">
-          {/* Dark / light toggle */}
-          <button
-            onClick={() => toggle('darkMode')}
-            title={darkMode ? 'Switch to light mode (T)' : 'Switch to dark mode (T)'}
-            className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface)] hover:border-[var(--border)] transition-colors"
-          >
-            {darkMode ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
+      <button
+        onClick={() => setShowShortcuts(true)}
+        className="flex h-8 items-center gap-1.5 rounded-md border border-transparent px-2 text-[11px] font-medium text-[var(--text-2)] transition-colors hover:border-[var(--border)] hover:bg-[var(--surface)]/70 hover:text-[var(--text)]"
+        title="Keyboard shortcuts (?)"
+      >
+        <Keyboard size={12} />
+        <span className="hidden sm:inline">Shortcuts</span>
+      </button>
 
-          {/* Fullscreen toggle */}
-          <button
-            onClick={toggleFullscreen}
-            title={isFullscreen ? 'Exit fullscreen (F)' : 'Enter fullscreen (F)'}
-            className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--surface)] hover:border-[var(--border)] transition-colors"
-          >
-            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-          </button>
-
-          <button
-            onClick={() => setShowShortcuts(true)}
-            className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--text-2)] hover:text-[var(--text)] border border-[var(--border)] rounded-md px-2 py-1 bg-[var(--surface)]/80 transition-colors"
-            title="Keyboard shortcuts (?)"
-          >
-            <Keyboard size={12} />
-            <span className="hidden sm:inline">Shortcuts</span>
-          </button>
-
-          <button
-            onClick={() => setShowAbout(true)}
-            className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--text-2)] hover:text-[var(--text)] border border-[var(--border)] rounded-md px-2 py-1 bg-[var(--surface)]/80 transition-colors"
-            title="About Praxis"
-          >
-            <Info size={12} />
-            <span className="hidden sm:inline">About</span>
-          </button>
-        </div>
-      </header>
+      <button
+        onClick={() => setShowAbout(true)}
+        className="flex h-8 items-center gap-1.5 rounded-md border border-transparent px-2 text-[11px] font-medium text-[var(--text-2)] transition-colors hover:border-[var(--border)] hover:bg-[var(--surface)]/70 hover:text-[var(--text)]"
+        title="About Praxis"
+      >
+        <Info size={12} />
+        <span className="hidden sm:inline">About</span>
+      </button>
 
       {/* Shortcuts modal */}
       <Dialog.Root open={showShortcuts} onOpenChange={setShowShortcuts}>
@@ -345,5 +319,37 @@ export default function TopBar() {
         </Dialog.Portal>
       </Dialog.Root>
     </>
+  );
+}
+
+export default function TopBar() {
+  const { pathname } = useLocation();
+  const crumbs = buildBreadcrumbs(pathname);
+
+  return (
+    <header className={cn(
+      'ide-titlebar flex items-center justify-between h-10 px-3 sm:px-4 shrink-0 gap-3'
+    )}>
+      <nav className="flex-1 min-w-0 flex items-center gap-1 text-[11px] text-[var(--text-3)] font-mono">
+        {crumbs.map((crumb, i) => (
+          <span key={i} className="flex items-center gap-1 min-w-0">
+            {i > 0 && <span className="text-[var(--text-3)]"> / </span>}
+            {i === crumbs.length - 1 ? (
+              <span className="text-[var(--text)] truncate">{crumb.label}</span>
+            ) : (
+              <Link
+                to={crumb.path}
+                className="text-[var(--text-2)] hover:text-[var(--text)] transition-colors truncate"
+              >
+                {crumb.label}
+              </Link>
+            )}
+          </span>
+        ))}
+      </nav>
+      <div className="flex items-center gap-1 shrink-0">
+        <TopBarControls />
+      </div>
+    </header>
   );
 }

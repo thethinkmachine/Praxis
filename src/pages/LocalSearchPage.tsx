@@ -512,10 +512,10 @@ export default function LocalSearchPage() {
         { id: 'trajectory', label: 'Trajectory', content: <TrajectoryTab step={step as LocalSearchStep | null} /> },
       ]}
       titleActions={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={randomizeCurrent}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors"
+            className="flex h-7 items-center gap-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors"
           >
             Randomize
           </button>
@@ -523,7 +523,7 @@ export default function LocalSearchPage() {
             <button
               key={lab.id}
               onClick={() => setLab(lab.id)}
-              className="text-xs px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors whitespace-nowrap"
+              className="h-7 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors whitespace-nowrap"
             >
               {lab.name}
             </button>

@@ -163,22 +163,22 @@ export default function GamePage() {
         },
       ]}
       titleActions={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => setScenario('empty')}
-            className="text-xs px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors whitespace-nowrap"
+            className="h-7 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors whitespace-nowrap"
           >
             Clear
           </button>
           <button
             onClick={() => setScenario('fork-trap')}
-            className="text-xs px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors whitespace-nowrap"
+            className="h-7 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors whitespace-nowrap"
           >
             Fork Trap
           </button>
           <button
             onClick={() => setScenario('endgame-win')}
-            className="text-xs px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors whitespace-nowrap"
+            className="h-7 rounded border border-[var(--border)] bg-[var(--surface-2)] px-2.5 text-[11px] text-[var(--text-2)] hover:border-[var(--accent)]/60 transition-colors whitespace-nowrap"
           >
             Endgame
           </button>
