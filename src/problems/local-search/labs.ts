@@ -55,7 +55,7 @@ export function getLocalSearchLabDefinition<TProblem extends LocalSearchProblem 
   if (!lab) {
     throw new Error(`Unknown local-search lab: ${kind}`);
   }
-  return lab as LocalSearchLabDefinition<TProblem>;
+  return lab as unknown as LocalSearchLabDefinition<TProblem>;
 }
 
 export function getLocalSearchLabModule(kind: LocalSearchProblem['kind']): LocalSearchLabModule {
@@ -71,6 +71,7 @@ export function createDefaultLocalSearchProblem(kind: TspProblem['kind']): TspPr
 export function createDefaultLocalSearchProblem(kind: GraphColoringProblem['kind']): GraphColoringProblem;
 export function createDefaultLocalSearchProblem(kind: LandscapeProblem['kind']): LandscapeProblem;
 export function createDefaultLocalSearchProblem(kind: NPuzzleProblem['kind']): NPuzzleProblem;
+export function createDefaultLocalSearchProblem(kind: LocalSearchProblem['kind']): LocalSearchProblem;
 export function createDefaultLocalSearchProblem(kind: LocalSearchProblem['kind']): LocalSearchProblem {
   return getLocalSearchLabModule(kind).createDefaultProblem();
 }
