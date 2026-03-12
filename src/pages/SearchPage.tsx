@@ -34,6 +34,9 @@ const UNWEIGHTED_ALGOS = new Set(['bfs', 'dfs', 'dls', 'iddfs', 'bidirectional-b
 
 export default function SearchPage() {
   const { algo = 'bfs' } = useParams<{ category: string; algo: string }>();
+  const [depthLimit, setDepthLimit] = useState(12);
+  const [weightedAStarWeight, setWeightedAStarWeight] = useState(1.5);
+  const [memoryLimit, setMemoryLimit] = useState(64);
   const [heuristicId, setHeuristicId] = useState<HeuristicId>('manual-node');
   const [heuristicScale, setHeuristicScale] = useState(1);
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
@@ -104,7 +107,7 @@ export default function SearchPage() {
   const algoProblem = useMemo<GraphProblem>(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const topoNodes = useEditorStore.getState().nodes.map(({ x: _x, y: _y, ...n }) => n);
-    return {
+    const baseProblem = {
       graph: new Graph({ directed: editorIsDirected, nodes: topoNodes, edges: editorEdges }),
       startNode: editorStartId ?? '',
       goalNode: editorGoalId ?? '',
@@ -116,7 +119,17 @@ export default function SearchPage() {
           }
         : undefined,
     };
-  }, [nodeTopoKey, editorEdges, editorStartId, editorGoalId, editorIsDirected, isInformedAlgorithm, heuristicId, heuristicScale]);
+    if (algo === 'dls') {
+      return { ...baseProblem, depthLimit };
+    }
+    if (algo === 'weighted-astar') {
+      return { ...baseProblem, weight: weightedAStarWeight };
+    }
+    if (algo === 'sma-star') {
+      return { ...baseProblem, memoryLimit };
+    }
+    return baseProblem;
+  }, [algo, nodeTopoKey, editorEdges, editorStartId, editorGoalId, editorIsDirected, isInformedAlgorithm, heuristicId, heuristicScale, depthLimit, weightedAStarWeight, memoryLimit]);
 
   // displayProblem: includes positions — used only for Cytoscape element generation.
   const displayProblem = useMemo<GraphProblem>(() => ({
@@ -402,6 +415,52 @@ export default function SearchPage() {
                 </p>
               </InfoCard>
             )}
+
+            {algo === 'dls' && (
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Depth Limit</p>
+                <input
+                  type="number"
+                  min={1}
+                  max={200}
+                  value={depthLimit}
+                  onChange={(e) => setDepthLimit(Math.max(1, Number(e.target.value) || 1))}
+                  className="ui-input w-full px-2 py-1.5 font-mono"
+                />
+              </div>
+            )}
+
+            {algo === 'weighted-astar' && (
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Inflation Weight (w)</p>
+                <input
+                  type="number"
+                  min={1}
+                  max={10}
+                  step={0.5}
+                  value={weightedAStarWeight}
+                  onChange={(e) => setWeightedAStarWeight(Math.max(1, Number(e.target.value) || 1))}
+                  className="ui-input w-full px-2 py-1.5 font-mono"
+                />
+                <p className="mt-1 text-[9px] text-[var(--text-3)]">w=1 -&gt; optimal (A*). Higher = faster but suboptimal.</p>
+              </div>
+            )}
+
+            {algo === 'sma-star' && (
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Memory Limit</p>
+                <input
+                  type="number"
+                  min={2}
+                  max={512}
+                  step={1}
+                  value={memoryLimit}
+                  onChange={(e) => setMemoryLimit(Math.max(2, Math.floor(Number(e.target.value) || 2)))}
+                  className="ui-input w-full px-2 py-1.5 font-mono"
+                />
+                <p className="mt-1 text-[9px] text-[var(--text-3)]">Maximum number of states SMA* keeps in memory before pruning.</p>
+              </div>
+            )}
           </div>
         </ConfigSection>
 
@@ -416,7 +475,7 @@ export default function SearchPage() {
         </ConfigSection>
       </ProblemConfigurator>
     );
-  }, [algo, isInformedAlgorithm, heuristicId, heuristicDefinition.description, heuristicScale, editorNodes, editorStartId, editorGoalId, editorEdges, selectedIds, updateNode, updateNodeHeuristic, setSelected]);
+  }, [algo, depthLimit, weightedAStarWeight, memoryLimit, isInformedAlgorithm, heuristicId, heuristicDefinition.description, heuristicScale, editorNodes, editorStartId, editorGoalId, editorEdges, selectedIds, updateNode, updateNodeHeuristic, setSelected]);
 
   return (
     <>
