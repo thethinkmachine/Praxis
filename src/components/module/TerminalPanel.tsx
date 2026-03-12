@@ -1,8 +1,8 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { useExecutionStore } from '@/store/execution.store';
 import { usePreferencesStore } from '@/store/preferences.store';
 import { cn } from '@/lib/cn';
-import { Terminal, Trash2, ChevronDown } from '@/components/shared/Icons';
+import { Terminal, Trash2, ChevronDown, Copy } from '@/components/shared/Icons';
 import EmptyState from '@/components/shared/EmptyState';
 
 export default function TerminalPanel() {
@@ -10,6 +10,16 @@ export default function TerminalPanel() {
   const clearLogs = useExecutionStore((s) => s.clearLogs);
   const toggle = usePreferencesStore((s) => s.toggle);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  const copyLogs = useCallback(() => {
+    if (logs.length === 0) return;
+    const text = logs.map((log) => log.message).join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }, [logs]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -28,6 +38,18 @@ export default function TerminalPanel() {
           </span>
         </div>
         <div className="flex items-center gap-1">
+          <button
+            onClick={copyLogs}
+            disabled={logs.length === 0}
+            className="p-1 rounded hover:bg-[var(--surface-3)] text-[var(--text-3)] hover:text-[var(--text)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Copy all logs"
+          >
+            {copied ? (
+              <span className="text-[9px] font-semibold text-[var(--success)] px-0.5">✓</span>
+            ) : (
+              <Copy size={12} />
+            )}
+          </button>
           <button
             onClick={clearLogs}
             className="p-1 rounded hover:bg-[var(--surface-3)] text-[var(--text-3)] hover:text-[var(--danger)] transition-colors"
