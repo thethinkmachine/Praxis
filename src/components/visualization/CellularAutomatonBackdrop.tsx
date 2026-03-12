@@ -4,7 +4,21 @@ import { usePreferencesStore } from '@/store/preferences.store';
 import { useInView } from 'react-intersection-observer';
 
 // A collection of interesting 1D Cellular Automaton rules
-const RULES_1D = [30, 45, 54, 57, 60, 62, 73, 75, 86, 89, 90, 105, 109, 110, 150];
+const RULES_1D = [
+  6, 18, 22, 25, 26, 28, 30, 33, 37, 41, 45, 51, 54, 57, 60, 62, 67, 72, 73, 75, 77, 82, 86, 89, 90, 94, 
+  99, 101, 102, 105, 106, 109, 110, 118, 122, 124, 126, 129, 131, 135, 137, 145, 146, 150, 151, 153, 154, 
+  158, 161, 163, 165, 167, 182, 184, 190, 193, 210, 218, 225, 246
+];
+
+const RULES_2D = [
+  { name: "Game of Life", b: [3], s: [2, 3], details: "B3/S23" },
+  { name: "HighLife", b: [3, 6], s: [2, 3], details: "B3,6/S23" },
+  { name: "Seeds", b: [2], s: [], details: "B2/S" },
+  { name: "Day & Night", b: [3, 6, 7, 8], s: [3, 4, 6, 7, 8], details: "B3678/S34678" },
+  { name: "Maze", b: [3], s: [1, 2, 3, 4, 5], details: "B3/S1-5" },
+  { name: "Diamoeba", b: [3, 5, 6, 7, 8], s: [5, 6, 7, 8], details: "B35-8/S5-8" },
+  { name: "Infection", b: [2], s: [1, 2, 3, 4, 5, 6, 7, 8], details: "B2/S1-8" }
+];
 
 interface CellularAutomatonBackdropProps {
   className?: string;
@@ -12,6 +26,7 @@ interface CellularAutomatonBackdropProps {
   intervalMs?: number;
   changeRuleIntervalMs?: number;
   paused?: boolean;
+  onRuleChange?: (rule: { mode: '1D' | '2D'; name: string; details?: string }) => void;
 }
 
 type CAMode = '1D' | '2D';
@@ -22,11 +37,14 @@ export default function CellularAutomatonBackdrop({
   intervalMs = 120, // Increased default interval to slow down the frame rate
   changeRuleIntervalMs = 12000,
   paused = false,
+  onRuleChange,
 }: CellularAutomatonBackdropProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pausedRef = useRef(paused);
   useEffect(() => { pausedRef.current = paused; }, [paused]);
   const darkMode = usePreferencesStore((s) => s.darkMode);
+  const onRuleChangeRef = useRef(onRuleChange);
+  useEffect(() => { onRuleChangeRef.current = onRuleChange; }, [onRuleChange]);
 
   // Use Intersection Observer to detect when the canvas is visible
   const { ref: inViewRef, inView } = useInView({
@@ -76,6 +94,7 @@ export default function CellularAutomatonBackdrop({
     
     let currentRule = 30;
     let ruleSet = [0, 0, 0, 0, 0, 0, 0, 0];
+    let current2DRule = RULES_2D[0];
     
     // Animation frame tracking
     let animationId: number | undefined;
@@ -122,8 +141,9 @@ export default function CellularAutomatonBackdrop({
         state1D[Math.floor(cols / 2)] = 1;
         history1D.push([...state1D]);
       } else {
+        const threshold = current2DRule.name === 'Seeds' ? 0.98 : 0.85;
         state2D = Array.from({ length: rows }, () => 
-          Array.from({ length: cols }, () => Math.random() > 0.85 ? 1 : 0)
+          Array.from({ length: cols }, () => Math.random() > threshold ? 1 : 0)
         );
       }
     };
@@ -143,6 +163,7 @@ export default function CellularAutomatonBackdrop({
     };
 
     const generateNext2D = () => {
+      const { b, s } = current2DRule;
       const next = Array.from({ length: rows }, () => new Array(cols).fill(0));
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
@@ -156,17 +177,23 @@ export default function CellularAutomatonBackdrop({
             }
           }
           const alive = state2D[r][c] === 1;
-          if (alive && (neighbors === 2 || neighbors === 3)) next[r][c] = 1;
-          else if (!alive && neighbors === 3) next[r][c] = 1;
+          if (alive) {
+            if (s.includes(neighbors)) next[r][c] = 1;
+          } else {
+            if (b.includes(neighbors)) next[r][c] = 1;
+          }
         }
       }
       state2D = next;
     };
 
     // Sequence for fair distribution
-    let ruleSequence: (number | '2D')[] = [];
+    let ruleSequence: (number | { type: '2D'; index: number })[] = [];
     const refreshSequence = () => {
-      ruleSequence = ([...RULES_1D, '2D'] as (number | '2D')[]).sort(() => Math.random() - 0.5);
+      ruleSequence = [
+        ...RULES_1D, 
+        ...RULES_2D.map((_, i) => ({ type: '2D' as const, index: i }))
+      ].sort(() => Math.random() - 0.5);
     };
 
     let isRunning = false;
@@ -183,13 +210,21 @@ export default function CellularAutomatonBackdrop({
           if (ruleSequence.length === 0) refreshSequence();
           const next = ruleSequence.pop();
           
-          if (next === '2D') {
+          let ruleInfo;
+
+          if (typeof next === 'object' && next?.type === '2D') {
             mode = '2D';
+            current2DRule = RULES_2D[next.index];
+            ruleInfo = { mode: '2D' as const, name: current2DRule.name, details: current2DRule.details };
           } else {
             mode = '1D';
-            setRule1D(next as number);
+            const ruleNum = next as number;
+            setRule1D(ruleNum);
+            ruleInfo = { mode: '1D' as const, name: `Rule ${ruleNum}`, details: `Elementary 1D` };
           }
           
+          if (onRuleChangeRef.current) onRuleChangeRef.current(ruleInfo);
+
           resetState();
           lastModeChangeTime = timestamp;
         }
@@ -232,6 +267,9 @@ export default function CellularAutomatonBackdrop({
     };
 
     setRule1D(30);
+    if (onRuleChangeRef.current) {
+      onRuleChangeRef.current({ mode: '1D', name: 'Rule 30', details: 'Elementary 1D' });
+    }
     initGrid();
 
     // Start or stop animation based on visibility
@@ -249,15 +287,16 @@ export default function CellularAutomatonBackdrop({
       }
     }
 
-    const handleResize = () => {
+    const ro = new ResizeObserver((entries) => {
       if (inView) initGrid();
-    };
-
-    window.addEventListener('resize', handleResize);
+    });
+    
+    const parent = canvas.parentElement;
+    if (parent) ro.observe(parent);
     
     return () => {
       isRunning = false;
-      window.removeEventListener('resize', handleResize);
+      ro.disconnect();
       if (typeof animationId !== 'undefined') {
           cancelAnimationFrame(animationId);
       }

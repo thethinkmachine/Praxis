@@ -18,7 +18,7 @@ export default function TaxonomyCardGrid({ algorithms }: TaxonomyCardGridProps) 
   }
 
   return (
-    <div className="p-3 sm:p-6 overflow-y-auto h-full">
+    <div className="p-3 sm:p-6">
       {CATEGORY_ORDER.map((cat) => (
         <CategorySection
           key={cat}

@@ -34,6 +34,7 @@ export default function AlgorithmSearch() {
   const [dropdownPosition, setDropdownPosition] = useState<DropdownPosition | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const allAlgorithms = useMemo(() => {
     return registry.getAll().map((entry) => entry.runner.meta);
@@ -95,7 +96,10 @@ export default function AlgorithmSearch() {
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const isInsideContainer = containerRef.current?.contains(e.target as Node);
+      const isInsideDropdown = dropdownRef.current?.contains(e.target as Node);
+      
+      if (!isInsideContainer && !isInsideDropdown) {
         setOpen(false);
       }
     }
@@ -156,15 +160,17 @@ export default function AlgorithmSearch() {
   const dropdown = showDropdown && dropdownPosition
     ? createPortal(
         <div
+          ref={dropdownRef}
           className="fixed z-[80] rounded-xl border border-[var(--border-strong)] bg-[var(--surface)]/96 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl overflow-hidden"
           style={{
             left: dropdownPosition.left,
             top: dropdownPosition.top,
             width: dropdownPosition.width,
+            maxHeight: `calc(100vh - ${dropdownPosition.top + 20}px)`,
           }}
         >
           {flatResults.length > 0 ? (
-            <div className="max-h-[420px] overflow-y-auto">
+            <div className="overflow-y-auto h-full max-h-[inherit]">
               {algorithmResults.length > 0 && (
                 <div className="border-b border-[var(--border)]">
                   <div className="px-3 py-2 text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)] bg-[var(--surface-2)]/70">
