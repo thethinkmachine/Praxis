@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import * as d3 from 'd3';
 import { cn } from '@/lib/cn';
 import GraphMinimap from '@/components/visualization/GraphMinimap';
-import { LayoutGrid } from '@/components/shared/Icons';
+import { Search } from '@/components/shared/Icons';
 import { usePreferencesStore } from '@/store/preferences.store';
 import type { ElementDefinition } from 'cytoscape';
 import {
@@ -486,11 +486,38 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
       </svg>
       <div className="absolute bottom-3 right-3">
         <button onClick={() => fit()} className="ui-btn h-8 rounded-lg px-2.5 text-xs">
-          <LayoutGrid size={12} />
+          <Search size={12} />
           Fit
         </button>
       </div>
-      <GraphMinimap nodes={nodeVMs} transform={transform} canvasWidth={canvasDims.w} canvasHeight={canvasDims.h} />
+      <GraphMinimap
+        nodes={nodeVMs}
+        transform={transform}
+        canvasWidth={canvasDims.w}
+        canvasHeight={canvasDims.h}
+        onViewJump={(x, y) => {
+          const svg = svgRef.current;
+          const zoom = zoomBehaviorRef.current;
+          if (!svg || !zoom) return;
+          const newTransform = d3.zoomIdentity
+            .translate(canvasDims.w / 2, canvasDims.h / 2)
+            .scale(transform.k)
+            .translate(-x, -y);
+          d3.select(svg).transition().duration(500).call(zoom.transform as any, newTransform);
+        }}
+        onZoomIn={() => {
+          const svg = svgRef.current;
+          const zoom = zoomBehaviorRef.current;
+          if (svg && zoom) d3.select(svg).transition().duration(300).call(zoom.scaleBy as any, 1.4);
+        }}
+        onZoomOut={() => {
+          const svg = svgRef.current;
+          const zoom = zoomBehaviorRef.current;
+          if (svg && zoom) d3.select(svg).transition().duration(300).call(zoom.scaleBy as any, 1 / 1.4);
+        }}
+        onFit={() => fit()}
+        disableAutoLayout
+      />
     </div>
   );
 }

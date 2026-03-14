@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { cn } from '@/lib/cn';
 import type { SVGNodeVM } from './svg-graph.types';
 import { MINIMAP_DOT_COLORS, MINIMAP_DOT_COLORS_LIGHT } from './svg-graph.types';
 import type { ZoomTransform } from 'd3';
@@ -16,6 +17,7 @@ interface GraphMinimapProps {
   onZoomOut?: () => void;
   onFit?: () => void;
   onAutoLayout?: () => void;
+  disableAutoLayout?: boolean;
 }
 
 const MINIMAP_W = 156;
@@ -33,6 +35,7 @@ export default function GraphMinimap({
   onZoomOut,
   onFit,
   onAutoLayout,
+  disableAutoLayout = false,
 }: GraphMinimapProps) {
   if (nodes.length === 0) return null;
 
@@ -165,7 +168,13 @@ export default function GraphMinimap({
         </button>
         <button
           onClick={onAutoLayout}
-          className="flex items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] py-2 text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/50 hover:text-[var(--text)]"
+          disabled={disableAutoLayout || !onAutoLayout}
+          className={cn(
+            "flex items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] py-2 text-[var(--text-2)] transition-colors",
+            disableAutoLayout || !onAutoLayout
+              ? "opacity-40 cursor-not-allowed"
+              : "hover:border-[var(--accent)]/50 hover:text-[var(--text)]"
+          )}
           title="Auto-layout"
         >
           <LayoutGrid size={14} />
