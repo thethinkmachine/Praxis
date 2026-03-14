@@ -29,6 +29,7 @@ export interface LocalSearchLabModule extends LocalSearchLabDefinition {
   renderSetupSection: (context: LocalSearchLabContext) => ReactNode;
   renderBoardTab: (context: LocalSearchLabContext) => ReactNode;
   renderNeighborhoodTab: (context: LocalSearchLabContext) => ReactNode;
+  renderMiniature?: (state: any, problem: any) => ReactNode;
 }
 
 export const LOCAL_SEARCH_LAB_DEFINITIONS: LocalSearchLabDefinition[] = LOCAL_SEARCH_LAB_MODULES.map((module) => ({

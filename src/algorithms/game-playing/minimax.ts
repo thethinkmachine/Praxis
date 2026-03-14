@@ -1,4 +1,4 @@
-import type { RecursionFrame, TicTacToeRunner } from './types';
+import type { GameTreeNode, RecursionFrame, TicTacToeRunner } from './types';
 import {
   boardKey,
   createStep,
@@ -59,6 +59,19 @@ export const minimaxRunner: TicTacToeRunner = {
     const resolved = resolveProblem(problem);
     const ctx = createTraceContext();
     const initialMoves = getInitialTraceState(problem).availableMoves;
+    const searchTree = new Map<string, GameTreeNode>();
+
+    const rootNode: GameTreeNode = {
+      id: 'root',
+      parentId: null,
+      board: [...resolved.board],
+      move: null,
+      score: null,
+      depth: 0,
+      player: resolved.currentPlayer,
+      discoveryStep: 0,
+    };
+    searchTree.set('root', rootNode);
 
     yield createStep(
       ctx,
@@ -71,6 +84,8 @@ export const minimaxRunner: TicTacToeRunner = {
         maximizingPlayer: resolved.maximizingPlayer,
         availableMoves: initialMoves,
         recursionStack: [],
+        searchTree,
+        currentNodeId: 'root',
       },
     );
 
@@ -80,6 +95,7 @@ export const minimaxRunner: TicTacToeRunner = {
       depth: number,
       incomingMove: number | null,
       stack: RecursionFrame[],
+      nodeId: string,
     ): Generator<ReturnType<typeof createStep>, SearchEvaluation, void> {
       ctx.nodesExpanded++;
       const maximizingTurn = player === resolved.maximizingPlayer;
@@ -87,6 +103,8 @@ export const minimaxRunner: TicTacToeRunner = {
       const legalMoves = isTerminal(board) ? [] : getLegalMoves(board);
       const frame: RecursionFrame = { depth, player, role, move: incomingMove, board: [...board], bestScore: null };
       const recursionStack = [...stack, frame];
+
+      const node = searchTree.get(nodeId)!;
 
       yield createStep(
         ctx,
@@ -100,11 +118,16 @@ export const minimaxRunner: TicTacToeRunner = {
           availableMoves: legalMoves,
           currentMove: incomingMove,
           recursionStack,
+          searchTree,
+          currentNodeId: nodeId,
         },
       );
 
       if (isTerminal(board)) {
         const terminal = terminalEvaluation(board, resolved.maximizingPlayer, depth);
+        node.score = terminal.score;
+        node.isTerminal = true;
+
         yield createStep(
           ctx,
           'found',
@@ -119,6 +142,8 @@ export const minimaxRunner: TicTacToeRunner = {
             currentScore: terminal.score,
             bestScore: terminal.score,
             recursionStack,
+            searchTree,
+            currentNodeId: nodeId,
           },
           { level: 'success', winningLine: terminal.winningLine },
         );
@@ -133,6 +158,18 @@ export const minimaxRunner: TicTacToeRunner = {
 
       for (const move of legalMoves) {
         const childBoard = nextBoard(board, move, player);
+        const childId = `${nodeId}-${move}`;
+
+        searchTree.set(childId, {
+          id: childId,
+          parentId: nodeId,
+          board: [...childBoard],
+          move,
+          score: null,
+          depth: depth + 1,
+          player: nextPlayer(player),
+          discoveryStep: ctx.stepNumber,
+        });
 
         yield createStep(
           ctx,
@@ -149,10 +186,12 @@ export const minimaxRunner: TicTacToeRunner = {
             bestScore: Number.isFinite(bestScore) ? bestScore : null,
             evaluatedMoves,
             recursionStack,
+            searchTree,
+            currentNodeId: childId,
           },
         );
 
-        const child = yield* search(childBoard, nextPlayer(player), depth + 1, move, recursionStack);
+        const child = yield* search(childBoard, nextPlayer(player), depth + 1, move, recursionStack, childId);
         evaluatedMoves.push({ move, score: child.score });
 
         const improved = maximizingTurn ? child.score > bestScore : child.score < bestScore;
@@ -163,6 +202,8 @@ export const minimaxRunner: TicTacToeRunner = {
         }
 
         frame.bestScore = bestScore;
+        node.score = bestScore;
+
         yield createStep(
           ctx,
           'backtracking',
@@ -180,6 +221,8 @@ export const minimaxRunner: TicTacToeRunner = {
             evaluatedMoves,
             recursionStack: [...stack, { ...frame, board: [...board], bestScore }],
             principalVariation: bestVariation,
+            searchTree,
+            currentNodeId: nodeId,
           },
         );
       }
@@ -200,13 +243,15 @@ export const minimaxRunner: TicTacToeRunner = {
           evaluatedMoves,
           recursionStack,
           principalVariation: bestVariation,
+          searchTree,
+          currentNodeId: nodeId,
         },
       );
 
       return { score: bestScore, move: bestMove, principalVariation: bestVariation };
     };
 
-    const evaluation = yield* search(resolved.board, resolved.currentPlayer, 0, null, []);
+    const evaluation = yield* search(resolved.board, resolved.currentPlayer, 0, null, [], 'root');
 
     yield createStep(
       ctx,
@@ -223,6 +268,8 @@ export const minimaxRunner: TicTacToeRunner = {
         bestScore: evaluation.score,
         principalVariation: evaluation.principalVariation,
         recursionStack: [],
+        searchTree,
+        currentNodeId: 'root',
       },
       { level: 'success' },
     );

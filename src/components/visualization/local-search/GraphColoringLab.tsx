@@ -4,14 +4,56 @@ import type { LocalSearchStep } from '@/algorithms/local-search/types';
 import { CandidateList, SummaryCards, TraceNotes } from './LocalSearchShared';
 import { normalizeGraphNodes } from '@/problems/local-search/graph-coloring';
 
+const PALETTE = ['#F2C94C', '#58A6FF', '#53C880', '#FF7B72', '#D2A8FF', '#56D4DD', '#FFA657', '#7EE787'];
+
+export function GraphColoringMiniature({ problem, colors }: { problem: GraphColoringProblem; colors: number[] }) {
+  const nodes = normalizeGraphNodes(problem);
+  const nodeIndex = new Map(nodes.map((node, index) => [node.id, index]));
+
+  return (
+    <div className="rounded-md border border-[var(--border)] bg-[#0d151f] p-0.5 overflow-hidden w-[64px] h-[64px]">
+      <svg viewBox="-240 -240 480 480" className="w-full h-full overflow-visible">
+        {problem.graph.edges.map(edge => {
+          const sourceIdx = nodeIndex.get(edge.source);
+          const targetIdx = nodeIndex.get(edge.target);
+          if (sourceIdx === undefined || targetIdx === undefined) return null;
+          const source = nodes[sourceIdx];
+          const target = nodes[targetIdx];
+          const isConflict = colors[sourceIdx] === colors[targetIdx];
+          return (
+            <line
+              key={edge.id}
+              x1={source.x}
+              y1={source.y}
+              x2={target.x}
+              y2={target.y}
+              stroke={isConflict ? '#FF7B72' : 'rgba(255,255,255,0.15)'}
+              strokeWidth={isConflict ? 15 : 10}
+            />
+          );
+        })}
+        {nodes.map((node, index) => (
+          <circle
+            key={node.id}
+            cx={node.x}
+            cy={node.y}
+            r="45"
+            fill={PALETTE[colors[index] % PALETTE.length] ?? '#58A6FF'}
+            stroke={problem.graph.edges.some(e => (e.source === node.id && colors[index] === colors[nodeIndex.get(e.target)!]) || (e.target === node.id && colors[index] === colors[nodeIndex.get(e.source)!])) ? '#FF7B72' : 'none'}
+            strokeWidth="10"
+          />
+        ))}
+      </svg>
+    </div>
+  );
+}
+
 interface GraphColoringLabProps {
   problem: GraphColoringProblem;
   step: LocalSearchStep | null;
   onCycleNode: (index: number) => void;
   onUpdateGraph?: (graph: GraphColoringProblem['graph']) => void;
 }
-
-const PALETTE = ['#F2C94C', '#58A6FF', '#53C880', '#FF7B72', '#D2A8FF', '#56D4DD', '#FFA657', '#7EE787'];
 
 function ColoringCanvas({
   problem,

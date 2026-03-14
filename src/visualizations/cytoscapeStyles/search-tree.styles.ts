@@ -51,11 +51,13 @@ export function getSearchTreeStyles(showCosts = false): StylesheetStyle[] {
     },
 
     {
-      selector: 'node.path',
+      selector: 'node.path, node.active-path',
       style: {
         'background-opacity': 0.88,
         'shadow-blur': 28,
         'shadow-opacity': 0.78,
+        'border-width': 3,
+        'border-color': '#58A6FF',
       },
     },
 

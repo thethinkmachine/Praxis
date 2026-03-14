@@ -1,4 +1,4 @@
-import type { Dispatch, ReactNode, SetStateAction } from 'react';
+import { useMemo, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import type { AlgorithmStep } from '@/types/step';
 import type { GameProblem, TicTacToeCell, TicTacToePlayer, TicTacToeProblem } from '@/types/problem';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
@@ -9,6 +9,8 @@ import StatTile from '@/components/shared/StatTile';
 import { Dice5, RotateCcw } from '@/components/shared/Icons';
 import { TitleBarActionButton, TitleBarActionGroup } from '@/components/shared/TitleBarAction';
 import TicTacToeLab from '@/components/visualization/TicTacToeLab';
+import SVGAutoCanvas from '@/components/visualization/SVGAutoCanvas';
+import { buildGameTreeElements } from '@/visualizations/adapters/game-tree.adapter';
 import type { TicTacToeTraceHighlight, TicTacToeTraceState } from '@/algorithms/game-playing/types';
 import {
   TIC_TAC_TOE_SCENARIOS,
@@ -143,6 +145,16 @@ function renderTicTacToeTabs(context: GameLabContext<TicTacToeProblem>): TabDefi
   const problem = context.problem;
   const step = context.step as AlgorithmStep<TicTacToeTraceState, TicTacToeTraceHighlight> | null;
 
+  const searchTreeElements = useMemo(() => {
+    if (!step?.state?.searchTree) return [];
+    return buildGameTreeElements(
+      step.state.searchTree,
+      step.highlight.currentNodeId || null,
+      step.highlight.principalVariation || null,
+      step.stepNumber
+    );
+  }, [step?.state?.searchTree, step?.highlight]);
+
   return [
     {
       id: 'board',
@@ -160,6 +172,21 @@ function renderTicTacToeTabs(context: GameLabContext<TicTacToeProblem>): TabDefi
             });
           }}
         />
+      ),
+    },
+    {
+      id: 'tree',
+      label: 'Search Tree',
+      content: (
+        <div className="h-full w-full bg-[#0d1117]">
+          {step?.state?.searchTree ? (
+            <SVGAutoCanvas elements={searchTreeElements} />
+          ) : (
+            <div className="flex h-full items-center justify-center text-[var(--text-3)] text-xs italic">
+              Search tree data will appear here as the algorithm executes.
+            </div>
+          )}
+        </div>
       ),
     },
   ];

@@ -10,6 +10,42 @@ interface TspLabProps {
   onUpdateCities?: (cities: TspProblem['cities']) => void;
 }
 
+export function TspMiniature({ problem, route }: { problem: TspProblem; route: number[] }) {
+  const cities = route.map(index => problem.cities[index]);
+  const width = 64;
+  const height = 64;
+  const minX = Math.min(...problem.cities.map(city => city.x));
+  const maxX = Math.max(...problem.cities.map(city => city.x));
+  const minY = Math.min(...problem.cities.map(city => city.y));
+  const maxY = Math.max(...problem.cities.map(city => city.y));
+  const scaleX = (x: number) => 8 + ((x - minX) / Math.max(maxX - minX, 1)) * (width - 16);
+  const scaleY = (y: number) => 8 + ((y - minY) / Math.max(maxY - minY, 1)) * (height - 16);
+
+  return (
+    <div className="rounded-md border border-[var(--border)] bg-[#0d151f] p-0.5 overflow-hidden w-[64px] h-[64px]">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
+        {cities.map((city, index) => {
+          const next = cities[(index + 1) % cities.length];
+          return (
+            <line
+              key={`${city.id}-${next.id}`}
+              x1={scaleX(city.x)}
+              y1={scaleY(city.y)}
+              x2={scaleX(next.x)}
+              y2={scaleY(next.y)}
+              stroke="rgba(83,200,128,0.72)"
+              strokeWidth="1.5"
+            />
+          );
+        })}
+        {problem.cities.map(city => (
+          <circle key={city.id} cx={scaleX(city.x)} cy={scaleY(city.y)} r="2" fill="#F2C94C" />
+        ))}
+      </svg>
+    </div>
+  );
+}
+
 function RouteCanvas({
   problem,
   route,

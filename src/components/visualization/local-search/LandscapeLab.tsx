@@ -11,6 +11,55 @@ interface LandscapeLabProps {
   onSetInitialState?: (state: LandscapeState) => void;
 }
 
+export function LandscapeMiniature({ problem, current }: { problem: LandscapeProblem; current: LandscapeState }) {
+  const width = 64;
+  const height = 64;
+  const xRange = problem.xRange ?? [-4, 4];
+  const yRange = problem.yRange ?? [-4, 4];
+  const resolution = 12;
+  const cells = useMemo(() => {
+    const samples: Array<{ x: number; y: number; value: number }> = [];
+    for (let row = 0; row < resolution; row++) {
+      for (let col = 0; col < resolution; col++) {
+        const x = xRange[0] + (col / (resolution - 1)) * (xRange[1] - xRange[0]);
+        const y = yRange[0] + (row / (resolution - 1)) * (yRange[1] - yRange[0]);
+        samples.push({ x, y, value: evaluateLandscape(problem, { x, y }) });
+      }
+    }
+    return samples;
+  }, [problem, xRange, yRange]);
+
+  const minValue = Math.min(...cells.map(cell => cell.value));
+  const maxValue = Math.max(...cells.map(cell => cell.value));
+  const color = (value: number) => {
+    const ratio = (value - minValue) / Math.max(maxValue - minValue, 1e-6);
+    const red = Math.round(40 + ratio * 180);
+    const green = Math.round(80 + ratio * 140);
+    const blue = Math.round(120 - ratio * 70);
+    return `rgb(${red}, ${green}, ${blue})`;
+  };
+  const scaleX = (x: number) => ((x - xRange[0]) / (xRange[1] - xRange[0])) * width;
+  const scaleY = (y: number) => height - ((y - yRange[0]) / (yRange[1] - yRange[0])) * height;
+
+  return (
+    <div className="rounded-md border border-[var(--border)] bg-[#0d151f] p-0.5 overflow-hidden w-[64px] h-[64px]">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
+        {cells.map((cell, index) => (
+          <rect
+            key={index}
+            x={scaleX(cell.x) - width / resolution / 2}
+            y={scaleY(cell.y) - height / resolution / 2}
+            width={width / resolution + 1}
+            height={height / resolution + 1}
+            fill={color(cell.value)}
+          />
+        ))}
+        <circle cx={scaleX(current.x)} cy={scaleY(current.y)} r="3" fill="#F2C94C" stroke="#0b1220" strokeWidth="0.5" />
+      </svg>
+    </div>
+  );
+}
+
 function LandscapeSurface({
   problem,
   current,

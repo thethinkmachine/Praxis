@@ -19,6 +19,21 @@ export interface RecursionFrame {
   bestScore?: number | null;
 }
 
+export interface GameTreeNode {
+  id: string;
+  parentId: string | null;
+  board: TicTacToeBoard;
+  move: number | null;
+  score: number | null;
+  alpha?: number;
+  beta?: number;
+  depth: number;
+  player: TicTacToePlayer;
+  isPruned?: boolean;
+  isTerminal?: boolean;
+  discoveryStep: number;
+}
+
 export interface TicTacToeTraceState {
   board: TicTacToeBoard;
   currentPlayer: TicTacToePlayer;
@@ -35,6 +50,7 @@ export interface TicTacToeTraceState {
   terminalWinner?: TicTacToePlayer | 'draw' | null;
   winningLine?: number[] | null;
   principalVariation?: number[];
+  searchTree?: Map<string, GameTreeNode>;
 }
 
 export interface TicTacToeTraceHighlight {
@@ -42,6 +58,7 @@ export interface TicTacToeTraceHighlight {
   candidateCells: Set<number>;
   winningLine: number[] | null;
   principalVariation: number[] | null;
+  currentNodeId?: string | null;
 }
 
 export interface TicTacToeResult {

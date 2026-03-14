@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
 import Select from '@/components/shared/Select';
-import { GraphColoringBoardTab, GraphColoringNeighborhoodTab } from '@/components/visualization/local-search/GraphColoringLab';
+import { GraphColoringBoardTab, GraphColoringNeighborhoodTab, GraphColoringMiniature } from '@/components/visualization/local-search/GraphColoringLab';
 import { ObjectiveTab, TrajectoryTab, ViewOverlay } from '@/components/visualization/local-search/LocalSearchShared';
-import { LandscapeBoardTab, LandscapeNeighborhoodTab } from '@/components/visualization/local-search/LandscapeLab';
-import { NPuzzleBoardTab, NPuzzleNeighborhoodTab } from '@/components/visualization/local-search/NPuzzleLab';
-import { NQueensBoardTab, NQueensNeighborhoodTab } from '@/components/visualization/local-search/NQueensLab';
-import { TspBoardTab, TspNeighborhoodTab } from '@/components/visualization/local-search/TspLab';
+import { LandscapeBoardTab, LandscapeNeighborhoodTab, LandscapeMiniature } from '@/components/visualization/local-search/LandscapeLab';
+import { NPuzzleBoardTab, NPuzzleNeighborhoodTab, NPuzzleMiniature } from '@/components/visualization/local-search/NPuzzleLab';
+import { NQueensBoardTab, NQueensNeighborhoodTab, NQueensMiniature } from '@/components/visualization/local-search/NQueensLab';
+import { TspBoardTab, TspNeighborhoodTab, TspMiniature } from '@/components/visualization/local-search/TspLab';
 import type { LocalSearchStep } from '@/algorithms/local-search/types';
-import { Graph, type GraphColoringProblem, type LandscapePreset, type LandscapeProblem, type LocalSearchProblem, type NPuzzleProblem, type NQueensProblem, type TspProblem } from '@/types/problem';
+import { Graph, type GraphColoringProblem, type LandscapePreset, type LandscapeProblem, type LandscapeState, type LocalSearchProblem, type NPuzzleProblem, type NQueensProblem, type TspProblem } from '@/types/problem';
 import {
   createDefaultGraphColoringProblem,
   createDefaultLandscapeProblem,
@@ -251,6 +251,9 @@ export const LOCAL_SEARCH_LAB_MODULES: LocalSearchLabModule[] = [
         context,
       );
     },
+    renderMiniature(state: number[]) {
+      return <NQueensMiniature state={state} />;
+    },
   },
   {
     id: 'tsp',
@@ -294,6 +297,9 @@ export const LOCAL_SEARCH_LAB_MODULES: LocalSearchLabModule[] = [
         />,
         context,
       );
+    },
+    renderMiniature(state: number[], problem: TspProblem) {
+      return <TspMiniature problem={problem} route={state} />;
     },
   },
   {
@@ -360,6 +366,9 @@ export const LOCAL_SEARCH_LAB_MODULES: LocalSearchLabModule[] = [
         context,
       );
     },
+    renderMiniature(state: number[], problem: GraphColoringProblem) {
+      return <GraphColoringMiniature problem={problem} colors={state} />;
+    },
   },
   {
     id: 'landscape',
@@ -397,6 +406,9 @@ export const LOCAL_SEARCH_LAB_MODULES: LocalSearchLabModule[] = [
         />,
         context,
       );
+    },
+    renderMiniature(state: LandscapeState, problem: LandscapeProblem) {
+      return <LandscapeMiniature problem={problem} current={state} />;
     },
   },
   {
@@ -442,6 +454,9 @@ export const LOCAL_SEARCH_LAB_MODULES: LocalSearchLabModule[] = [
         context,
       );
     },
+    renderMiniature(state: number[], problem: NPuzzleProblem) {
+      return <NPuzzleMiniature state={state} size={problem.size} />;
+    },
   },
 ];
 
@@ -449,6 +464,7 @@ export function renderLocalSearchObjectiveTab() {
   return <ObjectiveTab />;
 }
 
-export function renderLocalSearchTrajectoryTab(step: LocalSearchStep | null) {
-  return <TrajectoryTab step={step} />;
+export function renderLocalSearchTrajectoryTab(problem: LocalSearchProblem, step: LocalSearchStep | null) {
+  const lab = LOCAL_SEARCH_LAB_MODULES.find(m => m.id === problem.kind);
+  return <TrajectoryTab step={step} problem={problem} renderMiniature={lab?.renderMiniature} />;
 }

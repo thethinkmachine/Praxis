@@ -26,6 +26,9 @@ export interface SVGNodeVM {
   gCost?: number;
   hCost?: number;
   fCost?: number;
+  score?: number | null;
+  alpha?: number;
+  beta?: number;
 }
 
 /** SVG edge view model — everything needed to render a single edge */

@@ -169,7 +169,7 @@ export default function LocalSearchPage() {
           { id: 'board', label: 'Problem View', content: activeLab.renderBoardTab(labContext) },
           { id: 'neighborhood', label: 'Neighborhood', content: activeLab.renderNeighborhoodTab(labContext) },
           { id: 'objective', label: 'Objective', content: renderLocalSearchObjectiveTab() },
-          { id: 'trajectory', label: 'Trajectory', content: renderLocalSearchTrajectoryTab(step) },
+          { id: 'trajectory', label: 'Trajectory', content: renderLocalSearchTrajectoryTab(problem, step) },
         ]}
         buildAlgorithmRoute={(algorithmId) => `/local/${algorithmId}?lab=${problem.kind}`}
         titleActions={

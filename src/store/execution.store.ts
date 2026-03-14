@@ -141,15 +141,18 @@ export const useExecutionStore = create<ExecutionState>()(
       const targetIndex = currentIndex - 1;
       const step = engine.seekToStep(targetIndex);
       
-      const allLogs: LogEntry[] = [];
-      for (let i = 0; i <= targetIndex; i++) {
-        const s = engine.seekToStep(i);
-        if (s?.logs) allLogs.push(...s.logs);
-      }
-
       set(state => {
         if (step !== null) state.currentStep = step;
         state.currentIndex = targetIndex;
+        // Efficiently rebuild logs by slicing if we have them cached, 
+        // but since we don't have a full cache in the store, 
+        // we'll at least use the engine's internal step access if possible.
+        const allSteps = engine.getAllSteps();
+        const allLogs: LogEntry[] = [];
+        for (let i = 0; i <= targetIndex; i++) {
+          const sLogs = allSteps[i]?.logs;
+          if (sLogs) allLogs.push(...sLogs);
+        }
         state.logs = allLogs;
         state.isPlaying = false;
       });
@@ -160,10 +163,11 @@ export const useExecutionStore = create<ExecutionState>()(
       if (!engine) return;
       const step = engine.seekToStep(index);
       
+      const allSteps = engine.getAllSteps();
       const allLogs: LogEntry[] = [];
       for (let i = 0; i <= index; i++) {
-        const s = engine.seekToStep(i);
-        if (s?.logs) allLogs.push(...s.logs);
+        const sLogs = allSteps[i]?.logs;
+        if (sLogs) allLogs.push(...sLogs);
       }
 
       set(state => {
@@ -194,10 +198,11 @@ export const useExecutionStore = create<ExecutionState>()(
       const lastIndex = engine.totalSteps - 1;
       const step = engine.seekToStep(lastIndex);
       
+      const allSteps = engine.getAllSteps();
       const allLogs: LogEntry[] = [];
       for (let i = 0; i <= lastIndex; i++) {
-        const s = engine.seekToStep(i);
-        if (s?.logs) allLogs.push(...s.logs);
+        const sLogs = allSteps[i]?.logs;
+        if (sLogs) allLogs.push(...sLogs);
       }
 
       set(state => {

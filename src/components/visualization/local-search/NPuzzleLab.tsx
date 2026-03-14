@@ -9,6 +9,31 @@ interface NPuzzleLabProps {
   onMoveTile: (tileIndex: number) => void;
 }
 
+export function NPuzzleMiniature({ state, size }: { state: number[]; size: number }) {
+  return (
+    <div 
+      className="grid gap-0.5 rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-0.5 overflow-hidden" 
+      style={{ 
+        gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
+        width: '64px',
+        height: '64px'
+      }}
+    >
+      {state.map((tile, idx) => (
+        <div
+          key={`${tile}-${idx}`}
+          className={cn(
+            'aspect-square flex items-center justify-center text-[8px] font-bold border-[0.5px] border-[var(--border)]/30',
+            tile === 0 ? 'bg-[#0d151f] border-dashed' : 'bg-[var(--surface)] text-[var(--text-2)]'
+          )}
+        >
+          {tile !== 0 && tile}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function PuzzleBoard({ problem, tiles, onMoveTile, step }: { problem: NPuzzleProblem; tiles: number[]; onMoveTile: (tileIndex: number) => void; step: LocalSearchStep | null }) {
   const blank = Number(step?.state.domainData.blankIndex ?? tiles.indexOf(0));
   const size = problem.size;

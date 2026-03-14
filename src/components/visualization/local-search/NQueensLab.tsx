@@ -9,6 +9,42 @@ interface SharedProps {
   onSetQueen: (column: number, row: number) => void;
 }
 
+export function NQueensMiniature({ state }: { state: number[] }) {
+  const size = state.length;
+  return (
+    <div 
+      className="grid gap-0.5 rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-1 overflow-hidden"
+      style={{ 
+        gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
+        width: '64px',
+        height: '64px'
+      }}
+    >
+      {Array.from({ length: size * size }, (_, index) => {
+        const row = Math.floor(index / size);
+        const column = index % size;
+        const hasQueen = state[column] === row;
+        const isDark = (row + column) % 2 === 1;
+
+        return (
+          <div
+            key={`${row}-${column}`}
+            className={cn(
+              'aspect-square flex items-center justify-center',
+              isDark ? 'bg-[#101a24]' : 'bg-[#16222f]',
+              hasQueen && 'bg-[#F2C94C]/40'
+            )}
+          >
+            {hasQueen && (
+              <span className="text-[#F2C94C] scale-[0.7]" style={{ fontSize: '8px' }}>♛</span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function QueenBoard({ state, step, onSetQueen }: { state: number[]; step: LocalSearchStep | null; onSetQueen: (column: number, row: number) => void }) {
   const conflictCounts = (step?.state.domainData.conflictCounts as number[] | undefined) ?? Array.from({ length: state.length }, () => 0);
   const movedColumn = Number(step?.state.acceptedMove?.meta?.column ?? step?.state.rejectedMove?.meta?.column ?? -1);

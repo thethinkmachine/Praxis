@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { useExecutionStore } from '@/store/execution.store';
 import type { LocalSearchStep } from '@/algorithms/local-search/types';
+import type { LocalSearchProblem } from '@/types/problem';
 import type { LocalSearchCandidate } from '@/problems/local-search/types';
 
 export function SummaryCards({ step }: { step: LocalSearchStep | null }) {
@@ -190,71 +191,168 @@ export function ObjectiveTab() {
   );
 }
 
-export function TrajectoryTab({ step }: { step: LocalSearchStep | null }) {
+export function TrajectoryTab({
+  step,
+  problem,
+  renderMiniature
+}: {
+  step: LocalSearchStep | null;
+  problem: LocalSearchProblem;
+  renderMiniature?: (state: any, problem: any) => ReactNode;
+}) {
   const engine = useExecutionStore(state => state.engine);
   const currentIndex = useExecutionStore(state => state.currentIndex);
+  const seekToStep = useExecutionStore(state => state.seekToStep);
   const steps = useMemo(() => {
     return (engine?.getAllSteps() ?? []).slice(0, Math.max(currentIndex + 1, 0)) as LocalSearchStep[];
   }, [engine, currentIndex]);
 
+  const handleJump = (stepNumber: number) => {
+    seekToStep(stepNumber);
+  };
+
   return (
     <div className="h-full overflow-y-auto bg-[radial-gradient(circle_at_top_right,rgba(242,201,76,0.11),transparent_24%),var(--bg)]">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4">
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
-          <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">State Trajectory</p>
-          <h2 className="mt-1 text-lg font-semibold text-[var(--text)]">Sampled Run History</h2>
-          <p className="mt-2 text-sm text-[var(--text-2)]">
-            This view focuses on the accepted trajectory instead of pretending to render the full combinatorial state space. Use it to see how the algorithm's decisions accumulate over time.
-          </p>
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 p-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="max-w-xl">
+            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--accent)] mb-2">Algorithm Journey</p>
+            <h2 className="text-3xl font-bold tracking-tight text-[var(--text)]">State Trajectory</h2>
+            <p className="mt-2 text-sm text-[var(--text-3)] leading-relaxed">
+              This timeline captures the evolution of "accepted" states. Unlike a full search tree, local search follows a single path through the state space. Click any milestone to jump back in time.
+            </p>
+          </div>
+          <div className="flex items-center gap-4 px-4 py-2 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/50 shrink-0">
+            <div className="text-right">
+              <p className="text-[9px] font-mono uppercase text-[var(--text-3)]">History Size</p>
+              <p className="text-lg font-bold text-[var(--text)]">{steps.length} <span className="text-xs font-normal text-[var(--text-3)] text-opacity-60">steps</span></p>
+            </div>
+          </div>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-          <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
-            <div className="mb-3 flex items-center justify-between gap-2">
-              <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">Milestones</p>
-              <span className="text-[10px] font-mono text-[var(--text-3)]">{steps.length} recorded steps</span>
-            </div>
-            <div className="space-y-2">
-              {steps.slice(Math.max(steps.length - 12, 0)).map(localStep => (
-                <div key={localStep.stepNumber} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/70 px-3 py-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-medium text-[var(--text)]">{`Step ${localStep.stepNumber}`}</span>
-                    <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">{localStep.phase}</span>
+        <div className="grid gap-8 lg:grid-cols-[1.4fr_0.6fr]">
+          <section className="relative">
+            <div className="absolute left-[31px] top-8 bottom-8 w-0.5 bg-gradient-to-b from-[var(--accent)]/50 via-[var(--border)] to-transparent" />
+            
+            <div className="space-y-8">
+              {steps.slice().reverse().slice(0, 15).map((localStep, idx) => {
+                const isLatest = idx === 0;
+                const isInitial = localStep.stepNumber === 0;
+                
+                return (
+                  <div 
+                    key={localStep.stepNumber} 
+                    onClick={() => handleJump(localStep.stepNumber)}
+                    className={cn(
+                      "group relative pl-16 transition-all cursor-pointer",
+                      isLatest ? "opacity-100" : "opacity-60 hover:opacity-100"
+                    )}
+                  >
+                    <div className={cn(
+                      "absolute left-6 top-6 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-[var(--bg)] transition-transform group-hover:scale-125 z-10",
+                      isLatest ? "bg-[var(--accent)] ring-4 ring-[var(--accent)]/20 shadow-[0_0_12px_rgba(var(--accent-rgb),0.5)]" : "bg-[var(--border)]"
+                    )} />
+
+                    <div className={cn(
+                      "relative rounded-2xl border transition-all duration-300 p-5",
+                      isLatest 
+                        ? "border-[var(--accent)]/30 bg-[var(--accent-soft)]/20 shadow-[0_8px_30px_rgba(0,0,0,0.12)]" 
+                        : "border-[var(--border)] bg-[var(--surface)]/80 hover:border-[var(--border-hover)] hover:bg-[var(--surface-2)]/60"
+                    )}>
+                      <div className="flex flex-col sm:flex-row gap-6">
+                        {renderMiniature && (
+                          <div className="shrink-0 flex items-center justify-center p-1 bg-[#0b1220] rounded-xl border border-[var(--border)] shadow-inner w-[74px] h-[74px]">
+                            {renderMiniature(localStep.state.currentState, problem)}
+                          </div>
+                        )}
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-3 mb-1">
+                            <h3 className="text-base font-bold text-[var(--text)] flex items-center gap-2">
+                              Step {localStep.stepNumber}
+                              {isLatest && <span className="px-1.5 py-0.5 rounded text-[9px] bg-[var(--accent)] text-white uppercase tracking-wider">Active</span>}
+                              {isInitial && <span className="px-1.5 py-0.5 rounded text-[9px] bg-[var(--text-3)]/20 text-[var(--text-3)] uppercase tracking-wider">Start</span>}
+                            </h3>
+                            <span className="text-[10px] font-mono text-[var(--text-3)] bg-[var(--surface-3)] px-2 py-0.5 rounded-full lowercase">
+                              {localStep.phase}
+                            </span>
+                          </div>
+                          <p className="text-sm text-[var(--text-2)] line-clamp-2 mb-3 leading-relaxed">
+                            {localStep.description}
+                          </p>
+                          
+                          <div className="flex flex-wrap gap-4 items-center">
+                            <div className="flex items-center gap-2">
+                              <div className="h-1.5 w-1.5 rounded-full bg-[#F0883E]" />
+                              <span className="text-xs font-medium text-[var(--text-2)]">
+                                {localStep.state.objectiveLabel}: <span className="font-mono text-[var(--text)]">{localStep.state.currentDisplayValue}</span>
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-[var(--text-3)] italic font-mono truncate">
+                              {localStep.state.currentSummary}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <p className="mt-1 text-sm text-[var(--text-2)]">{localStep.description}</p>
-                  <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-[var(--text-2)]">
-                    <span>{`state ${localStep.state.currentSummary}`}</span>
-                    <span>{`${localStep.state.objectiveLabel.toLowerCase()} ${localStep.state.currentDisplayValue}`}</span>
-                  </div>
+                );
+              })}
+              
+              {steps.length > 15 && (
+                <div className="pl-16 pt-2 pb-8 text-xs text-[var(--text-3)] italic">
+                  + {steps.length - 15} earlier steps...
                 </div>
-              ))}
+              )}
             </div>
           </section>
 
-          <section className="space-y-4">
+          <section className="space-y-6">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-6 shadow-sm overflow-hidden relative">
+              <div className="absolute right-[-20px] top-[-20px] h-32 w-32 rounded-full bg-[var(--accent)]/5 blur-3xl" />
+              <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--accent)] mb-3">Performance Peak</p>
+              <div className="flex items-start gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-[var(--text)]">{step?.state.bestSummary ?? 'Waiting...'}</h2>
+                  <p className="mt-2 text-sm text-[var(--text-2)] leading-relaxed">
+                    {step
+                      ? `The best known configuration found so far achieves a ${step.state.objectiveLabel.toLowerCase()} of ${step.state.bestDisplayValue}.`
+                      : 'Launch the engine to start tracking performance.'}
+                  </p>
+                </div>
+              </div>
+              {step && renderMiniature && (
+                <div className="mt-5 pt-5 border-t border-[var(--border)]">
+                  <p className="text-[9px] font-mono uppercase text-[var(--text-3)] mb-3">Best Configuration Preview</p>
+                  <div className="flex justify-center p-4 bg-[#0b1220] rounded-2xl border border-[var(--border)] min-h-[100px] items-center">
+                    {renderMiniature(step.state.bestState, problem)}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {step?.state.populationPreview?.length ? (
-              <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
-                <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">Population / Beam</p>
-                <div className="mt-3 space-y-2">
-                  {step.state.populationPreview.map(member => (
-                    <div key={member.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/70 px-3 py-2">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-sm font-medium text-[var(--text)]">{member.summary}</span>
-                        <span className="text-[11px] font-mono text-[var(--text-2)]">{member.displayValue}</span>
-                      </div>
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-5 shadow-sm">
+                <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)] mb-4">Active Population / Beam</p>
+                <div className="space-y-2">
+                  {step.state.populationPreview.slice(0, 8).map(member => (
+                    <div key={member.id} className="group flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/40 px-3 py-2 hover:bg-[var(--surface-2)] hover:border-[var(--accent)]/30 transition-colors">
+                      <span className="text-xs font-medium text-[var(--text-2)] truncate group-hover:text-[var(--text)]">{member.summary}</span>
+                      <span className="text-[11px] font-mono font-bold text-[var(--accent)]">{member.displayValue}</span>
                     </div>
                   ))}
+                  {step.state.populationPreview.length > 8 && (
+                    <p className="text-center text-[10px] text-[var(--text-3)] mt-2">... and {step.state.populationPreview.length - 8} more members</p>
+                  )}
                 </div>
               </div>
             ) : null}
 
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
-              <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">Best So Far</p>
-              <h2 className="mt-1 text-lg font-semibold text-[var(--text)]">{step?.state.bestSummary ?? 'Run has not started yet.'}</h2>
-              <p className="mt-3 text-sm text-[var(--text-2)]">
-                {step
-                  ? `Best ${step.state.objectiveLabel.toLowerCase()}: ${step.state.bestDisplayValue}.`
-                  : 'Start the algorithm to build a trace.'}
+            <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--surface)]/40 p-5">
+              <h4 className="text-xs font-bold text-[var(--text)] uppercase tracking-wider mb-2">Algorithm Insights</h4>
+              <p className="text-[11px] text-[var(--text-3)] leading-relaxed">
+                Local search algorithms (like Hill Climbing or Simulated Annealing) explore the state space by moving from one configuration to a neighbor.
+                This trajectory tracks the <strong>Accepted</strong> sequence. Click any card to replay that state.
               </p>
             </div>
           </section>

@@ -18,6 +18,7 @@ import {
 } from '@/lib/tic-tac-toe';
 import type {
   EvaluatedMove,
+  GameTreeNode,
   RecursionFrame,
   TicTacToeResult,
   TicTacToeStep,
@@ -59,6 +60,8 @@ export interface TraceSnapshot {
   alpha?: number;
   beta?: number;
   principalVariation?: number[] | null;
+  searchTree?: Map<string, GameTreeNode>;
+  currentNodeId?: string | null;
 }
 
 export function validateTicTacToeProblem(problem: TicTacToeProblem): { valid: boolean; errors: string[]; warnings?: string[] } {
@@ -215,6 +218,7 @@ export function createStep(
     terminalWinner: getWinner(snapshot.board) ?? (isBoardFull(snapshot.board) ? 'draw' : null),
     winningLine: options?.winningLine ?? getWinningLine(snapshot.board),
     principalVariation: snapshot.principalVariation ? [...snapshot.principalVariation] : [],
+    searchTree: snapshot.searchTree, // Shared reference
   };
 
   const highlight: TicTacToeTraceHighlight = {
@@ -222,6 +226,7 @@ export function createStep(
     candidateCells: new Set(availableMoves),
     winningLine: state.winningLine ?? null,
     principalVariation: snapshot.principalVariation ? [...snapshot.principalVariation] : null,
+    currentNodeId: snapshot.currentNodeId ?? null,
   };
 
   return {

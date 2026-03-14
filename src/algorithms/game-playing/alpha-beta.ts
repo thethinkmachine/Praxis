@@ -1,4 +1,4 @@
-import type { RecursionFrame, TicTacToeRunner } from './types';
+import type { GameTreeNode, RecursionFrame, TicTacToeRunner } from './types';
 import {
   createStep,
   createTerminalDescription,
@@ -59,6 +59,21 @@ export const alphaBetaRunner: TicTacToeRunner = {
     const resolved = resolveProblem(problem);
     const ctx = createTraceContext();
     const initialMoves = getLegalMoves(resolved.board);
+    const searchTree = new Map<string, GameTreeNode>();
+
+    const rootNode: GameTreeNode = {
+      id: 'root',
+      parentId: null,
+      board: [...resolved.board],
+      move: null,
+      score: null,
+      alpha: Number.NEGATIVE_INFINITY,
+      beta: Number.POSITIVE_INFINITY,
+      depth: 0,
+      player: resolved.currentPlayer,
+      discoveryStep: 0,
+    };
+    searchTree.set('root', rootNode);
 
     yield createStep(
       ctx,
@@ -73,6 +88,8 @@ export const alphaBetaRunner: TicTacToeRunner = {
         recursionStack: [],
         alpha: Number.NEGATIVE_INFINITY,
         beta: Number.POSITIVE_INFINITY,
+        searchTree,
+        currentNodeId: 'root',
       },
     );
 
@@ -84,6 +101,7 @@ export const alphaBetaRunner: TicTacToeRunner = {
       beta: number,
       incomingMove: number | null,
       stack: RecursionFrame[],
+      nodeId: string,
     ): Generator<ReturnType<typeof createStep>, SearchEvaluation, void> {
       ctx.nodesExpanded++;
       const maximizingTurn = player === resolved.maximizingPlayer;
@@ -100,6 +118,7 @@ export const alphaBetaRunner: TicTacToeRunner = {
         bestScore: null,
       };
       const recursionStack = [...stack, frame];
+      const node = searchTree.get(nodeId)!;
 
       yield createStep(
         ctx,
@@ -115,11 +134,16 @@ export const alphaBetaRunner: TicTacToeRunner = {
           recursionStack,
           alpha,
           beta,
+          searchTree,
+          currentNodeId: nodeId,
         },
       );
 
       if (isTerminal(board)) {
         const terminal = terminalEvaluation(board, resolved.maximizingPlayer, depth);
+        node.score = terminal.score;
+        node.isTerminal = true;
+
         yield createStep(
           ctx,
           'found',
@@ -136,6 +160,8 @@ export const alphaBetaRunner: TicTacToeRunner = {
             recursionStack,
             alpha,
             beta,
+            searchTree,
+            currentNodeId: nodeId,
           },
           { level: 'success', winningLine: terminal.winningLine },
         );
@@ -150,6 +176,20 @@ export const alphaBetaRunner: TicTacToeRunner = {
 
       for (const move of legalMoves) {
         const childBoard = nextBoard(board, move, player);
+        const childId = `${nodeId}-${move}`;
+
+        searchTree.set(childId, {
+          id: childId,
+          parentId: nodeId,
+          board: [...childBoard],
+          move,
+          score: null,
+          alpha,
+          beta,
+          depth: depth + 1,
+          player: nextPlayer(player),
+          discoveryStep: ctx.stepNumber,
+        });
 
         yield createStep(
           ctx,
@@ -168,10 +208,12 @@ export const alphaBetaRunner: TicTacToeRunner = {
             recursionStack,
             alpha,
             beta,
+            searchTree,
+            currentNodeId: childId,
           },
         );
 
-        const child = yield* search(childBoard, nextPlayer(player), depth + 1, alpha, beta, move, recursionStack);
+        const child = yield* search(childBoard, nextPlayer(player), depth + 1, alpha, beta, move, recursionStack, childId);
         evaluatedMoves.push({ move, score: child.score });
 
         const improved = maximizingTurn ? child.score > bestScore : child.score < bestScore;
@@ -190,6 +232,9 @@ export const alphaBetaRunner: TicTacToeRunner = {
         frame.alpha = alpha;
         frame.beta = beta;
         frame.bestScore = bestScore;
+        node.score = bestScore;
+        node.alpha = alpha;
+        node.beta = beta;
 
         yield createStep(
           ctx,
@@ -210,12 +255,33 @@ export const alphaBetaRunner: TicTacToeRunner = {
             alpha,
             beta,
             principalVariation: bestVariation,
+            searchTree,
+            currentNodeId: nodeId,
           },
         );
 
         const shouldPrune = maximizingTurn ? bestScore >= beta : bestScore <= alpha;
         if (shouldPrune) {
           const remainingMoves = legalMoves.filter(candidate => candidate !== move && !evaluatedMoves.some(item => item.move === candidate));
+          
+          for (const m of remainingMoves) {
+            const prunedId = `${nodeId}-${m}`;
+            const prunedBoard = nextBoard(board, m, player);
+            searchTree.set(prunedId, {
+              id: prunedId,
+              parentId: nodeId,
+              board: prunedBoard,
+              move: m,
+              score: null,
+              alpha,
+              beta,
+              depth: depth + 1,
+              player: nextPlayer(player),
+              isPruned: true,
+              discoveryStep: ctx.stepNumber,
+            });
+          }
+
           yield createStep(
             ctx,
             'pruning',
@@ -234,6 +300,8 @@ export const alphaBetaRunner: TicTacToeRunner = {
               alpha,
               beta,
               principalVariation: bestVariation,
+              searchTree,
+              currentNodeId: nodeId,
             },
             { level: 'warn' },
           );
@@ -259,6 +327,8 @@ export const alphaBetaRunner: TicTacToeRunner = {
           alpha,
           beta,
           principalVariation: bestVariation,
+          searchTree,
+          currentNodeId: nodeId,
         },
       );
 
@@ -273,6 +343,7 @@ export const alphaBetaRunner: TicTacToeRunner = {
       Number.POSITIVE_INFINITY,
       null,
       [],
+      'root',
     );
 
     yield createStep(
@@ -292,6 +363,8 @@ export const alphaBetaRunner: TicTacToeRunner = {
         recursionStack: [],
         alpha: Number.NEGATIVE_INFINITY,
         beta: Number.POSITIVE_INFINITY,
+        searchTree,
+        currentNodeId: 'root',
       },
       { level: 'success' },
     );
