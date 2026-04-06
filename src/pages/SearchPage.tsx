@@ -489,11 +489,22 @@ export default function SearchPage() {
     );
   }, [algo, depthLimit, weightedAStarWeight, memoryLimit, isInformedAlgorithm, heuristicId, heuristicDefinition.description, heuristicScale, editorNodes, editorStartId, editorGoalId, editorEdges, selectedIds, updateNode, updateNodeHeuristic, setSelected]);
 
+  // problemForActions: always includes positions for export/save, even if current algo run strips them.
+  const fullProblem = useMemo(() => ({
+    ...algoProblem,
+    graph: new Graph({ 
+      directed: editorIsDirected, 
+      nodes: editorNodes, 
+      edges: editorEdges 
+    }),
+  }), [algoProblem, editorIsDirected, editorNodes, editorEdges]);
+
   return (
     <>
       <AlgorithmPage
         algorithmId={algo}
         problem={algoProblem}
+        problemForActions={fullProblem}
         category={runner?.meta.category ?? 'uninformed-search'}
         problemCategory="graph"
         onProblemImport={handleImport}

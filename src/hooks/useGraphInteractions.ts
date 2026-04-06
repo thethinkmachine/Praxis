@@ -247,8 +247,11 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
         .on('end', function (event: d3.D3DragEvent<SVGGElement, unknown, unknown>) {
           if (!draggedRef.current) return;
           const nodeId = this.dataset.nodeId!;
-          d3.select(this).attr('transform', `translate(${event.x}, ${event.y})`);
-          optionsRef.current.onNodeMoved(nodeId, { x: event.x, y: event.y });
+          // Snap to grid on release
+          const snappedX = Math.round(event.x / GRID_SNAP) * GRID_SNAP;
+          const snappedY = Math.round(event.y / GRID_SNAP) * GRID_SNAP;
+          d3.select(this).attr('transform', `translate(${snappedX}, ${snappedY})`);
+          optionsRef.current.onNodeMoved(nodeId, { x: snappedX, y: snappedY });
         });
 
       sel.call(drag);

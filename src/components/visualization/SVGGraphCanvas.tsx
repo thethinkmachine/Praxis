@@ -15,6 +15,7 @@ import {
   NODE_W,
   NODE_H,
   NODE_RX,
+  GRID_SNAP,
 } from './svg-graph.types';
 import type { SVGNodeVM, SVGEdgeVM, NodeVisualState } from './svg-graph.types';
 
@@ -190,9 +191,25 @@ function fitNodeLabel(label: string): { displayLabel: string; fontSize: number }
 // ---------------------------------------------------------------------------
 // SVG Defs: Arrow markers + Glow filters
 // ---------------------------------------------------------------------------
-function SvgDefs() {
+function SvgDefs({ darkMode, transform }: { darkMode: boolean; transform?: d3.ZoomTransform }) {
   return (
     <defs>
+      {/* Scaling dot grid pattern */}
+      <pattern 
+        id="dot-grid-pattern" 
+        x="0" y="0" 
+        width={GRID_SNAP} 
+        height={GRID_SNAP} 
+        patternUnits="userSpaceOnUse"
+        patternTransform={transform?.toString()}
+      >
+        <circle 
+          cx="1" cy="1" r="1.2" 
+          fill={darkMode ? '#38bdf8' : '#1e293b'} 
+          fillOpacity={darkMode ? 0.12 : 0.18} 
+        />
+      </pattern>
+
       {/* Arrow markers — one per edge color */}
       <marker id="arrow-default" viewBox="0 -5 10 10" refX="10" refY="0"
         markerWidth="8" markerHeight="8" orient="auto" markerUnits="strokeWidth">
@@ -693,13 +710,20 @@ export default function SVGGraphCanvas({
       )}
 
       {/* Canvas area */}
-      <div ref={containerRef} className="flex-1 relative overflow-hidden dot-grid">
+      <div ref={containerRef} className="flex-1 relative overflow-hidden bg-[var(--bg)]">
         <svg
           ref={svgRef}
           className="w-full h-full"
           style={{ cursor: svgCursor }}
         >
-          <SvgDefs />
+          <SvgDefs darkMode={darkMode} transform={transform} />
+
+          {/* ── Background Grid (Infinite) ─────────────────────────── */}
+          <rect 
+            width="100%" height="100%" 
+            fill="url(#dot-grid-pattern)" 
+            style={{ pointerEvents: 'none' }}
+          />
 
           <g ref={mainGroupRef} className="main-group">
             {/* ── Edge layer ─────────────────────────────────────────── */}

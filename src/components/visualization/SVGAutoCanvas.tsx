@@ -208,9 +208,25 @@ function renderGrid(tiles: number[], size: number, totalW: number, darkMode: boo
 // ---------------------------------------------------------------------------
 // SVG Defs — identical to SVGGraphCanvas
 // ---------------------------------------------------------------------------
-function SvgDefs() {
+function SvgDefs({ darkMode, transform }: { darkMode: boolean; transform?: d3.ZoomTransform }) {
   return (
     <defs>
+      {/* Scaling dot grid pattern */}
+      <pattern 
+        id="ac-dot-grid-pattern" 
+        x="0" y="0" 
+        width={GRID_SNAP} 
+        height={GRID_SNAP} 
+        patternUnits="userSpaceOnUse"
+        patternTransform={transform?.toString()}
+      >
+        <circle 
+          cx="1" cy="1" r="1.2" 
+          fill={darkMode ? '#38bdf8' : '#1e293b'} 
+          fillOpacity={darkMode ? 0.12 : 0.18} 
+        />
+      </pattern>
+
       <marker id="ac-arrow-default" viewBox="0 -5 10 10" refX="10" refY="0"
         markerWidth="8" markerHeight="8" orient="auto" markerUnits="strokeWidth">
         <path d="M0,-4L10,0L0,4" fill="#8B949E" />
@@ -458,9 +474,17 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
   }, [nodeVMs]);
 
   return (
-    <div ref={containerRef} className={cn('h-full relative overflow-hidden dot-grid bg-[var(--bg)]', className)}>
+    <div ref={containerRef} className={cn('h-full relative overflow-hidden bg-[var(--bg)]', className)}>
       <svg ref={svgRef} className="w-full h-full" style={{ cursor: 'grab' }}>
-        <SvgDefs />
+        <SvgDefs darkMode={darkMode} transform={transform} />
+        
+        {/* ── Background Grid (Infinite) ─────────────────────────── */}
+        <rect 
+          width="100%" height="100%" 
+          fill="url(#ac-dot-grid-pattern)" 
+          style={{ pointerEvents: 'none' }}
+        />
+
         <g ref={mainGroupRef} className="main-group">
           {/* ── Edges ── */}
           <g>
