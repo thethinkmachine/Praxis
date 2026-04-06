@@ -1,4 +1,5 @@
 import type { GraphNode, GraphProblem, HeuristicConfig, HeuristicId } from '@/types/problem';
+import { GRID_SNAP } from '@/components/visualization/svg-graph.types';
 
 export interface HeuristicDefinition {
   id: HeuristicId;
@@ -78,7 +79,7 @@ function parseGridPoint(node: GraphNode): NodePoint | null {
 function resolveNodePoint(node: GraphNode | undefined): NodePoint | null {
   if (!node) return null;
   if (Number.isFinite(node.x) && Number.isFinite(node.y)) {
-    return { x: Number(node.x), y: Number(node.y) };
+    return { x: Number(node.x) / GRID_SNAP, y: Number(node.y) / GRID_SNAP };
   }
   return parseGridPoint(node);
 }

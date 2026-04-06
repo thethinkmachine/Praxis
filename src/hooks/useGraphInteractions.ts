@@ -27,6 +27,7 @@ interface UseGraphInteractionsOptions {
   onNodeMoved: (nodeId: string, position: { x: number; y: number }) => void;
   onEdgeAdded: (sourceId: string, targetId: string) => void;
   onNodeDragging?: (nodeId: string, pos: { x: number; y: number }) => void;
+  snapToGrid?: boolean;
 }
 
 interface SelectionBoxRect {
@@ -247,11 +248,17 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
         .on('end', function (event: d3.D3DragEvent<SVGGElement, unknown, unknown>) {
           if (!draggedRef.current) return;
           const nodeId = this.dataset.nodeId!;
-          // Snap to grid on release
-          const snappedX = Math.round(event.x / GRID_SNAP) * GRID_SNAP;
-          const snappedY = Math.round(event.y / GRID_SNAP) * GRID_SNAP;
-          d3.select(this).attr('transform', `translate(${snappedX}, ${snappedY})`);
-          optionsRef.current.onNodeMoved(nodeId, { x: snappedX, y: snappedY });
+          
+          let finalX = event.x;
+          let finalY = event.y;
+
+          if (optionsRef.current.snapToGrid) {
+            finalX = Math.round(event.x / GRID_SNAP) * GRID_SNAP;
+            finalY = Math.round(event.y / GRID_SNAP) * GRID_SNAP;
+          }
+
+          d3.select(this).attr('transform', `translate(${finalX}, ${finalY})`);
+          optionsRef.current.onNodeMoved(nodeId, { x: finalX, y: finalY });
         });
 
       sel.call(drag);
@@ -362,11 +369,17 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
       if (m === 'addNode' && (target === svg || target.closest('.main-group'))) {
         const t = d3.zoomTransform(svg);
         const rect = svg.getBoundingClientRect();
-        const graphX = (e.clientX - rect.left - t.x) / t.k;
-        const graphY = (e.clientY - rect.top - t.y) / t.k;
+        let graphX = (e.clientX - rect.left - t.x) / t.k;
+        let graphY = (e.clientY - rect.top - t.y) / t.k;
+        
+        if (optionsRef.current.snapToGrid) {
+          graphX = Math.round(graphX / GRID_SNAP) * GRID_SNAP;
+          graphY = Math.round(graphY / GRID_SNAP) * GRID_SNAP;
+        }
+
         optionsRef.current.onBackgroundClick({
-          x: Math.round(graphX / GRID_SNAP) * GRID_SNAP,
-          y: Math.round(graphY / GRID_SNAP) * GRID_SNAP,
+          x: graphX,
+          y: graphY,
         });
       } else if (m === 'select') {
         optionsRef.current.onEmptyClick?.({ append });

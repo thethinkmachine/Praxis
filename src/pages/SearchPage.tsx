@@ -230,6 +230,7 @@ export default function SearchPage() {
           description={step?.description}
           algorithmCategory={runner?.meta.category ?? 'uninformed-search'}
           onDemoSelect={handleDemoSelect}
+          snapToGrid={heuristicId === 'manhattan-distance' || heuristicId === 'chebyshev-distance'}
           className="h-full"
         />
       ),

@@ -28,6 +28,7 @@ interface SVGGraphCanvasProps {
   description?: string;
   algorithmCategory?: AlgorithmCategory;
   onDemoSelect?: (problemId: string) => void;
+  snapToGrid?: boolean;
   className?: string;
 }
 
@@ -252,6 +253,7 @@ export default function SVGGraphCanvas({
   description,
   algorithmCategory,
   onDemoSelect,
+  snapToGrid = false,
   className,
 }: SVGGraphCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -587,6 +589,7 @@ export default function SVGGraphCanvas({
     onNodeMoved: handleNodeMoved,
     onEdgeAdded: handleEdgeAdded,
     onNodeDragging: (nodeId, pos) => setLiveDrag({ nodeId, ...pos }),
+    snapToGrid,
   });
 
   // ── Keyboard shortcuts (undo/redo) ───────────────────────────────────────
