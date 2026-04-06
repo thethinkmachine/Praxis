@@ -138,6 +138,30 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
   const costs = st.costs instanceof Map ? (st.costs as Map<string, number>) : undefined;
   const hasCosts = !!(fCosts || gCosts || hCosts || costs);
 
+  const sortedFrontier = useMemo(() => {
+    if (!frontier || frontier.length === 0) return [];
+
+    // 1. If it's explicitly a stack, never sort by cost. Order should be LIFO (reverse).
+    if (st.isStack) {
+      return [...frontier].reverse();
+    }
+    
+    // 2. If it's a cost-based priority queue (e.g., A*, UCS), sort by active cost
+    if (fCosts || costs || gCosts || hCosts) {
+      return [...frontier].sort((aObj, bObj) => {
+        const aId = typeof aObj === 'object' && aObj !== null ? (aObj as Record<string, unknown>).id as string : String(aObj);
+        const bId = typeof bObj === 'object' && bObj !== null ? (bObj as Record<string, unknown>).id as string : String(bObj);
+        
+        const costA = fCosts?.get(aId) ?? costs?.get(aId) ?? gCosts?.get(aId) ?? hCosts?.get(aId) ?? 0;
+        const costB = fCosts?.get(bId) ?? costs?.get(bId) ?? gCosts?.get(bId) ?? hCosts?.get(bId) ?? 0;
+        return costA - costB;
+      });
+    }
+
+    // 3. Queue (BFS) or default
+    return frontier;
+  }, [frontier, fCosts, costs, gCosts, hCosts, st.isStack]);
+
   return (
     <div className="h-full flex flex-col bg-[var(--surface)] overflow-hidden">
       <div className="flex-1 overflow-y-auto text-xs divide-y divide-[var(--border)]">
@@ -192,10 +216,10 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
             )}
 
             {/* Open list / Frontier */}
-            <Section title="Open List" count={frontier.length}>
-              {frontier.length > 0 ? (
+            <Section title="Open List" count={sortedFrontier.length}>
+              {sortedFrontier.length > 0 ? (
                 <div className="px-3 py-2 flex flex-wrap gap-1.5">
-                  {frontier.map((node, i) => {
+                  {sortedFrontier.map((node, i) => {
                     const isObj = typeof node === 'object' && node !== null;
                     const id = isObj ? (node as Record<string, unknown>).id as string : String(node);
                     const isCurrent = id === (st.currentNode as string | undefined);

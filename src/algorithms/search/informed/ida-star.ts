@@ -16,6 +16,7 @@ interface IDAStarState {
   fCosts: Map<string, number>;
   threshold: number;
   iteration: number;
+  isStack?: boolean;
 }
 
 export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHighlight> = {
@@ -82,6 +83,7 @@ export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHi
       fCosts: new Map([[problem.startNode, h0]]),
       threshold: h0,
       iteration: 1,
+      isStack: true,
     };
   },
 
@@ -116,6 +118,7 @@ export const idaStarRunner: AlgorithmRunner<GraphProblem, IDAStarState, SearchHi
       fCosts: deepClone(fCosts),
       threshold,
       iteration,
+      isStack: true,
     });
 
     yield {

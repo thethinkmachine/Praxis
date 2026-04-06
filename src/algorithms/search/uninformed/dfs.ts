@@ -44,6 +44,7 @@ export const dfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
       explored: new Set(),
       pathMap: new Map([[problem.startNode, null]]),
       foundPath: null,
+      isStack: true,
     };
   },
 
@@ -63,6 +64,7 @@ export const dfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
       explored: deepClone(explored),
       pathMap: deepClone(pathMap),
       foundPath: null,
+      isStack: true,
     });
 
     yield {

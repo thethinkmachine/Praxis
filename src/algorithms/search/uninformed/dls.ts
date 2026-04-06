@@ -53,6 +53,7 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
       explored: new Set(),
       pathMap: new Map([[problem.startNode, null]]),
       foundPath: null,
+      isStack: true,
     };
   },
 
@@ -73,6 +74,7 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
       explored: deepClone(explored),
       pathMap: deepClone(pathMap),
       foundPath: null,
+      isStack: true,
     });
 
     yield {
