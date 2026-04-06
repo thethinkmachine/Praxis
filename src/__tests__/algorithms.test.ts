@@ -24,6 +24,22 @@ function runToEnd(algorithmId: string, problem: unknown): AlgorithmStep {
   return last;
 }
 
+function collectAllSteps(algorithmId: string, problem: unknown): AlgorithmStep[] {
+  const entry = registry.get(algorithmId);
+  if (!entry) throw new Error(`Algorithm "${algorithmId}" not registered`);
+
+  const gen = entry.runner.run(problem);
+  const steps: AlgorithmStep[] = [];
+  let result = gen.next();
+
+  while (!result.done) {
+    steps.push(result.value as AlgorithmStep);
+    result = gen.next();
+  }
+
+  return steps;
+}
+
 function getFinalPath(step: AlgorithmStep): string[] | null {
   const st = step.state as Record<string, unknown>;
   if (Array.isArray(st.foundPath)) return st.foundPath as string[];
@@ -113,6 +129,126 @@ describe('Informed Search', () => {
     expect(path).not.toBeNull();
     expect(path![0]).toBe(romaniaMapProblem.startNode);
     expect(path![path!.length - 1]).toBe(romaniaMapProblem.goalNode);
+  });
+
+  it('Bidirectional A* path has no duplicate nodes', () => {
+    const step = runToEnd('bidirectional-astar', romaniaMapProblem);
+    const path = getFinalPath(step);
+    expect(path).not.toBeNull();
+    const unique = new Set(path!);
+    expect(unique.size).toBe(path!.length);
+  });
+});
+
+describe('Heuristic Cost Verification', () => {
+  // Expected values from AIMA textbook: Arad→Bucharest via Romania map
+  // A* optimal path: Arad→Sibiu→RimnicuVilcea→Pitesti→Bucharest, cost=418
+  const ROMANIA_HEURISTICS: Record<string, number> = {
+    Arad: 366, Sibiu: 253, Fagaras: 176,
+    RimnicuVilcea: 193, Pitesti: 100, Bucharest: 0,
+  };
+
+  function getExpandSteps(algorithmId: string, problem: unknown) {
+    const steps = collectAllSteps(algorithmId, problem);
+    return steps.filter(s => s.phase === 'expanding');
+  }
+
+  it('A* produces correct g, h, f values on Romania map', () => {
+    const expandSteps = getExpandSteps('astar', romaniaMapProblem);
+
+    // First expansion should be Arad: g=0, h=366, f=366
+    const first = expandSteps[0];
+    expect(first.metrics.pathCost).toBe(0);
+    expect(first.metrics.hCost).toBe(366);
+    expect(first.metrics.fCost).toBe(366);
+
+    // Final expansion should find Bucharest with optimal g=418
+    const last = expandSteps[expandSteps.length - 1];
+    expect(last.metrics.pathCost).toBe(418);
+    expect(last.metrics.hCost).toBe(0);
+    expect(last.metrics.fCost).toBe(418);
+
+    // Verify h values are always the correct textbook heuristic
+    for (const step of expandSteps) {
+      const nodeId = (step.highlight as { currentNode: string | null }).currentNode as string;
+      const expectedH = ROMANIA_HEURISTICS[nodeId];
+      if (expectedH !== undefined) {
+        expect(step.metrics.hCost).toBe(expectedH);
+      }
+    }
+  });
+
+  it('A* optimal path cost is 418 (Arad→Sibiu→RimnicuVilcea→Pitesti→Bucharest)', () => {
+    const final = runToEnd('astar', romaniaMapProblem);
+    expect(final.phase).toBe('found');
+    expect(final.metrics.pathCost).toBe(418);
+    const path = getFinalPath(final);
+    expect(path).toEqual(['Arad', 'Sibiu', 'RimnicuVilcea', 'Pitesti', 'Bucharest']);
+  });
+
+  it('A* f-values are monotonically non-decreasing for expanded nodes', () => {
+    const expandSteps = getExpandSteps('astar', romaniaMapProblem);
+    for (let i = 1; i < expandSteps.length; i++) {
+      expect(expandSteps[i].metrics.fCost!).toBeGreaterThanOrEqual(
+        expandSteps[i - 1].metrics.fCost!
+      );
+    }
+  });
+
+  it('Greedy BFS uses h-only for priority (f = h at each expansion)', () => {
+    const expandSteps = getExpandSteps('greedy-bfs', romaniaMapProblem);
+
+    // In Greedy BFS, the reported fCost should equal hCost (f = h)
+    for (const step of expandSteps) {
+      expect(step.metrics.fCost).toBe(step.metrics.hCost);
+    }
+
+    // First expansion is Arad with h=366
+    expect(expandSteps[0].metrics.hCost).toBe(366);
+  });
+
+  it('Weighted A* inflates heuristic by weight w', () => {
+    const w = 2.0;
+    const expandSteps = getExpandSteps('weighted-astar', { ...romaniaMapProblem, weight: w });
+
+    // For each expansion: f_w should equal g + w*h
+    for (const step of expandSteps) {
+      const g = step.metrics.pathCost ?? 0;
+      const h = step.metrics.hCost ?? 0;
+      const expectedFw = g + w * h;
+      expect(step.metrics.fCost).toBeCloseTo(expectedFw, 5);
+    }
+  });
+
+  it('IDA* finds optimal path with correct cost', () => {
+    const final = runToEnd('ida-star', romaniaMapProblem);
+    expect(final.phase).toBe('found');
+    expect(final.metrics.pathCost).toBe(418);
+  });
+
+  it('IDA* h values match textbook at visit steps', () => {
+    const steps = collectAllSteps('ida-star', romaniaMapProblem);
+    const visitSteps = steps.filter(s => s.phase === 'visiting');
+
+    for (const step of visitSteps) {
+      const nodeId = (step.highlight as { currentNode: string | null }).currentNode as string;
+      const expectedH = ROMANIA_HEURISTICS[nodeId];
+      if (expectedH !== undefined) {
+        expect(step.metrics.hCost).toBe(expectedH);
+      }
+    }
+  });
+
+  it('RBFS finds optimal path with correct cost', () => {
+    const final = runToEnd('rbfs', romaniaMapProblem);
+    expect(final.phase).toBe('found');
+    expect(final.metrics.pathCost).toBe(418);
+  });
+
+  it('SMA* returns correct optimal cost', () => {
+    const final = runToEnd('sma-star', { ...romaniaMapProblem, memoryLimit: 24 });
+    expect(final.phase).toBe('found');
+    expect(final.metrics.pathCost).toBe(418);
   });
 });
 

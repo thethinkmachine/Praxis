@@ -60,11 +60,19 @@ export default function SearchPage() {
   const updateNode = useEditorStore(s => s.updateNode);
   const setSelected = useEditorStore(s => s.setSelected);
 
+  // Whether the chosen heuristic requires spatial coordinates (x,y) to evaluate.
+  const heuristicNeedsGeometry = isInformedAlgorithm && heuristicDefinition.requiresGeometry === true;
+
   // Topology fingerprint — stable string that changes only when nodes are
   // added/removed/renamed, NOT when positions change.
+  // Exception: when using a geometry-based heuristic, position changes ARE
+  // topologically significant because they alter h(n).
   const nodeTopoKey = useEditorStore(
     s => s.nodes
-      .map(n => `${n.id}:${n.label ?? ''}:${n.heuristic ?? ''}`)
+      .map(n => {
+        const base = `${n.id}:${n.label ?? ''}:${n.heuristic ?? ''}`;
+        return heuristicNeedsGeometry ? `${base}:${n.x ?? ''}:${n.y ?? ''}` : base;
+      })
       .sort()
       .join(','),
   );
@@ -102,13 +110,17 @@ export default function SearchPage() {
   }, []);
 
   // ── Problems ─────────────────────────────────────────────────────────
-  // algoProblem: topology-only (no positions) — changing this reloads the engine.
-  // Uses nodeTopoKey as the trigger so position-only changes (drags) are ignored.
+  // algoProblem: topology-only by default (no positions) — so dragging
+  // nodes doesn't reload the engine. But geometry-based heuristics NEED
+  // positions to compute h(n), so include them when required.
   const algoProblem = useMemo<GraphProblem>(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const topoNodes = useEditorStore.getState().nodes.map(({ x: _x, y: _y, ...n }) => n);
+    const currentNodes = useEditorStore.getState().nodes;
+    const algoNodes = heuristicNeedsGeometry
+      ? currentNodes                             // keep x,y for distance heuristics
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      : currentNodes.map(({ x: _x, y: _y, ...n }) => n); // strip positions
     const baseProblem = {
-      graph: new Graph({ directed: editorIsDirected, nodes: topoNodes, edges: editorEdges }),
+      graph: new Graph({ directed: editorIsDirected, nodes: algoNodes, edges: editorEdges }),
       startNode: editorStartId ?? '',
       goalNode: editorGoalId ?? '',
       useHeuristic: isInformedAlgorithm,
@@ -129,7 +141,7 @@ export default function SearchPage() {
       return { ...baseProblem, memoryLimit };
     }
     return baseProblem;
-  }, [algo, nodeTopoKey, editorEdges, editorStartId, editorGoalId, editorIsDirected, isInformedAlgorithm, heuristicId, heuristicScale, depthLimit, weightedAStarWeight, memoryLimit]);
+  }, [algo, nodeTopoKey, editorEdges, editorStartId, editorGoalId, editorIsDirected, isInformedAlgorithm, heuristicId, heuristicScale, heuristicNeedsGeometry, depthLimit, weightedAStarWeight, memoryLimit]);
 
   // displayProblem: includes positions — used only for Cytoscape element generation.
   const displayProblem = useMemo<GraphProblem>(() => ({

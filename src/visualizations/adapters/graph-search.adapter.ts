@@ -87,7 +87,13 @@ export function createGraphSearchAdapter(
         let gCost: number | undefined, hCost: number | undefined, fCost: number | undefined;
         if (hasCostMaps(state)) {
           gCost = state.gCosts?.get(node.id) ?? state.costs?.get(node.id);
-          hCost = state.hCosts?.get(node.id) ?? (node.heuristic !== undefined ? node.heuristic : undefined);
+          // Prefer dynamic hCosts from the algorithm; only fall back to static
+          // node.heuristic when no dynamic map is available (uninformed runners).
+          if (state.hCosts && state.hCosts.has(node.id)) {
+            hCost = state.hCosts.get(node.id);
+          } else if (!state.hCosts || state.hCosts.size === 0) {
+            hCost = node.heuristic !== undefined ? node.heuristic : undefined;
+          }
           fCost = state.fCosts?.get(node.id);
         } else {
           hCost = node.heuristic !== undefined ? node.heuristic : undefined;

@@ -191,7 +191,8 @@ export const bidirectionalAstarRunner: AlgorithmRunner<GraphProblem, Bidirection
 
     const stitchPath = (meeting: string): string[] => {
       const forward = reconstructPath(pathMapF, meeting);
-      const backward: string[] = [meeting];
+      // forward already ends with 'meeting', so backward starts from its parent
+      const backward: string[] = [];
       let cur = pathMapB.get(meeting) ?? null;
       while (cur !== null) {
         backward.push(cur);
