@@ -153,9 +153,15 @@ function borderIntersection(
   cx: number, cy: number,
   angle: number,
   hw: number, hh: number,
+  isCircle: boolean = false
 ): { x: number; y: number } {
   const cosA = Math.cos(angle);
   const sinA = Math.sin(angle);
+  
+  if (isCircle) {
+    return { x: cx + hw * cosA, y: cy + hh * sinA };
+  }
+
   const tx = cosA !== 0 ? hw / Math.abs(cosA) : Infinity;
   const ty = sinA !== 0 ? hh / Math.abs(sinA) : Infinity;
   const t = Math.min(tx, ty);
@@ -165,19 +171,21 @@ function borderIntersection(
 function getEdgeEndpoints(
   sx: number, sy: number,
   tx: number, ty: number,
+  srcIsCircle: boolean = false,
+  tgtIsCircle: boolean = false,
 ) {
   const dx = tx - sx;
   const dy = ty - sy;
   if (dx === 0 && dy === 0) return { x1: sx, y1: sy, x2: tx, y2: ty };
 
   const angle = Math.atan2(dy, dx);
-  const srcHW = NODE_W / 2;
-  const srcHH = NODE_H / 2;
-  const tgtHW = NODE_W / 2;
-  const tgtHH = NODE_H / 2;
+  const srcHW = srcIsCircle ? 16 : NODE_W / 2;
+  const srcHH = srcIsCircle ? 16 : NODE_H / 2;
+  const tgtHW = tgtIsCircle ? 16 : NODE_W / 2;
+  const tgtHH = tgtIsCircle ? 16 : NODE_H / 2;
 
-  const src = borderIntersection(sx, sy, angle, srcHW, srcHH);
-  const tgt = borderIntersection(tx, ty, angle + Math.PI, tgtHW, tgtHH);
+  const src = borderIntersection(sx, sy, angle, srcHW, srcHH, srcIsCircle);
+  const tgt = borderIntersection(tx, ty, angle + Math.PI, tgtHW, tgtHH, tgtIsCircle);
 
   return { x1: src.x, y1: src.y, x2: tgt.x, y2: tgt.y };
 }
@@ -739,8 +747,11 @@ export default function SVGGraphCanvas({
 
                 const srcPos = liveNodePos(srcNode);
                 const tgtPos = liveNodePos(tgtNode);
+                const srcIsCircle = srcNode.label.length <= 2;
+                const tgtIsCircle = tgtNode.label.length <= 2;
                 const { x1, y1, x2, y2 } = getEdgeEndpoints(
                   srcPos.x, srcPos.y, tgtPos.x, tgtPos.y,
+                  srcIsCircle, tgtIsCircle
                 );
 
                 const style = edge.isPath ? activeEdgeColors.path
@@ -829,6 +840,8 @@ export default function SVGGraphCanvas({
             <g className="nodes-layer">
               {nodeVMs.map(node => {
                 const theme = activeNodeTheme[node.state];
+                const isCircle = node.label.length <= 2;
+                const r = 16;
                 const w = NODE_W;
                 const h = NODE_H;
                 const isExplored = node.state === 'explored';
@@ -868,27 +881,51 @@ export default function SVGGraphCanvas({
                     }}
                   >
                     {/* Node body */}
-                    <rect
-                      x={-w / 2} y={-h / 2}
-                      width={w} height={h}
-                      rx={NODE_RX}
-                      fill={theme.fill}
-                      fillOpacity={theme.fillOpacity}
-                      stroke={isSelected ? (darkMode ? '#79C0FF' : '#2563EB') : theme.border}
-                      strokeWidth={isSelected ? theme.borderWidth + 1.4 : theme.borderWidth}
-                      style={{ transition: 'fill 0.3s ease, stroke 0.3s ease, stroke-width 0.3s ease' }}
-                    />
-                    {isSelected && (
-                      <rect
-                        x={-w / 2 - 3} y={-h / 2 - 3}
-                        width={w + 6} height={h + 6}
-                        rx={NODE_RX + 2}
-                        fill="none"
-                        stroke={darkMode ? '#79C0FF' : '#2563EB'}
-                        strokeOpacity={0.5}
-                        strokeWidth={1}
-                        style={{ pointerEvents: 'none' }}
+                    {isCircle ? (
+                      <circle
+                        cx={0} cy={0}
+                        r={r}
+                        fill={theme.fill}
+                        fillOpacity={theme.fillOpacity}
+                        stroke={isSelected ? (darkMode ? '#79C0FF' : '#2563EB') : theme.border}
+                        strokeWidth={isSelected ? theme.borderWidth + 1.4 : theme.borderWidth}
+                        style={{ transition: 'fill 0.3s ease, stroke 0.3s ease, stroke-width 0.3s ease' }}
                       />
+                    ) : (
+                      <rect
+                        x={-w / 2} y={-h / 2}
+                        width={w} height={h}
+                        rx={NODE_RX}
+                        fill={theme.fill}
+                        fillOpacity={theme.fillOpacity}
+                        stroke={isSelected ? (darkMode ? '#79C0FF' : '#2563EB') : theme.border}
+                        strokeWidth={isSelected ? theme.borderWidth + 1.4 : theme.borderWidth}
+                        style={{ transition: 'fill 0.3s ease, stroke 0.3s ease, stroke-width 0.3s ease' }}
+                      />
+                    )}
+                    {isSelected && (
+                      isCircle ? (
+                        <circle
+                          cx={0} cy={0}
+                          r={r + 3}
+                          fill="none"
+                          stroke={darkMode ? '#79C0FF' : '#2563EB'}
+                          strokeOpacity={0.5}
+                          strokeWidth={1}
+                          style={{ pointerEvents: 'none' }}
+                        />
+                      ) : (
+                        <rect
+                          x={-w / 2 - 3} y={-h / 2 - 3}
+                          width={w + 6} height={h + 6}
+                          rx={NODE_RX + 2}
+                          fill="none"
+                          stroke={darkMode ? '#79C0FF' : '#2563EB'}
+                          strokeOpacity={0.5}
+                          strokeWidth={1}
+                          style={{ pointerEvents: 'none' }}
+                        />
+                      )
                     )}
                     {/* Label */}
                     {(() => {
