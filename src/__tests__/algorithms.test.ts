@@ -182,19 +182,27 @@ describe('Informed Search', () => {
     expect(path![path!.length - 1]).toBe(romaniaMapProblem.goalNode);
   });
 
-  it('SMGS populates open, closed, kernel, boundary, and current-node panels consistently', () => {
+  it('SMGS populates sparse-memory panels consistently', () => {
     const steps = collectAllSteps('smgs', { ...romaniaMapProblem, memoryLimit: 24 });
     let sawBoundary = false;
+    let sawSparsePath = false;
 
     for (const step of steps) {
       const state = step.state as Record<string, unknown>;
       const openSet = Array.isArray(state.openSet) ? state.openSet as string[] : [];
       const closed = state.explored instanceof Set ? [...state.explored as Set<string>] : [];
-      const pathMap = state.pathMap instanceof Map ? state.pathMap as Map<string, string | null> : new Map<string, string | null>();
+      const kernelNodes = Array.isArray(state.kernelNodes) ? state.kernelNodes as string[] : [];
+      const boundaryNodes = Array.isArray(state.boundaryNodes) ? state.boundaryNodes as string[] : [];
+      const relayNodes = Array.isArray(state.relayNodes) ? state.relayNodes as string[] : [];
+      const sparsePath = Array.isArray(state.sparsePath) ? state.sparsePath as string[] : null;
+      const pValues = state.pValues instanceof Map ? state.pValues as Map<string, number> : new Map<string, number>();
       const currentNode = (step.highlight as { currentNode?: string | null } | undefined)?.currentNode ?? null;
 
       expect(getChipPanelIds(step, 'Frontier (Open Set)')).toEqual(openSet);
       expect(getChipPanelIds(step, 'Closed')).toEqual(closed);
+      expect(sortedIds(getChipPanelIds(step, 'Kernel'))).toEqual(sortedIds(kernelNodes));
+      expect(sortedIds(getChipPanelIds(step, 'Boundary'))).toEqual(sortedIds(boundaryNodes));
+      expect(sortedIds(getChipPanelIds(step, 'Relay Nodes'))).toEqual(sortedIds(relayNodes));
 
       if (currentNode) {
         expect(getChipPanelIds(step, 'Current Node')).toEqual([currentNode]);
@@ -202,28 +210,20 @@ describe('Informed Search', () => {
         expect(getPanel(step, 'Current Node')).toBeUndefined();
       }
 
-      const closedSet = new Set(closed);
-      const openNodes = new Set(openSet);
-      const expectedBoundary = closed.filter((id) => {
-        const parent = pathMap.get(id) ?? null;
-        const parentMissingFromClosed = parent !== null && !closedSet.has(parent);
-        const hasOpenChild = [...pathMap].some(([child, childParent]) => childParent === id && openNodes.has(child));
-        return parentMissingFromClosed || hasOpenChild;
-      }).sort();
-      const expectedKernel = closed.filter(id => !expectedBoundary.includes(id)).sort();
+      expect(sortedIds(boundaryNodes)).toEqual(sortedIds(closed.filter(id => (pValues.get(id) ?? 0) > 0)));
+      expect(sortedIds(kernelNodes)).toEqual(sortedIds(closed.filter(id => (pValues.get(id) ?? 0) === 0)));
 
-      const actualBoundary = (getChipPanelIds(step, 'Boundary') ?? []).slice().sort();
-      const actualKernel = (getChipPanelIds(step, 'Kernel') ?? []).slice().sort();
-
-      expect(actualBoundary).toEqual(expectedBoundary);
-      expect(actualKernel).toEqual(expectedKernel);
-
-      if (actualBoundary.length > 0) {
+      if (boundaryNodes.length > 0) {
         sawBoundary = true;
+      }
+      if (sparsePath) {
+        expect(getChipPanelIds(step, 'Sparse Path')).toEqual(sparsePath);
+        sawSparsePath = true;
       }
     }
 
     expect(sawBoundary).toBe(true);
+    expect(sawSparsePath).toBe(true);
   });
 
   it('Bidirectional A* finds a valid path', () => {
