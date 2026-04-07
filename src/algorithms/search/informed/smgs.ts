@@ -169,12 +169,6 @@ export const smgsRunner: AlgorithmRunner<SMGSProblem, SMGSState, SearchHighlight
           boundary.push(id);
         }
       }
-
-      kernel.sort((a, b) => {
-        const diff = (fCosts.get(b) ?? Infinity) - (fCosts.get(a) ?? Infinity);
-        return diff !== 0 ? diff : labelOf(a).localeCompare(labelOf(b));
-      });
-      boundary.sort((a, b) => labelOf(a).localeCompare(labelOf(b)));
       return { kernel, boundary };
     };
 
@@ -289,7 +283,7 @@ export const smgsRunner: AlgorithmRunner<SMGSProblem, SMGSState, SearchHighlight
         openSet: openList(),
         kernelNodes: kernel,
         boundaryNodes: boundary,
-        relayNodes: [...relayNodes].sort((a, b) => labelOf(a).localeCompare(labelOf(b))),
+        relayNodes: [...relayNodes],
         sparsePath,
         pValues: deepClone(pValues),
       };

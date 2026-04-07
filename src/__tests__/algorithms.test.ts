@@ -65,8 +65,8 @@ function getChipPanelIds(step: AlgorithmStep, title: string): string[] | null {
   return panel.items.map(item => item.id);
 }
 
-function sortedIds(ids: string[] | null | undefined): string[] {
-  return [...(ids ?? [])].sort();
+function panelIds(ids: string[] | null | undefined): string[] {
+  return [...(ids ?? [])];
 }
 
 beforeAll(() => {
@@ -231,9 +231,9 @@ describe('Informed Search', () => {
 
       expect(getChipPanelIds(step, 'Frontier (Open Set)')).toEqual(openSet);
       expect(getChipPanelIds(step, 'Closed')).toEqual(closed);
-      expect(sortedIds(getChipPanelIds(step, 'Kernel'))).toEqual(sortedIds(kernelNodes));
-      expect(sortedIds(getChipPanelIds(step, 'Boundary'))).toEqual(sortedIds(boundaryNodes));
-      expect(sortedIds(getChipPanelIds(step, 'Relay Nodes'))).toEqual(sortedIds(relayNodes));
+      expect(panelIds(getChipPanelIds(step, 'Kernel'))).toEqual(panelIds(kernelNodes));
+      expect(panelIds(getChipPanelIds(step, 'Boundary'))).toEqual(panelIds(boundaryNodes));
+      expect(panelIds(getChipPanelIds(step, 'Relay Nodes'))).toEqual(panelIds(relayNodes));
 
       if (currentNode) {
         expect(getChipPanelIds(step, 'Current Node')).toEqual([currentNode]);
@@ -241,8 +241,8 @@ describe('Informed Search', () => {
         expect(getPanel(step, 'Current Node')).toBeUndefined();
       }
 
-      expect(sortedIds(boundaryNodes)).toEqual(sortedIds(closed.filter(id => (pValues.get(id) ?? 0) > 0)));
-      expect(sortedIds(kernelNodes)).toEqual(sortedIds(closed.filter(id => (pValues.get(id) ?? 0) === 0)));
+      expect(panelIds(boundaryNodes)).toEqual(panelIds(closed.filter(id => (pValues.get(id) ?? 0) > 0)));
+      expect(panelIds(kernelNodes)).toEqual(panelIds(closed.filter(id => (pValues.get(id) ?? 0) === 0)));
 
       if (boundaryNodes.length > 0) {
         sawBoundary = true;
@@ -311,8 +311,8 @@ describe('Informed Search', () => {
         }
 
         if (Array.isArray(state.frontierF) || Array.isArray(state.frontierB)) {
-          expect(sortedIds(getChipPanelIds(step, 'Forward Frontier')), `${algorithmId} step ${step.stepNumber}`).toEqual(sortedIds(state.frontierF as string[] | undefined));
-          expect(sortedIds(getChipPanelIds(step, 'Backward Frontier')), `${algorithmId} step ${step.stepNumber}`).toEqual(sortedIds(state.frontierB as string[] | undefined));
+          expect(panelIds(getChipPanelIds(step, 'Forward Frontier')), `${algorithmId} step ${step.stepNumber}`).toEqual(panelIds(state.frontierF as string[] | undefined));
+          expect(panelIds(getChipPanelIds(step, 'Backward Frontier')), `${algorithmId} step ${step.stepNumber}`).toEqual(panelIds(state.frontierB as string[] | undefined));
         } else if (Array.isArray(state.frontier) || Array.isArray(state.openSet) || Array.isArray(state.frontierStack)) {
           const frontierPanel = step.statePanels?.find(panel => panel.title.startsWith('Frontier'));
           const highlightRecord = typeof step.highlight === 'object' && step.highlight !== null
@@ -322,40 +322,43 @@ describe('Informed Search', () => {
           const highlightedFrontier = frontierNodesValue instanceof Set
             ? [...frontierNodesValue as Set<string>]
             : null;
+          const isStackPanel = frontierPanel?.title.includes('Stack') ?? false;
           const expectedFrontier = Array.isArray(state.frontierStack)
-            ? ((highlightedFrontier && highlightedFrontier.length > 0) ? highlightedFrontier : state.frontierStack as string[])
+            ? (isStackPanel
+              ? [...((highlightedFrontier && highlightedFrontier.length > 0) ? highlightedFrontier : state.frontierStack as string[])].reverse()
+              : ((highlightedFrontier && highlightedFrontier.length > 0) ? highlightedFrontier : state.frontierStack as string[]))
             : Array.isArray(state.openSet)
             ? state.openSet as string[]
             : Array.isArray(state.frontier)
-              ? state.frontier as string[]
+              ? (isStackPanel ? [...state.frontier as string[]].reverse() : state.frontier as string[])
               : [];
           expect(frontierPanel?.type, `${algorithmId} step ${step.stepNumber}`).toBe('chips');
           expect(
-            sortedIds(frontierPanel?.type === 'chips' ? frontierPanel.items.map(item => item.id) : null),
+            panelIds(frontierPanel?.type === 'chips' ? frontierPanel.items.map(item => item.id) : null),
             `${algorithmId} step ${step.stepNumber}`,
-          ).toEqual(sortedIds(expectedFrontier));
+          ).toEqual(panelIds(expectedFrontier));
         }
 
         if (state.exploredF instanceof Set || state.exploredB instanceof Set) {
-          expect(sortedIds(getChipPanelIds(step, 'Forward Explored')), `${algorithmId} step ${step.stepNumber}`).toEqual(sortedIds(state.exploredF instanceof Set ? [...state.exploredF as Set<string>] : []));
-          expect(sortedIds(getChipPanelIds(step, 'Backward Explored')), `${algorithmId} step ${step.stepNumber}`).toEqual(sortedIds(state.exploredB instanceof Set ? [...state.exploredB as Set<string>] : []));
+          expect(panelIds(getChipPanelIds(step, 'Forward Explored')), `${algorithmId} step ${step.stepNumber}`).toEqual(panelIds(state.exploredF instanceof Set ? [...state.exploredF as Set<string>] : []));
+          expect(panelIds(getChipPanelIds(step, 'Backward Explored')), `${algorithmId} step ${step.stepNumber}`).toEqual(panelIds(state.exploredB instanceof Set ? [...state.exploredB as Set<string>] : []));
         } else if (state.explored instanceof Set) {
           const closedPanel = getPanel(step, 'Closed');
           const exploredPanel = getPanel(step, 'Explored');
           const rendered = closedPanel ?? exploredPanel;
           expect(rendered?.type, `${algorithmId} step ${step.stepNumber}`).toBe('chips');
           expect(
-            sortedIds(rendered?.type === 'chips' ? rendered.items.map(item => item.id) : null),
+            panelIds(rendered?.type === 'chips' ? rendered.items.map(item => item.id) : null),
             `${algorithmId} step ${step.stepNumber}`,
-          ).toEqual(sortedIds([...state.explored as Set<string>]));
+          ).toEqual(panelIds([...state.explored as Set<string>]));
         }
 
         if (Array.isArray(state.kernelNodes)) {
-          expect(sortedIds(getChipPanelIds(step, 'Kernel')), `${algorithmId} step ${step.stepNumber}`).toEqual(sortedIds(state.kernelNodes as string[]));
+          expect(panelIds(getChipPanelIds(step, 'Kernel')), `${algorithmId} step ${step.stepNumber}`).toEqual(panelIds(state.kernelNodes as string[]));
         }
 
         if (Array.isArray(state.boundaryNodes)) {
-          expect(sortedIds(getChipPanelIds(step, 'Boundary')), `${algorithmId} step ${step.stepNumber}`).toEqual(sortedIds(state.boundaryNodes as string[]));
+          expect(panelIds(getChipPanelIds(step, 'Boundary')), `${algorithmId} step ${step.stepNumber}`).toEqual(panelIds(state.boundaryNodes as string[]));
         }
       }
     }
