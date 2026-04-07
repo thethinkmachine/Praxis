@@ -53,6 +53,7 @@ export const dfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
     const labelOf = (id: string) => nodeLabelMap.get(id) ?? id;
     // Stack: store [nodeId, parentId]
     const stack: [string, string | null][] = [[problem.startNode, null]];
+    const frontierSet = new Set<string>([problem.startNode]);
     const explored = new Set<string>();
     const pathMap = new Map<string, string | null>([[problem.startNode, null]]);
     let nodesExpanded = 0;
@@ -89,6 +90,7 @@ export const dfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
 
     while (stack.length > 0) {
       const [current, parent] = stack.pop()!;
+      frontierSet.delete(current);
 
       if (explored.has(current)) continue;
 
@@ -127,8 +129,9 @@ export const dfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
 
       const neighbors = [...(adj.get(current) ?? [])].reverse();
       for (const { neighbor } of neighbors) {
-        if (!explored.has(neighbor)) {
+        if (!explored.has(neighbor) && !frontierSet.has(neighbor)) {
           stack.push([neighbor, current]);
+          frontierSet.add(neighbor);
           yield {
             stepNumber: stepNum++,
             phase: 'visiting',

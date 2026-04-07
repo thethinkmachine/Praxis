@@ -155,6 +155,37 @@ describe('Uninformed Search', () => {
     expect(frontier?.type).toBe('chips');
     expect(frontier?.type === 'chips' ? frontier.items.map(item => item.id) : null).toEqual(['A', 'B']);
   });
+
+  it('DFS does not push duplicate nodes onto the stack', () => {
+    const duplicateGraphProblem = {
+      graph: new Graph({
+        directed: false,
+        nodes: [
+          { id: 'S' },
+          { id: 'A' },
+          { id: 'B' },
+          { id: 'C' },
+          { id: 'G' },
+        ],
+        edges: [
+          { id: 'SA', source: 'S', target: 'A', weight: 1 },
+          { id: 'SB', source: 'S', target: 'B', weight: 1 },
+          { id: 'AC', source: 'A', target: 'C', weight: 1 },
+          { id: 'BC', source: 'B', target: 'C', weight: 1 },
+          { id: 'CG', source: 'C', target: 'G', weight: 1 },
+        ],
+      }),
+      startNode: 'S',
+      goalNode: 'G',
+    };
+
+    const steps = collectAllSteps('dfs', duplicateGraphProblem);
+    const pushCSteps = steps.filter(
+      step => step.phase === 'visiting' && step.description.includes('pushing "C" onto the stack'),
+    );
+
+    expect(pushCSteps).toHaveLength(1);
+  });
 });
 
 describe('Informed Search', () => {
