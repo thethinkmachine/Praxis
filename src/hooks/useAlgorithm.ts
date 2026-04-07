@@ -4,12 +4,10 @@ import { useExecutionStore } from '@/store/execution.store';
 
 export function useAlgorithm() {
   const loadAlgorithm = useExecutionStore(s => s.loadAlgorithm);
-  const stepForwardAction = useExecutionStore(s => s.stepForward);
 
   const load = useCallback((runner: AlgorithmRunner, problem: unknown, algorithmId?: string) => {
     loadAlgorithm(runner, problem, algorithmId);
-    stepForwardAction(); // Jump to first step after loading
-  }, [loadAlgorithm, stepForwardAction]);
+  }, [loadAlgorithm]);
 
   return {
     load,

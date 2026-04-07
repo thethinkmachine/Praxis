@@ -18,7 +18,6 @@ function isEmptyGraphProblem(problem: unknown): boolean {
 export function useAlgorithmPage(algorithmId: string, problem: unknown) {
   const loadAlgorithm = useExecutionStore(state => state.loadAlgorithm);
   const clear = useExecutionStore(state => state.clear);
-  const stepForward = useExecutionStore(state => state.stepForward);
   
   usePlayback();
 
@@ -34,11 +33,6 @@ export function useAlgorithmPage(algorithmId: string, problem: unknown) {
       return;
     }
     loadAlgorithm(runner, problem, algorithmId);
-    
-    // Only jump to first step if we aren't preserving a previous index
-    if (useExecutionStore.getState().currentIndex === -1) {
-      stepForward();
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [algorithmId, problem, runner]);
 

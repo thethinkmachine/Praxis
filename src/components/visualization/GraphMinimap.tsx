@@ -37,12 +37,26 @@ export default function GraphMinimap({
   onAutoLayout,
   disableAutoLayout = false,
 }: GraphMinimapProps) {
-  if (nodes.length === 0) return null;
-
   const darkMode = usePreferencesStore((s) => s.darkMode);
   const dotColors = darkMode ? MINIMAP_DOT_COLORS : MINIMAP_DOT_COLORS_LIGHT;
+  const hasNodes = nodes.length > 0;
 
   const { dots, vx, vy, vw, vh, bbX1, bbY1, scale, offsetX, offsetY } = useMemo(() => {
+    if (!hasNodes) {
+      return {
+        dots: [],
+        vx: 0,
+        vy: 0,
+        vw: 0,
+        vh: 0,
+        bbX1: 0,
+        bbY1: 0,
+        scale: 1,
+        offsetX: 0,
+        offsetY: 0,
+      };
+    }
+
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -91,7 +105,9 @@ export default function GraphMinimap({
       offsetX: nextOffsetX,
       offsetY: nextOffsetY,
     };
-  }, [nodes, transform, canvasWidth, canvasHeight, dotColors]);
+  }, [nodes, transform, canvasWidth, canvasHeight, dotColors, hasNodes]);
+
+  if (!hasNodes) return null;
 
   const clampedX = Math.max(0, Math.min(vx, MINIMAP_W));
   const clampedY = Math.max(0, Math.min(vy, MINIMAP_H));

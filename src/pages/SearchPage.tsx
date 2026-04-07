@@ -29,7 +29,7 @@ import { Graph, type GraphProblem, type HeuristicId } from '@/types/problem';
 import AdjacencyTable from '@/components/editor/AdjacencyTable';
 
 // Algorithm categorization for UI behavior
-const INFORMED_ALGOS = new Set(['greedy-bfs', 'astar', 'rbfs', 'sma-star', 'bidirectional-astar', 'weighted-astar', 'ida-star']);
+const INFORMED_ALGOS = new Set(['greedy-bfs', 'astar', 'rbfs', 'sma-star', 'smgs', 'bidirectional-astar', 'weighted-astar', 'ida-star']);
 const UNWEIGHTED_ALGOS = new Set(['bfs', 'dfs', 'dls', 'iddfs', 'bidirectional-bfs']);
 
 export default function SearchPage() {
@@ -137,7 +137,7 @@ export default function SearchPage() {
     if (algo === 'weighted-astar') {
       return { ...baseProblem, weight: weightedAStarWeight };
     }
-    if (algo === 'sma-star') {
+    if (algo === 'sma-star' || algo === 'smgs') {
       return { ...baseProblem, memoryLimit };
     }
     return baseProblem;
@@ -459,7 +459,7 @@ export default function SearchPage() {
               </div>
             )}
 
-            {algo === 'sma-star' && (
+            {(algo === 'sma-star' || algo === 'smgs') && (
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Memory Limit</p>
                 <input
@@ -471,7 +471,11 @@ export default function SearchPage() {
                   onChange={(e) => setMemoryLimit(Math.max(2, Math.floor(Number(e.target.value) || 2)))}
                   className="ui-input w-full px-2 py-1.5 font-mono"
                 />
-                <p className="mt-1 text-[9px] text-[var(--text-3)]">Maximum number of states SMA* keeps in memory before pruning.</p>
+                <p className="mt-1 text-[9px] text-[var(--text-3)]">
+                  {algo === 'smgs'
+                    ? 'Maximum kernel size SMGS retains in sparse closed-memory before pruning kernel leaves.'
+                    : 'Maximum number of states SMA* keeps in memory before pruning.'}
+                </p>
               </div>
             )}
           </div>

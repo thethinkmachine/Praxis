@@ -3,6 +3,12 @@ import type { AlgorithmRunner, AlgorithmStep } from '@/types';
 export type EngineStatus = 'idle' | 'loaded' | 'running' | 'paused' | 'finished';
 
 const MAX_STEPS = 10_000;
+const DEFAULT_ASYNC_BATCH_SIZE = 200;
+
+export interface EngineLoadAsyncOptions {
+  batchSize?: number;
+  shouldAbort?: () => boolean;
+}
 
 export class ExecutionEngine<TProblem = unknown, TState = unknown, THighlight = unknown, TResult = void> {
   private steps: AlgorithmStep<TState, THighlight>[] = [];
@@ -31,18 +37,37 @@ export class ExecutionEngine<TProblem = unknown, TState = unknown, THighlight = 
     return this._currentIndex <= 0;
   }
 
-  load(runner: AlgorithmRunner<TProblem, TState, THighlight, TResult>, problem: TProblem): void {
+  private initializeLoad(
+    runner: AlgorithmRunner<TProblem, TState, THighlight, TResult>,
+    problem: TProblem,
+  ): Generator<AlgorithmStep<TState, THighlight>, TResult, void> {
     const validation = runner.validate(problem);
     if (!validation.valid) {
       throw new Error(`Invalid problem: ${validation.errors.join(', ')}`);
     }
     this._validationWarnings = validation.warnings ?? [];
 
-    const start = performance.now();
-    const gen = runner.run(problem);
     this.steps = [];
     this._truncated = false;
     this._currentIndex = -1;
+    this._result = undefined;
+
+    return runner.run(problem);
+  }
+
+  private appendStep(step: AlgorithmStep<TState, THighlight>, start: number): void {
+    const elapsed = performance.now() - start;
+    this.steps.push({
+      ...step,
+      metrics: Array.isArray(step.metrics)
+        ? [...step.metrics, { label: 'Elapsed MS', value: elapsed.toFixed(3), color: 'text-[var(--text-3)]', fullWidth: true }]
+        : { ...step.metrics, elapsedMs: elapsed },
+    });
+  }
+
+  load(runner: AlgorithmRunner<TProblem, TState, THighlight, TResult>, problem: TProblem): void {
+    const start = performance.now();
+    const gen = this.initializeLoad(runner, problem);
 
     while (true) {
       const next = gen.next();
@@ -50,14 +75,7 @@ export class ExecutionEngine<TProblem = unknown, TState = unknown, THighlight = 
         this._result = next.value as TResult;
         break;
       }
-      const step = next.value;
-      const elapsed = performance.now() - start;
-      this.steps.push({
-        ...step,
-        metrics: Array.isArray(step.metrics) 
-          ? [...step.metrics, { label: 'Elapsed MS', value: elapsed.toFixed(3), color: 'text-[var(--text-3)]', fullWidth: true }]
-          : { ...step.metrics, elapsedMs: elapsed },
-      });
+      this.appendStep(next.value, start);
       if (this.steps.length >= MAX_STEPS) {
         this._truncated = true;
         break;
@@ -65,6 +83,47 @@ export class ExecutionEngine<TProblem = unknown, TState = unknown, THighlight = 
     }
 
     this._status = 'loaded';
+  }
+
+  async loadAsync(
+    runner: AlgorithmRunner<TProblem, TState, THighlight, TResult>,
+    problem: TProblem,
+    options: EngineLoadAsyncOptions = {},
+  ): Promise<void> {
+    const start = performance.now();
+    const gen = this.initializeLoad(runner, problem);
+    const batchSize = Math.max(1, options.batchSize ?? DEFAULT_ASYNC_BATCH_SIZE);
+    let processedInBatch = 0;
+
+    while (true) {
+      if (options.shouldAbort?.()) {
+        this.clear();
+        return;
+      }
+
+      const next = gen.next();
+      if (next.done) {
+        this._result = next.value as TResult;
+        this._status = 'loaded';
+        return;
+      }
+
+      this.appendStep(next.value, start);
+      processedInBatch += 1;
+
+      if (this.steps.length >= MAX_STEPS) {
+        this._truncated = true;
+        this._status = 'loaded';
+        return;
+      }
+
+      if (processedInBatch >= batchSize) {
+        processedInBatch = 0;
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 0);
+        });
+      }
+    }
   }
 
   stepForward(): AlgorithmStep<TState, THighlight> | null {

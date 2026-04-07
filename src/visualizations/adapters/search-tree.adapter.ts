@@ -38,16 +38,24 @@ const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
 
 function computeTreeCoordinates(rootId: string, childrenMap: Map<string, string[]>): Map<string, TreeCoord> {
   const subtreeWidth = new Map<string, number>();
+  const widthVisiting = new Set<string>();
+  const assignVisiting = new Set<string>();
 
   const computeWidth = (nodeId: string): number => {
+    if (widthVisiting.has(nodeId)) {
+      return 1;
+    }
+
     const children = childrenMap.get(nodeId) ?? [];
     if (children.length === 0) {
       subtreeWidth.set(nodeId, 1);
       return 1;
     }
 
+    widthVisiting.add(nodeId);
     let total = 0;
     for (const child of children) total += computeWidth(child);
+    widthVisiting.delete(nodeId);
     // Add lane gaps between sibling subtrees for readability.
     total += (children.length - 1) * 0.45;
     subtreeWidth.set(nodeId, total);
@@ -58,6 +66,11 @@ function computeTreeCoordinates(rootId: string, childrenMap: Map<string, string[
   const coords = new Map<string, TreeCoord>();
 
   const assign = (nodeId: string, leftBoundary: number, depth: number) => {
+    if (assignVisiting.has(nodeId)) {
+      return;
+    }
+    assignVisiting.add(nodeId);
+
     const width = subtreeWidth.get(nodeId) ?? 1;
     const center = leftBoundary + width / 2;
     coords.set(nodeId, { x: center, y: depth });
@@ -69,6 +82,8 @@ function computeTreeCoordinates(rootId: string, childrenMap: Map<string, string[
       assign(child, cursor, depth + 1);
       cursor += childWidth + 0.45;
     }
+
+    assignVisiting.delete(nodeId);
   };
 
   assign(rootId, 0, 0);
@@ -109,15 +124,35 @@ export function buildSearchTreeElements(
   // -- Invert pathMap to children-map ----------------------------------------
   const childrenMap = new Map<string, string[]>();
   let rootId: string | null = null;
+  const parentMap = new Map<string, string | null>();
+
+  const wouldCreateCycle = (child: string, parent: string): boolean => {
+    let cursor: string | null | undefined = parent;
+    const seen = new Set<string>();
+    while (cursor != null && !seen.has(cursor)) {
+      if (cursor === child) return true;
+      seen.add(cursor);
+      cursor = parentMap.get(cursor);
+    }
+    return false;
+  };
 
   for (const [child, parent] of pathMap) {
     if (parent === null) {
       rootId = child;
+      parentMap.set(child, null);
       continue;
     }
+    if (wouldCreateCycle(child, parent)) {
+      continue;
+    }
+    parentMap.set(child, parent);
     const siblings = childrenMap.get(parent);
-    if (siblings) siblings.push(child);
-    else childrenMap.set(parent, [child]);
+    if (siblings) {
+      if (!siblings.includes(child)) siblings.push(child);
+    } else {
+      childrenMap.set(parent, [child]);
+    }
   }
 
   if (rootId === null) return [];

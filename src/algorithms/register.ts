@@ -21,6 +21,7 @@ import { weightedAstarRunner } from './search/informed/weighted-astar';
 import { idaStarRunner } from './search/informed/ida-star';
 import { rbfsRunner } from './search/informed/rbfs';
 import { smaStarRunner } from './search/informed/sma-star';
+import { smgsRunner } from './search/informed/smgs';
 import { bidirectionalAstarRunner } from './search/informed/bidirectional-astar';
 import { minimaxRunner } from './game-playing/minimax';
 import { alphaBetaRunner } from './game-playing/alpha-beta';
@@ -54,6 +55,7 @@ const INFORMED_SEARCH_RUNNERS = [
   astarRunner,
   rbfsRunner,
   smaStarRunner,
+  smgsRunner,
   bidirectionalAstarRunner,
   weightedAstarRunner,
   idaStarRunner,

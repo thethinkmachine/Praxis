@@ -3,6 +3,8 @@ import { immer } from 'zustand/middleware/immer';
 import type { AlgorithmStep, AlgorithmRunner, LogEntry } from '@/types';
 import { ExecutionEngine } from '@/algorithms/core/engine';
 
+let loadSequence = 0;
+
 interface ExecutionState {
   engine: ExecutionEngine | null;
   currentStep: AlgorithmStep | null;
@@ -50,7 +52,8 @@ export const useExecutionStore = create<ExecutionState>()(
     logs: [],
 
     loadAlgorithm: async (runner, problem, algorithmId) => {
-      const { currentIndex: prevIndex } = get();
+      const requestId = ++loadSequence;
+      const { currentIndex: prevIndex, algorithmId: prevAlgorithmId } = get();
       const engine = new ExecutionEngine();
       try {
         let actualProblem = problem;
@@ -66,7 +69,10 @@ export const useExecutionStore = create<ExecutionState>()(
             actualProblem = { ...actualProblem, graph: new Graph(p.graph) };
           }
         }
-        engine.load(runner, actualProblem);
+        await engine.loadAsync(runner, actualProblem, {
+          shouldAbort: () => requestId !== loadSequence,
+        });
+        if (requestId !== loadSequence) return;
       } catch (err) {
         // Invalid problem (e.g. empty graph, missing start/goal) — store the
         // error message but DON'T throw so React's error boundary is never hit.
@@ -90,21 +96,25 @@ export const useExecutionStore = create<ExecutionState>()(
         state.totalSteps = engine.totalSteps;
         state.logs = [];
         
-        // Preserve index if we were already viewing a trace
-        const targetIndex = prevIndex >= 0 
-          ? Math.min(prevIndex, engine.totalSteps - 1)
-          : -1;
+        // Only preserve the viewer position when reloading the same algorithm.
+        // Route switches should start from the beginning of the new trace.
+        const targetIndex = engine.totalSteps === 0
+          ? -1
+          : prevAlgorithmId === (algorithmId ?? null) && prevIndex >= 0
+            ? Math.min(prevIndex, engine.totalSteps - 1)
+            : 0;
 
         if (targetIndex >= 0) {
           const step = engine.seekToStep(targetIndex);
           state.currentStep = step;
           state.currentIndex = targetIndex;
           
-          // Aggregate logs up to targetIndex
+          // Aggregate logs up to targetIndex.
+          const allSteps = engine.getAllSteps();
           const allLogs: LogEntry[] = [];
           for (let i = 0; i <= targetIndex; i++) {
-             const s = engine.seekToStep(i);
-             if (s?.logs) allLogs.push(...s.logs);
+            const s = allSteps[i];
+            if (s?.logs) allLogs.push(...s.logs);
           }
           state.logs = allLogs;
         } else {
@@ -231,6 +241,7 @@ export const useExecutionStore = create<ExecutionState>()(
     setSpeed: (speed) => set(state => { state.speed = speed; }),
 
     clear: () => {
+      loadSequence += 1;
       const { engine } = get();
       engine?.clear();
       set(state => {

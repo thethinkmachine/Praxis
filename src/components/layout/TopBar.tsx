@@ -22,6 +22,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   'bidirectional-ucs': 'Bidirectional UCS',
   rbfs: 'RBFS',
   'sma-star': 'SMA*',
+  smgs: 'SMGS',
   'bidirectional-astar': 'Bidirectional A*',
   minimax: 'Minimax',
   'alpha-beta': 'Alpha-Beta',

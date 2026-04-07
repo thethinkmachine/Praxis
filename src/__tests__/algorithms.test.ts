@@ -164,6 +164,14 @@ describe('Informed Search', () => {
     expect(path![path!.length - 1]).toBe(romaniaMapProblem.goalNode);
   });
 
+  it('SMGS finds a valid path', () => {
+    const step = runToEnd('smgs', { ...romaniaMapProblem, memoryLimit: 24 });
+    const path = getFinalPath(step);
+    expect(path).not.toBeNull();
+    expect(path![0]).toBe(romaniaMapProblem.startNode);
+    expect(path![path!.length - 1]).toBe(romaniaMapProblem.goalNode);
+  });
+
   it('Bidirectional A* finds a valid path', () => {
     const step = runToEnd('bidirectional-astar', romaniaMapProblem);
     const path = getFinalPath(step);
@@ -288,6 +296,12 @@ describe('Heuristic Cost Verification', () => {
 
   it('SMA* returns correct optimal cost', () => {
     const final = runToEnd('sma-star', { ...romaniaMapProblem, memoryLimit: 24 });
+    expect(final.phase).toBe('found');
+    expect(getMetric(final, 'Path Cost')).toBe(418);
+  });
+
+  it('SMGS returns correct optimal cost under a generous memory bound', () => {
+    const final = runToEnd('smgs', { ...romaniaMapProblem, memoryLimit: 24 });
     expect(final.phase).toBe('found');
     expect(getMetric(final, 'Path Cost')).toBe(418);
   });

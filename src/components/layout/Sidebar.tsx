@@ -46,6 +46,7 @@ const CATEGORIES: CategoryEntry[] = [
       { id: 'astar', name: 'A* Search', path: '/search/informed-search/astar' },
       { id: 'rbfs', name: 'RBFS', path: '/search/informed-search/rbfs' },
       { id: 'sma-star', name: 'SMA*', path: '/search/informed-search/sma-star' },
+      { id: 'smgs', name: 'SMGS', path: '/search/informed-search/smgs' },
       { id: 'bidirectional-astar', name: 'Bidirectional A*', path: '/search/informed-search/bidirectional-astar' },
       { id: 'weighted-astar', name: 'Weighted A*', path: '/search/informed-search/weighted-astar' },
       { id: 'ida-star', name: 'IDA*', path: '/search/informed-search/ida-star' },
