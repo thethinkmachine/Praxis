@@ -124,10 +124,12 @@ export const smgsRunner: AlgorithmRunner<SMGSProblem, SMGSState, SearchHighlight
       const boundary: string[] = [];
       for (const id of closed) {
         const parent = pathMap.get(id) ?? null;
-        if (parent === null || closed.has(parent)) {
-          kernel.push(id);
-        } else {
+        const hasOpenChild = [...pathMap].some(([child, childParent]) => childParent === id && open.has(child));
+        const parentMissingFromClosed = parent !== null && !closed.has(parent);
+        if (hasOpenChild || parentMissingFromClosed) {
           boundary.push(id);
+        } else {
+          kernel.push(id);
         }
       }
       kernel.sort((a, b) => {
@@ -164,6 +166,7 @@ export const smgsRunner: AlgorithmRunner<SMGSProblem, SMGSState, SearchHighlight
         solutionPath: foundPath,
         collections: [
           { title: 'Frontier (Open Set)', items: openList(), variant: 'frontier' },
+          { title: 'Closed', items: closed, variant: 'explored' },
           { title: 'Kernel', items: kernel, variant: 'explored' },
           { title: 'Boundary', items: boundary, variant: 'explored' },
         ],

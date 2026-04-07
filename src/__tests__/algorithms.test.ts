@@ -59,6 +59,16 @@ function getPanel(step: AlgorithmStep, title: string): PanelSection | undefined 
   return step.statePanels?.find(panel => panel.title === title);
 }
 
+function getChipPanelIds(step: AlgorithmStep, title: string): string[] | null {
+  const panel = getPanel(step, title);
+  if (!panel || panel.type !== 'chips') return null;
+  return panel.items.map(item => item.id);
+}
+
+function sortedIds(ids: string[] | null | undefined): string[] {
+  return [...(ids ?? [])].sort();
+}
+
 beforeAll(() => {
   registerAllAlgorithms();
 });
@@ -172,6 +182,50 @@ describe('Informed Search', () => {
     expect(path![path!.length - 1]).toBe(romaniaMapProblem.goalNode);
   });
 
+  it('SMGS populates open, closed, kernel, boundary, and current-node panels consistently', () => {
+    const steps = collectAllSteps('smgs', { ...romaniaMapProblem, memoryLimit: 24 });
+    let sawBoundary = false;
+
+    for (const step of steps) {
+      const state = step.state as Record<string, unknown>;
+      const openSet = Array.isArray(state.openSet) ? state.openSet as string[] : [];
+      const closed = state.explored instanceof Set ? [...state.explored as Set<string>] : [];
+      const pathMap = state.pathMap instanceof Map ? state.pathMap as Map<string, string | null> : new Map<string, string | null>();
+      const currentNode = (step.highlight as { currentNode?: string | null } | undefined)?.currentNode ?? null;
+
+      expect(getChipPanelIds(step, 'Frontier (Open Set)')).toEqual(openSet);
+      expect(getChipPanelIds(step, 'Closed')).toEqual(closed);
+
+      if (currentNode) {
+        expect(getChipPanelIds(step, 'Current Node')).toEqual([currentNode]);
+      } else {
+        expect(getPanel(step, 'Current Node')).toBeUndefined();
+      }
+
+      const closedSet = new Set(closed);
+      const openNodes = new Set(openSet);
+      const expectedBoundary = closed.filter((id) => {
+        const parent = pathMap.get(id) ?? null;
+        const parentMissingFromClosed = parent !== null && !closedSet.has(parent);
+        const hasOpenChild = [...pathMap].some(([child, childParent]) => childParent === id && openNodes.has(child));
+        return parentMissingFromClosed || hasOpenChild;
+      }).sort();
+      const expectedKernel = closed.filter(id => !expectedBoundary.includes(id)).sort();
+
+      const actualBoundary = (getChipPanelIds(step, 'Boundary') ?? []).slice().sort();
+      const actualKernel = (getChipPanelIds(step, 'Kernel') ?? []).slice().sort();
+
+      expect(actualBoundary).toEqual(expectedBoundary);
+      expect(actualKernel).toEqual(expectedKernel);
+
+      if (actualBoundary.length > 0) {
+        sawBoundary = true;
+      }
+    }
+
+    expect(sawBoundary).toBe(true);
+  });
+
   it('Bidirectional A* finds a valid path', () => {
     const step = runToEnd('bidirectional-astar', romaniaMapProblem);
     const path = getFinalPath(step);
@@ -186,6 +240,94 @@ describe('Informed Search', () => {
     expect(path).not.toBeNull();
     const unique = new Set(path!);
     expect(unique.size).toBe(path!.length);
+  });
+
+  it('search algorithms keep state panels aligned with their runtime state', () => {
+    const cases: Array<[string, unknown]> = [
+      ['bfs', simpleGraphProblem],
+      ['dfs', simpleGraphProblem],
+      ['dls', { ...simpleGraphProblem, depthLimit: 3 }],
+      ['iddfs', simpleGraphProblem],
+      ['ucs', romaniaMapProblem],
+      ['bidirectional-bfs', simpleGraphProblem],
+      ['bidirectional-ucs', romaniaMapProblem],
+      ['astar', romaniaMapProblem],
+      ['weighted-astar', { ...romaniaMapProblem, weight: 2 }],
+      ['greedy-bfs', romaniaMapProblem],
+      ['ida-star', romaniaMapProblem],
+      ['rbfs', romaniaMapProblem],
+      ['sma-star', { ...romaniaMapProblem, memoryLimit: 24 }],
+      ['smgs', { ...romaniaMapProblem, memoryLimit: 24 }],
+      ['bidirectional-astar', romaniaMapProblem],
+    ];
+
+    for (const [algorithmId, problem] of cases) {
+      const steps = collectAllSteps(algorithmId, problem);
+
+      for (const step of steps) {
+        const state = step.state as Record<string, unknown>;
+        const currentNode = (step.highlight as { currentNode?: string | null } | undefined)?.currentNode ?? null;
+        const foundPath = Array.isArray(state.foundPath) ? state.foundPath as string[] : null;
+
+        if (currentNode) {
+          expect(getChipPanelIds(step, 'Current Node'), `${algorithmId} step ${step.stepNumber}`).toEqual([currentNode]);
+        } else {
+          expect(getPanel(step, 'Current Node'), `${algorithmId} step ${step.stepNumber}`).toBeUndefined();
+        }
+
+        if (foundPath && foundPath.length > 0) {
+          expect(getChipPanelIds(step, 'Solution Path'), `${algorithmId} step ${step.stepNumber}`).toEqual(foundPath);
+        }
+
+        if (Array.isArray(state.frontierF) || Array.isArray(state.frontierB)) {
+          expect(sortedIds(getChipPanelIds(step, 'Forward Frontier')), `${algorithmId} step ${step.stepNumber}`).toEqual(sortedIds(state.frontierF as string[] | undefined));
+          expect(sortedIds(getChipPanelIds(step, 'Backward Frontier')), `${algorithmId} step ${step.stepNumber}`).toEqual(sortedIds(state.frontierB as string[] | undefined));
+        } else if (Array.isArray(state.frontier) || Array.isArray(state.openSet) || Array.isArray(state.frontierStack)) {
+          const frontierPanel = step.statePanels?.find(panel => panel.title.startsWith('Frontier'));
+          const highlightRecord = typeof step.highlight === 'object' && step.highlight !== null
+            ? step.highlight as Record<string, unknown>
+            : null;
+          const frontierNodesValue = highlightRecord?.frontierNodes;
+          const highlightedFrontier = frontierNodesValue instanceof Set
+            ? [...frontierNodesValue as Set<string>]
+            : null;
+          const expectedFrontier = Array.isArray(state.frontierStack)
+            ? ((highlightedFrontier && highlightedFrontier.length > 0) ? highlightedFrontier : state.frontierStack as string[])
+            : Array.isArray(state.openSet)
+            ? state.openSet as string[]
+            : Array.isArray(state.frontier)
+              ? state.frontier as string[]
+              : [];
+          expect(frontierPanel?.type, `${algorithmId} step ${step.stepNumber}`).toBe('chips');
+          expect(
+            sortedIds(frontierPanel?.type === 'chips' ? frontierPanel.items.map(item => item.id) : null),
+            `${algorithmId} step ${step.stepNumber}`,
+          ).toEqual(sortedIds(expectedFrontier));
+        }
+
+        if (state.exploredF instanceof Set || state.exploredB instanceof Set) {
+          expect(sortedIds(getChipPanelIds(step, 'Forward Explored')), `${algorithmId} step ${step.stepNumber}`).toEqual(sortedIds(state.exploredF instanceof Set ? [...state.exploredF as Set<string>] : []));
+          expect(sortedIds(getChipPanelIds(step, 'Backward Explored')), `${algorithmId} step ${step.stepNumber}`).toEqual(sortedIds(state.exploredB instanceof Set ? [...state.exploredB as Set<string>] : []));
+        } else if (state.explored instanceof Set) {
+          const closedPanel = getPanel(step, 'Closed');
+          const exploredPanel = getPanel(step, 'Explored');
+          const rendered = closedPanel ?? exploredPanel;
+          expect(rendered?.type, `${algorithmId} step ${step.stepNumber}`).toBe('chips');
+          expect(
+            sortedIds(rendered?.type === 'chips' ? rendered.items.map(item => item.id) : null),
+            `${algorithmId} step ${step.stepNumber}`,
+          ).toEqual(sortedIds([...state.explored as Set<string>]));
+        }
+
+        if (Array.isArray(state.kernelNodes)) {
+          expect(sortedIds(getChipPanelIds(step, 'Kernel')), `${algorithmId} step ${step.stepNumber}`).toEqual(sortedIds(state.kernelNodes as string[]));
+        }
+
+        if (Array.isArray(state.boundaryNodes)) {
+          expect(sortedIds(getChipPanelIds(step, 'Boundary')), `${algorithmId} step ${step.stepNumber}`).toEqual(sortedIds(state.boundaryNodes as string[]));
+        }
+      }
+    }
   });
 });
 
