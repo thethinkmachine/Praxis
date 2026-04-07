@@ -6,6 +6,38 @@ export interface LogEntry {
   stepIndex?: number;
 }
 
+export interface MetricTile {
+  label: string;
+  value: number | string;
+  color?: string;
+  fullWidth?: boolean;
+}
+
+export type PanelChipVariant = 'frontier' | 'current' | 'explored' | 'path';
+
+export interface PanelKeyValueItem {
+  key: string;
+  value: string | number;
+}
+
+export interface PanelChipItem {
+  id: string;
+  label: string;
+  detail?: string;
+  variant?: PanelChipVariant;
+}
+
+export interface PanelNodeItem {
+  id: string;
+  label: string;
+  detail?: string;
+}
+
+export type PanelSection =
+  | { type: 'key-value'; title: string; count?: number; items: PanelKeyValueItem[] }
+  | { type: 'chips'; title: string; count?: number; items: PanelChipItem[] }
+  | { type: 'nodes'; title: string; count?: number; items: PanelNodeItem[] };
+
 export interface StepMetrics {
   nodesExpanded: number;
   frontierSize: number;
@@ -54,6 +86,7 @@ export interface AlgorithmStep<TState = unknown, THighlight = unknown> {
   state: TState;
   highlight: THighlight;
   pseudocodeLine: number;
-  metrics: StepMetrics;
+  metrics: StepMetrics | MetricTile[];
+  statePanels?: PanelSection[];
   logs?: LogEntry[];
 }

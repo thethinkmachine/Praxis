@@ -4,7 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { SearchHighlight } from './types';
 import { validateGraphProblem, reconstructPath } from './types';
 import { deepClone } from '@/lib/deep-clone';
-import { createLog } from '@/algorithms/core/utils';
+import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 interface BidirectionalSearchState {
   frontierF: string[];
@@ -106,6 +106,18 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
       explored: deepClone(exploredF),
       pathMap: deepClone(pathMapF),
     });
+    const buildPanels = (currentNode: string | null = null, foundPath: string[] | null = null) =>
+      buildGraphStatePanels({
+        labelOf,
+        currentNode,
+        solutionPath: foundPath,
+        collections: [
+          { title: 'Forward Frontier', items: frontierF, variant: 'frontier' },
+          { title: 'Backward Frontier', items: frontierB, variant: 'frontier' },
+          { title: 'Forward Explored', items: exploredF, variant: 'explored' },
+          { title: 'Backward Explored', items: exploredB, variant: 'explored' },
+        ],
+      });
 
     // Sets for O(1) membership checks
     const frontierSetF = new Set<string>(frontierF);
@@ -142,8 +154,9 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
       pseudocodeLine: 0,
       state: snap(),
       highlight: { frontierNodes: new Set([problem.startNode, problem.goalNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
-      metrics: { nodesExpanded: 0, frontierSize: 2, currentDepth: 0, pathCost: 0, memoryUsed: 2 },
+      metrics: [{ label: 'Expanded', value: 0, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 2, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'Memory', value: 2, color: 'text-[var(--text-2)]' }],
       logs: [createLog(`Initialized Bidirectional BFS (Start: ${labelOf(problem.startNode)}, Goal: ${labelOf(problem.goalNode)})`, 'info')],
+      statePanels: buildPanels()
     };
 
     while (frontierF.length > 0 && frontierB.length > 0) {
@@ -158,8 +171,9 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
           pseudocodeLine: 9,
           state: snap(meeting, foundPath),
           highlight: { frontierNodes: new Set(), exploredNodes: new Set([...exploredF, ...exploredB]), currentNode: meeting, pathEdges: foundPath },
-          metrics: { nodesExpanded, frontierSize: 0, currentDepth: Math.floor(foundPath.length / 2), pathCost: foundPath.length - 1, memoryUsed: exploredF.size + exploredB.size },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: Math.floor(foundPath.length / 2), color: 'text-[var(--text)]' }, { label: 'Path Cost', value: foundPath.length - 1, color: 'text-[#3FB950]' }, { label: 'Memory', value: exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`SUCCESS: Frontiers intersected at node ${labelOf(meeting)}!`, 'success')],
+          statePanels: buildPanels(meeting, foundPath)
         };
         return;
       }
@@ -203,9 +217,10 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
         pseudocodeLine: expandForward ? 6 : 8,
         state: snap(),
         highlight: { frontierNodes: displayFrontier, exploredNodes: new Set([...exploredF, ...exploredB]), currentNode: expanded[expanded.length - 1] ?? null, pathEdges: null },
-        metrics: { nodesExpanded, frontierSize: frontierF.length + frontierB.length, currentDepth: 0, pathCost: 0, memoryUsed: frontierF.length + frontierB.length + exploredF.size + exploredB.size },
+        metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: frontierF.length + frontierB.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'Memory', value: frontierF.length + frontierB.length + exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
         logs: [createLog(`Expanding ${direction} frontier (F:${frontierF.length}, B:${frontierB.length})`, 'info')],
-      };
+        statePanels: buildPanels(expanded[expanded.length - 1] ?? null)
+    };
     }
 
     yield {
@@ -215,8 +230,9 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
       pseudocodeLine: 10,
       state: snap(),
       highlight: { frontierNodes: new Set(), exploredNodes: new Set([...exploredF, ...exploredB]), currentNode: null, pathEdges: null },
-      metrics: { nodesExpanded, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: exploredF.size + exploredB.size },
+      metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: Infinity, color: 'text-[#3FB950]' }, { label: 'Memory', value: exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
       logs: [createLog('FAILURE: Frontiers exhausted, no path found', 'error')],
+      statePanels: buildPanels()
     };
   },
 };

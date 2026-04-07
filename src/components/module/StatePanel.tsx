@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { cn } from '@/lib/cn';
 import EmptyState from '@/components/shared/EmptyState';
 import CollapsibleSection from '@/components/shared/CollapsibleSection';
 import { useEditorStore } from '@/store/useEditorStore';
-import type { AlgorithmStep, AlgorithmCategory } from '@/types';
+import type { AlgorithmStep, AlgorithmCategory, PanelSection } from '@/types';
 
 interface StatePanelProps {
   step: AlgorithmStep | null;
@@ -79,34 +79,48 @@ function NodeEntry({
   );
 }
 
-/** Normalise whatever `explored` the algorithm yields: Set<string> | string[] | never[]. */
-function toExploredArray(raw: unknown): string[] {
-  if (raw instanceof Set) return Array.from(raw as Set<string>);
-  if (Array.isArray(raw)) return raw as string[];
-  return [];
-}
-
-/** Build a cost annotation string for a frontier node using the state's cost maps. */
-function getFrontierDetail(
-  nodeId: string,
-  fCosts?: Map<string, number>,
-  gCosts?: Map<string, number>,
-  hCosts?: Map<string, number>,
-  costs?: Map<string, number>,
-): string | undefined {
-  const fmt = (n: number) => Number.isInteger(n) ? String(n) : n.toFixed(2);
-  const f = fCosts?.get(nodeId);
-  if (f !== undefined) {
-    const g = gCosts?.get(nodeId);
-    const h = hCosts?.get(nodeId);
-    if (g !== undefined && h !== undefined) return `g=${fmt(g)} h=${fmt(h)} f=${fmt(f)}`;
-    return `f=${fmt(f)}`;
-  }
-  const g = gCosts?.get(nodeId) ?? costs?.get(nodeId);
-  const h = hCosts?.get(nodeId);
-  if (g !== undefined && h !== undefined) return `g=${fmt(g)} h=${fmt(h)}`;
-  if (g !== undefined) return `g=${fmt(g)}`;
-  return undefined;
+function renderPanel(panel: PanelSection, idx: number, lbl: (id: string) => string) {
+  return (
+    <Section key={idx} title={panel.title} count={panel.count}>
+      {panel.type === 'key-value' && (
+        <div className="px-3 py-2 space-y-1 text-[11px] text-[var(--text-2)]">
+          {panel.items.map((item, i) => (
+            <div key={i} className="flex items-center justify-between gap-2">
+              <span>{item.key}</span>
+              <span className="font-mono text-[var(--text)]">{item.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {panel.type === 'chips' && (
+        <div className="px-3 py-2 flex flex-wrap gap-1.5">
+          {panel.items.length > 0 ? panel.items.map((item, i) => (
+            item.variant === 'path' ? (
+              <span key={i} className="inline-flex items-center gap-1">
+                <ChipBadge variant="path" title={item.detail}>{lbl(item.id) ?? item.label}</ChipBadge>
+                {i < panel.items.length - 1 && <span className="text-[9px] text-[var(--text-3)]">&rarr;</span>}
+              </span>
+            ) : (
+              <ChipBadge key={i} variant={item.variant ?? 'explored'} title={item.detail}>
+                {lbl(item.id) ?? item.label}
+              </ChipBadge>
+            )
+          )) : (
+            <div className="text-[var(--text-3)]">Empty</div>
+          )}
+        </div>
+      )}
+      {panel.type === 'nodes' && (
+        <div className="py-1">
+          {panel.items.length > 0 ? panel.items.map((item, i) => (
+            <NodeEntry key={i} id={item.id} label={lbl(item.id) ?? item.label} detail={item.detail} />
+          )) : (
+            <div className="px-3 py-1 text-[var(--text-3)]">Empty</div>
+          )}
+        </div>
+      )}
+    </Section>
+  );
 }
 
 export default function StatePanel({ step, algorithmCategory }: StatePanelProps) {
@@ -126,167 +140,21 @@ export default function StatePanel({ step, algorithmCategory }: StatePanelProps)
   }
 
   const st = (step.state as Record<string, unknown>) ?? {};
-  const frontier = (st.frontier as unknown[]) ?? [];
-  const exploredArr = toExploredArray(st.explored);
-  // Search algorithms use `foundPath`; other algorithms may use `currentPath`
-  const currentPath = ((st.foundPath ?? st.currentPath) as unknown[]) ?? [];
-
-  // Cost maps present for weighted uninformed variants such as UCS
-  const fCosts = st.fCosts instanceof Map ? (st.fCosts as Map<string, number>) : undefined;
-  const gCosts = st.gCosts instanceof Map ? (st.gCosts as Map<string, number>) : undefined;
-  const hCosts = st.hCosts instanceof Map ? (st.hCosts as Map<string, number>) : undefined;
-  const costs = st.costs instanceof Map ? (st.costs as Map<string, number>) : undefined;
-  const hasCosts = !!(fCosts || gCosts || hCosts || costs);
-
-  const sortedFrontier = useMemo(() => {
-    if (!frontier || frontier.length === 0) return [];
-
-    // 1. If it's explicitly a stack, never sort by cost. Order should be LIFO (reverse).
-    if (st.isStack) {
-      return [...frontier].reverse();
-    }
-    
-    // 2. If it's a cost-based priority queue (e.g., A*, UCS), sort by active cost
-    if (fCosts || costs || gCosts || hCosts) {
-      return [...frontier].sort((aObj, bObj) => {
-        const aId = typeof aObj === 'object' && aObj !== null ? (aObj as Record<string, unknown>).id as string : String(aObj);
-        const bId = typeof bObj === 'object' && bObj !== null ? (bObj as Record<string, unknown>).id as string : String(bObj);
-        
-        const costA = fCosts?.get(aId) ?? costs?.get(aId) ?? gCosts?.get(aId) ?? hCosts?.get(aId) ?? 0;
-        const costB = fCosts?.get(bId) ?? costs?.get(bId) ?? gCosts?.get(bId) ?? hCosts?.get(bId) ?? 0;
-        return costA - costB;
-      });
-    }
-
-    // 3. Queue (BFS) or default
-    return frontier;
-  }, [frontier, fCosts, costs, gCosts, hCosts, st.isStack]);
+  if (step.statePanels && step.statePanels.length > 0) {
+    return (
+      <div className="h-full flex flex-col bg-[var(--surface)] overflow-hidden">
+        <div className="flex-1 overflow-y-auto text-xs divide-y divide-[var(--border)]">
+          {step.statePanels.map((panel, idx) => renderPanel(panel, idx, lbl))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-[var(--surface)] overflow-hidden">
       <div className="flex-1 overflow-y-auto text-xs divide-y divide-[var(--border)]">
         {/* ──── Search-oriented sections ──── */}
-        {(algorithmCategory === 'uninformed-search' || algorithmCategory === 'informed-search' || algorithmCategory === undefined) && (
-          <>
-            {/* Current node */}
-            {!!st.currentNode && (
-              <Section title="Current Node">
-                <div className="px-3 py-2">
-                  <ChipBadge
-                    variant="current"
-                    title={(() => {
-                      const nodeId = st.currentNode as string;
-                      const f = fCosts?.get(nodeId);
-                      const g = gCosts?.get(nodeId) ?? costs?.get(nodeId);
-                      const h = hCosts?.get(nodeId);
-                      const fmt = (n: number) => Number.isInteger(n) ? String(n) : n.toFixed(2);
-                      if (f !== undefined) return `f=${fmt(f)}`;
-                      if (g !== undefined && h !== undefined) return `g=${fmt(g)} h=${fmt(h)}`;
-                      if (g !== undefined) return `g=${fmt(g)}`;
-                      return st.heuristic !== undefined ? `h=${st.heuristic}` : undefined;
-                    })()}
-                  >
-                    {lbl(st.currentNode as string)}
-                  </ChipBadge>
-                  {(() => {
-                    const nodeId = st.currentNode as string;
-                    const f = fCosts?.get(nodeId);
-                    const g = gCosts?.get(nodeId) ?? costs?.get(nodeId);
-                    const h = hCosts?.get(nodeId);
-                    const fmt = (n: number) => Number.isInteger(n) ? String(n) : n.toFixed(2);
-                    let detail: string | undefined;
-                    if (f !== undefined) {
-                      const gv = gCosts?.get(nodeId);
-                      const hv = hCosts?.get(nodeId);
-                      if (gv !== undefined && hv !== undefined) detail = `g=${fmt(gv)} h=${fmt(hv)} f=${fmt(f)}`;
-                      else detail = `f=${fmt(f)}`;
-                    } else if (g !== undefined && h !== undefined) {
-                      detail = `g=${fmt(g)} h=${fmt(h)}`;
-                    } else if (g !== undefined) {
-                      detail = `g=${fmt(g)}`;
-                    } else if (st.heuristic !== undefined) {
-                      detail = `h=${st.heuristic}`;
-                    }
-                    return detail ? (
-                      <span className="ml-2 text-[10px] text-[var(--text-2)] font-mono">{detail}</span>
-                    ) : null;
-                  })()}
-                </div>
-              </Section>
-            )}
-
-            {/* Open list / Frontier */}
-            <Section title="Open List" count={sortedFrontier.length}>
-              {sortedFrontier.length > 0 ? (
-                <div className="px-3 py-2 flex flex-wrap gap-1.5">
-                  {sortedFrontier.map((node, i) => {
-                    const isObj = typeof node === 'object' && node !== null;
-                    const id = isObj ? (node as Record<string, unknown>).id as string : String(node);
-                    const isCurrent = id === (st.currentNode as string | undefined);
-                    const detail = hasCosts
-                      ? getFrontierDetail(id, fCosts, gCosts, hCosts, costs)
-                      : undefined;
-                    return (
-                      <ChipBadge
-                        key={`${id}-${i}`}
-                        title={detail}
-                        variant={isCurrent ? 'current' : 'frontier'}
-                      >
-                        {lbl(id)}
-                      </ChipBadge>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="px-3 py-1 text-[var(--text-3)]">Empty</div>
-              )}
-            </Section>
-
-            {/* Closed list / Explored set */}
-            <Section title="Closed List" count={exploredArr.length}>
-              {exploredArr.length > 0 ? (
-                <div className="px-3 py-2 flex flex-wrap gap-1.5">
-                  {exploredArr.map((id, i) => {
-                    const detail = costs?.get(id) !== undefined
-                      ? `d=${Number.isInteger(costs.get(id)!) ? costs.get(id) : costs.get(id)!.toFixed(2)}`
-                      : gCosts?.get(id) !== undefined
-                        ? `g=${Number.isInteger(gCosts.get(id)!) ? gCosts.get(id) : gCosts.get(id)!.toFixed(2)}`
-                        : undefined;
-                    return (
-                      <ChipBadge
-                        key={`${id}-${i}`}
-                        variant="explored"
-                        title={detail}
-                      >
-                        {lbl(id)}
-                      </ChipBadge>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="px-3 py-1 text-[var(--text-3)]">Empty</div>
-              )}
-            </Section>
-
-            {/* Solution path (shown when goal is reached) */}
-            {currentPath.length > 0 && (
-              <Section title="Solution Path" count={currentPath.length - 1}>
-                <div className="px-3 py-2 flex flex-wrap items-center gap-1">
-                  {currentPath.map((node, i) => (
-                    <span key={i} className="inline-flex items-center gap-1">
-                      <ChipBadge variant="path">
-                        {lbl(String(node))}
-                      </ChipBadge>
-                      {i < currentPath.length - 1 && (
-                        <span className="text-[9px] text-[var(--text-3)]">&rarr;</span>
-                      )}
-                    </span>
-                  ))}
-                </div>
-              </Section>
-            )}
-          </>
-        )}
+        {/* Legacy Search Fallback Removed. UI completely driven by algorithm payloads. */}
 
         {algorithmCategory === 'game-playing' && (
           <>

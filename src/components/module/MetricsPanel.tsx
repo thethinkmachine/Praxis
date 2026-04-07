@@ -2,10 +2,10 @@ import { cn } from '@/lib/cn';
 import CollapsibleSection from '@/components/shared/CollapsibleSection';
 import EmptyState from '@/components/shared/EmptyState';
 import StatTile from '@/components/shared/StatTile';
-import type { AlgorithmCategory, StepMetrics } from '@/types';
+import type { AlgorithmCategory, StepMetrics, MetricTile } from '@/types';
 
 interface MetricsPanelProps {
-  metrics: StepMetrics | null;
+  metrics: StepMetrics | MetricTile[] | null;
   phase?: string;
   description?: string;
   algorithmCategory?: AlgorithmCategory;
@@ -23,8 +23,9 @@ const PHASE_COLORS: Record<string, string> = {
   exploring: 'ui-pill ui-pill-accent',
 };
 
-function fmtNum(v: number | undefined): string {
+function fmtNum(v: number | string | undefined): string {
   if (v === undefined || v === null) return '–';
+  if (typeof v === 'string') return v;
   if (!isFinite(v)) return '∞';
   if (Number.isInteger(v)) return v.toString();
   return v.toFixed(3);
@@ -50,67 +51,21 @@ export default function MetricsPanel({ metrics, phase, description, algorithmCat
         )}
         {metrics ? (
           <>
-            {algorithmCategory === 'local-search' ? (
-            <>
-              <div className="grid grid-cols-2 gap-1.5">
-                <StatTile label="Iteration" value={fmtNum(metrics.iteration ?? metrics.currentDepth)} valueColor="text-[var(--accent)]" />
-                <StatTile label="Candidates" value={fmtNum(metrics.candidateCount ?? metrics.frontierSize)} valueColor="text-[var(--accent)]" />
-                <StatTile label="Objective" value={fmtNum(metrics.objectiveValue ?? metrics.conflictCount ?? metrics.pathCost)} valueColor="text-[var(--warning)]" />
-                <StatTile label="Best" value={fmtNum(metrics.bestObjectiveValue ?? metrics.bestConflictCount ?? metrics.bestScore)} valueColor="text-[var(--success)]" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-1.5">
-                <StatTile label="Evaluated" value={fmtNum(metrics.neighborsEvaluated ?? metrics.nodesExpanded)} valueColor="text-[var(--text)]" />
-                <StatTile label="Restarts" value={fmtNum(metrics.restartCount)} valueColor="text-[var(--text)]" />
-                <StatTile label="Plateau" value={fmtNum(metrics.plateauLength)} valueColor="text-[var(--text-2)]" />
-                <StatTile
-                  label="Temp"
-                  value={fmtNum(metrics.temperature)}
-                  valueColor={metrics.temperature !== undefined ? 'text-[var(--purple)]' : 'text-[var(--text-2)]'}
-                />
-              </div>
-
-              {(metrics.generation !== undefined || metrics.populationSize !== undefined || metrics.beamWidth !== undefined || metrics.tabuSize !== undefined) && (
-                <div className="grid grid-cols-2 gap-1.5">
-                  <StatTile label="Generation" value={fmtNum(metrics.generation)} valueColor="text-[var(--text)]" />
-                  <StatTile label="Population" value={fmtNum(metrics.populationSize)} valueColor="text-[var(--text)]" />
-                  <StatTile label="Beam" value={fmtNum(metrics.beamWidth)} valueColor="text-[var(--text-2)]" />
-                  <StatTile label="Tabu" value={fmtNum(metrics.tabuSize)} valueColor="text-[var(--text-2)]" />
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="grid grid-cols-2 gap-1.5">
-              <StatTile label="Expanded" value={fmtNum(metrics.nodesExpanded)} valueColor="text-[var(--accent)]" />
-              <StatTile label="Frontier" value={fmtNum(metrics.frontierSize)} valueColor="text-[var(--accent)]" />
-              <StatTile
-                label="Path Cost"
-                value={fmtNum(metrics.pathCost)}
-                valueColor={metrics.pathCost !== undefined && isFinite(metrics.pathCost) ? 'text-[#3FB950]' : 'text-[var(--text-2)]'}
-              />
-              <StatTile label="Depth" value={fmtNum(metrics.currentDepth)} valueColor="text-[var(--text)]" />
+            <div className="grid grid-cols-2 gap-1.5 pb-2">
+              {Array.isArray(metrics) ? (
+                metrics.map((m, i) => (
+                  <StatTile 
+                    key={i} 
+                    label={m.label} 
+                    value={fmtNum(m.value)} 
+                    valueColor={m.color ?? 'text-[var(--text)]'} 
+                    className={m.fullWidth ? 'col-span-2' : ''}
+                  />
+                ))
+              ) : Object.entries(metrics).filter(([_, v]) => v !== undefined).map(([key, val], i) => (
+                <StatTile key={i} label={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} value={fmtNum(val)} valueColor="text-[var(--text)]" />
+              ))}
             </div>
-          )}
-
-          {/* Cost breakdown */}
-          {(metrics.gCost !== undefined || metrics.hCost !== undefined || metrics.fCost !== undefined) && (
-            <div className="grid grid-cols-3 gap-1.5">
-              {metrics.gCost !== undefined && (
-                <StatTile label="g(n)" value={fmtNum(metrics.gCost)} valueColor="text-[var(--warning)]" />
-              )}
-              {metrics.hCost !== undefined && (
-                <StatTile label="h(n)" value={fmtNum(metrics.hCost)} valueColor="text-[var(--purple)]" />
-              )}
-              {metrics.fCost !== undefined && (
-                <StatTile label="f(n)" value={fmtNum(metrics.fCost)} valueColor="text-[var(--accent)]" />
-              )}
-            </div>
-          )}
-
-          {/* Memory */}
-          {metrics.memoryUsed !== undefined && (
-            <StatTile label="Memory (nodes)" value={fmtNum(metrics.memoryUsed)} valueColor="text-[var(--text-2)]" />
-          )}
 
           {/* Description */}
           {description && (

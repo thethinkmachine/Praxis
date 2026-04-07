@@ -236,14 +236,14 @@ export function createStep(
     state,
     highlight,
     pseudocodeLine,
-    metrics: {
-      nodesExpanded: ctx.nodesExpanded,
-      frontierSize: availableMoves.length,
-      maxFrontierSize: ctx.maxFrontierSize,
-      currentDepth: recursionStack.length === 0 ? 0 : recursionStack[recursionStack.length - 1].depth,
-      pathCost: snapshot.currentScore ?? snapshot.bestScore ?? 0,
-      memoryUsed: recursionStack.length + availableMoves.length,
-    },
+    metrics: [
+      { label: 'Expanded', value: ctx.nodesExpanded, color: 'text-[var(--accent)]' },
+      { label: 'Frontier', value: availableMoves.length, color: 'text-[var(--accent)]' },
+      { label: 'Max Frontier', value: ctx.maxFrontierSize, color: 'text-[var(--text-2)]' },
+      { label: 'Depth', value: recursionStack.length === 0 ? 0 : recursionStack[recursionStack.length - 1].depth, color: 'text-[var(--text)]' },
+      { label: 'Score', value: snapshot.currentScore ?? snapshot.bestScore ?? 0, color: 'text-[var(--warning)]' },
+      { label: 'Memory', value: recursionStack.length + availableMoves.length, color: 'text-[var(--text-2)]' },
+    ],
     logs: [createLog(description, options?.level ?? 'info')],
   };
 }

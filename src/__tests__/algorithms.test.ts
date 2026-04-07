@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { registerAllAlgorithms } from '@/algorithms/register';
 import { registry } from '@/algorithms/core/registry';
 import { simpleGraphProblem, romaniaMapProblem } from './fixtures/mock-problems';
-import type { AlgorithmStep } from '@/types/step';
+import type { AlgorithmStep, PanelSection } from '@/types/step';
 import type { GraphColoringProblem, NQueensProblem, TspProblem } from '@/types/problem';
 import { countConflicts } from '@/problems/local-search/n-queens';
 
@@ -45,6 +45,18 @@ function getFinalPath(step: AlgorithmStep): string[] | null {
   if (Array.isArray(st.foundPath)) return st.foundPath as string[];
   if (Array.isArray(st.path)) return st.path as string[];
   return null;
+}
+
+function getMetric(step: AlgorithmStep, label: string): number | undefined {
+  if (Array.isArray(step.metrics)) {
+    const tile = step.metrics.find(m => m.label === label);
+    return tile ? Number(tile.value) : undefined;
+  }
+  return undefined;
+}
+
+function getPanel(step: AlgorithmStep, title: string): PanelSection | undefined {
+  return step.statePanels?.find(panel => panel.title === title);
 }
 
 beforeAll(() => {
@@ -104,6 +116,35 @@ describe('Uninformed Search', () => {
     expect(path![0]).toBe(romaniaMapProblem.startNode);
     expect(path![path!.length - 1]).toBe(romaniaMapProblem.goalNode);
   });
+
+  it('search panels preserve current node and solution path on found steps', () => {
+    const final = runToEnd('bfs', simpleGraphProblem);
+    expect(getPanel(final, 'Current Node')?.type).toBe('chips');
+    const solutionPath = getPanel(final, 'Solution Path');
+    expect(solutionPath?.type).toBe('chips');
+    expect(solutionPath?.type === 'chips' ? solutionPath.items.map(item => item.id) : null).toEqual(['S', 'B', 'G']);
+  });
+
+  it('bidirectional search panels broadcast forward and backward collections explicitly', () => {
+    const expandStep = collectAllSteps('bidirectional-bfs', simpleGraphProblem)
+      .find(step => step.phase === 'expanding');
+
+    expect(expandStep).toBeTruthy();
+    expect(getPanel(expandStep!, 'Forward Frontier')?.type).toBe('chips');
+    expect(getPanel(expandStep!, 'Backward Frontier')?.type).toBe('chips');
+    expect(getPanel(expandStep!, 'Forward Explored')?.type).toBe('chips');
+    expect(getPanel(expandStep!, 'Backward Explored')?.type).toBe('chips');
+  });
+
+  it('stack-based panels render the next node to pop first', () => {
+    const pushA = collectAllSteps('dfs', simpleGraphProblem)
+      .find(step => step.phase === 'visiting' && step.description.includes('"A"'));
+
+    expect(pushA).toBeTruthy();
+    const frontier = getPanel(pushA!, 'Frontier (Stack)');
+    expect(frontier?.type).toBe('chips');
+    expect(frontier?.type === 'chips' ? frontier.items.map(item => item.id) : null).toEqual(['A', 'B']);
+  });
 });
 
 describe('Informed Search', () => {
@@ -158,22 +199,22 @@ describe('Heuristic Cost Verification', () => {
 
     // First expansion should be Arad: g=0, h=366, f=366
     const first = expandSteps[0];
-    expect(first.metrics.pathCost).toBe(0);
-    expect(first.metrics.hCost).toBe(366);
-    expect(first.metrics.fCost).toBe(366);
+    expect(getMetric(first, 'Path Cost')).toBe(0);
+    expect(getMetric(first, 'h(n)')).toBe(366);
+    expect(getMetric(first, 'f(n)')).toBe(366);
 
     // Final expansion should find Bucharest with optimal g=418
     const last = expandSteps[expandSteps.length - 1];
-    expect(last.metrics.pathCost).toBe(418);
-    expect(last.metrics.hCost).toBe(0);
-    expect(last.metrics.fCost).toBe(418);
+    expect(getMetric(last, 'Path Cost')).toBe(418);
+    expect(getMetric(last, 'h(n)')).toBe(0);
+    expect(getMetric(last, 'f(n)')).toBe(418);
 
     // Verify h values are always the correct textbook heuristic
     for (const step of expandSteps) {
       const nodeId = (step.highlight as { currentNode: string | null }).currentNode as string;
       const expectedH = ROMANIA_HEURISTICS[nodeId];
       if (expectedH !== undefined) {
-        expect(step.metrics.hCost).toBe(expectedH);
+        expect(getMetric(step, 'h(n)')).toBe(expectedH);
       }
     }
   });
@@ -181,7 +222,7 @@ describe('Heuristic Cost Verification', () => {
   it('A* optimal path cost is 418 (Arad→Sibiu→RimnicuVilcea→Pitesti→Bucharest)', () => {
     const final = runToEnd('astar', romaniaMapProblem);
     expect(final.phase).toBe('found');
-    expect(final.metrics.pathCost).toBe(418);
+    expect(getMetric(final, 'Path Cost')).toBe(418);
     const path = getFinalPath(final);
     expect(path).toEqual(['Arad', 'Sibiu', 'RimnicuVilcea', 'Pitesti', 'Bucharest']);
   });
@@ -189,8 +230,8 @@ describe('Heuristic Cost Verification', () => {
   it('A* f-values are monotonically non-decreasing for expanded nodes', () => {
     const expandSteps = getExpandSteps('astar', romaniaMapProblem);
     for (let i = 1; i < expandSteps.length; i++) {
-      expect(expandSteps[i].metrics.fCost!).toBeGreaterThanOrEqual(
-        expandSteps[i - 1].metrics.fCost!
+      expect(getMetric(expandSteps[i], 'f(n)')!).toBeGreaterThanOrEqual(
+        getMetric(expandSteps[i - 1], 'f(n)')!
       );
     }
   });
@@ -200,11 +241,11 @@ describe('Heuristic Cost Verification', () => {
 
     // In Greedy BFS, the reported fCost should equal hCost (f = h)
     for (const step of expandSteps) {
-      expect(step.metrics.fCost).toBe(step.metrics.hCost);
+      expect(getMetric(step, 'f(n)')).toBe(getMetric(step, 'h(n)'));
     }
 
     // First expansion is Arad with h=366
-    expect(expandSteps[0].metrics.hCost).toBe(366);
+    expect(getMetric(expandSteps[0], 'h(n)')).toBe(366);
   });
 
   it('Weighted A* inflates heuristic by weight w', () => {
@@ -213,17 +254,17 @@ describe('Heuristic Cost Verification', () => {
 
     // For each expansion: f_w should equal g + w*h
     for (const step of expandSteps) {
-      const g = step.metrics.pathCost ?? 0;
-      const h = step.metrics.hCost ?? 0;
+      const g = getMetric(step, 'Path Cost') ?? 0;
+      const h = getMetric(step, 'h(n)') ?? 0;
       const expectedFw = g + w * h;
-      expect(step.metrics.fCost).toBeCloseTo(expectedFw, 5);
+      expect(getMetric(step, 'f(n)')).toBeCloseTo(expectedFw, 5);
     }
   });
 
   it('IDA* finds optimal path with correct cost', () => {
     const final = runToEnd('ida-star', romaniaMapProblem);
     expect(final.phase).toBe('found');
-    expect(final.metrics.pathCost).toBe(418);
+    expect(getMetric(final, 'Path Cost')).toBe(418);
   });
 
   it('IDA* h values match textbook at visit steps', () => {
@@ -234,7 +275,7 @@ describe('Heuristic Cost Verification', () => {
       const nodeId = (step.highlight as { currentNode: string | null }).currentNode as string;
       const expectedH = ROMANIA_HEURISTICS[nodeId];
       if (expectedH !== undefined) {
-        expect(step.metrics.hCost).toBe(expectedH);
+        expect(getMetric(step, 'h(n)')).toBe(expectedH);
       }
     }
   });
@@ -242,13 +283,13 @@ describe('Heuristic Cost Verification', () => {
   it('RBFS finds optimal path with correct cost', () => {
     const final = runToEnd('rbfs', romaniaMapProblem);
     expect(final.phase).toBe('found');
-    expect(final.metrics.pathCost).toBe(418);
+    expect(getMetric(final, 'Path Cost')).toBe(418);
   });
 
   it('SMA* returns correct optimal cost', () => {
     const final = runToEnd('sma-star', { ...romaniaMapProblem, memoryLimit: 24 });
     expect(final.phase).toBe('found');
-    expect(final.metrics.pathCost).toBe(418);
+    expect(getMetric(final, 'Path Cost')).toBe(418);
   });
 });
 

@@ -7,7 +7,6 @@ export interface SearchState {
   pathMap: Map<string, string | null>;
   foundPath: string[] | null;
   metadata?: Map<string, unknown>; // for storing g/h/f costs
-  isStack?: boolean; // Tells the visualizer to reverse the frontier array
 }
 
 export interface SearchHighlight {

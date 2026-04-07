@@ -4,7 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { SearchState, SearchHighlight } from './types';
 import { reconstructPath, getDepth, validateGraphProblem } from './types';
 import { deepClone } from '@/lib/deep-clone';
-import { createLog } from '@/algorithms/core/utils';
+import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 export interface DLSProblem extends GraphProblem {
   depthLimit: number;
@@ -53,7 +53,6 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
       explored: new Set(),
       pathMap: new Map([[problem.startNode, null]]),
       foundPath: null,
-      isStack: true,
     };
   },
 
@@ -74,8 +73,17 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
       explored: deepClone(explored),
       pathMap: deepClone(pathMap),
       foundPath: null,
-      isStack: true,
     });
+    const buildPanels = (currentNode: string | null = null, foundPath: string[] | null = null) =>
+      buildGraphStatePanels({
+        labelOf,
+        currentNode,
+        solutionPath: foundPath,
+        collections: [
+          { title: 'Frontier (Stack)', items: stack.map(([n]) => n), variant: 'frontier', order: 'reverse' },
+          { title: 'Explored', items: explored, variant: 'explored' },
+        ],
+      });
 
     yield {
       stepNumber: stepNum++,
@@ -84,8 +92,9 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
       pseudocodeLine: 1,
       state: snap(),
       highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
-      metrics: { nodesExpanded: 0, frontierSize: 1, currentDepth: 0, pathCost: 0, memoryUsed: 1 },
+      metrics: [{ label: 'Expanded', value: 0, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 1, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'Memory', value: 1, color: 'text-[var(--text-2)]' }],
       logs: [createLog(`Initialized DLS at node ${labelOf(problem.startNode)} (limit=${depthLimit})`, 'info')],
+      statePanels: buildPanels()
     };
 
     while (stack.length > 0) {
@@ -103,9 +112,10 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
         pseudocodeLine: 4,
         state: snap(),
         highlight: { frontierNodes: new Set(stack.map(([n]) => n)), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
-        metrics: { nodesExpanded, frontierSize: stack.length, currentDepth: depth, pathCost: 0, memoryUsed: stack.length + explored.size },
+        metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: stack.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: depth, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'Memory', value: stack.length + explored.size, color: 'text-[var(--text-2)]' }],
         logs: [createLog(`Expanding node ${labelOf(current)} (depth=${depth})`, 'info')],
-      };
+        statePanels: buildPanels(current)
+    };
 
       if (current === problem.goalNode) {
         const foundPath = reconstructPath(pathMap, current);
@@ -116,8 +126,9 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
           pseudocodeLine: 5,
           state: { ...snap(), foundPath },
           highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: current, pathEdges: foundPath },
-          metrics: { nodesExpanded, frontierSize: 0, currentDepth: depth, pathCost: foundPath.length - 1, memoryUsed: explored.size },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: depth, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: foundPath.length - 1, color: 'text-[#3FB950]' }, { label: 'Memory', value: explored.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`SUCCESS: Goal node reached at depth ${depth}!`, 'success')],
+          statePanels: buildPanels(current, foundPath)
         };
         return;
       }
@@ -131,8 +142,9 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
           pseudocodeLine: 6,
           state: snap(),
           highlight: { frontierNodes: new Set(stack.map(([n]) => n)), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
-          metrics: { nodesExpanded, frontierSize: stack.length, currentDepth: depth, pathCost: 0, memoryUsed: stack.length + explored.size },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: stack.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: depth, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'Memory', value: stack.length + explored.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`Pruning branch: depth limit ${depthLimit} reached at ${labelOf(current)}`, 'warn')],
+          statePanels: buildPanels(current)
         };
         continue;
       }
@@ -148,9 +160,10 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
             pseudocodeLine: 10,
             state: snap(),
             highlight: { frontierNodes: new Set(stack.map(([n]) => n)), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
-            metrics: { nodesExpanded, frontierSize: stack.length, currentDepth: depth + 1, pathCost: 0, memoryUsed: stack.length + explored.size },
+            metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: stack.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: depth + 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'Memory', value: stack.length + explored.size, color: 'text-[var(--text-2)]' }],
             logs: [createLog(`Pushed neighbor ${labelOf(neighbor)} onto stack (depth ${depth + 1})`, 'info')],
-          };
+            statePanels: buildPanels(current)
+        };
         }
       }
     }
@@ -164,8 +177,9 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
       pseudocodeLine: 11,
       state: snap(),
       highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: null, pathEdges: null },
-      metrics: { nodesExpanded, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: explored.size },
+      metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: Infinity, color: 'text-[#3FB950]' }, { label: 'Memory', value: explored.size, color: 'text-[var(--text-2)]' }],
       logs: [createLog(cutoffOccurred ? 'CUTOFF: Search space exceeded depth limit' : 'FAILURE: Goal not found', cutoffOccurred ? 'warn' : 'error')],
+      statePanels: buildPanels()
     };
   },
 };

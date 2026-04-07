@@ -4,7 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { InformedSearchState, SearchHighlight } from './types';
 import { validateGraphProblem, reconstructPath, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { deepClone } from '@/lib/deep-clone';
-import { createLog } from '@/algorithms/core/utils';
+import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 interface RBFSState extends InformedSearchState {
   frontierStack: string[];
@@ -101,6 +101,20 @@ export const rbfsRunner: AlgorithmRunner<GraphProblem, RBFSState, SearchHighligh
       frontierStack: [...stack],
       fLimit,
     });
+    const buildPanels = (
+      currentNode: string | null,
+      foundPath: string[] | null = null,
+      frontierItems: Iterable<string> = stack,
+    ) =>
+      buildGraphStatePanels({
+        labelOf,
+        currentNode,
+        solutionPath: foundPath,
+        collections: [
+          { title: 'Frontier (Recursion Stack)', items: frontierItems, variant: 'frontier', order: 'reverse' },
+          { title: 'Explored', items: explored, variant: 'explored' },
+        ],
+      });
 
     yield {
       stepNumber: stepNum++,
@@ -114,16 +128,9 @@ export const rbfsRunner: AlgorithmRunner<GraphProblem, RBFSState, SearchHighligh
         currentNode: null,
         pathEdges: null,
       },
-      metrics: {
-        nodesExpanded: 0,
-        frontierSize: 1,
-        currentDepth: 0,
-        pathCost: 0,
-        hCost: h(problem.startNode),
-        fCost: h(problem.startNode),
-        memoryUsed: 1,
-      },
+      metrics: [{ label: 'Expanded', value: 0, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 1, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'h(n)', value: h(problem.startNode), color: 'text-[var(--purple)]' }, { label: 'f(n)', value: h(problem.startNode), color: 'text-[var(--accent)]' }, { label: 'Memory', value: 1, color: 'text-[var(--text-2)]' }],
       logs: [createLog(`Initialized RBFS at node ${labelOf(problem.startNode)}`, 'info')],
+      statePanels: buildPanels(null)
     };
 
     type Successor = {
@@ -161,18 +168,10 @@ export const rbfsRunner: AlgorithmRunner<GraphProblem, RBFSState, SearchHighligh
           currentNode: node,
           pathEdges: null,
         },
-        metrics: {
-          nodesExpanded,
-          frontierSize: stack.length,
-          currentDepth: stack.length - 1,
-          pathCost: g,
-          gCost: g,
-          hCost: nodeH,
-          fCost: effectiveF,
-          memoryUsed: stack.length + explored.size,
-        },
+        metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: stack.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: stack.length - 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: g, color: 'text-[#3FB950]' }, { label: 'g(n)', value: g, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: nodeH, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: effectiveF, color: 'text-[var(--accent)]' }, { label: 'Memory', value: stack.length + explored.size, color: 'text-[var(--text-2)]' }],
         logs: [createLog(`Expanding ${labelOf(node)} with f-limit=${Number.isFinite(fLimit) ? fLimit : '∞'}`, 'info')],
-      };
+          statePanels: buildPanels(node)
+    };
 
       if (node === problem.goalNode) {
         const foundPath = reconstructPath(pathMap, node);
@@ -188,17 +187,9 @@ export const rbfsRunner: AlgorithmRunner<GraphProblem, RBFSState, SearchHighligh
             currentNode: node,
             pathEdges: foundPath,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: 0,
-            currentDepth: foundPath.length - 1,
-            pathCost: g,
-            gCost: g,
-            hCost: 0,
-            fCost: g,
-            memoryUsed: explored.size,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: foundPath.length - 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: g, color: 'text-[#3FB950]' }, { label: 'g(n)', value: g, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: 0, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: g, color: 'text-[var(--accent)]' }, { label: 'Memory', value: explored.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`SUCCESS: Goal reached with path cost ${g}`, 'success')],
+            statePanels: buildPanels(node, foundPath)
         };
         return { found: true, goal: node };
       }
@@ -230,17 +221,9 @@ export const rbfsRunner: AlgorithmRunner<GraphProblem, RBFSState, SearchHighligh
             currentNode: node,
             pathEdges: null,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: stack.length + 1,
-            currentDepth: stack.length,
-            pathCost: newG,
-            gCost: newG,
-            hCost: neighborH,
-            fCost: neighborF,
-            memoryUsed: stack.length + explored.size + 1,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: stack.length + 1, color: 'text-[var(--accent)]' }, { label: 'Depth', value: stack.length, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: newG, color: 'text-[#3FB950]' }, { label: 'g(n)', value: newG, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: neighborH, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: neighborF, color: 'text-[var(--accent)]' }, { label: 'Memory', value: stack.length + explored.size + 1, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`Generated ${labelOf(neighbor)} (f=${neighborF})`, 'info')],
+            statePanels: buildPanels(node, null, [...stack, neighbor])
         };
       }
 
@@ -257,17 +240,9 @@ export const rbfsRunner: AlgorithmRunner<GraphProblem, RBFSState, SearchHighligh
             currentNode: node,
             pathEdges: null,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: stack.length,
-            currentDepth: stack.length - 1,
-            pathCost: g,
-            gCost: g,
-            hCost: nodeH,
-            fCost: Infinity,
-            memoryUsed: stack.length + explored.size,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: stack.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: stack.length - 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: g, color: 'text-[#3FB950]' }, { label: 'g(n)', value: g, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: nodeH, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: Infinity, color: 'text-[var(--accent)]' }, { label: 'Memory', value: stack.length + explored.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`Dead end at ${labelOf(node)}; returning ∞`, 'warn')],
+            statePanels: buildPanels(node)
         };
         return { found: false, nextF: Infinity };
       }
@@ -290,18 +265,10 @@ export const rbfsRunner: AlgorithmRunner<GraphProblem, RBFSState, SearchHighligh
               currentNode: node,
               pathEdges: null,
             },
-            metrics: {
-              nodesExpanded,
-              frontierSize: stack.length,
-              currentDepth: stack.length - 1,
-              pathCost: g,
-              gCost: g,
-              hCost: nodeH,
-              fCost: best.f,
-              memoryUsed: stack.length + explored.size,
-            },
+            metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: stack.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: stack.length - 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: g, color: 'text-[#3FB950]' }, { label: 'g(n)', value: g, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: nodeH, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: best.f, color: 'text-[var(--accent)]' }, { label: 'Memory', value: stack.length + explored.size, color: 'text-[var(--text-2)]' }],
             logs: [createLog(`Pruned at ${labelOf(node)}: best f=${best.f} > limit ${fLimit}`, 'warn')],
-          };
+              statePanels: buildPanels(node)
+        };
           return { found: false, nextF: best.f };
         }
 
@@ -321,17 +288,9 @@ export const rbfsRunner: AlgorithmRunner<GraphProblem, RBFSState, SearchHighligh
             currentNode: best.id,
             pathEdges: null,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: stack.length,
-            currentDepth: stack.length - 1,
-            pathCost: best.g,
-            gCost: best.g,
-            hCost: best.h,
-            fCost: best.f,
-            memoryUsed: stack.length + explored.size,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: stack.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: stack.length - 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: best.g, color: 'text-[#3FB950]' }, { label: 'g(n)', value: best.g, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: best.h, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: best.f, color: 'text-[var(--accent)]' }, { label: 'Memory', value: stack.length + explored.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`RBFS descending to ${labelOf(best.id)} with limit ${Number.isFinite(childLimit) ? childLimit : '∞'}`, 'info')],
+            statePanels: buildPanels(best.id)
         };
 
         const result = yield* rbfs(best.id, best.g, best.f, childLimit, pathSet);
@@ -357,17 +316,9 @@ export const rbfsRunner: AlgorithmRunner<GraphProblem, RBFSState, SearchHighligh
             currentNode: node,
             pathEdges: null,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: stack.length,
-            currentDepth: stack.length - 1,
-            pathCost: g,
-            gCost: g,
-            hCost: nodeH,
-            fCost: best.f,
-            memoryUsed: stack.length + explored.size,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: stack.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: stack.length - 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: g, color: 'text-[#3FB950]' }, { label: 'g(n)', value: g, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: nodeH, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: best.f, color: 'text-[var(--accent)]' }, { label: 'Memory', value: stack.length + explored.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`Backtracked to ${labelOf(node)}; child ${labelOf(best.id)} now has f=${best.f}`, 'info')],
+            statePanels: buildPanels(node)
         };
       }
     };
@@ -389,14 +340,9 @@ export const rbfsRunner: AlgorithmRunner<GraphProblem, RBFSState, SearchHighligh
         currentNode: null,
         pathEdges: null,
       },
-      metrics: {
-        nodesExpanded,
-        frontierSize: 0,
-        currentDepth: 0,
-        pathCost: Infinity,
-        memoryUsed: explored.size,
-      },
+      metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: Infinity, color: 'text-[#3FB950]' }, { label: 'Memory', value: explored.size, color: 'text-[var(--text-2)]' }],
       logs: [createLog('FAILURE: No path exists to the goal node', 'error')],
+      statePanels: buildPanels(null)
     };
   },
 };

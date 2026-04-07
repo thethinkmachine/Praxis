@@ -4,7 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { InformedSearchState, SearchHighlight } from './types';
 import { reconstructPath, validateGraphProblem, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { deepClone } from '@/lib/deep-clone';
-import { createLog } from '@/algorithms/core/utils';
+import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 export interface SMAStarProblem extends GraphProblem {
   /**
@@ -260,6 +260,16 @@ export const smaStarRunner: AlgorithmRunner<SMAStarProblem, SMAStarState, Search
       prunedNodes,
       openSet: openList(),
     });
+    const buildPanels = (currentNode: string | null = null, foundPath: string[] | null = null) =>
+      buildGraphStatePanels({
+        labelOf,
+        currentNode,
+        solutionPath: foundPath,
+        collections: [
+          { title: 'Frontier (Open Set)', items: openList(), variant: 'frontier' },
+          { title: 'Explored', items: explored, variant: 'explored' },
+        ],
+      });
 
     yield {
       stepNumber: stepNum++,
@@ -273,17 +283,9 @@ export const smaStarRunner: AlgorithmRunner<SMAStarProblem, SMAStarState, Search
         currentNode: null,
         pathEdges: null,
       },
-      metrics: {
-        nodesExpanded: 0,
-        frontierSize: 1,
-        currentDepth: 0,
-        pathCost: 0,
-        gCost: 0,
-        hCost: startH,
-        fCost: startH,
-        memoryUsed: records.size,
-      },
+      metrics: [{ label: 'Expanded', value: 0, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 1, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'g(n)', value: 0, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: startH, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: startH, color: 'text-[var(--accent)]' }, { label: 'Memory', value: records.size, color: 'text-[var(--text-2)]' }],
       logs: [createLog(`Initialized SMA* with memory limit ${memoryLimit}`, 'info')],
+      statePanels: buildPanels()
     };
 
     while (open.size > 0) {
@@ -307,18 +309,10 @@ export const smaStarRunner: AlgorithmRunner<SMAStarProblem, SMAStarState, Search
           currentNode: best.id,
           pathEdges: null,
         },
-        metrics: {
-          nodesExpanded,
-          frontierSize: open.size,
-          currentDepth: best.depth,
-          pathCost: best.g,
-          gCost: best.g,
-          hCost: best.h,
-          fCost: best.f,
-          memoryUsed: records.size,
-        },
+        metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: open.size, color: 'text-[var(--accent)]' }, { label: 'Depth', value: best.depth, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: best.g, color: 'text-[#3FB950]' }, { label: 'g(n)', value: best.g, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: best.h, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: best.f, color: 'text-[var(--accent)]' }, { label: 'Memory', value: records.size, color: 'text-[var(--text-2)]' }],
         logs: [createLog(`Expanding ${labelOf(best.id)} from SMA* frontier`, 'info')],
-      };
+          statePanels: buildPanels(best.id)
+    };
 
       if (best.id === problem.goalNode) {
         const foundPath = reconstructPath(pathMap, best.id);
@@ -334,17 +328,9 @@ export const smaStarRunner: AlgorithmRunner<SMAStarProblem, SMAStarState, Search
             currentNode: best.id,
             pathEdges: foundPath,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: 0,
-            currentDepth: foundPath.length - 1,
-            pathCost: best.g,
-            gCost: best.g,
-            hCost: 0,
-            fCost: best.g,
-            memoryUsed: records.size,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: foundPath.length - 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: best.g, color: 'text-[#3FB950]' }, { label: 'g(n)', value: best.g, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: 0, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: best.g, color: 'text-[var(--accent)]' }, { label: 'Memory', value: records.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`SUCCESS: Goal reached with cost ${best.g}`, 'success')],
+            statePanels: buildPanels(best.id, foundPath)
         };
         return;
       }
@@ -407,17 +393,9 @@ export const smaStarRunner: AlgorithmRunner<SMAStarProblem, SMAStarState, Search
             currentNode: best.id,
             pathEdges: null,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: open.size,
-            currentDepth: child.depth,
-            pathCost: newG,
-            gCost: newG,
-            hCost: neighborH,
-            fCost: neighborF,
-            memoryUsed: records.size,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: open.size, color: 'text-[var(--accent)]' }, { label: 'Depth', value: child.depth, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: newG, color: 'text-[#3FB950]' }, { label: 'g(n)', value: newG, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: neighborH, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: neighborF, color: 'text-[var(--accent)]' }, { label: 'Memory', value: records.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`Generated ${labelOf(neighbor)} for SMA* frontier`, 'info')],
+            statePanels: buildPanels(best.id)
         };
       }
 
@@ -439,17 +417,9 @@ export const smaStarRunner: AlgorithmRunner<SMAStarProblem, SMAStarState, Search
             currentNode: best.id,
             pathEdges: null,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: open.size,
-            currentDepth: best.depth,
-            pathCost: best.g,
-            gCost: best.g,
-            hCost: best.h,
-            fCost: Infinity,
-            memoryUsed: records.size,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: open.size, color: 'text-[var(--accent)]' }, { label: 'Depth', value: best.depth, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: best.g, color: 'text-[#3FB950]' }, { label: 'g(n)', value: best.g, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: best.h, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: Infinity, color: 'text-[var(--accent)]' }, { label: 'Memory', value: records.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`Dead-end at ${labelOf(best.id)}; backed up as f=∞`, 'warn')],
+            statePanels: buildPanels(best.id)
         };
       } else {
         recalcNodeF(best.id);
@@ -473,15 +443,9 @@ export const smaStarRunner: AlgorithmRunner<SMAStarProblem, SMAStarState, Search
             currentNode: pruned.parent,
             pathEdges: null,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: open.size,
-            currentDepth: records.get(pruned.parent ?? '')?.depth ?? 0,
-            pathCost: records.get(pruned.parent ?? '')?.g ?? 0,
-            fCost: pruned.f,
-            memoryUsed: records.size,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: open.size, color: 'text-[var(--accent)]' }, { label: 'Depth', value: records.get(pruned.parent ?? '')?.depth ?? 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: records.get(pruned.parent ?? '')?.g ?? 0, color: 'text-[#3FB950]' }, { label: 'f(n)', value: pruned.f, color: 'text-[var(--accent)]' }, { label: 'Memory', value: records.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`Pruned worst leaf ${labelOf(pruned.id)} to respect memory limit`, 'warn')],
+            statePanels: buildPanels(pruned.parent)
         };
       }
     }
@@ -498,14 +462,9 @@ export const smaStarRunner: AlgorithmRunner<SMAStarProblem, SMAStarState, Search
         currentNode: null,
         pathEdges: null,
       },
-      metrics: {
-        nodesExpanded,
-        frontierSize: 0,
-        currentDepth: 0,
-        pathCost: Infinity,
-        memoryUsed: records.size,
-      },
+      metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: Infinity, color: 'text-[#3FB950]' }, { label: 'Memory', value: records.size, color: 'text-[var(--text-2)]' }],
       logs: [createLog('FAILURE: Frontier exhausted before reaching goal', 'error')],
+      statePanels: buildPanels()
     };
   },
 };

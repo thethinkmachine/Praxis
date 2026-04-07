@@ -5,7 +5,7 @@ import type { SearchHighlight } from '../uninformed/types';
 import { reconstructPath, validateGraphProblem, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
-import { createLog } from '@/algorithms/core/utils';
+import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 interface BidirectionalAStarState {
   frontierF: string[];
@@ -243,6 +243,18 @@ export const bidirectionalAstarRunner: AlgorithmRunner<GraphProblem, Bidirection
         fCosts: merged.f,
       };
     };
+    const buildPanels = (currentNode: string | null = null, foundPath: string[] | null = null) =>
+      buildGraphStatePanels({
+        labelOf,
+        currentNode,
+        solutionPath: foundPath,
+        collections: [
+          { title: 'Forward Frontier', items: frontierOf(pqF, exploredF), variant: 'frontier' },
+          { title: 'Backward Frontier', items: frontierOf(pqB, exploredB), variant: 'frontier' },
+          { title: 'Forward Explored', items: exploredF, variant: 'explored' },
+          { title: 'Backward Explored', items: exploredB, variant: 'explored' },
+        ],
+      });
 
     yield {
       stepNumber: stepNum++,
@@ -256,21 +268,14 @@ export const bidirectionalAstarRunner: AlgorithmRunner<GraphProblem, Bidirection
         currentNode: null,
         pathEdges: null,
       },
-      metrics: {
-        nodesExpanded: 0,
-        frontierSize: 2,
-        currentDepth: 0,
-        pathCost: 0,
-        hCost: hForward(problem.startNode),
-        fCost: hForward(problem.startNode),
-        memoryUsed: 2,
-      },
+      metrics: [{ label: 'Expanded', value: 0, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 2, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'h(n)', value: hForward(problem.startNode), color: 'text-[var(--purple)]' }, { label: 'f(n)', value: hForward(problem.startNode), color: 'text-[var(--accent)]' }, { label: 'Memory', value: 2, color: 'text-[var(--text-2)]' }],
       logs: [
         createLog(
           `Initialized Bidirectional A*${backwardUsesZero ? ' (backward h=0 fallback for manual heuristic)' : ''}`,
           'info',
         ),
       ],
+      statePanels: buildPanels()
     };
 
     if (problem.startNode === problem.goalNode) {
@@ -287,18 +292,10 @@ export const bidirectionalAstarRunner: AlgorithmRunner<GraphProblem, Bidirection
           currentNode: problem.startNode,
           pathEdges: path,
         },
-        metrics: {
-          nodesExpanded: 0,
-          frontierSize: 0,
-          currentDepth: 0,
-          pathCost: 0,
-          gCost: 0,
-          hCost: 0,
-          fCost: 0,
-          memoryUsed: 1,
-        },
+        metrics: [{ label: 'Expanded', value: 0, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'g(n)', value: 0, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: 0, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: 0, color: 'text-[var(--accent)]' }, { label: 'Memory', value: 1, color: 'text-[var(--text-2)]' }],
         logs: [createLog('SUCCESS: Trivial solution (start equals goal)', 'success')],
-      };
+        statePanels: buildPanels(problem.startNode, path)
+    };
       return;
     }
 
@@ -320,16 +317,9 @@ export const bidirectionalAstarRunner: AlgorithmRunner<GraphProblem, Bidirection
             currentNode: meetingNode,
             pathEdges: foundPath,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: 0,
-            currentDepth: foundPath.length - 1,
-            pathCost: bestCost,
-            gCost: bestCost,
-            fCost: bestCost,
-            memoryUsed: exploredF.size + exploredB.size,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: foundPath.length - 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: bestCost, color: 'text-[#3FB950]' }, { label: 'g(n)', value: bestCost, color: 'text-[var(--warning)]' }, { label: 'f(n)', value: bestCost, color: 'text-[var(--accent)]' }, { label: 'Memory', value: exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`SUCCESS: Frontiers connected optimally via ${labelOf(meetingNode)} (cost ${bestCost})`, 'success')],
+          statePanels: buildPanels(meetingNode, foundPath)
         };
         return;
       }
@@ -374,18 +364,10 @@ export const bidirectionalAstarRunner: AlgorithmRunner<GraphProblem, Bidirection
           currentNode: current,
           pathEdges: null,
         },
-        metrics: {
-          nodesExpanded,
-          frontierSize: activeFrontier.size,
-          currentDepth: 0,
-          pathCost: currentG,
-          gCost: currentG,
-          hCost: currentH,
-          fCost: currentF,
-          memoryUsed: activeFrontier.size + exploredF.size + exploredB.size,
-        },
+        metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: activeFrontier.size, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: currentG, color: 'text-[#3FB950]' }, { label: 'g(n)', value: currentG, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: currentH, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: currentF, color: 'text-[var(--accent)]' }, { label: 'Memory', value: activeFrontier.size + exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
         logs: [createLog(`Expanding ${direction} frontier at ${labelOf(current)} (f=${currentF})`, 'info')],
-      };
+        statePanels: buildPanels(current)
+    };
 
       if (updateBest(current)) {
         yield {
@@ -400,17 +382,9 @@ export const bidirectionalAstarRunner: AlgorithmRunner<GraphProblem, Bidirection
             currentNode: current,
             pathEdges: null,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: activeFrontier.size,
-            currentDepth: 0,
-            pathCost: bestCost,
-            gCost: currentG,
-            hCost: currentH,
-            fCost: bestCost,
-            memoryUsed: activeFrontier.size + exploredF.size + exploredB.size,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: activeFrontier.size, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: bestCost, color: 'text-[#3FB950]' }, { label: 'g(n)', value: currentG, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: currentH, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: bestCost, color: 'text-[var(--accent)]' }, { label: 'Memory', value: activeFrontier.size + exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`Updated incumbent path via ${labelOf(current)} (cost ${bestCost})`, 'info')],
+          statePanels: buildPanels(current)
         };
       }
 
@@ -447,18 +421,10 @@ export const bidirectionalAstarRunner: AlgorithmRunner<GraphProblem, Bidirection
               currentNode: current,
               pathEdges: null,
             },
-            metrics: {
-              nodesExpanded,
-              frontierSize: activeAfterRelax.size,
-              currentDepth: 0,
-              pathCost: newG,
-              gCost: newG,
-              hCost: neighborH,
-              fCost: neighborF,
-              memoryUsed: activeAfterRelax.size + exploredF.size + exploredB.size,
-            },
+            metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: activeAfterRelax.size, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: newG, color: 'text-[#3FB950]' }, { label: 'g(n)', value: newG, color: 'text-[var(--warning)]' }, { label: 'h(n)', value: neighborH, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: neighborF, color: 'text-[var(--accent)]' }, { label: 'Memory', value: activeAfterRelax.size + exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
             logs: [createLog(`${isUpdate ? 'Updated' : 'Discovered'} ${labelOf(neighbor)} (${direction} f=${neighborF})`, 'info')],
-          };
+            statePanels: buildPanels(current)
+        };
         } else {
           updateBest(neighbor);
         }
@@ -479,17 +445,10 @@ export const bidirectionalAstarRunner: AlgorithmRunner<GraphProblem, Bidirection
           currentNode: meetingNode,
           pathEdges: foundPath,
         },
-        metrics: {
-          nodesExpanded,
-          frontierSize: 0,
-          currentDepth: foundPath.length - 1,
-          pathCost: bestCost,
-          gCost: bestCost,
-          fCost: bestCost,
-          memoryUsed: exploredF.size + exploredB.size,
-        },
+        metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: foundPath.length - 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: bestCost, color: 'text-[#3FB950]' }, { label: 'g(n)', value: bestCost, color: 'text-[var(--warning)]' }, { label: 'f(n)', value: bestCost, color: 'text-[var(--accent)]' }, { label: 'Memory', value: exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
         logs: [createLog(`SUCCESS: Goal connected via ${labelOf(meetingNode)} (cost ${bestCost})`, 'success')],
-      };
+        statePanels: buildPanels(meetingNode, foundPath)
+    };
       return;
     }
 
@@ -505,14 +464,9 @@ export const bidirectionalAstarRunner: AlgorithmRunner<GraphProblem, Bidirection
         currentNode: null,
         pathEdges: null,
       },
-      metrics: {
-        nodesExpanded,
-        frontierSize: 0,
-        currentDepth: 0,
-        pathCost: Infinity,
-        memoryUsed: exploredF.size + exploredB.size,
-      },
+      metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: Infinity, color: 'text-[#3FB950]' }, { label: 'Memory', value: exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
       logs: [createLog('FAILURE: No path exists between start and goal', 'error')],
+      statePanels: buildPanels()
     };
   },
 };

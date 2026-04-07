@@ -70,11 +70,11 @@ function StatusBar() {
             </div>
             <div className="flex items-center gap-1.5 text-[var(--warning)]" title="Frontier Size">
               <Layers size={10} />
-              <span>F:{step.metrics.frontierSize}</span>
+              <span>F:{Array.isArray(step.metrics) ? (step.metrics.find(m => m.label === 'Frontier' || m.label === 'Candidates')?.value ?? '-') : step.metrics?.frontierSize ?? '-'}</span>
             </div>
             <div className="flex items-center gap-1.5 text-[var(--success)]" title="Nodes Expanded">
               <Target size={10} />
-              <span>E:{step.metrics.nodesExpanded}</span>
+              <span>E:{Array.isArray(step.metrics) ? (step.metrics.find(m => m.label === 'Expanded' || m.label === 'Evaluated')?.value ?? '-') : step.metrics?.nodesExpanded ?? '-'}</span>
             </div>
           </div>
         )}

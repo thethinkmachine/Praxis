@@ -5,7 +5,7 @@ import type { InformedSearchState, SearchHighlight } from './types';
 import { reconstructPath, validateGraphProblem, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
-import { createLog } from '@/algorithms/core/utils';
+import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, SearchHighlight> = {
   meta: {
@@ -91,6 +91,16 @@ export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, Sea
       hCosts: deepClone(hCosts),
       fCosts: deepClone(fCosts),
     });
+    const buildPanels = (currentNode: string | null = null, foundPath: string[] | null = null) =>
+      buildGraphStatePanels({
+        labelOf,
+        currentNode,
+        solutionPath: foundPath,
+        collections: [
+          { title: 'Frontier (Priority Queue)', items: pq.toArray(), variant: 'frontier' },
+          { title: 'Explored', items: explored, variant: 'explored' },
+        ],
+      });
 
     yield {
       stepNumber: stepNum++,
@@ -99,8 +109,9 @@ export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, Sea
       pseudocodeLine: 0,
       state: snap(),
       highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
-      metrics: { nodesExpanded: 0, frontierSize: 1, currentDepth: 0, pathCost: 0, hCost: h(problem.startNode), fCost: h(problem.startNode), memoryUsed: 1 },
+      metrics: [{ label: 'Expanded', value: 0, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 1, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'h(n)', value: h(problem.startNode), color: 'text-[var(--purple)]' }, { label: 'f(n)', value: h(problem.startNode), color: 'text-[var(--accent)]' }, { label: 'Memory', value: 1, color: 'text-[var(--text-2)]' }],
       logs: [createLog(`Initialized A* search at node ${labelOf(problem.startNode)} (h=${h(problem.startNode)})`, 'info')],
+      statePanels: buildPanels()
     };
 
     while (!pq.isEmpty) {
@@ -120,9 +131,10 @@ export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, Sea
         pseudocodeLine: 6,
         state: snap(),
         highlight: { frontierNodes: new Set(pq.toArray()), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
-        metrics: { nodesExpanded, frontierSize: pq.size, currentDepth: 0, pathCost: g, hCost: hVal, fCost: fVal, memoryUsed: pq.size + explored.size },
+        metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: pq.size, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: g, color: 'text-[#3FB950]' }, { label: 'h(n)', value: hVal, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: fVal, color: 'text-[var(--accent)]' }, { label: 'Memory', value: pq.size + explored.size, color: 'text-[var(--text-2)]' }],
         logs: [createLog(`Expanding node ${labelOf(current)} (f=${fVal} = g:${g} + h:${hVal})`, 'info')],
-      };
+        statePanels: buildPanels(current)
+    };
 
       if (current === problem.goalNode) {
         const foundPath = reconstructPath(pathMap, current);
@@ -133,8 +145,9 @@ export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, Sea
           pseudocodeLine: 7,
           state: { ...snap(), foundPath },
           highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: current, pathEdges: foundPath },
-          metrics: { nodesExpanded, frontierSize: 0, currentDepth: foundPath.length - 1, pathCost: g, hCost: 0, fCost: g, memoryUsed: explored.size },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: foundPath.length - 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: g, color: 'text-[#3FB950]' }, { label: 'h(n)', value: 0, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: g, color: 'text-[var(--accent)]' }, { label: 'Memory', value: explored.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`SUCCESS: Goal reached with optimal cost ${g}!`, 'success')],
+          statePanels: buildPanels(current, foundPath)
         };
         return;
       }
@@ -159,9 +172,10 @@ export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, Sea
             pseudocodeLine: 12, // Adjusted pseudocode line to match the original A* pseudocode structure
             state: snap(),
             highlight: { frontierNodes: new Set(pq.toArray()), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
-            metrics: { nodesExpanded, frontierSize: pq.size, currentDepth: 0, pathCost: newG, hCost: neighborH, fCost: neighborF, memoryUsed: pq.size + explored.size },
+            metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: pq.size, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: newG, color: 'text-[#3FB950]' }, { label: 'h(n)', value: neighborH, color: 'text-[var(--purple)]' }, { label: 'f(n)', value: neighborF, color: 'text-[var(--accent)]' }, { label: 'Memory', value: pq.size + explored.size, color: 'text-[var(--text-2)]' }],
             logs: [createLog(`${isUpdate ? 'Updated' : 'Discovered'} node ${labelOf(neighbor)} in frontier (f=${neighborF})`, 'info')],
-          };
+            statePanels: buildPanels(current)
+        };
         }
       }
     }
@@ -173,8 +187,9 @@ export const astarRunner: AlgorithmRunner<GraphProblem, InformedSearchState, Sea
       pseudocodeLine: 14,
       state: snap(),
       highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: null, pathEdges: null },
-      metrics: { nodesExpanded, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: explored.size },
+      metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: Infinity, color: 'text-[#3FB950]' }, { label: 'Memory', value: explored.size, color: 'text-[var(--text-2)]' }],
       logs: [createLog('FAILURE: No path exists to the goal node', 'error')],
+      statePanels: buildPanels()
     };
   },
 };

@@ -5,7 +5,7 @@ import type { SearchHighlight } from './types';
 import { validateGraphProblem, reconstructPath } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
-import { createLog } from '@/algorithms/core/utils';
+import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 interface BidirectionalUcsState {
   frontierF: string[];
@@ -198,6 +198,18 @@ export const bidirectionalUcsRunner: AlgorithmRunner<GraphProblem, Bidirectional
         fCosts: fSame,
       };
     };
+    const buildPanels = (currentNode: string | null = null, foundPath: string[] | null = null) =>
+      buildGraphStatePanels({
+        labelOf,
+        currentNode,
+        solutionPath: foundPath,
+        collections: [
+          { title: 'Forward Frontier', items: frontierOf(pqF, exploredF), variant: 'frontier' },
+          { title: 'Backward Frontier', items: frontierOf(pqB, exploredB), variant: 'frontier' },
+          { title: 'Forward Explored', items: exploredF, variant: 'explored' },
+          { title: 'Backward Explored', items: exploredB, variant: 'explored' },
+        ],
+      });
 
     yield {
       stepNumber: stepNum++,
@@ -211,16 +223,9 @@ export const bidirectionalUcsRunner: AlgorithmRunner<GraphProblem, Bidirectional
         currentNode: null,
         pathEdges: null,
       },
-      metrics: {
-        nodesExpanded: 0,
-        frontierSize: 2,
-        currentDepth: 0,
-        pathCost: 0,
-        gCost: 0,
-        fCost: 0,
-        memoryUsed: 2,
-      },
+      metrics: [{ label: 'Expanded', value: 0, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 2, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'g(n)', value: 0, color: 'text-[var(--warning)]' }, { label: 'f(n)', value: 0, color: 'text-[var(--accent)]' }, { label: 'Memory', value: 2, color: 'text-[var(--text-2)]' }],
       logs: [createLog(`Initialized Bidirectional UCS (Start: ${labelOf(problem.startNode)}, Goal: ${labelOf(problem.goalNode)})`, 'info')],
+      statePanels: buildPanels()
     };
 
     if (problem.startNode === problem.goalNode) {
@@ -237,17 +242,10 @@ export const bidirectionalUcsRunner: AlgorithmRunner<GraphProblem, Bidirectional
           currentNode: problem.startNode,
           pathEdges: path,
         },
-        metrics: {
-          nodesExpanded: 0,
-          frontierSize: 0,
-          currentDepth: 0,
-          pathCost: 0,
-          gCost: 0,
-          fCost: 0,
-          memoryUsed: 1,
-        },
+        metrics: [{ label: 'Expanded', value: 0, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'g(n)', value: 0, color: 'text-[var(--warning)]' }, { label: 'f(n)', value: 0, color: 'text-[var(--accent)]' }, { label: 'Memory', value: 1, color: 'text-[var(--text-2)]' }],
         logs: [createLog('SUCCESS: Trivial solution (start equals goal)', 'success')],
-      };
+        statePanels: buildPanels(problem.startNode, path)
+    };
       return;
     }
 
@@ -269,16 +267,9 @@ export const bidirectionalUcsRunner: AlgorithmRunner<GraphProblem, Bidirectional
             currentNode: meetingNode,
             pathEdges: foundPath,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: 0,
-            currentDepth: foundPath.length - 1,
-            pathCost: bestCost,
-            gCost: bestCost,
-            fCost: bestCost,
-            memoryUsed: exploredF.size + exploredB.size,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: foundPath.length - 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: bestCost, color: 'text-[#3FB950]' }, { label: 'g(n)', value: bestCost, color: 'text-[var(--warning)]' }, { label: 'f(n)', value: bestCost, color: 'text-[var(--accent)]' }, { label: 'Memory', value: exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`SUCCESS: Frontiers connected optimally via ${labelOf(meetingNode)} (cost ${bestCost})`, 'success')],
+          statePanels: buildPanels(meetingNode, foundPath)
         };
         return;
       }
@@ -317,17 +308,10 @@ export const bidirectionalUcsRunner: AlgorithmRunner<GraphProblem, Bidirectional
           currentNode: current,
           pathEdges: null,
         },
-        metrics: {
-          nodesExpanded,
-          frontierSize: activeFrontier.size,
-          currentDepth: 0,
-          pathCost: currentG,
-          gCost: currentG,
-          fCost: currentG,
-          memoryUsed: activeFrontier.size + exploredF.size + exploredB.size,
-        },
+        metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: activeFrontier.size, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: currentG, color: 'text-[#3FB950]' }, { label: 'g(n)', value: currentG, color: 'text-[var(--warning)]' }, { label: 'f(n)', value: currentG, color: 'text-[var(--accent)]' }, { label: 'Memory', value: activeFrontier.size + exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
         logs: [createLog(`Expanding ${direction} frontier at ${labelOf(current)} (g=${currentG})`, 'info')],
-      };
+        statePanels: buildPanels(current)
+    };
 
       if (updateBest(current)) {
         yield {
@@ -342,16 +326,9 @@ export const bidirectionalUcsRunner: AlgorithmRunner<GraphProblem, Bidirectional
             currentNode: current,
             pathEdges: null,
           },
-          metrics: {
-            nodesExpanded,
-            frontierSize: activeFrontier.size,
-            currentDepth: 0,
-            pathCost: bestCost,
-            gCost: currentG,
-            fCost: bestCost,
-            memoryUsed: activeFrontier.size + exploredF.size + exploredB.size,
-          },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: activeFrontier.size, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: bestCost, color: 'text-[#3FB950]' }, { label: 'g(n)', value: currentG, color: 'text-[var(--warning)]' }, { label: 'f(n)', value: bestCost, color: 'text-[var(--accent)]' }, { label: 'Memory', value: activeFrontier.size + exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`Updated incumbent path via ${labelOf(current)} (cost ${bestCost})`, 'info')],
+          statePanels: buildPanels(current)
         };
       }
 
@@ -383,17 +360,10 @@ export const bidirectionalUcsRunner: AlgorithmRunner<GraphProblem, Bidirectional
               currentNode: current,
               pathEdges: null,
             },
-            metrics: {
-              nodesExpanded,
-              frontierSize: activeAfterRelax.size,
-              currentDepth: 0,
-              pathCost: newG,
-              gCost: newG,
-              fCost: newG,
-              memoryUsed: activeAfterRelax.size + exploredF.size + exploredB.size,
-            },
+            metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: activeAfterRelax.size, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: newG, color: 'text-[#3FB950]' }, { label: 'g(n)', value: newG, color: 'text-[var(--warning)]' }, { label: 'f(n)', value: newG, color: 'text-[var(--accent)]' }, { label: 'Memory', value: activeAfterRelax.size + exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
             logs: [createLog(`${isUpdate ? 'Updated' : 'Discovered'} ${labelOf(neighbor)} (${direction} g=${newG})`, 'info')],
-          };
+            statePanels: buildPanels(current)
+        };
         } else {
           updateBest(neighbor);
         }
@@ -414,17 +384,10 @@ export const bidirectionalUcsRunner: AlgorithmRunner<GraphProblem, Bidirectional
           currentNode: meetingNode,
           pathEdges: foundPath,
         },
-        metrics: {
-          nodesExpanded,
-          frontierSize: 0,
-          currentDepth: foundPath.length - 1,
-          pathCost: bestCost,
-          gCost: bestCost,
-          fCost: bestCost,
-          memoryUsed: exploredF.size + exploredB.size,
-        },
+        metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: foundPath.length - 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: bestCost, color: 'text-[#3FB950]' }, { label: 'g(n)', value: bestCost, color: 'text-[var(--warning)]' }, { label: 'f(n)', value: bestCost, color: 'text-[var(--accent)]' }, { label: 'Memory', value: exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
         logs: [createLog(`SUCCESS: Goal connected via ${labelOf(meetingNode)} (cost ${bestCost})`, 'success')],
-      };
+        statePanels: buildPanels(meetingNode, foundPath)
+    };
       return;
     }
 
@@ -440,14 +403,9 @@ export const bidirectionalUcsRunner: AlgorithmRunner<GraphProblem, Bidirectional
         currentNode: null,
         pathEdges: null,
       },
-      metrics: {
-        nodesExpanded,
-        frontierSize: 0,
-        currentDepth: 0,
-        pathCost: Infinity,
-        memoryUsed: exploredF.size + exploredB.size,
-      },
+      metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: Infinity, color: 'text-[#3FB950]' }, { label: 'Memory', value: exploredF.size + exploredB.size, color: 'text-[var(--text-2)]' }],
       logs: [createLog('FAILURE: No path exists between start and goal', 'error')],
+      statePanels: buildPanels()
     };
   },
 };

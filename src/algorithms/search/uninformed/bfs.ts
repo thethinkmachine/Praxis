@@ -4,7 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { SearchState, SearchHighlight } from './types';
 import { reconstructPath, getDepth, validateGraphProblem } from './types';
 import { deepClone } from '@/lib/deep-clone';
-import { createLog } from '@/algorithms/core/utils';
+import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlight> = {
   meta: {
@@ -67,6 +67,16 @@ export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
       pathMap: deepClone(pathMap),
       foundPath: null,
     });
+    const buildPanels = (currentNode: string | null = null, foundPath: string[] | null = null) =>
+      buildGraphStatePanels({
+        labelOf,
+        currentNode,
+        solutionPath: foundPath,
+        collections: [
+          { title: 'Frontier (Queue)', items: frontier, variant: 'frontier' },
+          { title: 'Explored', items: explored, variant: 'explored' },
+        ],
+      });
 
     yield {
       stepNumber: stepNum++,
@@ -75,8 +85,9 @@ export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
       pseudocodeLine: 3,
       state: snap(),
       highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
-      metrics: { nodesExpanded: 0, frontierSize: 1, currentDepth: 0, pathCost: 0, memoryUsed: 1 },
+      metrics: [{ label: 'Expanded', value: 0, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 1, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'Memory', value: 1, color: 'text-[var(--text-2)]' }],
       logs: [createLog(`Initialized search at node ${labelOf(problem.startNode)}`, 'info')],
+      statePanels: buildPanels()
     };
 
     while (frontier.length > 0) {
@@ -93,9 +104,10 @@ export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
         pseudocodeLine: 6,
         state: snap(),
         highlight: { frontierNodes: new Set(frontier), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
-        metrics: { nodesExpanded, frontierSize: frontier.length, currentDepth: depth, pathCost: 0, memoryUsed: frontier.length + explored.size },
+        metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: frontier.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: depth, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'Memory', value: frontier.length + explored.size, color: 'text-[var(--text-2)]' }],
         logs: [createLog(`Expanding node ${labelOf(current)} (depth ${depth})`, 'info')],
-      };
+        statePanels: buildPanels(current)
+    };
 
       if (current === problem.goalNode) {
         const foundPath = reconstructPath(pathMap, current);
@@ -106,8 +118,9 @@ export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
           pseudocodeLine: 9,
           state: { ...snap(), foundPath },
           highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: current, pathEdges: foundPath },
-          metrics: { nodesExpanded, frontierSize: 0, currentDepth: depth, pathCost: foundPath.length - 1, memoryUsed: explored.size },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: depth, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: foundPath.length - 1, color: 'text-[#3FB950]' }, { label: 'Memory', value: explored.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`SUCCESS: Goal node ${labelOf(problem.goalNode)} reached!`, 'success')],
+          statePanels: buildPanels(current, foundPath)
         };
         return;
       }
@@ -125,9 +138,10 @@ export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
             pseudocodeLine: 11,
             state: snap(),
             highlight: { frontierNodes: new Set(frontier), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
-            metrics: { nodesExpanded, frontierSize: frontier.length, currentDepth: depth + 1, pathCost: 0, memoryUsed: frontier.length + explored.size },
+            metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: frontier.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: depth + 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'Memory', value: frontier.length + explored.size, color: 'text-[var(--text-2)]' }],
             logs: [createLog(`Neighbor ${labelOf(neighbor)} discovered, added to frontier`, 'info')],
-          };
+            statePanels: buildPanels(current)
+        };
         }
       }
     }
@@ -139,8 +153,9 @@ export const bfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlig
       pseudocodeLine: 13,
       state: snap(),
       highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: null, pathEdges: null },
-      metrics: { nodesExpanded, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: explored.size },
+      metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: Infinity, color: 'text-[#3FB950]' }, { label: 'Memory', value: explored.size, color: 'text-[var(--text-2)]' }],
       logs: [createLog('FAILURE: All reachable nodes explored, goal not found', 'error')],
+      statePanels: buildPanels()
     };
   },
 };

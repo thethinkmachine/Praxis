@@ -4,7 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { SearchState, SearchHighlight } from './types';
 import { reconstructPath, validateGraphProblem } from './types';
 import { deepClone } from '@/lib/deep-clone';
-import { createLog } from '@/algorithms/core/utils';
+import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighlight> = {
   meta: {
@@ -47,7 +47,6 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
       explored: new Set(),
       pathMap: new Map([[problem.startNode, null]]),
       foundPath: null,
-      isStack: true,
     };
   },
 
@@ -64,17 +63,28 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
       const stack: [string, string | null, number][] = [[problem.startNode, null, 0]];
       let nodesExpanded = 0;
       let cutoff = false;
+      const buildPanels = (currentNode: string | null = null, foundPath: string[] | null = null) =>
+        buildGraphStatePanels({
+          labelOf,
+          currentNode,
+          solutionPath: foundPath,
+          collections: [
+            { title: 'Frontier (Stack)', items: stack.map(([n]) => n), variant: 'frontier', order: 'reverse' },
+            { title: 'Explored', items: explored, variant: 'explored' },
+          ],
+        });
 
       yield {
         stepNumber: stepNum++,
         phase: 'initializing',
         description: `Starting DLS iteration with depth limit = ${limit}`,
         pseudocodeLine: 1,
-        state: { frontier: [problem.startNode], explored: new Set(), pathMap: new Map([[problem.startNode, null]]), foundPath: null, isStack: true },
+        state: { frontier: [problem.startNode], explored: new Set(), pathMap: new Map([[problem.startNode, null]]), foundPath: null },
         highlight: { frontierNodes: new Set([problem.startNode]), exploredNodes: new Set(), currentNode: null, pathEdges: null },
-        metrics: { nodesExpanded: 0, frontierSize: 1, currentDepth: 0, pathCost: 0, memoryUsed: 1 },
+        metrics: [{ label: 'Expanded', value: 0, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 1, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'Memory', value: 1, color: 'text-[var(--text-2)]' }],
         logs: [createLog(`IDDFS: Starting iteration with depth limit ${limit}`, 'info')],
-      };
+        statePanels: buildPanels()
+    };
 
       while (stack.length > 0) {
         const [current, parent, depth] = stack.pop()!;
@@ -89,10 +99,11 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
           phase: 'expanding',
           description: `[limit=${limit}] Expanding "${labelOf(current)}" at depth ${depth}`,
           pseudocodeLine: 9,
-          state: { frontier: stack.map(([n]) => n), explored: deepClone(explored), pathMap: deepClone(pathMap), foundPath: null, isStack: true },
+          state: { frontier: stack.map(([n]) => n), explored: deepClone(explored), pathMap: deepClone(pathMap), foundPath: null },
           highlight: { frontierNodes: new Set(stack.map(([n]) => n)), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
-          metrics: { nodesExpanded, frontierSize: stack.length, currentDepth: depth, pathCost: 0, memoryUsed: stack.length + explored.size },
+          metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: stack.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: depth, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'Memory', value: stack.length + explored.size, color: 'text-[var(--text-2)]' }],
           logs: [createLog(`Expanding ${labelOf(current)} (depth=${depth}, it=${limit})`, 'info')],
+          statePanels: buildPanels(current)
         };
 
         if (current === problem.goalNode) {
@@ -102,11 +113,12 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
             phase: 'found',
             description: `Goal found at depth ${depth} (limit=${limit})! Path: ${foundPath.map(id => labelOf(id)).join(' → ')}`,
             pseudocodeLine: 10,
-            state: { frontier: [], explored: deepClone(explored), pathMap: deepClone(pathMap), foundPath, isStack: true },
+            state: { frontier: [], explored: deepClone(explored), pathMap: deepClone(pathMap), foundPath },
             highlight: { frontierNodes: new Set(), exploredNodes: new Set(explored), currentNode: current, pathEdges: foundPath },
-            metrics: { nodesExpanded, frontierSize: 0, currentDepth: depth, pathCost: foundPath.length - 1, memoryUsed: explored.size },
+            metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: depth, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: foundPath.length - 1, color: 'text-[#3FB950]' }, { label: 'Memory', value: explored.size, color: 'text-[var(--text-2)]' }],
             logs: [createLog(`SUCCESS: Goal found at depth ${depth}!`, 'success')],
-          };
+            statePanels: buildPanels(current, foundPath)
+        };
           return;
         }
 
@@ -124,10 +136,11 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
               phase: 'visiting',
               description: `[limit=${limit}] Discovery: pushing "${labelOf(neighbor)}" at depth ${depth + 1}`,
               pseudocodeLine: 12,
-              state: { frontier: stack.map(([n]) => n), explored: deepClone(explored), pathMap: deepClone(pathMap), foundPath: null, isStack: true },
+              state: { frontier: stack.map(([n]) => n), explored: deepClone(explored), pathMap: deepClone(pathMap), foundPath: null },
               highlight: { frontierNodes: new Set(stack.map(([n]) => n)), exploredNodes: new Set(explored), currentNode: current, pathEdges: null },
-              metrics: { nodesExpanded, frontierSize: stack.length, currentDepth: depth + 1, pathCost: 0, memoryUsed: stack.length + explored.size },
+              metrics: [{ label: 'Expanded', value: nodesExpanded, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: stack.length, color: 'text-[var(--accent)]' }, { label: 'Depth', value: depth + 1, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: 0, color: 'text-[#3FB950]' }, { label: 'Memory', value: stack.length + explored.size, color: 'text-[var(--text-2)]' }],
               logs: [createLog(`Pushed neighbor ${labelOf(neighbor)} onto stack (depth=${depth + 1})`, 'info')],
+              statePanels: buildPanels(current)
             };
           }
         }
@@ -141,10 +154,17 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
       phase: 'failed',
       description: 'No path found (exhausted all depths).',
       pseudocodeLine: 3,
-      state: { frontier: [], explored: new Set(), pathMap: new Map(), foundPath: null, isStack: true },
+      state: { frontier: [], explored: new Set(), pathMap: new Map(), foundPath: null },
       highlight: { frontierNodes: new Set(), exploredNodes: new Set(), currentNode: null, pathEdges: null },
-      metrics: { nodesExpanded: 0, frontierSize: 0, currentDepth: 0, pathCost: Infinity, memoryUsed: 0 },
+      metrics: [{ label: 'Expanded', value: 0, color: 'text-[var(--accent)]' }, { label: 'Frontier', value: 0, color: 'text-[var(--accent)]' }, { label: 'Depth', value: 0, color: 'text-[var(--text)]' }, { label: 'Path Cost', value: Infinity, color: 'text-[#3FB950]' }, { label: 'Memory', value: 0, color: 'text-[var(--text-2)]' }],
       logs: [createLog('FAILURE: No path exists within search space', 'error')],
+      statePanels: buildGraphStatePanels({
+        labelOf,
+        collections: [
+          { title: 'Frontier (Stack)', items: [], variant: 'frontier', order: 'reverse' },
+          { title: 'Explored', items: [], variant: 'explored' },
+        ],
+      })
     };
   },
 };

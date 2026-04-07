@@ -51,9 +51,12 @@ export class ExecutionEngine<TProblem = unknown, TState = unknown, THighlight = 
         break;
       }
       const step = next.value;
+      const elapsed = performance.now() - start;
       this.steps.push({
         ...step,
-        metrics: { ...step.metrics, elapsedMs: performance.now() - start },
+        metrics: Array.isArray(step.metrics) 
+          ? [...step.metrics, { label: 'Elapsed MS', value: elapsed.toFixed(3), color: 'text-[var(--text-3)]', fullWidth: true }]
+          : { ...step.metrics, elapsedMs: elapsed },
       });
       if (this.steps.length >= MAX_STEPS) {
         this._truncated = true;
