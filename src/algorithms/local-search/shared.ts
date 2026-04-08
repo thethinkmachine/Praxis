@@ -33,10 +33,25 @@ export interface Snapshot {
   beamWidth?: number | null;
   generation?: number | null;
   populationSize?: number | null;
+  constructionDepth?: number | null;
+  pheromoneDecay?: number | null;
+  pheromoneInfluence?: number | null;
+  heuristicInfluence?: number | null;
+  eliteWeight?: number | null;
   tabuSize?: number | null;
   populationPreview?: LocalSearchPopulationMember[];
+  pheromoneStats?: LocalSearchStat[];
   tabuEntries?: string[];
   notes?: string[];
+}
+
+function isAntColonyTrace(state: Pick<LocalSearchTraceState, 'constructionDepth' | 'pheromoneDecay' | 'pheromoneInfluence' | 'heuristicInfluence' | 'eliteWeight' | 'pheromoneStats'>): boolean {
+  return state.constructionDepth !== null
+    || state.pheromoneDecay !== null
+    || state.pheromoneInfluence !== null
+    || state.heuristicInfluence !== null
+    || state.eliteWeight !== null
+    || state.pheromoneStats.length > 0;
 }
 
 export function createContext(problem: LocalSearchProblem): LocalSearchContext {
@@ -100,11 +115,17 @@ function buildState(ctx: LocalSearchContext, snapshot: Snapshot): LocalSearchTra
     beamWidth: snapshot.beamWidth ?? null,
     generation: snapshot.generation ?? null,
     populationSize: snapshot.populationSize ?? null,
+    constructionDepth: snapshot.constructionDepth ?? null,
+    pheromoneDecay: snapshot.pheromoneDecay ?? null,
+    pheromoneInfluence: snapshot.pheromoneInfluence ?? null,
+    heuristicInfluence: snapshot.heuristicInfluence ?? null,
+    eliteWeight: snapshot.eliteWeight ?? null,
     tabuSize: snapshot.tabuSize ?? null,
     notes: [...(snapshot.notes ?? [])],
     currentStats,
     bestStats,
     populationPreview: (snapshot.populationPreview ?? []).map(item => ({ ...item })),
+    pheromoneStats: [...(snapshot.pheromoneStats ?? [])],
     tabuEntries: [...(snapshot.tabuEntries ?? [])],
     domainData: {
       ...(domain.getDomainData?.(snapshot.problem, snapshot.currentState) ?? {}),
@@ -159,23 +180,25 @@ function buildStatePanels(state: LocalSearchTraceState): PanelSection[] {
     panels.push(panelSections.keyValue('Decision', decisionItems));
   }
 
-  const previewItems = state.candidateMoves.length > 0
-    ? state.candidateMoves.map(candidate => ({
+  if (state.candidateMoves.length > 0) {
+    panels.push(panelSections.nodes(
+      'Candidate Moves',
+      state.candidateMoves.map(candidate => ({
         id: candidate.id,
         label: candidate.label,
         detail: buildCandidateDetail(candidate, state.objectiveLabel),
-      }))
-    : state.populationPreview.length > 0
-      ? state.populationPreview.map(member => ({
-          id: member.id,
-          label: member.summary,
-          detail: member.displayValue,
-        }))
-      : [];
-  if (previewItems.length > 0) {
+      })),
+    ));
+  }
+
+  if (state.populationPreview.length > 0) {
     panels.push(panelSections.nodes(
-      state.candidateMoves.length > 0 ? 'Candidate Moves' : 'Candidates / Population',
-      previewItems,
+      isAntColonyTrace(state) ? 'Ant Colony Preview' : 'Population Preview',
+      state.populationPreview.map(member => ({
+        id: member.id,
+        label: member.summary,
+        detail: member.displayValue,
+      })),
     ));
   }
 
@@ -188,10 +211,19 @@ function buildStatePanels(state: LocalSearchTraceState): PanelSection[] {
   ];
   if (state.generation !== null) runStateItems.push({ key: 'Generation', value: state.generation });
   if (state.beamWidth !== null) runStateItems.push({ key: 'Beam width', value: state.beamWidth });
-  if (state.populationSize !== null) runStateItems.push({ key: 'Population size', value: state.populationSize });
+  if (state.populationSize !== null) runStateItems.push({ key: isAntColonyTrace(state) ? 'Colony size' : 'Population size', value: state.populationSize });
+  if (state.constructionDepth !== null) runStateItems.push({ key: 'Construction depth', value: state.constructionDepth });
+  if (state.pheromoneDecay !== null) runStateItems.push({ key: 'Pheromone decay', value: `${(state.pheromoneDecay * 100).toFixed(0)}%` });
+  if (state.pheromoneInfluence !== null) runStateItems.push({ key: 'Alpha', value: state.pheromoneInfluence });
+  if (state.heuristicInfluence !== null) runStateItems.push({ key: 'Beta', value: state.heuristicInfluence });
+  if (state.eliteWeight !== null) runStateItems.push({ key: 'Elite weight', value: state.eliteWeight });
   if (state.tabuSize !== null) runStateItems.push({ key: 'Tabu size', value: state.tabuSize });
   if (state.temperature !== null) runStateItems.push({ key: 'Temperature', value: Number.isFinite(state.temperature) ? state.temperature.toFixed(3) : String(state.temperature) });
   panels.push(panelSections.keyValue('Run State', runStateItems));
+
+  if (state.pheromoneStats.length > 0) {
+    panels.push(panelSections.keyValue('Pheromone Trails', buildStatsItems(state.pheromoneStats)));
+  }
 
   if (state.tabuEntries.length > 0) {
     panels.push(panelSections.chips(
@@ -255,9 +287,14 @@ export function createStep(
       { label: 'Best', value: state.bestValue, color: 'text-[var(--success)]' },
       { label: 'Restarts', value: state.restartCount, color: 'text-[var(--text)]' },
       { label: 'Plateau', value: state.plateauLength, color: 'text-[var(--text-2)]' },
+      ...(state.constructionDepth !== null ? [{ label: 'Depth', value: state.constructionDepth!, color: 'text-[var(--text)]' }] : []),
+      ...(state.pheromoneDecay !== null ? [{ label: 'Decay', value: state.pheromoneDecay!, color: 'text-[var(--purple)]' }] : []),
+      ...(state.pheromoneInfluence !== null ? [{ label: 'Alpha', value: state.pheromoneInfluence!, color: 'text-[var(--text-2)]' }] : []),
+      ...(state.heuristicInfluence !== null ? [{ label: 'Beta', value: state.heuristicInfluence!, color: 'text-[var(--warning)]' }] : []),
+      ...(state.eliteWeight !== null ? [{ label: 'Elite', value: state.eliteWeight!, color: 'text-[var(--accent)]' }] : []),
       ...(state.temperature !== null ? [{ label: 'Temp', value: state.temperature!, color: 'text-[var(--purple)]' }] : []),
       ...(state.generation !== null ? [{ label: 'Generation', value: state.generation!, color: 'text-[var(--text)]' }] : []),
-      ...(state.populationSize !== null ? [{ label: 'Population', value: state.populationSize!, color: 'text-[var(--text)]' }] : []),
+      ...(state.populationSize !== null ? [{ label: isAntColonyTrace(state) ? 'Colony' : 'Population', value: state.populationSize!, color: 'text-[var(--text)]' }] : []),
       ...(state.beamWidth !== null ? [{ label: 'Beam', value: state.beamWidth!, color: 'text-[var(--text-2)]' }] : []),
       ...(state.tabuSize !== null ? [{ label: 'Tabu', value: state.tabuSize!, color: 'text-[var(--text-2)]' }] : []),
     ],

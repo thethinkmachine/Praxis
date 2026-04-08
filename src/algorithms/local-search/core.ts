@@ -10,6 +10,11 @@ export const DEFAULT_MUTATION_RATE = 0.18;
 export const DEFAULT_CROSSOVER_RATE = 0.85;
 export const DEFAULT_INITIAL_TEMPERATURE = 12;
 export const DEFAULT_COOLING_RATE = 0.94;
+export const DEFAULT_CONSTRUCTION_DEPTH = 4;
+export const DEFAULT_PHEROMONE_DECAY = 0.25;
+export const DEFAULT_PHEROMONE_INFLUENCE = 1.2;
+export const DEFAULT_HEURISTIC_INFLUENCE = 2;
+export const DEFAULT_ELITE_WEIGHT = 1.5;
 
 export function better(leftScore: number, rightScore: number): boolean {
   return leftScore > rightScore;

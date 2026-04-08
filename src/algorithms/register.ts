@@ -41,6 +41,7 @@ import { stochasticBeamSearchRunner } from './local-search/stochastic-beam-searc
 import { tabuSearchRunner } from './local-search/tabu-search';
 import { geneticAlgorithmRunner } from './local-search/genetic-algorithm';
 import { minConflictsRunner } from './local-search/min-conflicts';
+import { antColonyOptimizationRunner } from './local-search/ant-colony-optimization';
 
 const UNINFORMED_SEARCH_RUNNERS = [
   bfsRunner,
@@ -84,6 +85,7 @@ const LOCAL_SEARCH_RUNNERS = [
   stochasticBeamSearchRunner,
   tabuSearchRunner,
   geneticAlgorithmRunner,
+  antColonyOptimizationRunner,
   minConflictsRunner,
 ];
 

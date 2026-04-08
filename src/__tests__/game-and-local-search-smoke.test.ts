@@ -128,6 +128,11 @@ describe('Local Search Smoke', () => {
     crossoverRate: 0.85,
     initialTemperature: 12,
     coolingRate: 0.94,
+    constructionDepth: 4,
+    pheromoneDecay: 0.25,
+    pheromoneInfluence: 1.2,
+    heuristicInfluence: 2,
+    eliteWeight: 1.5,
   };
 
   const initialConflicts = countConflicts(nQueensProblem.initialState ?? []);
@@ -145,6 +150,7 @@ describe('Local Search Smoke', () => {
     'stochastic-beam-search',
     'tabu-search',
     'genetic-algorithm',
+    'ant-colony-optimization',
     'min-conflicts',
   ] as const;
 

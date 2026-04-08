@@ -1,6 +1,13 @@
 import { Graph, type GraphEdge, type GraphNode, type GraphColoringProblem, type LandscapePreset, type LandscapeProblem, type NPuzzleProblem, type NQueensProblem, type TspCity, type TspProblem } from '@/types/problem';
 import { createSeededRandom } from './n-queens';
 import { scrambleTiles } from './n-puzzle';
+import {
+  DEFAULT_CONSTRUCTION_DEPTH,
+  DEFAULT_ELITE_WEIGHT,
+  DEFAULT_HEURISTIC_INFLUENCE,
+  DEFAULT_PHEROMONE_DECAY,
+  DEFAULT_PHEROMONE_INFLUENCE,
+} from '@/algorithms/local-search/core';
 
 export function createDefaultNQueensProblem(size = 8): NQueensProblem {
   return {
@@ -18,6 +25,11 @@ export function createDefaultNQueensProblem(size = 8): NQueensProblem {
     crossoverRate: 0.85,
     initialTemperature: 12,
     coolingRate: 0.94,
+    constructionDepth: DEFAULT_CONSTRUCTION_DEPTH,
+    pheromoneDecay: DEFAULT_PHEROMONE_DECAY,
+    pheromoneInfluence: DEFAULT_PHEROMONE_INFLUENCE,
+    heuristicInfluence: DEFAULT_HEURISTIC_INFLUENCE,
+    eliteWeight: DEFAULT_ELITE_WEIGHT,
   };
 }
 
@@ -52,6 +64,11 @@ export function createDefaultTspProblem(cityCount = 9): TspProblem {
     coolingRate: 0.95,
     neighborhoodMode: 'two-opt',
     fixedStart: true,
+    constructionDepth: DEFAULT_CONSTRUCTION_DEPTH,
+    pheromoneDecay: DEFAULT_PHEROMONE_DECAY,
+    pheromoneInfluence: DEFAULT_PHEROMONE_INFLUENCE,
+    heuristicInfluence: DEFAULT_HEURISTIC_INFLUENCE,
+    eliteWeight: DEFAULT_ELITE_WEIGHT,
   };
 }
 
@@ -99,6 +116,11 @@ export function createDefaultGraphColoringProblem(nodeCount = 8): GraphColoringP
     crossoverRate: 0.8,
     initialTemperature: 10,
     coolingRate: 0.94,
+    constructionDepth: DEFAULT_CONSTRUCTION_DEPTH,
+    pheromoneDecay: DEFAULT_PHEROMONE_DECAY,
+    pheromoneInfluence: DEFAULT_PHEROMONE_INFLUENCE,
+    heuristicInfluence: DEFAULT_HEURISTIC_INFLUENCE,
+    eliteWeight: DEFAULT_ELITE_WEIGHT,
   };
 }
 
@@ -119,6 +141,11 @@ export function createDefaultLandscapeProblem(preset: LandscapePreset = 'twin-pe
     crossoverRate: 0.8,
     initialTemperature: 9,
     coolingRate: 0.95,
+    constructionDepth: DEFAULT_CONSTRUCTION_DEPTH,
+    pheromoneDecay: DEFAULT_PHEROMONE_DECAY,
+    pheromoneInfluence: DEFAULT_PHEROMONE_INFLUENCE,
+    heuristicInfluence: DEFAULT_HEURISTIC_INFLUENCE,
+    eliteWeight: DEFAULT_ELITE_WEIGHT,
   };
 }
 
@@ -141,6 +168,11 @@ export function createDefaultNPuzzleProblem(size: 3 | 4 = 3): NPuzzleProblem {
     coolingRate: 0.95,
     heuristic: 'combined',
     scrambleMoves: size === 4 ? 32 : 18,
+    constructionDepth: DEFAULT_CONSTRUCTION_DEPTH,
+    pheromoneDecay: DEFAULT_PHEROMONE_DECAY,
+    pheromoneInfluence: DEFAULT_PHEROMONE_INFLUENCE,
+    heuristicInfluence: DEFAULT_HEURISTIC_INFLUENCE,
+    eliteWeight: DEFAULT_ELITE_WEIGHT,
   };
 }
 

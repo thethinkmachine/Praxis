@@ -4,6 +4,14 @@ import AlgorithmPage from '@/components/module/AlgorithmPage';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
 import PresetPickerDialog from '@/components/shared/PresetPickerDialog';
 import Select from '@/components/shared/Select';
+import {
+  DEFAULT_CONSTRUCTION_DEPTH,
+  DEFAULT_ELITE_WEIGHT,
+  DEFAULT_HEURISTIC_INFLUENCE,
+  DEFAULT_PHEROMONE_DECAY,
+  DEFAULT_PHEROMONE_INFLUENCE,
+  DEFAULT_POPULATION,
+} from '@/algorithms/local-search/core';
 import { renderLocalSearchObjectiveTab, renderLocalSearchTrajectoryTab } from '@/problems/local-search/lab-modules';
 import { Dice5 } from '@/components/shared/Icons';
 import { TitleBarActionButton, TitleBarActionGroup } from '@/components/shared/TitleBarAction';
@@ -43,6 +51,14 @@ const METAHEURISTIC_FIELDS: Partial<Record<string, NumberFieldConfig[]>> = {
     { key: 'populationSize', label: 'Population Size', min: 4, fallback: 16 },
     { key: 'mutationRate', label: 'Mutation Rate', min: 0, max: 1, step: 0.01, fallback: 0.18 },
     { key: 'crossoverRate', label: 'Crossover Rate', min: 0, max: 1, step: 0.01, fallback: 0.85 },
+  ],
+  'ant-colony-optimization': [
+    { key: 'populationSize', label: 'Ant Count', min: 1, fallback: DEFAULT_POPULATION },
+    { key: 'constructionDepth', label: 'Construction Depth', min: 1, fallback: DEFAULT_CONSTRUCTION_DEPTH },
+    { key: 'pheromoneDecay', label: 'Pheromone Decay', min: 0.05, max: 1, step: 0.05, fallback: DEFAULT_PHEROMONE_DECAY },
+    { key: 'pheromoneInfluence', label: 'Pheromone Influence', min: 0.1, step: 0.1, fallback: DEFAULT_PHEROMONE_INFLUENCE },
+    { key: 'heuristicInfluence', label: 'Heuristic Influence', min: 0.1, step: 0.1, fallback: DEFAULT_HEURISTIC_INFLUENCE },
+    { key: 'eliteWeight', label: 'Elite Weight', min: 1, step: 0.1, fallback: DEFAULT_ELITE_WEIGHT },
   ],
 };
 

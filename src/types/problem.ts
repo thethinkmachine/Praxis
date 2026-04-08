@@ -7,6 +7,14 @@ export interface GraphNode {
   heuristic?: number; // h(n) for informed search
 }
 
+export interface AntColonySettings {
+  constructionDepth?: number;
+  pheromoneDecay?: number;
+  pheromoneInfluence?: number;
+  heuristicInfluence?: number;
+  eliteWeight?: number;
+}
+
 export type HeuristicId =
   | 'manual-node'
   | 'zero'
@@ -125,7 +133,7 @@ export interface TicTacToeProblem {
 
 export type GameProblem = TicTacToeProblem;
 
-export interface NQueensProblem {
+export interface NQueensProblem extends AntColonySettings {
   kind: 'n-queens';
   size: number;
   initialState?: number[];
@@ -151,7 +159,7 @@ export interface TspCity {
   y: number;
 }
 
-export interface TspProblem {
+export interface TspProblem extends AntColonySettings {
   kind: 'tsp';
   cities: TspCity[];
   initialRoute?: number[];
@@ -171,7 +179,7 @@ export interface TspProblem {
   fixedStart?: boolean;
 }
 
-export interface GraphColoringProblem {
+export interface GraphColoringProblem extends AntColonySettings {
   kind: 'graph-coloring';
   graph: Graph;
   colorCount: number;
@@ -198,7 +206,7 @@ export interface LandscapeState {
   y: number;
 }
 
-export interface LandscapeProblem {
+export interface LandscapeProblem extends AntColonySettings {
   kind: 'landscape';
   preset: LandscapePreset;
   xRange?: [number, number];
@@ -219,7 +227,7 @@ export interface LandscapeProblem {
   coolingRate?: number;
 }
 
-export interface NPuzzleProblem {
+export interface NPuzzleProblem extends AntColonySettings {
   kind: 'n-puzzle';
   size: 3 | 4;
   tiles: number[];

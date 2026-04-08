@@ -14,5 +14,6 @@ describe('buildRoute', () => {
 
   it('preserves existing local-search routing', () => {
     expect(buildRoute({ id: 'tabu-search', category: 'local-search' }, 'local-search')).toBe('/local/tabu-search');
+    expect(buildRoute({ id: 'ant-colony-optimization', category: 'local-search' }, 'local-search')).toBe('/local/ant-colony-optimization');
   });
 });

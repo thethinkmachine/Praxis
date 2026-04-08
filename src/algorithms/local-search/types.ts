@@ -7,11 +7,17 @@ export interface LocalSearchTraceState {
   problemKind: LocalSearchProblem['kind'];
   objectiveLabel: string;
   objectiveGoal: 'minimize' | 'maximize';
+  constructionDepth: number | null;
+  pheromoneDecay: number | null;
+  pheromoneInfluence: number | null;
+  heuristicInfluence: number | null;
+  eliteWeight: number | null;
   stateLabel: string;
   currentState: unknown;
   bestState: unknown;
   currentSummary: string;
   bestSummary: string;
+  pheromoneStats: LocalSearchStat[];
   currentScore: number;
   bestScore: number;
   currentValue: number;

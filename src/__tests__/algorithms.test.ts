@@ -7,6 +7,7 @@ import { simpleGraphProblem, romaniaMapProblem } from './fixtures/mock-problems'
 import type { AlgorithmStep, PanelSection } from '@/types/step';
 import type { GraphColoringProblem, NQueensProblem, TicTacToeProblem, TspProblem } from '@/types/problem';
 import { countConflicts } from '@/problems/local-search/n-queens';
+import { routeDistance } from '@/problems/local-search/tsp';
 
 function runToEnd(algorithmId: string, problem: unknown): AlgorithmStep {
   const entry = registry.get(algorithmId);
@@ -511,6 +512,12 @@ describe('Local Search', () => {
     sidewaysMoveLimit: 10,
     restartLimit: 6,
     candidateSampleSize: 6,
+    populationSize: 16,
+    constructionDepth: 4,
+    pheromoneDecay: 0.25,
+    pheromoneInfluence: 1.2,
+    heuristicInfluence: 2,
+    eliteWeight: 1.5,
   };
 
   function runLocalSearch(id: string) {
@@ -580,6 +587,7 @@ describe('Local Search', () => {
     expect(registry.get('stochastic-beam-search')).toBeTruthy();
     expect(registry.get('tabu-search')).toBeTruthy();
     expect(registry.get('genetic-algorithm')).toBeTruthy();
+    expect(registry.get('ant-colony-optimization')).toBeTruthy();
     expect(registry.get('min-conflicts')).toBeTruthy();
   });
 
@@ -609,6 +617,41 @@ describe('Local Search', () => {
     let final = result.next();
     while (!final.done) final = result.next();
     expect((final.value as { bestValue?: number }).bestValue).toBeLessThanOrEqual(700);
+  });
+
+  it('ant colony optimization tracks pheromone trails on TSP', () => {
+    const acoProblem: TspProblem = {
+      ...tspProblem,
+      populationSize: 12,
+      constructionDepth: 4,
+      pheromoneDecay: 0.25,
+      pheromoneInfluence: 1.2,
+      heuristicInfluence: 2,
+      eliteWeight: 1.5,
+    };
+
+    const final = runToEnd('ant-colony-optimization', acoProblem);
+    const state = final.state as {
+      bestValue?: number;
+      populationSize?: number;
+      constructionDepth?: number;
+      pheromoneDecay?: number;
+      pheromoneInfluence?: number;
+      heuristicInfluence?: number;
+      eliteWeight?: number;
+      pheromoneStats?: unknown[];
+    };
+
+    expect(state.populationSize).toBe(12);
+    expect(state.constructionDepth).toBe(4);
+    expect(state.pheromoneDecay).toBeCloseTo(0.25, 5);
+    expect(state.pheromoneInfluence).toBeCloseTo(1.2, 5);
+    expect(state.heuristicInfluence).toBeCloseTo(2, 5);
+    expect(state.eliteWeight).toBeCloseTo(1.5, 5);
+    expect(state.pheromoneStats?.length).toBeGreaterThan(0);
+    expect(getPanel(final, 'Pheromone Trails')?.type).toBe('key-value');
+    expect(getPanel(final, 'Ant Colony Preview')?.type).toBe('nodes');
+    expect(state.bestValue).toBeLessThanOrEqual(routeDistance(acoProblem.cities, acoProblem.initialRoute ?? []));
   });
 
   it('min-conflicts solves a simple 3-color triangle graph', () => {

@@ -34,6 +34,7 @@ function retainLocalSearchSettings<T extends LocalSearchProblem>(previous: T, ba
     'maxSteps', 'candidateSampleSize', 'restartLimit', 'sidewaysMoveLimit',
     'beamWidth', 'tabuTenure', 'initialTemperature', 'coolingRate',
     'populationSize', 'mutationRate', 'crossoverRate',
+    'constructionDepth', 'pheromoneDecay', 'pheromoneInfluence', 'heuristicInfluence', 'eliteWeight',
   ] as const;
 
   for (const key of keys) {
