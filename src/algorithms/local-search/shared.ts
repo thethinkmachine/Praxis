@@ -1,7 +1,8 @@
-import { createLog } from '@/algorithms/core/utils';
+import { createLog, statePanels as panelSections } from '@/algorithms/core/utils';
+import type { PanelSection } from '@/types';
 import type { LocalSearchProblem } from '@/types/problem';
 import type { LocalSearchStep, LocalSearchTraceHighlight, LocalSearchTraceState, LocalSearchResult } from './types';
-import type { LocalSearchCandidate, LocalSearchDomain, LocalSearchPopulationMember } from '@/problems/local-search/types';
+import type { LocalSearchCandidate, LocalSearchDomain, LocalSearchPopulationMember, LocalSearchStat } from '@/problems/local-search/types';
 import { createSeededRandom } from '@/problems/local-search/n-queens';
 import { getLocalSearchDomain } from '@/problems/local-search/domains';
 
@@ -111,6 +112,105 @@ function buildState(ctx: LocalSearchContext, snapshot: Snapshot): LocalSearchTra
   };
 }
 
+function formatSignedNumber(value: number): string {
+  if (!Number.isFinite(value)) return value > 0 ? '∞' : value < 0 ? '-∞' : String(value);
+  return `${value >= 0 ? '+' : ''}${value}`;
+}
+
+function buildStatsItems(stats: LocalSearchStat[]) {
+  return stats.map(stat => ({ key: stat.label, value: stat.value }));
+}
+
+function buildCandidateDetail(candidate: LocalSearchCandidate, objectiveLabel: string): string {
+  const details = [
+    `${objectiveLabel}=${candidate.displayValue}`,
+    `Δ=${formatSignedNumber(candidate.delta)}`,
+  ];
+  if (candidate.preview) details.push(candidate.preview);
+  if (candidate.details?.length) details.push(...candidate.details);
+  return details.join(' • ');
+}
+
+function buildStatePanels(state: LocalSearchTraceState): PanelSection[] {
+  const panels: PanelSection[] = [];
+
+  panels.push(panelSections.keyValue('Current State', [
+    { key: 'State', value: state.currentSummary },
+    { key: state.objectiveLabel, value: state.currentDisplayValue },
+    { key: 'Score', value: state.currentScore },
+    { key: 'Goal reached', value: state.goalReached ? 'yes' : 'no' },
+    ...buildStatsItems(state.currentStats),
+  ]));
+
+  panels.push(panelSections.keyValue('Best So Far', [
+    { key: 'State', value: state.bestSummary },
+    { key: state.objectiveLabel, value: state.bestDisplayValue },
+    { key: 'Score', value: state.bestScore },
+    { key: 'Goal reached', value: state.goalReached ? 'yes' : 'no' },
+    { key: 'Restarts', value: state.restartCount },
+    ...buildStatsItems(state.bestStats),
+  ]));
+
+  const decisionItems = [
+    state.acceptedMove ? { key: 'Accepted', value: buildCandidateDetail(state.acceptedMove, state.objectiveLabel) } : null,
+    state.rejectedMove ? { key: 'Rejected', value: buildCandidateDetail(state.rejectedMove, state.objectiveLabel) } : null,
+  ].filter((item): item is { key: string; value: string } => item !== null);
+  if (decisionItems.length > 0) {
+    panels.push(panelSections.keyValue('Decision', decisionItems));
+  }
+
+  const previewItems = state.candidateMoves.length > 0
+    ? state.candidateMoves.map(candidate => ({
+        id: candidate.id,
+        label: candidate.label,
+        detail: buildCandidateDetail(candidate, state.objectiveLabel),
+      }))
+    : state.populationPreview.length > 0
+      ? state.populationPreview.map(member => ({
+          id: member.id,
+          label: member.summary,
+          detail: member.displayValue,
+        }))
+      : [];
+  if (previewItems.length > 0) {
+    panels.push(panelSections.nodes(
+      state.candidateMoves.length > 0 ? 'Candidate Moves' : 'Candidates / Population',
+      previewItems,
+    ));
+  }
+
+  const runStateItems = [
+    { key: 'Iteration', value: state.iteration },
+    { key: 'Restarts', value: state.restartCount },
+    { key: 'Plateau length', value: state.plateauLength },
+    { key: 'Stagnation', value: state.stagnationSteps },
+    { key: 'Sideways', value: state.sidewaysMoveLimit == null ? state.sidewaysMovesUsed : `${state.sidewaysMovesUsed} / ${state.sidewaysMoveLimit}` },
+  ];
+  if (state.generation !== null) runStateItems.push({ key: 'Generation', value: state.generation });
+  if (state.beamWidth !== null) runStateItems.push({ key: 'Beam width', value: state.beamWidth });
+  if (state.populationSize !== null) runStateItems.push({ key: 'Population size', value: state.populationSize });
+  if (state.tabuSize !== null) runStateItems.push({ key: 'Tabu size', value: state.tabuSize });
+  if (state.temperature !== null) runStateItems.push({ key: 'Temperature', value: Number.isFinite(state.temperature) ? state.temperature.toFixed(3) : String(state.temperature) });
+  panels.push(panelSections.keyValue('Run State', runStateItems));
+
+  if (state.tabuEntries.length > 0) {
+    panels.push(panelSections.chips(
+      'Tabu List',
+      state.tabuEntries.map((entry, index) => ({
+        id: `${index}`,
+        label: entry,
+        variant: 'explored',
+      })),
+    ));
+  }
+
+  if (state.notes.length > 0) {
+    panels.push(panelSections.keyValue('Notes', state.notes.map((note, index) => ({ key: `Note ${index + 1}`, value: note }))));
+  }
+
+  return panels;
+}
+
 export function getInitialState(problem: LocalSearchProblem): LocalSearchTraceState {
   const ctx = createContext(problem);
   const initial = ctx.domain.normalizeState(problem, ctx.random);
@@ -146,6 +246,7 @@ export function createStep(
     state,
     highlight: buildHighlight(snapshot),
     pseudocodeLine,
+    statePanels: buildStatePanels(state),
     metrics: [
       { label: 'Evaluated', value: ctx.neighborsEvaluated, color: 'text-[var(--text)]' },
       { label: 'Candidates', value: state.candidateMoves.length, color: 'text-[var(--accent)]' },

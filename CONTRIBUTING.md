@@ -53,6 +53,12 @@ Praxis now distinguishes between several kinds of interactive modules:
 - Graph Sandbox discovery entries: `src/problems/search/labs.ts`
 - Home/search discovery aggregation: `src/lib/discovery-items.ts`
 
+### State Panel Behavior
+
+- Graph/search, local-search, and game-playing algorithms should populate `step.statePanels` in their shared trace helpers or runners.
+- `src/components/module/StatePanel.tsx` now renders those panels directly and should stay generic.
+- If you introduce a new algorithm family, add its state-panel generation at the algorithm layer instead of adding category branches to the UI.
+
 ## Before You Start
 
 Decide what kind of contribution you are making.

@@ -4,7 +4,7 @@ import { registerAllAlgorithms } from '@/algorithms/register';
 import { registry } from '@/algorithms/core/registry';
 import { simpleGraphProblem, romaniaMapProblem } from './fixtures/mock-problems';
 import type { AlgorithmStep, PanelSection } from '@/types/step';
-import type { GraphColoringProblem, NQueensProblem, TspProblem } from '@/types/problem';
+import type { GraphColoringProblem, NQueensProblem, TicTacToeProblem, TspProblem } from '@/types/problem';
 import { countConflicts } from '@/problems/local-search/n-queens';
 
 function runToEnd(algorithmId: string, problem: unknown): AlgorithmStep {
@@ -617,5 +617,50 @@ describe('Local Search', () => {
     let final = result.next();
     while (!final.done) final = result.next();
     expect((final.value as { bestValue?: number }).bestValue).toBe(0);
+  });
+
+  it('emits structured state panels for local-search steps', () => {
+    const step = collectAllSteps('hill-climbing-steepest', nQueensProblem)
+      .find(item => item.phase === 'expanding');
+
+    expect(step).toBeTruthy();
+    expect(getPanel(step!, 'Current State')?.type).toBe('key-value');
+    expect(getPanel(step!, 'Best So Far')?.type).toBe('key-value');
+    expect(getPanel(step!, 'Candidate Moves')?.type).toBe('nodes');
+    expect(getPanel(step!, 'Run State')?.type).toBe('key-value');
+  });
+});
+
+describe('Game Playing', () => {
+  const ticTacToeProblem: TicTacToeProblem = {
+    kind: 'tic-tac-toe',
+    board: ['X', 'O', 'X', 'O', 'X', null, 'O', null, null],
+    currentPlayer: 'X',
+    maximizingPlayer: 'X',
+  };
+
+  it('emits structured state panels for minimax', () => {
+    const steps = collectAllSteps('minimax', ticTacToeProblem);
+    const initial = steps[0];
+    const backtracking = steps.find(step => step.phase === 'backtracking');
+    const final = steps[steps.length - 1];
+
+    expect(getPanel(initial, 'Position')?.type).toBe('key-value');
+    expect(getPanel(initial, 'Available Moves')?.type).toBe('chips');
+    expect(getPanel(backtracking!, 'Evaluated Moves')?.type).toBe('nodes');
+    expect(getPanel(backtracking!, 'Recursion Stack')?.type).toBe('nodes');
+    expect(getPanel(final, 'Principal Variation')?.type).toBe('chips');
+    expect(getPanel(final, 'Search Tree')?.type).toBe('key-value');
+  });
+
+  it('emits search-window details for alpha-beta', () => {
+    const steps = collectAllSteps('alpha-beta', ticTacToeProblem);
+    const step = steps.find(item => item.phase === 'backtracking') ?? steps[0];
+    const bestMovePanel = getPanel(step, 'Best Move');
+
+    expect(bestMovePanel?.type).toBe('key-value');
+    expect(bestMovePanel?.type === 'key-value' ? bestMovePanel.items.some(item => item.key === 'Window') : false).toBe(true);
+    expect(getPanel(step, 'Recursion Stack')?.type).toBe('nodes');
+    expect(getPanel(step, 'Search Tree')?.type).toBe('key-value');
   });
 });

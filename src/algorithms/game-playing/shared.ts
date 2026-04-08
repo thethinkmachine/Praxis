@@ -1,4 +1,5 @@
-import { createLog } from '@/algorithms/core/utils';
+import { createLog, statePanels as panelSections } from '@/algorithms/core/utils';
+import type { PanelSection } from '@/types';
 import {
   applyMove,
   createEmptyBoard,
@@ -160,6 +161,106 @@ export function createTraceContext(): TraceContext {
   };
 }
 
+function formatBound(value: number | undefined): string {
+  if (value === undefined) return '-';
+  if (value === Number.POSITIVE_INFINITY) return '∞';
+  if (value === Number.NEGATIVE_INFINITY) return '-∞';
+  return String(value);
+}
+
+function formatScore(value: number | null | undefined): string {
+  if (value === null || value === undefined) return '-';
+  return formatBound(value);
+}
+
+function formatMoveDetail(frame: RecursionFrame): string {
+  const parts = [frame.move === null ? 'root' : formatMove(frame.move)];
+  if (frame.alpha !== undefined || frame.beta !== undefined) {
+    parts.push(`[${formatBound(frame.alpha)}, ${formatBound(frame.beta)}]`);
+  }
+  if (frame.bestScore !== undefined && frame.bestScore !== null) {
+    parts.push(`best=${formatScore(frame.bestScore)}`);
+  }
+  return parts.join(' • ');
+}
+
+function buildStatePanels(state: TicTacToeTraceState): PanelSection[] {
+  const panels: PanelSection[] = [];
+
+  panels.push(panelSections.keyValue('Position', [
+    { key: 'Board', value: formatBoard(state.board) },
+    { key: 'Current player', value: state.currentPlayer },
+    { key: 'Maximizing player', value: state.maximizingPlayer },
+    { key: 'Terminal winner', value: state.terminalWinner ?? '-' },
+  ]));
+
+  const searchItems = [
+    { key: 'Current candidate', value: state.currentMove === null ? '-' : formatMove(state.currentMove) },
+    { key: 'Best move', value: state.bestMove === null ? '-' : formatMove(state.bestMove) },
+    { key: 'Current score', value: formatScore(state.currentScore) },
+    { key: 'Best score', value: formatScore(state.bestScore) },
+  ];
+  if (state.alpha !== undefined || state.beta !== undefined) {
+    searchItems.push({ key: 'Window', value: `[${formatBound(state.alpha)}, ${formatBound(state.beta)}]` });
+  }
+  panels.push(panelSections.keyValue('Best Move', searchItems));
+
+  panels.push(panelSections.chips(
+    'Available Moves',
+    state.availableMoves.map(move => ({
+      id: String(move),
+      label: formatMove(move),
+      variant: 'frontier',
+    })),
+  ));
+
+  if (state.principalVariation.length > 0) {
+    panels.push(panelSections.chips(
+      'Principal Variation',
+      state.principalVariation.map(move => ({
+        id: String(move),
+        label: formatMove(move),
+        variant: 'path',
+      })),
+    ));
+  }
+
+  if (state.evaluatedMoves.length > 0) {
+    panels.push(panelSections.nodes(
+      'Evaluated Moves',
+      state.evaluatedMoves.map(move => ({
+        id: String(move.move),
+        label: formatMove(move.move),
+        detail: String(move.score),
+      })),
+    ));
+  }
+
+  if (state.recursionStack.length > 0) {
+    panels.push(panelSections.nodes(
+      'Recursion Stack',
+      state.recursionStack.map((frame, index) => ({
+        id: `${frame.depth}-${frame.move ?? 'root'}-${index}`,
+        label: frame.role ? `${frame.role.toUpperCase()} d${frame.depth}` : `d${frame.depth}`,
+        detail: formatMoveDetail(frame),
+      })),
+    ));
+  }
+
+  if (state.searchTree instanceof Map && state.searchTree.size > 0) {
+    const nodes = [...state.searchTree.values()];
+    panels.push(panelSections.keyValue('Search Tree', [
+      { key: 'Nodes', value: nodes.length },
+      { key: 'Terminal', value: nodes.filter(node => node.isTerminal).length },
+      { key: 'Pruned', value: nodes.filter(node => node.isPruned).length },
+      { key: 'Max depth', value: nodes.reduce((maxDepth, node) => Math.max(maxDepth, node.depth), 0) },
+      { key: 'Current node', value: state.currentNodeId ?? '-' },
+    ]));
+  }
+
+  return panels;
+}
+
 export function cloneFrame(frame: RecursionFrame): RecursionFrame {
   return {
     ...frame,
@@ -236,6 +337,7 @@ export function createStep(
     state,
     highlight,
     pseudocodeLine,
+    statePanels: buildStatePanels(state),
     metrics: [
       { label: 'Expanded', value: ctx.nodesExpanded, color: 'text-[var(--accent)]' },
       { label: 'Frontier', value: availableMoves.length, color: 'text-[var(--accent)]' },

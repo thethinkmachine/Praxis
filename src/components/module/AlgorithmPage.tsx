@@ -204,7 +204,7 @@ export default function AlgorithmPage({
         <Panel defaultSize="20" minSize="10" maxSize="40" collapsible collapsedSize="0">
           <PanelWrapper title="State & Metrics">
             <div className="h-full overflow-y-auto custom-scrollbar">
-              <StatePanel step={step} algorithmCategory={category} />
+              <StatePanel step={step} />
               <MetricsPanel
                 metrics={step?.metrics ?? null}
                 phase={step?.phase}
