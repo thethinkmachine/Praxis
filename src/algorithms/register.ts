@@ -26,6 +26,8 @@ import { bidirectionalAstarRunner } from './search/informed/bidirectional-astar'
 import { minimaxRunner } from './game-playing/minimax';
 import { alphaBetaRunner } from './game-playing/alpha-beta';
 import { negamaxRunner } from './game-playing/negamax';
+import { expectimaxRunner } from './game-playing/expectimax';
+import { mctsRunner } from './game-playing/mcts';
 import { hillClimbingSteepestRunner } from './local-search/hill-climbing-steepest';
 import { hillClimbingSimpleRunner } from './local-search/hill-climbing-simple';
 import { hillClimbingFirstChoiceRunner } from './local-search/hill-climbing-first-choice';
@@ -65,6 +67,8 @@ const GAME_PLAYING_RUNNERS = [
   minimaxRunner,
   alphaBetaRunner,
   negamaxRunner,
+  expectimaxRunner,
+  mctsRunner,
 ];
 
 const LOCAL_SEARCH_RUNNERS = [

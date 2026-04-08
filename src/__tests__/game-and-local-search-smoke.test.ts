@@ -52,6 +52,7 @@ function loadRomaniaDemoProblem(): GraphProblem {
 describe('Game-Playing Smoke', () => {
   const scenarioIds = ['forced-block', 'fork-trap', 'endgame-win'] as const;
   const algorithmIds = ['minimax', 'alpha-beta', 'negamax'] as const;
+  const samplingAlgorithmIds = ['expectimax', 'mcts'] as const;
 
   it.each(scenarioIds)('all game-playing algorithms agree on %s', (scenarioId) => {
     const problem = getTicTacToeScenario(scenarioId);
@@ -82,6 +83,19 @@ describe('Game-Playing Smoke', () => {
     const alphaBeta = runGeneratorWithGuard<AlgorithmStep, { nodesExpanded: number }>('alpha-beta', problem);
 
     expect(alphaBeta.result.nodesExpanded).toBeLessThanOrEqual(minimax.result.nodesExpanded);
+  });
+
+  it.each(samplingAlgorithmIds)('%s terminates on the forced-block scenario', (algorithmId) => {
+    const problem = getTicTacToeScenario('forced-block');
+    const { steps, result } = runGeneratorWithGuard<AlgorithmStep, { bestMove: number | null; bestScore: number }>(
+      algorithmId,
+      problem,
+    );
+
+    expect(steps.length).toBeGreaterThan(0);
+    expect(steps.at(-1)?.phase).toBe('found');
+    expect(result.bestMove).toBe(2);
+    expect(result.bestScore).toBeGreaterThan(0);
   });
 });
 

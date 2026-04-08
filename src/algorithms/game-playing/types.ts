@@ -6,12 +6,13 @@ import type { TicTacToeProblem } from '@/types/problem';
 export interface EvaluatedMove {
   move: number;
   score: number;
+  detail?: string;
 }
 
 export interface RecursionFrame {
   depth: number;
   player: TicTacToePlayer;
-  role: 'max' | 'min' | 'negamax';
+  role: 'max' | 'min' | 'negamax' | 'chance' | 'selection' | 'rollout' | 'backprop';
   move: number | null;
   board: TicTacToeBoard;
   alpha?: number;
@@ -51,6 +52,7 @@ export interface TicTacToeTraceState {
   winningLine?: number[] | null;
   principalVariation?: number[];
   searchTree?: Map<string, GameTreeNode>;
+  currentNodeId?: string | null;
 }
 
 export interface TicTacToeTraceHighlight {

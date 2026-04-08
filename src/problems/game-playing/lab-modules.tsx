@@ -221,7 +221,7 @@ export const GAME_PLAYING_LAB_MODULES: GamePlayingLabModule[] = [
   {
     id: 'tic-tac-toe',
     name: 'Tic-Tac-Toe Lab',
-    description: 'Set up board positions and inspect adversarial search with Minimax, Alpha-Beta, and Negamax.',
+    description: 'Set up board positions and inspect adversarial search with Minimax, Alpha-Beta, Negamax, Expectimax, and MCTS.',
     category: 'game-playing',
     status: 'live',
     defaultAlgorithmId: 'minimax',

@@ -214,10 +214,10 @@ function buildStatePanels(state: TicTacToeTraceState): PanelSection[] {
     })),
   ));
 
-  if (state.principalVariation.length > 0) {
+  if ((state.principalVariation ?? []).length > 0) {
     panels.push(panelSections.chips(
       'Principal Variation',
-      state.principalVariation.map(move => ({
+      (state.principalVariation ?? []).map(move => ({
         id: String(move),
         label: formatMove(move),
         variant: 'path',
@@ -231,7 +231,7 @@ function buildStatePanels(state: TicTacToeTraceState): PanelSection[] {
       state.evaluatedMoves.map(move => ({
         id: String(move.move),
         label: formatMove(move.move),
-        detail: String(move.score),
+        detail: move.detail ? `score=${move.score} • ${move.detail}` : `score=${move.score}`,
       })),
     ));
   }

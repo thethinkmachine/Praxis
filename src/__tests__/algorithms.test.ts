@@ -2,6 +2,7 @@ import { Graph } from '@/types/problem';
 import { describe, it, expect, beforeAll } from 'vitest';
 import { registerAllAlgorithms } from '@/algorithms/register';
 import { registry } from '@/algorithms/core/registry';
+import { getTicTacToeScenario } from '@/problems/game-playing/tic-tac-toe-lab';
 import { simpleGraphProblem, romaniaMapProblem } from './fixtures/mock-problems';
 import type { AlgorithmStep, PanelSection } from '@/types/step';
 import type { GraphColoringProblem, NQueensProblem, TicTacToeProblem, TspProblem } from '@/types/problem';
@@ -662,5 +663,61 @@ describe('Game Playing', () => {
     expect(bestMovePanel?.type === 'key-value' ? bestMovePanel.items.some(item => item.key === 'Window') : false).toBe(true);
     expect(getPanel(step, 'Recursion Stack')?.type).toBe('nodes');
     expect(getPanel(step, 'Search Tree')?.type).toBe('key-value');
+  });
+
+  it('emits expected-value details for expectimax', () => {
+    const problem = getTicTacToeScenario('forced-block');
+    const steps = collectAllSteps('expectimax', problem);
+    const final = steps.at(-1);
+    const state = final?.state as { bestMove?: number | null; bestScore?: number } | undefined;
+
+    expect(final?.phase).toBe('found');
+    expect(state?.bestMove).toBe(2);
+    expect(state?.bestScore).toBeGreaterThan(0);
+
+    const evaluatedMoves = getPanel(final!, 'Evaluated Moves');
+    expect(evaluatedMoves?.type).toBe('nodes');
+    expect(evaluatedMoves?.type === 'nodes' ? evaluatedMoves.items.every((item) => item.detail?.includes('score=')) : false).toBe(true);
+    expect(getPanel(final!, 'Search Tree')?.type).toBe('key-value');
+  });
+
+  it('emits rollout details for mcts', () => {
+    const problem = getTicTacToeScenario('forced-block');
+    const steps = collectAllSteps('mcts', problem);
+    const final = steps.at(-1);
+    const state = final?.state as { bestMove?: number | null; bestScore?: number } | undefined;
+
+    expect(final?.phase).toBe('found');
+    expect(state?.bestMove).toBe(2);
+    expect(state?.bestScore).toBeGreaterThan(0);
+
+    const evaluatedMoves = getPanel(final!, 'Evaluated Moves');
+    expect(evaluatedMoves?.type).toBe('nodes');
+    expect(evaluatedMoves?.type === 'nodes' ? evaluatedMoves.items.some((item) => item.detail?.includes('visit')) : false).toBe(true);
+    expect(getPanel(final!, 'Principal Variation')?.type).toBe('chips');
+  });
+
+  it('keeps expectimax valid when the maximizing player is not on move', () => {
+    const problem: TicTacToeProblem = {
+      kind: 'tic-tac-toe',
+      board: ['X', 'X', null, null, 'O', null, null, null, null],
+      currentPlayer: 'O',
+      maximizingPlayer: 'X',
+    };
+
+    const validation = registry.get('expectimax')?.runner.validate(problem);
+    expect(validation?.warnings ?? []).not.toContain(
+      'Expectimax assumes the maximizing player is the side to move; opponent turns are modeled as chance nodes.',
+    );
+
+    const steps = collectAllSteps('expectimax', problem);
+    const final = steps.at(-1);
+    const state = final?.state as { bestMove?: number | null } | undefined;
+
+    expect(final?.phase).toBe('found');
+    expect(state?.bestMove).not.toBeNull();
+    if (state?.bestMove !== null && state?.bestMove !== undefined) {
+      expect(problem.board?.[state.bestMove]).toBeNull();
+    }
   });
 });

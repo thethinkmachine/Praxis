@@ -24,7 +24,7 @@ function buildNarrative(meta: AlgorithmMeta): string {
   }
 
   if (meta.category === 'game-playing') {
-    return `${meta.name} evaluates adversarial game states under alternating turns. The trace shows how the algorithm scores candidate moves, anticipates the opponent's replies, and either searches the full tree or prunes branches that can no longer affect the final decision.`;
+    return `${meta.name} evaluates adversarial game states under alternating turns. Depending on the algorithm, the trace may show exact tree backup, chance-node averaging, pruning, or simulation-guided estimates before the final move is selected.`;
   }
 
   if (meta.category === 'local-search') {
@@ -41,7 +41,7 @@ function buildTradeoffs(meta: AlgorithmMeta): string[] {
     meta.category === 'uninformed-search'
       ? 'It is best used when you do not have a trustworthy heuristic.'
       : meta.category === 'game-playing'
-        ? 'It is best used when you need to reason about forced wins, perfect defense, and alternating turns.'
+        ? 'It is best used when you need to reason about forced wins, defensive replies, stochastic opponents, or simulation-guided move quality.'
         : meta.category === 'local-search'
           ? 'It is best used when you can score complete states cheaply and want fast improvement without exploring full search trees.'
         : 'It benefits most when the heuristic tracks remaining distance or cost reasonably well.',

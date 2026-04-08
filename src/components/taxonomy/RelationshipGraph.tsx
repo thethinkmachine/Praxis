@@ -39,6 +39,8 @@ const RELATIONSHIP_DESCRIPTIONS: Record<string, string> = {
   'memory-bounded': 'Constrains memory usage by retaining only a limited frontier and backing up f-costs when low-value leaves are discarded.',
   'prunes': 'Eliminates branches of the game tree that are guaranteed not to affect the final decision, dramatically increasing performance.',
   'symmetric': 'Leverages the zero-sum nature of the game to simplify the logic, treating players symmetrically to reduce code complexity.',
+  'stochastic': 'Models the opponent as a chance node and averages over the possible replies instead of assuming perfect opposition.',
+  'sampling': 'Estimates move quality with repeated playouts and uses those samples to guide future exploration.',
   'related': 'These algorithms share fundamental logic or theoretical roots within the same branch of computation.'
 };
 
@@ -60,6 +62,8 @@ const FALLBACK_EDGE_LABELS: Record<string, string> = {
   'iddfs→ida-star': 'f-threshold',
   'minimax→alpha-beta': 'prunes',
   'minimax→negamax': 'symmetric',
+  'minimax→expectimax': 'stochastic',
+  'expectimax→mcts': 'sampling',
   'random-walk→simulated-annealing': 'related',
   'hill-climbing-simple→hill-climbing-steepest': 'related',
   'hill-climbing-steepest→hill-climbing-sideways': 'related',
@@ -98,7 +102,8 @@ const ALGO_RANK: Record<string, number> = {
   'tabu-search': 17,
   'genetic-algorithm': 18,
   'min-conflicts': 19,
-  'minimax': 20, 'alpha-beta': 21, 'negamax': 22
+  'minimax': 20, 'alpha-beta': 21, 'negamax': 22,
+  'expectimax': 23, 'mcts': 24,
 };
 
 function getRelationshipLabel(source: AlgorithmMeta, target: AlgorithmMeta): string {

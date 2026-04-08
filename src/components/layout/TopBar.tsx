@@ -27,6 +27,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   minimax: 'Minimax',
   'alpha-beta': 'Alpha-Beta',
   negamax: 'Negamax',
+  expectimax: 'Expectimax',
+  mcts: 'MCTS',
   local: 'Local Search',
   'random-walk': 'Random Walk',
   'hill-climbing-simple': 'Simple Hill',

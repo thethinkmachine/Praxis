@@ -121,7 +121,10 @@ export default function TicTacToeLab({ problem, step, onCycleCell }: TicTacToeLa
                       )}
                     >
                       <span className="text-sm font-medium text-[var(--text)]">{`Cell ${move.move + 1}`}</span>
-                      <span className="font-mono text-sm text-[var(--text-2)]">{move.score}</span>
+                      <div className="flex flex-col items-end gap-0.5">
+                        <span className="font-mono text-sm text-[var(--text-2)]">{move.score}</span>
+                        {move.detail && <span className="text-[10px] text-[var(--text-3)]">{move.detail}</span>}
+                      </div>
                     </div>
                   ))}
                 </div>
