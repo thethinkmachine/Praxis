@@ -1,101 +1,67 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/cn';
-import { Database, X } from '@/components/shared/Icons';
+import { X } from '@/components/shared/Icons';
 import type { AlgorithmCategory } from '@/types';
+import type { DemoManifest, DemoProblemDefinition } from '@/lib/demo-manifest';
+import { isDemoManifest } from '@/lib/demo-manifest';
+import { toAppPath } from '@/lib/app-paths';
 
-interface DemoProblem {
-  id: string; // The URL to fetch (e.g. 'problems/graphs/simple-graph.json')
-  name: string;
-  description: string;
-  hint: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  estimatedSteps: number;
-  tags?: string[];
-}
-
-const FALLBACK_DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblem[]> = {
+export const FALLBACK_DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblemDefinition[]> = {
   'uninformed-search': [
-    {
-      id: 'simple-graph.json',
-      name: 'Simple State Graph',
-      description: 'A small 8-node graph designed to show the difference between BFS level-order and DFS depth-first traversal. Optimal for step-through learning.',
-      difficulty: 'easy',
-      estimatedSteps: 15,
-      hint: 'Watch how BFS explores level by level while DFS dives deep first.',
-      tags: ['BFS', 'DFS', 'comparison'],
-    },
     {
       id: 'romania-map.json',
       name: 'Romania Road Map',
-      description: 'The classic AIMA textbook graph — 20 Romanian cities connected by roads. The definitive benchmark for uninformed search algorithms.',
-      difficulty: 'medium',
+      description: 'The classic AIMA textbook graph with city-to-city routes. Ideal for stepping through frontier growth and path reconstruction.',
+      difficulty: 'easy',
       estimatedSteps: 45,
-      hint: 'Find a path from Arad to Bucharest. BFS finds the shallowest path.',
+      hint: 'Find a route from Arad to Bucharest and compare how BFS and DFS diverge.',
       tags: ['classic', 'AIMA', 'roads'],
     },
     {
-      id: 'india-map.json',
-      name: 'India Major Cities Hub',
-      description: 'A realistic network of major Indian cities. Useful for testing routing between major metropolitan regions with variable distance weights.',
+      id: 'india-osm-map.json',
+      name: 'India OSM Mesh',
+      description: 'A high-fidelity OpenStreetMap city mesh that shows how uninformed search scales on denser real-world topology.',
       difficulty: 'medium',
-      estimatedSteps: 60,
-      hint: 'A pathfinding benchmark showing optimal routes across the continent.',
+      estimatedSteps: 200,
+      hint: 'Watch queue-based algorithms broaden rapidly across the denser city mesh.',
       tags: ['real-world', 'india', 'routing'],
     },
     {
-      id: 'uk-map.json',
-      name: 'UK Cities',
-      description: 'A detailed map of the United Kingdom covering all major metropolitan hubs.',
-      difficulty: 'medium',
-      estimatedSteps: 50,
-      hint: 'Search algorithms will fan out from London towards Edinburgh.',
-      tags: ['real-world', 'uk', 'routing'],
-    },
-    {
-      id: 'usa-map.json',
-      name: 'USA Cities',
-      description: 'A massive coast-to-coast pathfinding layout crossing the United States.',
+      id: 'usa-osm-map.json',
+      name: 'USA OSM Mesh',
+      description: 'A large coast-to-coast routing benchmark with realistic long-haul connectivity.',
       difficulty: 'hard',
-      estimatedSteps: 120,
-      hint: 'Long-distance paths make for an excellent UCS analysis task.',
+      estimatedSteps: 250,
+      hint: 'This is a good stress test for UCS-style expansion and frontier management.',
       tags: ['real-world', 'usa', 'routing'],
     },
     {
-      id: 'russia-map.json',
-      name: 'Russia Cities',
-      description: 'A sparse, long-distance spanning graph of Russian cities from Moscow to Vladivostok.',
-      difficulty: 'hard',
-      estimatedSteps: 90,
-      hint: 'A linear-dominated graph that demonstrates depth-first properties well.',
+      id: 'russia-osm-map.json',
+      name: 'Russia OSM Mesh',
+      description: 'A sparse but expansive graph that emphasizes long-distance path choices.',
+      difficulty: 'medium',
+      estimatedSteps: 125,
+      hint: 'The wide spacing makes path shape easy to read during playback.',
       tags: ['real-world', 'russia', 'routing'],
     },
     {
-      id: 'africa-map.json',
-      name: 'Africa Cities',
-      description: 'A widely distributed continental network of African capital cities.',
+      id: 'africa-osm-map.json',
+      name: 'Africa OSM Mesh',
+      description: 'A continental-scale demo with broad geographic spread and a larger exploration surface.',
       difficulty: 'hard',
-      estimatedSteps: 85,
-      hint: 'Large physical distances require robust pathfinding choices.',
+      estimatedSteps: 250,
+      hint: 'This demo makes expansion breadth and dead-end avoidance very visible.',
       tags: ['real-world', 'africa', 'routing'],
     },
     {
-      id: 'australia-map.json',
-      name: 'Australia Cities',
+      id: 'australia-osm-map.json',
+      name: 'Australia OSM Mesh',
       description: 'Coastal connections bounding the Australian continent.',
       difficulty: 'medium',
-      estimatedSteps: 40,
+      estimatedSteps: 150,
       hint: 'Watch algorithms navigate around the continental edge.',
       tags: ['real-world', 'australia', 'routing'],
-    },
-    {
-      id: 'weighted-grid.json',
-      name: 'Weighted Terrain Grid',
-      description: 'A weighted grid where traversal costs vary by region. Useful for observing UCS behavior against uniform-cost assumptions.',
-      difficulty: 'hard',
-      estimatedSteps: 95,
-      hint: 'Watch UCS prioritize lower cumulative path cost over shortest hop count.',
-      tags: ['grid', 'weighted', 'ucs'],
     },
   ],
   'informed-search': [
@@ -109,49 +75,49 @@ const FALLBACK_DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblem[]> = {
       tags: ['classic', 'AIMA', 'heuristic', 'A*'],
     },
     {
-      id: 'india-map.json',
-      name: 'India Major Cities Hub',
-      description: 'A realistic map of Indian cities with heuristic values targeted towards Bengaluru.',
+      id: 'india-osm-map.json',
+      name: 'India OSM Mesh',
+      description: 'A realistic map of Indian cities with spatial structure that makes heuristic guidance visibly useful.',
       difficulty: 'medium',
-      estimatedSteps: 45,
+      estimatedSteps: 200,
       hint: 'Heuristics guide the search rapidly towards the southern goal.',
       tags: ['real-world', 'india', 'heuristic'],
     },
     {
-      id: 'usa-map.json',
-      name: 'USA Coast to Coast',
-      description: 'A massive coast-to-coast benchmark. The heuristic values are pre-calculated to guide the path to Los Angeles.',
+      id: 'usa-osm-map.json',
+      name: 'USA OSM Mesh',
+      description: 'A large routing benchmark where heuristic quality has an outsized effect on explored nodes.',
       difficulty: 'hard',
-      estimatedSteps: 65,
+      estimatedSteps: 250,
       hint: 'Watch A* carve an optimal path directly across the country.',
       tags: ['real-world', 'usa', 'heuristic'],
     },
     {
-      id: 'africa-map.json',
-      name: 'Africa Full Span',
+      id: 'africa-osm-map.json',
+      name: 'Africa OSM Mesh',
       description: 'Continental pathfinding from Casablanca to Cape Town, heavily utilizing distance heuristics.',
       difficulty: 'hard',
-      estimatedSteps: 55,
+      estimatedSteps: 250,
       hint: 'The sheer scale of coordinates makes heuristic evaluation extremely powerful here.',
       tags: ['real-world', 'africa', 'heuristic'],
     },
     {
-      id: 'weighted-grid.json',
-      name: 'Weighted Terrain Grid',
-      description: 'A weighted grid with Manhattan-distance heuristics. Observe how the heuristic guides A* to the goal much more efficiently than UCS.',
+      id: 'germany-osm-map.json',
+      name: 'Germany OSM Mesh',
+      description: 'A compact dense graph that is useful for comparing best-first expansion strategies.',
       difficulty: 'medium',
-      estimatedSteps: 55,
+      estimatedSteps: 125,
       hint: 'Compare nodes expanded by A* vs UCS — the heuristic prunes a large portion of the search.',
-      tags: ['grid', 'weighted', 'heuristic'],
+      tags: ['real-world', 'germany', 'heuristic'],
     },
     {
-      id: 'simple-graph.json',
-      name: 'Simple State Graph',
-      description: 'A small 8-node graph. Use it to see clearly how Greedy BFS chases the goal greedily while A* balances cost and estimate.',
-      difficulty: 'easy',
-      estimatedSteps: 12,
-      hint: 'Watch f = g + h annotations update at each step.',
-      tags: ['comparison', 'f-cost'],
+      id: 'france-osm-map.json',
+      name: 'France OSM Mesh',
+      description: 'A medium-sized informed-search benchmark with enough branching to make heuristic guidance easy to inspect.',
+      difficulty: 'medium',
+      estimatedSteps: 125,
+      hint: 'This is a good comparison case for A*, Greedy BFS, and RBFS.',
+      tags: ['real-world', 'france', 'heuristic'],
     },
   ],
   'game-playing': [],
@@ -173,7 +139,7 @@ type DifficultyFilter = 'all' | 'easy' | 'medium' | 'hard';
 
 interface DemoProblemPickerProps {
   algorithmCategory: AlgorithmCategory;
-  onSelect: (problemDef: any) => void;
+  onSelect: (problemDef: unknown) => void;
   trigger?: React.ReactNode;
   /** Controlled open state — when provided, the built-in trigger is not rendered. */
   open?: boolean;
@@ -216,16 +182,36 @@ export default function DemoProblemPicker({
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
 }: DemoProblemPickerProps) {
-  const [manifestData, setManifestData] = useState<Record<AlgorithmCategory, DemoProblem[]> | null>(null);
+  const [manifestData, setManifestData] = useState<DemoManifest | null>(null);
   const [filter, setFilter] = useState<DifficultyFilter>('all');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [internalOpen, setInternalOpen] = useState(false);
 
-  // Load manifest asynchronously on mount
-  useState(() => {
-    fetch('/Praxis/problems/graphs/_manifest.json')
-      .then(r => r.json())
-      .then(d => setManifestData(d))
-      .catch(e => console.warn('Failed to fetch problem manifest, using fallback:', e));
-  });
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadManifest() {
+      try {
+        const response = await fetch(toAppPath('problems/graphs/_manifest.json'));
+        if (!response.ok) {
+          throw new Error(`Manifest request failed with ${response.status}`);
+        }
+        const data = await response.json();
+        if (!cancelled && isDemoManifest(data)) {
+          setManifestData(data);
+        }
+      } catch {
+        if (!cancelled) {
+          setManifestData(null);
+        }
+      }
+    }
+
+    loadManifest();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const allProblems = manifestData?.[algorithmCategory] ?? FALLBACK_DEMO_PROBLEMS[algorithmCategory] ?? [];
 
@@ -243,12 +229,19 @@ export default function DemoProblemPicker({
 
   const handleSelect = async (filename: string) => {
     try {
-      const resp = await fetch(`/Praxis/problems/graphs/${filename}`);
+      setErrorMsg(null);
+      const resp = await fetch(toAppPath(`problems/graphs/${filename}`));
       if (!resp.ok) throw new Error('File not found');
       const data = await resp.json();
       onSelect(data.problem);
-    } catch (e) {
-      console.error("Failed to load demo problem:", e);
+      if (isControlled) {
+        controlledOnOpenChange?.(false);
+      } else {
+        setInternalOpen(false);
+      }
+      setFilter('all');
+    } catch {
+      setErrorMsg(`Could not load demo "${filename}".`);
     }
   };
 
@@ -256,9 +249,15 @@ export default function DemoProblemPicker({
 
   return (
     <Dialog.Root
-      open={isControlled ? controlledOpen : undefined}
+      open={isControlled ? controlledOpen : internalOpen}
       onOpenChange={(o) => {
-        if (!o) setFilter('all');
+        if (!isControlled) {
+          setInternalOpen(o);
+        }
+        if (!o) {
+          setFilter('all');
+          setErrorMsg(null);
+        }
         controlledOnOpenChange?.(o);
       }}
     >
@@ -343,74 +342,78 @@ export default function DemoProblemPicker({
 
           {/* Problem list */}
           <div className="p-4 space-y-2 max-h-[420px] overflow-y-auto">
+            {errorMsg && (
+              <div className="rounded-lg border border-[var(--danger)]/30 bg-[var(--danger)]/10 px-3 py-2 text-xs text-[var(--danger)]">
+                {errorMsg}
+              </div>
+            )}
             {problems.length > 0 ? (
               problems.map((p) => (
-                <Dialog.Close key={`${p.id}-${p.difficulty}`} asChild>
-                  <button
-                    onClick={() => handleSelect(p.id)}
-                    className={cn(
-                      'ui-panel-muted w-full text-left rounded-lg p-3.5',
-                      'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]/30',
-                      'active:scale-[0.995]',
-                      'transition-all duration-150 group cursor-pointer',
-                    )}
-                  >
-                    {/* Top row: name + difficulty badge + step count */}
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-sm font-semibold text-[var(--text)] group-hover:text-white transition-colors flex-1 min-w-0 truncate">
-                        {p.name}
-                      </span>
-                      <span className="text-[10px] text-[var(--text-3)] font-mono shrink-0">
-                        {formatSteps(p.estimatedSteps)}
-                      </span>
-                      <span
-                        className={cn(
-                          'text-[10px] px-2 py-0.5 rounded-full font-medium capitalize border shrink-0',
-                          DIFFICULTY_COLORS[p.difficulty],
-                        )}
-                      >
-                        {p.difficulty}
-                      </span>
-                    </div>
-
-                    {/* Description — clamped to 2 lines */}
-                    <p
-                      className="text-xs text-[var(--text-2)] mb-2 leading-relaxed"
-                      style={{
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                      }}
+                <button
+                  key={`${p.id}-${p.difficulty}`}
+                  onClick={() => handleSelect(p.id)}
+                  className={cn(
+                    'ui-panel-muted w-full text-left rounded-lg p-3.5',
+                    'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]/30',
+                    'active:scale-[0.995]',
+                    'transition-all duration-150 group cursor-pointer',
+                  )}
+                >
+                  {/* Top row: name + difficulty badge + step count */}
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-sm font-semibold text-[var(--text)] group-hover:text-white transition-colors flex-1 min-w-0 truncate">
+                      {p.name}
+                    </span>
+                    <span className="text-[10px] text-[var(--text-3)] font-mono shrink-0">
+                      {formatSteps(p.estimatedSteps)}
+                    </span>
+                    <span
+                      className={cn(
+                        'text-[10px] px-2 py-0.5 rounded-full font-medium capitalize border shrink-0',
+                        DIFFICULTY_COLORS[p.difficulty],
+                      )}
                     >
-                      {p.description}
-                    </p>
+                      {p.difficulty}
+                    </span>
+                  </div>
 
-                    {/* Tags */}
-                    {p.tags && p.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {p.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className={cn(
-                              'text-[10px] px-1.5 py-0.5 rounded font-medium',
-                              'bg-[var(--surface-2)] text-[var(--text-3)] border border-[var(--border)]',
-                              'group-hover:border-[var(--accent)]/30 transition-colors',
-                            )}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                  {/* Description — clamped to 2 lines */}
+                  <p
+                    className="text-xs text-[var(--text-2)] mb-2 leading-relaxed"
+                    style={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {p.description}
+                  </p>
 
-                    {/* Hint */}
-                    <p className="text-[11px] text-[var(--text-3)] leading-snug">
-                      <span className="not-italic font-medium text-[var(--accent)] opacity-80">Hint:</span>{' '}
-                      <span className="italic">{p.hint}</span>
-                    </p>
-                  </button>
-                </Dialog.Close>
+                  {/* Tags */}
+                  {p.tags && p.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {p.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className={cn(
+                            'text-[10px] px-1.5 py-0.5 rounded font-medium',
+                            'bg-[var(--surface-2)] text-[var(--text-3)] border border-[var(--border)]',
+                            'group-hover:border-[var(--accent)]/30 transition-colors',
+                          )}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Hint */}
+                  <p className="text-[11px] text-[var(--text-3)] leading-snug">
+                    <span className="not-italic font-medium text-[var(--accent)] opacity-80">Hint:</span>{' '}
+                    <span className="italic">{p.hint}</span>
+                  </p>
+                </button>
               ))
             ) : (
               <p className="text-sm text-[var(--text-3)] text-center py-10">

@@ -12,6 +12,7 @@ import { Group, Panel, usePanelRef } from 'react-resizable-panels';
 import type { PanelSize } from 'react-resizable-panels';
 import { cn } from '@/lib/cn';
 import { useAlgorithmPage } from '@/hooks/useAlgorithmPage';
+import { usePreferencesStore } from '@/store/usePreferencesStore';
 import ResizeHandle from '@/components/layout/ResizeHandle';
 import PanelWrapper from '@/components/layout/PanelWrapper';
 import AlgorithmTitleStrip from '@/components/shared/AlgorithmTitleStrip';
@@ -23,9 +24,9 @@ import PseudocodePanel from '@/components/module/PseudocodePanel';
 import StatePanel from '@/components/module/StatePanel';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import ProblemImportExportButton from '@/components/shared/ProblemImportExportButton';
-import TerminalPanel from '@/components/module/TerminalPanel';
 import type { AlgorithmCategory } from '@/types';
 import type { ProblemCategory } from '@/types/problem';
+import type { ExecutionLoadContext } from '@/store/execution.store';
 
 export interface TabDefinition {
   id: string;
@@ -57,6 +58,8 @@ export interface AlgorithmPageProps {
   configPanel?: React.ReactNode;
   /** Whether the configuration sidebar should be open by default. Defaults to true. */
   defaultConfigOpen?: boolean;
+  /** Context key used by the execution store to decide whether trace position should be preserved. */
+  executionContext?: ExecutionLoadContext;
 }
 
 export default function AlgorithmPage({
@@ -72,18 +75,21 @@ export default function AlgorithmPage({
   configPanel,
   defaultConfigOpen = true,
   onDemoRequest,
+  executionContext,
 }: AlgorithmPageProps) {
-  const { runner, step, loadError, loadWarning } = useAlgorithmPage(algorithmId, problem);
+  const { runner, step, loadError, loadWarning } = useAlgorithmPage(algorithmId, problem, executionContext);
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? '');
   const [configOpen, setConfigOpen] = useState(defaultConfigOpen);
+  const pseudocodeVisible = usePreferencesStore((state) => state.pseudocodeVisible);
+  const metricsVisible = usePreferencesStore((state) => state.metricsVisible);
+  const statePanelVisible = usePreferencesStore((state) => state.statePanelVisible);
+  const showStateMetricsPanel = metricsVisible || statePanelVisible;
+  const resolvedActiveTab = tabs.some((tab) => tab.id === activeTab) ? activeTab : (tabs[0]?.id ?? '');
 
   // Imperative ref for the config panel — needed for programmatic collapse/expand
   const configPanelRef = usePanelRef();
-
-  // Update activeTab if tabs change and current tab no longer exists
-  if (tabs.length > 0 && !tabs.some(t => t.id === activeTab)) {
-    setActiveTab(tabs[0].id);
-  }
+  const stateMetricsPanelRef = usePanelRef();
+  const pseudocodePanelRef = usePanelRef();
 
   // Sync panel collapse state when toggle button changes configOpen
   useEffect(() => {
@@ -95,6 +101,26 @@ export default function AlgorithmPage({
       panel.collapse();
     }
   }, [configOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const panel = stateMetricsPanelRef.current;
+    if (!panel) return;
+    if (showStateMetricsPanel) {
+      panel.expand();
+    } else {
+      panel.collapse();
+    }
+  }, [showStateMetricsPanel]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const panel = pseudocodePanelRef.current;
+    if (!panel) return;
+    if (pseudocodeVisible) {
+      panel.expand();
+    } else {
+      panel.collapse();
+    }
+  }, [pseudocodeVisible]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Detect user-initiated collapse/expand via dragging (skip initial mount call)
   const handleConfigResize = useCallback(
@@ -165,18 +191,18 @@ export default function AlgorithmPage({
           <div className="h-full overflow-hidden flex flex-col">
             {/* Tab strip — only shown if multiple tabs */}
             {hasTabs && (
-              <TabStrip
-                tabs={tabs.map(t => ({ id: t.id, label: t.label }))}
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-              />
-            )}
+                <TabStrip
+                  tabs={tabs.map(t => ({ id: t.id, label: t.label }))}
+                  activeTab={resolvedActiveTab}
+                  onTabChange={setActiveTab}
+                />
+              )}
 
             {/* Tab content */}
             <div className="flex-1 relative overflow-hidden">
               <ErrorBoundary>
                 {tabs.map(tab => {
-                  const isActive = activeTab === tab.id;
+                  const isActive = resolvedActiveTab === tab.id;
                   const shouldMount = isActive || tab.keepMounted;
 
                   if (!shouldMount) return null;
@@ -201,16 +227,25 @@ export default function AlgorithmPage({
         <ResizeHandle orientation="horizontal" />
 
         {/* State + Metrics panel */}
-        <Panel defaultSize="20" minSize="10" maxSize="40" collapsible collapsedSize="0">
+        <Panel
+          panelRef={stateMetricsPanelRef}
+          defaultSize="20"
+          minSize="10"
+          maxSize="40"
+          collapsible
+          collapsedSize="0"
+        >
           <PanelWrapper title="State & Metrics">
             <div className="h-full overflow-y-auto custom-scrollbar">
-              <StatePanel step={step} />
-              <MetricsPanel
-                metrics={step?.metrics ?? null}
-                phase={step?.phase}
-                description={step?.description}
-                algorithmCategory={category}
-              />
+              {statePanelVisible && <StatePanel step={step} />}
+              {metricsVisible && (
+                <MetricsPanel
+                  metrics={step?.metrics ?? null}
+                  phase={step?.phase}
+                  description={step?.description}
+                  algorithmCategory={category}
+                />
+              )}
             </div>
           </PanelWrapper>
         </Panel>
@@ -218,7 +253,14 @@ export default function AlgorithmPage({
         <ResizeHandle orientation="horizontal" />
 
         {/* Pseudocode panel */}
-        <Panel defaultSize={hasConfig ? '15' : '20'} minSize="10" maxSize="40" collapsible collapsedSize="0">
+        <Panel
+          panelRef={pseudocodePanelRef}
+          defaultSize={hasConfig ? '15' : '20'}
+          minSize="10"
+          maxSize="40"
+          collapsible
+          collapsedSize="0"
+        >
           <PanelWrapper title="Pseudocode" subtitle={runner.meta.name}>
             <PseudocodePanel
               lines={runner.pseudocode}

@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import AppShell from '@/components/layout/AppShell';
+import { getRouterBasename } from '@/lib/app-paths';
 
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
 const SearchPage = React.lazy(() => import('@/pages/SearchPage'));
@@ -77,7 +78,7 @@ const router = createBrowserRouter([
       },
     ],
   },
-], { basename: '/Praxis' });
+], { basename: getRouterBasename() });
 
 export default function Router() {
   return <RouterProvider router={router} />;

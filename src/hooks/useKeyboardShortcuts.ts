@@ -8,7 +8,6 @@ export interface KeyboardShortcutHandlers {
   onTogglePseudocode?: () => void;
   onToggleMetrics?: () => void;
   onToggleStatePanel?: () => void;
-  onFitGraph?: () => void;
   onSwitchTab?: (direction: 'prev' | 'next') => void;
   onFocusSearch?: () => void;
 }
@@ -89,14 +88,6 @@ export function useKeyboardShortcuts(handlers?: KeyboardShortcutHandlers) {
           }
           break;
 
-        // Canvas shortcuts
-        case 'f':
-        case 'F':
-          if (!e.ctrlKey && !e.metaKey) {
-            handlers?.onFitGraph?.();
-          }
-          break;
-
         // Panel toggles
         case 'p':
         case 'P':
@@ -127,8 +118,10 @@ export function useKeyboardShortcuts(handlers?: KeyboardShortcutHandlers) {
 
         // Search focus
         case '/':
-          e.preventDefault();
-          handlers?.onFocusSearch?.();
+          if (handlers?.onFocusSearch) {
+            e.preventDefault();
+            handlers.onFocusSearch();
+          }
           break;
 
         // Speed presets (1-6 map to SPEEDS array)

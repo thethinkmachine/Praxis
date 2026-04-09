@@ -7,8 +7,6 @@ import { registerAllAlgorithms } from '@/algorithms/register';
 // Register all algorithms once at app startup
 registerAllAlgorithms();
 
-document.addEventListener('contextmenu', (e) => e.preventDefault());
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Router />

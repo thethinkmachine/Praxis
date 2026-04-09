@@ -3,47 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/cn';
 import { usePreferencesStore } from '@/store/usePreferencesStore';
-import { Sun, Moon, Keyboard, Info, X, Maximize2, Minimize2 } from '@/components/shared/Icons';
+import { Sun, Moon, Keyboard, Info, Maximize2, Minimize2 } from '@/components/shared/Icons';
 import DialogHeader from '@/components/shared/DialogHeader';
 import SurfaceCard from '@/components/shared/SurfaceCard';
-
-const SEGMENT_LABELS: Record<string, string> = {
-  search: 'Search',
-  play: 'Play',
-  maze: 'Maze',
-  taxonomy: 'Taxonomy',
-  'uninformed-search': 'Uninformed',
-  'informed-search': 'Informed',
-  'game-playing': 'Game Playing',
-  'local-search': 'Local Search',
-  bfs: 'BFS', dfs: 'DFS', dls: 'Depth-Limited', iddfs: 'IDDFS',
-  ucs: 'UCS',
-  'bidirectional-bfs': 'Bidirectional BFS',
-  'bidirectional-ucs': 'Bidirectional UCS',
-  rbfs: 'RBFS',
-  'sma-star': 'SMA*',
-  smgs: 'SMGS',
-  'bidirectional-astar': 'Bidirectional A*',
-  minimax: 'Minimax',
-  'alpha-beta': 'Alpha-Beta',
-  negamax: 'Negamax',
-  expectimax: 'Expectimax',
-  mcts: 'MCTS',
-  local: 'Local Search',
-  'random-walk': 'Random Walk',
-  'hill-climbing-simple': 'Simple Hill',
-  'hill-climbing-steepest': 'Steepest Hill',
-  'hill-climbing-first-choice': 'First-Choice Hill',
-  'hill-climbing-stochastic': 'Stochastic Hill',
-  'hill-climbing-sideways': 'Sideways Hill',
-  'hill-climbing-random-restart': 'Restart Hill',
-  'simulated-annealing': 'Annealing',
-  'local-beam-search': 'Local Beam',
-  'stochastic-beam-search': 'Stochastic Beam',
-  'tabu-search': 'Tabu Search',
-  'genetic-algorithm': 'Genetic Algorithm',
-  'min-conflicts': 'Min-Conflicts',
-};
+import { getNavigationSegmentLabel } from '@/lib/navigation';
 
 interface ShortcutEntry {
   key: string;
@@ -71,7 +34,7 @@ const SHORTCUT_SECTIONS: ShortcutSection[] = [
   {
     heading: 'Navigation',
     items: [
-      { key: '/', label: 'Search algorithms' },
+      { key: 'Ctrl/Cmd+K', label: 'Open algorithm search' },
       { key: 'S', label: 'Toggle sidebar' },
       { key: 'T', label: 'Toggle theme' },
       { key: 'F', label: 'Toggle Fullscreen' },
@@ -83,17 +46,6 @@ const SHORTCUT_SECTIONS: ShortcutSection[] = [
       { key: 'P', label: 'Toggle pseudocode' },
       { key: 'M', label: 'Toggle metrics' },
       { key: 'I', label: 'Toggle state inspector' },
-      { key: '[ / ]', label: 'Switch tabs' },
-    ],
-  },
-  {
-    heading: 'Graph Editing',
-    items: [
-      { key: 'N', label: 'Add node mode' },
-      { key: 'E', label: 'Add edge mode' },
-      { key: 'D', label: 'Delete mode' },
-      { key: 'V', label: 'Select mode' },
-      { key: 'F', label: 'Fit graph to view' },
     ],
   },
 ];
@@ -108,7 +60,7 @@ function buildBreadcrumbs(pathname: string): Crumb[] {
   let accumulated = '';
   for (const seg of segments) {
     accumulated += `/${seg}`;
-    crumbs.push({ label: SEGMENT_LABELS[seg] ?? seg, path: accumulated });
+    crumbs.push({ label: getNavigationSegmentLabel(seg), path: accumulated });
   }
   return crumbs;
 }

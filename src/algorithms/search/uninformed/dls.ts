@@ -21,7 +21,7 @@ export const dlsRunner: AlgorithmRunner<DLSProblem, SearchState, SearchHighlight
     spaceComplexity: 'O(bl)',
     complete: false,
     optimal: false,
-    tags: ['graph', 'uninformed', 'depth-limited', 'backtracking'],
+    tags: ['graph', 'uninformed', 'depth-limited', 'depth-limit-control', 'backtracking'],
     bookChapter: 'AIMA 4th Ed. § 3.4.4',
     relatedAlgorithms: ['dfs', 'iddfs'],
   },

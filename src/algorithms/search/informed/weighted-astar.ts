@@ -24,7 +24,7 @@ export const weightedAstarRunner: AlgorithmRunner<WeightedAStarProblem, Informed
     spaceComplexity: 'O(b^d)',
     complete: true,
     optimal: 'ε-suboptimal (cost ≤ w × OPT)',
-    tags: ['search', 'informed', 'heuristic', 'priority-queue', 'suboptimal', 'bounded'],
+    tags: ['search', 'informed', 'heuristic', 'priority-queue', 'suboptimal', 'bounded', 'inflation-weight'],
     bookChapter: 'AIMA 4th Ed. § 3.5.2',
     relatedAlgorithms: ['astar', 'greedy-bfs'],
     relationshipLabel: 'generalises A* (w=1) and Greedy BFS (w=∞)',

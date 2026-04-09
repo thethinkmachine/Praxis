@@ -31,7 +31,6 @@
     "cytoscape-dagre": "^2.5.0",
     "cytoscape-edgehandles": "^4.0.1",
     "d3": "^7.9.0",
-    "eslint": "^10.0.3",
     "framer-motion": "^11.15.0",
     "fuse.js": "^7.1.0",
     "immer": "^10.1.1",
@@ -46,6 +45,7 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@types/cytoscape": "^3.21.8",
     "@types/d3": "^7.4.3",
     "@types/node": "^22.10.7",
@@ -55,10 +55,14 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "axios": "^1.13.6",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^17.4.0",
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
     "terser": "^5.46.0",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.58.1",
     "vite": "^6.0.5",
     "vitest": "^4.0.18"
   }

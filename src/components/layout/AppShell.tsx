@@ -7,7 +7,7 @@ import { useExecutionStore } from '@/store/execution.store';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import TerminalPanel from '../module/TerminalPanel';
 import { cn } from '@/lib/cn';
-import { Activity, Zap, Layers, Target, Terminal } from '@/components/shared/Icons';
+import { Zap, Layers, Target, Terminal } from '@/components/shared/Icons';
 
 function LatestLogDisplay() {
   const lastLog = useExecutionStore(s => s.logs.length > 0 ? s.logs[s.logs.length - 1] : null);

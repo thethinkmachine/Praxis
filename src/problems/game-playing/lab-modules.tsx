@@ -1,4 +1,4 @@
-import { useMemo, type Dispatch, type ReactNode, type SetStateAction } from 'react';
+import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import type { AlgorithmStep } from '@/types/step';
 import type { GameProblem, TicTacToeCell, TicTacToePlayer, TicTacToeProblem } from '@/types/problem';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
@@ -33,6 +33,7 @@ export interface GameLabContext<TProblem extends GameProblem = GameProblem> {
   setProblem: Dispatch<SetStateAction<GameProblem>>;
   step: AlgorithmStep<unknown, unknown> | null;
   openDemoPicker: () => void;
+  markProblemChanged: (reason: string) => void;
 }
 
 export interface GamePlayingLabModule<TProblem extends GameProblem = GameProblem> {
@@ -110,7 +111,10 @@ function renderTicTacToeConfigPanel(context: GameLabContext<TicTacToeProblem>) {
           <div className="flex items-center justify-between gap-2">
             <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)]">Presets</p>
             <button
-              onClick={() => setTicTacToeScenario(context.setProblem, 'empty')}
+              onClick={() => {
+                setTicTacToeScenario(context.setProblem, 'empty');
+                context.markProblemChanged('scenario:empty');
+              }}
               className="ui-btn h-7 rounded-md px-2 text-[10px] inline-flex whitespace-nowrap"
             >
               Clear
@@ -120,7 +124,10 @@ function renderTicTacToeConfigPanel(context: GameLabContext<TicTacToeProblem>) {
             {TIC_TAC_TOE_SCENARIOS.map((scenario) => (
               <button
                 key={scenario.id}
-                onClick={() => setTicTacToeScenario(context.setProblem, scenario.id)}
+                onClick={() => {
+                  setTicTacToeScenario(context.setProblem, scenario.id);
+                  context.markProblemChanged(`scenario:${scenario.id}`);
+                }}
                 className="ui-btn w-full justify-start rounded-md px-2 py-1.5 text-[11px] font-mono"
               >
                 {scenario.name}
@@ -145,15 +152,14 @@ function renderTicTacToeTabs(context: GameLabContext<TicTacToeProblem>): TabDefi
   const problem = context.problem;
   const step = context.step as AlgorithmStep<TicTacToeTraceState, TicTacToeTraceHighlight> | null;
 
-  const searchTreeElements = useMemo(() => {
-    if (!step?.state?.searchTree) return [];
-    return buildGameTreeElements(
-      step.state.searchTree,
-      step.highlight.currentNodeId || null,
-      step.highlight.principalVariation || null,
-      step.stepNumber
-    );
-  }, [step?.state?.searchTree, step?.highlight]);
+  const searchTreeElements = step?.state?.searchTree
+    ? buildGameTreeElements(
+        step.state.searchTree,
+        step.highlight.currentNodeId || null,
+        step.highlight.principalVariation || null,
+        step.stepNumber,
+      )
+    : [];
 
   return [
     {
@@ -196,19 +202,28 @@ function renderTicTacToeTitleActions(context: GameLabContext<TicTacToeProblem>) 
   return (
     <TitleBarActionGroup>
       <TitleBarActionButton
-        onClick={() => setTicTacToeScenario(context.setProblem, 'empty')}
+        onClick={() => {
+          setTicTacToeScenario(context.setProblem, 'empty');
+          context.markProblemChanged('scenario:empty');
+        }}
         icon={<RotateCcw size={12} />}
         label="Clear"
         title="Clear board"
       />
       <TitleBarActionButton
-        onClick={() => setTicTacToeScenario(context.setProblem, 'fork-trap')}
+        onClick={() => {
+          setTicTacToeScenario(context.setProblem, 'fork-trap');
+          context.markProblemChanged('scenario:fork-trap');
+        }}
         icon={<Dice5 size={12} />}
         label="Fork Trap"
         title="Load fork trap scenario"
       />
       <TitleBarActionButton
-        onClick={() => setTicTacToeScenario(context.setProblem, 'endgame-win')}
+        onClick={() => {
+          setTicTacToeScenario(context.setProblem, 'endgame-win');
+          context.markProblemChanged('scenario:endgame-win');
+        }}
         icon={<Dice5 size={12} />}
         label="Endgame"
         title="Load endgame scenario"

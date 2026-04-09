@@ -31,6 +31,27 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+
+          if (id.includes('/react/') || id.includes('/react-dom/')) {
+            return 'vendor-react';
+          }
+
+          if (id.includes('@radix-ui')) {
+            return 'vendor-radix';
+          }
+
+          if (id.includes('/d3')) {
+            return 'vendor-d3';
+          }
+
+          if (id.includes('/cytoscape')) {
+            return 'vendor-cytoscape';
+          }
+
+          return 'vendor';
+        },
       },
     },
   },

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ChevronLeft } from '@/components/shared/Icons';
 import CollapsibleSection from '@/components/shared/CollapsibleSection';
 import PanelWrapper from '@/components/layout/PanelWrapper';

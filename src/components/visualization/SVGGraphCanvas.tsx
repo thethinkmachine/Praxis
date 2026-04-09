@@ -256,11 +256,10 @@ function SvgDefs({ darkMode, transform }: { darkMode: boolean; transform?: d3.Zo
 // ---------------------------------------------------------------------------
 export default function SVGGraphCanvas({
   algorithmElements,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   stylesheet: _stylesheet,
   description,
-  algorithmCategory,
-  onDemoSelect,
+  algorithmCategory: _algorithmCategory,
+  onDemoSelect: _onDemoSelect,
   snapToGrid = false,
   className,
 }: SVGGraphCanvasProps) {
@@ -607,7 +606,11 @@ export default function SVGGraphCanvas({
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-        e.shiftKey ? redo() : undo();
+        if (e.shiftKey) {
+          redo();
+        } else {
+          undo();
+        }
         e.preventDefault();
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 'y') {

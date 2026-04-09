@@ -5,6 +5,18 @@ import { ExecutionEngine } from '@/algorithms/core/engine';
 
 let loadSequence = 0;
 
+export interface ExecutionLoadContext {
+  pageKey: string;
+  labKey?: string | null;
+  problemKey?: string | null;
+  preservePosition?: boolean;
+}
+
+interface LoadAlgorithmOptions {
+  algorithmId?: string;
+  context?: ExecutionLoadContext;
+}
+
 interface ExecutionState {
   engine: ExecutionEngine | null;
   currentStep: AlgorithmStep | null;
@@ -21,8 +33,9 @@ interface ExecutionState {
   loadWarning: string | null;
   /** Cumulative logs up to the current index. */
   logs: LogEntry[];
+  loadContext: ExecutionLoadContext | null;
 
-  loadAlgorithm: (runner: AlgorithmRunner, problem: unknown, algorithmId?: string) => Promise<void>;
+  loadAlgorithm: (runner: AlgorithmRunner, problem: unknown, options?: LoadAlgorithmOptions) => Promise<void>;
   stepForward: () => void;
   stepBackward: () => void;
   seekToStep: (index: number) => void;
@@ -34,6 +47,24 @@ interface ExecutionState {
   setSpeed: (speed: number) => void;
   clear: () => void;
   clearLogs: () => void;
+}
+
+function shouldPreserveViewerPosition(
+  previousAlgorithmId: string | null,
+  nextAlgorithmId: string | null,
+  previousContext: ExecutionLoadContext | null,
+  nextContext: ExecutionLoadContext | null,
+): boolean {
+  if (!nextContext?.preservePosition || !previousContext) {
+    return false;
+  }
+
+  return (
+    previousAlgorithmId === nextAlgorithmId &&
+    previousContext.pageKey === nextContext.pageKey &&
+    (previousContext.labKey ?? null) === (nextContext.labKey ?? null) &&
+    (previousContext.problemKey ?? null) === (nextContext.problemKey ?? null)
+  );
 }
 
 export const useExecutionStore = create<ExecutionState>()(
@@ -50,10 +81,17 @@ export const useExecutionStore = create<ExecutionState>()(
     loadError: null,
     loadWarning: null,
     logs: [],
+    loadContext: null,
 
-    loadAlgorithm: async (runner, problem, algorithmId) => {
+    loadAlgorithm: async (runner, problem, options) => {
+      const algorithmId = options?.algorithmId ?? null;
+      const context = options?.context ?? null;
       const requestId = ++loadSequence;
-      const { currentIndex: prevIndex, algorithmId: prevAlgorithmId } = get();
+      const {
+        currentIndex: prevIndex,
+        algorithmId: prevAlgorithmId,
+        loadContext: prevLoadContext,
+      } = get();
       const engine = new ExecutionEngine();
       try {
         let actualProblem = problem;
@@ -85,7 +123,8 @@ export const useExecutionStore = create<ExecutionState>()(
           state.isPlaying = false;
           state.loadError = msg;
           state.loadWarning = null;
-          state.algorithmId = algorithmId ?? null;
+          state.algorithmId = algorithmId;
+          state.loadContext = context;
           state.logs = [];
         });
         return;
@@ -98,9 +137,15 @@ export const useExecutionStore = create<ExecutionState>()(
         
         // Only preserve the viewer position when reloading the same algorithm.
         // Route switches should start from the beginning of the new trace.
+        const keepViewerPosition = shouldPreserveViewerPosition(
+          prevAlgorithmId,
+          algorithmId,
+          prevLoadContext,
+          context,
+        );
         const targetIndex = engine.totalSteps === 0
           ? -1
-          : prevAlgorithmId === (algorithmId ?? null) && prevIndex >= 0
+          : keepViewerPosition && prevIndex >= 0
             ? Math.min(prevIndex, engine.totalSteps - 1)
             : 0;
 
@@ -124,7 +169,8 @@ export const useExecutionStore = create<ExecutionState>()(
 
         state.isPlaying = false;
         state.truncated = engine.truncated;
-        state.algorithmId = algorithmId ?? null;
+        state.algorithmId = algorithmId;
+        state.loadContext = context;
         state.problemSnapshot = problem;
         state.loadError = null;
         state.loadWarning = engine.validationWarnings.length > 0 ? engine.validationWarnings.join(' ') : null;
@@ -255,6 +301,7 @@ export const useExecutionStore = create<ExecutionState>()(
         state.problemSnapshot = null;
         state.loadError = null;
         state.loadWarning = null;
+        state.loadContext = null;
         state.logs = [];
       });
     },

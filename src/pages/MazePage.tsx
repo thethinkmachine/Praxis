@@ -3,7 +3,6 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import AlgorithmPage from '@/components/module/AlgorithmPage';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
 import PresetPickerDialog from '@/components/shared/PresetPickerDialog';
-import Select from '@/components/shared/Select';
 import type { TabDefinition } from '@/components/module/AlgorithmPage';
 import SVGAutoCanvas from '@/components/visualization/SVGAutoCanvas';
 import MazeEditor from '@/components/visualization/MazeEditor';
@@ -23,18 +22,23 @@ import EmptyState from '@/components/shared/EmptyState';
 import InfoCard from '@/components/shared/InfoCard';
 import HeuristicConfigSection from '@/components/shared/HeuristicConfigSection';
 import { evaluationFormula } from '@/lib/evaluationFormula';
-
-const MAZE_UNINFORMED_ALGOS = new Set(['bfs', 'dfs', 'dls', 'iddfs', 'ucs', 'bidirectional-bfs', 'bidirectional-ucs']);
+import { toAbsoluteAppUrl } from '@/lib/app-paths';
+import { createExecutionProblemKey } from '@/lib/execution-problem-key';
 
 function isMazeProblem(value: unknown): value is MazeProblem {
   if (!value || typeof value !== 'object') return false;
   return (value as MazeProblem).kind === 'maze';
 }
 
+function createMazeProblemKey(prefix: string): string {
+  return `${prefix}:${Date.now()}`;
+}
+
 export default function MazePage() {
   const { algo = 'bfs' } = useParams<{ algo?: string }>();
   const [searchParams] = useSearchParams();
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
+  const [problemKey, setProblemKey] = useState('maze:default');
 
   const mazeProblem = useMazeStore(s => s.problem);
   const setMazeProblem = useMazeStore(s => s.setProblem);
@@ -46,12 +50,15 @@ export default function MazePage() {
 
   const [depthLimit, setDepthLimit] = useState(12);
   const [weightedAStarWeight, setWeightedAStarWeight] = useState(1.5);
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
   const importedReplayRef = useRef<string | null>(null);
   const heuristicId = (mazeProblem.heuristic?.id ?? 'manhattan-distance') as HeuristicId;
   const heuristicScale = Number(mazeProblem.heuristic?.params?.scale ?? 1);
   const heuristicDefinition = useMemo(() => getHeuristicDefinition(heuristicId), [heuristicId]);
-  const isInformedAlgorithm = !MAZE_UNINFORMED_ALGOS.has(algo);
+  const runner = useMemo(() => registry.get(algo)?.runner ?? null, [algo]);
+  const runnerTags = useMemo(() => new Set(runner?.meta.tags ?? []), [runner]);
+  const isInformedAlgorithm = runner?.meta.category === 'informed-search';
+  const supportsInflationWeight = runnerTags.has('inflation-weight');
 
   useEffect(() => {
     const replay = searchParams.get('m');
@@ -81,7 +88,6 @@ export default function MazePage() {
     return base;
   }, [debouncedProblem, algo, depthLimit, weightedAStarWeight]);
 
-  const runner = useMemo(() => registry.get(algo)?.runner ?? null, [algo]);
   const step = useExecutionStore(s => s.currentStep);
 
   const treeElements = useMemo(() => {
@@ -143,10 +149,14 @@ export default function MazePage() {
 
   const copyReplayLink = useCallback(async () => {
     const token = serializeMazeReplay(mazeProblem);
-    const url = `${window.location.origin}/maze/${algo}?m=${encodeURIComponent(token)}`;
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
+    try {
+      const url = toAbsoluteAppUrl(`maze/${algo}?m=${encodeURIComponent(token)}`);
+      await navigator.clipboard.writeText(url);
+      setCopyStatus('copied');
+    } catch {
+      setCopyStatus('error');
+    }
+    window.setTimeout(() => setCopyStatus('idle'), 1200);
   }, [algo, mazeProblem]);
 
   const titleActions = useMemo(() => (
@@ -155,6 +165,7 @@ export default function MazePage() {
         onClick={() => {
           setSeed(Date.now());
           generateMaze();
+          setProblemKey(createMazeProblemKey('maze:random'));
         }}
         icon={<Dice5 size={12} />}
         label="Randomize"
@@ -163,11 +174,11 @@ export default function MazePage() {
       <TitleBarActionButton
         onClick={copyReplayLink}
         icon={<Copy size={12} />}
-        label={copied ? 'Copied' : 'Copy Replay'}
+        label={copyStatus === 'copied' ? 'Copied' : copyStatus === 'error' ? 'Copy Failed' : 'Copy Replay'}
         title="Copy replay link"
       />
     </TitleBarActionGroup>
-  ), [copied, copyReplayLink, generateMaze, setSeed]);
+  ), [copyReplayLink, copyStatus, generateMaze, setSeed]);
 
   const configPanel = useMemo(() => (
     <ProblemConfigurator title="Maze Config">
@@ -196,7 +207,7 @@ export default function MazePage() {
                 },
               });
             }}
-            beforeSelect={algo === 'weighted-astar' ? (
+            beforeSelect={supportsInflationWeight ? (
               <div>
                 <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-3)]">Inflation Weight (w)</p>
                 <input
@@ -294,7 +305,10 @@ export default function MazePage() {
                   min={4}
                   max={80}
                   value={mazeProblem.rows}
-                  onChange={(e) => setDimensions(Number(e.target.value) || mazeProblem.rows, mazeProblem.cols)}
+                  onChange={(e) => {
+                    setDimensions(Number(e.target.value) || mazeProblem.rows, mazeProblem.cols);
+                    setProblemKey(createMazeProblemKey('maze:dimensions'));
+                  }}
                   className="ui-input w-full px-2 py-1 font-mono"
                 />
               </label>
@@ -305,7 +319,10 @@ export default function MazePage() {
                   min={4}
                   max={80}
                   value={mazeProblem.cols}
-                  onChange={(e) => setDimensions(mazeProblem.rows, Number(e.target.value) || mazeProblem.cols)}
+                  onChange={(e) => {
+                    setDimensions(mazeProblem.rows, Number(e.target.value) || mazeProblem.cols);
+                    setProblemKey(createMazeProblemKey('maze:dimensions'));
+                  }}
                   className="ui-input w-full px-2 py-1 font-mono"
                 />
               </label>
@@ -327,6 +344,7 @@ export default function MazePage() {
               onClick={() => {
                 setStrategy(demo.strategy);
                 setMazeProblem(buildMazeDemo(demo));
+                setProblemKey(createMazeProblemKey(`maze:demo:${demo.id}`));
               }}
               className="ui-btn w-full justify-start rounded-md px-2 py-1.5 text-[11px] font-mono"
             >
@@ -336,13 +354,26 @@ export default function MazePage() {
         </div>
       </ConfigSection>
     </ProblemConfigurator>
-  ), [algo, depthLimit, weightedAStarWeight, isInformedAlgorithm, heuristicId, heuristicScale, heuristicDefinition.description, mazeProblem, setDimensions, setMazeProblem, setStrategy, strategy, graphProblem.graph.nodes]);
+  ), [algo, depthLimit, heuristicId, heuristicScale, heuristicDefinition.description, isInformedAlgorithm, mazeProblem, setDimensions, setMazeProblem, setStrategy, strategy, supportsInflationWeight, weightedAStarWeight, graphProblem.graph.nodes]);
 
   const handleImport = useCallback((imported: unknown) => {
     if (isMazeProblem(imported)) {
       setMazeProblem(imported);
+      setProblemKey(createMazeProblemKey('maze:import'));
     }
   }, [setMazeProblem]);
+  const executionProblemKey = useMemo(
+    () => `${problemKey}:${createExecutionProblemKey(graphProblem)}`,
+    [problemKey, graphProblem],
+  );
+  const executionContext = useMemo(() => ({
+    pageKey: 'maze',
+    labKey: 'maze',
+    problemKey: searchParams.get('m')
+      ? `${executionProblemKey}:replay:${searchParams.get('m')}`
+      : executionProblemKey,
+    preservePosition: true,
+  }), [executionProblemKey, searchParams]);
 
   return (
     <>
@@ -357,6 +388,7 @@ export default function MazePage() {
         titleActions={titleActions}
         configPanel={configPanel}
         defaultConfigOpen
+        executionContext={executionContext}
         onDemoRequest={() => setDemoDialogOpen(true)}
       />
       <PresetPickerDialog
@@ -375,6 +407,7 @@ export default function MazePage() {
           if (!demo) return;
           setStrategy(demo.strategy);
           setMazeProblem(buildMazeDemo(demo));
+          setProblemKey(createMazeProblemKey(`maze:demo:${demo.id}`));
         }}
       />
     </>

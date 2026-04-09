@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useCallback, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useMemo, useCallback, useRef, useState } from 'react';
+import { Navigate, useParams } from 'react-router-dom';
 import { cn } from '@/lib/cn';
 import { registry } from '@/algorithms/core/registry';
 import { useEditorStore } from '@/store/useEditorStore';
@@ -10,14 +10,16 @@ import type { TabDefinition } from '@/components/module/AlgorithmPage';
 import SVGGraphCanvas from '@/components/visualization/SVGGraphCanvas';
 import SVGAutoCanvas from '@/components/visualization/SVGAutoCanvas';
 import DemoProblemPicker from '@/components/editor/DemoProblemPicker';
-import { Dice5, Info, ChevronDown } from '@/components/shared/Icons';
+import { Dice5, Info } from '@/components/shared/Icons';
 import { TitleBarActionButton } from '@/components/shared/TitleBarAction';
-import Select from '@/components/shared/Select';
 import EmptyState from '@/components/shared/EmptyState';
 import InfoCard from '@/components/shared/InfoCard';
 import HeuristicConfigSection from '@/components/shared/HeuristicConfigSection';
 import { generateRandomGraph } from '@/lib/random-generators';
 import { INFORMED_HEURISTICS, getHeuristicDefinition } from '@/algorithms/search/informed/types';
+import { buildRoute } from '@/lib/buildRoute';
+import { toAppPath } from '@/lib/app-paths';
+import { createExecutionProblemKey } from '@/lib/execution-problem-key';
 import { createGraphSearchAdapterFromProblem } from '@/visualizations/adapters/graph-search.adapter';
 import { getGraphSearchStyles } from '@/visualizations/cytoscapeStyles/graph-search.styles';
 import { buildSearchTreeElements } from '@/visualizations/adapters/search-tree.adapter';
@@ -28,23 +30,30 @@ import { Graph, type GraphProblem, type HeuristicId } from '@/types/problem';
 
 import AdjacencyTable from '@/components/editor/AdjacencyTable';
 
-// Algorithm categorization for UI behavior
-const INFORMED_ALGOS = new Set(['greedy-bfs', 'astar', 'rbfs', 'sma-star', 'smgs', 'bidirectional-astar', 'weighted-astar', 'ida-star']);
-const UNWEIGHTED_ALGOS = new Set(['bfs', 'dfs', 'dls', 'iddfs', 'bidirectional-bfs']);
+function createProblemSessionKey(prefix: string): string {
+  return `${prefix}:${Date.now()}`;
+}
 
 export default function SearchPage() {
-  const { algo = 'bfs' } = useParams<{ category: string; algo: string }>();
+  const { category, algo = 'bfs' } = useParams<{ category: string; algo: string }>();
   const [depthLimit, setDepthLimit] = useState(12);
   const [weightedAStarWeight, setWeightedAStarWeight] = useState(1.5);
   const [memoryLimit, setMemoryLimit] = useState(64);
   const [heuristicId, setHeuristicId] = useState<HeuristicId>('manual-node');
   const [heuristicScale, setHeuristicScale] = useState(1);
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
+  const [problemKey, setProblemKey] = useState('workspace:default');
+  const hasAttemptedInitialLoad = useRef(false);
 
   // ── Runner (for meta.category in SVGGraphCanvas) ─────────────────────
   const runner = useMemo(() => registry.get(algo)?.runner ?? null, [algo]);
-  const isInformedAlgorithm = INFORMED_ALGOS.has(algo);
-  const isWeightedAlgorithm = !UNWEIGHTED_ALGOS.has(algo);
+  const runnerTags = useMemo(() => new Set(runner?.meta.tags ?? []), [runner]);
+  const isSearchAlgorithm = runner?.meta.category === 'uninformed-search' || runner?.meta.category === 'informed-search';
+  const isInformedAlgorithm = runner?.meta.category === 'informed-search';
+  const isWeightedAlgorithm = runnerTags.has('heuristic') || runnerTags.has('cost-based');
+  const supportsDepthLimit = runnerTags.has('depth-limit-control');
+  const supportsMemoryLimit = runnerTags.has('memory-bounded');
+  const supportsInflationWeight = runnerTags.has('inflation-weight');
   const heuristicDefinition = useMemo(() => getHeuristicDefinition(heuristicId), [heuristicId]);
 
   // ── Execution store read (step needed for visualization memos) ───────
@@ -79,20 +88,32 @@ export default function SearchPage() {
 
   // ── Pre-load Romania map on first mount ──────────────────────────────
   useEffect(() => {
-    fetch('/Praxis/problems/graphs/romania-map.json')
-      .then(res => res.json())
-      .then(data => {
+    if (hasAttemptedInitialLoad.current || editorNodes.length > 0) {
+      return;
+    }
+
+    hasAttemptedInitialLoad.current = true;
+
+    fetch(toAppPath('problems/graphs/romania-map.json'))
+      .then((res) => res.json())
+      .then((data) => {
+        if (useEditorStore.getState().nodes.length > 0) {
+          return;
+        }
         const p = data.problem;
         useEditorStore.getState().loadGraph(
           p.graph.nodes,
           p.graph.edges,
           p.startNode,
           p.goalNode,
-          p.graph.directed ?? false
+          p.graph.directed ?? false,
         );
+        setProblemKey('workspace:romania-default');
       })
-      .catch(err => console.error("Failed to preload Romania Map:", err));
-  }, []);
+      .catch(() => {
+        hasAttemptedInitialLoad.current = false;
+      });
+  }, [editorNodes.length]);
 
   // ── Demo selector ────────────────────────────────────────────────────
   const handleDemoSelect = useCallback((problem: unknown) => {
@@ -106,6 +127,7 @@ export default function SearchPage() {
         p.goalNode ?? '',
         p.graph.directed ?? false,
       );
+      setProblemKey(createProblemSessionKey('demo'));
     }
   }, []);
 
@@ -114,11 +136,11 @@ export default function SearchPage() {
   // nodes doesn't reload the engine. But geometry-based heuristics NEED
   // positions to compute h(n), so include them when required.
   const algoProblem = useMemo<GraphProblem>(() => {
+    void nodeTopoKey;
     const currentNodes = useEditorStore.getState().nodes;
     const algoNodes = heuristicNeedsGeometry
-      ? currentNodes                             // keep x,y for distance heuristics
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      : currentNodes.map(({ x: _x, y: _y, ...n }) => n); // strip positions
+      ? currentNodes
+      : currentNodes.map(({ x: _x, y: _y, ...node }) => node);
     const baseProblem = {
       graph: new Graph({ directed: editorIsDirected, nodes: algoNodes, edges: editorEdges }),
       startNode: editorStartId ?? '',
@@ -131,17 +153,17 @@ export default function SearchPage() {
           }
         : undefined,
     };
-    if (algo === 'dls') {
+    if (supportsDepthLimit) {
       return { ...baseProblem, depthLimit };
     }
-    if (algo === 'weighted-astar') {
+    if (supportsInflationWeight) {
       return { ...baseProblem, weight: weightedAStarWeight };
     }
-    if (algo === 'sma-star' || algo === 'smgs') {
+    if (supportsMemoryLimit) {
       return { ...baseProblem, memoryLimit };
     }
     return baseProblem;
-  }, [algo, nodeTopoKey, editorEdges, editorStartId, editorGoalId, editorIsDirected, isInformedAlgorithm, heuristicId, heuristicScale, heuristicNeedsGeometry, depthLimit, weightedAStarWeight, memoryLimit]);
+  }, [supportsDepthLimit, supportsInflationWeight, supportsMemoryLimit, nodeTopoKey, editorEdges, editorStartId, editorGoalId, editorIsDirected, isInformedAlgorithm, heuristicId, heuristicScale, heuristicNeedsGeometry, depthLimit, weightedAStarWeight, memoryLimit]);
 
   // displayProblem: includes positions — used only for Cytoscape element generation.
   const displayProblem = useMemo<GraphProblem>(() => ({
@@ -216,7 +238,7 @@ export default function SearchPage() {
     } catch {
       return [];
     }
-  }, [step, displayProblem.startNode, displayProblem.goalNode, labelMap]);
+  }, [step, displayProblem.graph, displayProblem.startNode, displayProblem.goalNode, labelMap]);
 
   // ── Tabs ─────────────────────────────────────────────────────────────
   const tabs: TabDefinition[] = useMemo(() => [
@@ -249,22 +271,23 @@ export default function SearchPage() {
         />
       ),
     },
-  ], [algorithmElements, stylesheet, step, runner, handleDemoSelect, treeElements]);
+  ], [algorithmElements, stylesheet, step, runner, handleDemoSelect, treeElements, heuristicId]);
 
   // ── Title actions ────────────────────────────────────────────────────
   const titleActions = useMemo(() => (
     <TitleBarActionButton
-      onClick={() => {
-        const weighted = isWeightedAlgorithm;
-        const { nodes, edges } = generateRandomGraph(6 + Math.floor(Math.random() * 5), 0.25, weighted);
-        const ids = nodes.map(n => n.id);
-        useEditorStore.getState().loadGraph(nodes, edges, ids[0], ids[ids.length - 1], false);
+        onClick={() => {
+          const weighted = isWeightedAlgorithm;
+          const { nodes, edges } = generateRandomGraph(6 + Math.floor(Math.random() * 5), 0.25, weighted);
+          const ids = nodes.map(n => n.id);
+          useEditorStore.getState().loadGraph(nodes, edges, ids[0], ids[ids.length - 1], false);
+          setProblemKey(createProblemSessionKey('random'));
       }}
       icon={<Dice5 size={12} />}
       label="Randomize"
       title="Generate random graph"
     />
-  ), [algo, isWeightedAlgorithm]);
+  ), [isWeightedAlgorithm]);
 
   // ── Problem import handler ───────────────────────────────────────────
   const handleImport = useCallback((imported: unknown) => {
@@ -282,6 +305,7 @@ export default function SearchPage() {
         const importedScale = Number(p.heuristic.params?.scale);
         setHeuristicScale(Number.isFinite(importedScale) && importedScale > 0 ? importedScale : 1);
       }
+      setProblemKey(createProblemSessionKey('import'));
     }
   }, []);
 
@@ -429,7 +453,7 @@ export default function SearchPage() {
               </InfoCard>
             )}
 
-            {algo === 'dls' && (
+            {supportsDepthLimit && (
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Depth Limit</p>
                 <input
@@ -443,7 +467,7 @@ export default function SearchPage() {
               </div>
             )}
 
-            {algo === 'weighted-astar' && (
+            {supportsInflationWeight && (
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Inflation Weight (w)</p>
                 <input
@@ -459,7 +483,7 @@ export default function SearchPage() {
               </div>
             )}
 
-            {(algo === 'sma-star' || algo === 'smgs') && (
+            {supportsMemoryLimit && (
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] mb-1.5">Memory Limit</p>
                 <input
@@ -492,7 +516,7 @@ export default function SearchPage() {
         </ConfigSection>
       </ProblemConfigurator>
     );
-  }, [algo, depthLimit, weightedAStarWeight, memoryLimit, isInformedAlgorithm, heuristicId, heuristicDefinition.description, heuristicScale, editorNodes, editorStartId, editorGoalId, editorEdges, selectedIds, updateNode, updateNodeHeuristic, setSelected]);
+  }, [algo, supportsDepthLimit, supportsInflationWeight, supportsMemoryLimit, depthLimit, weightedAStarWeight, memoryLimit, isInformedAlgorithm, isWeightedAlgorithm, heuristicId, heuristicDefinition.description, heuristicScale, editorNodes, editorStartId, editorGoalId, editorEdges, selectedIds, updateNode, updateNodeHeuristic, setSelected]);
 
   // problemForActions: always includes positions for export/save, even if current algo run strips them.
   const fullProblem = useMemo(() => ({
@@ -503,6 +527,25 @@ export default function SearchPage() {
       edges: editorEdges 
     }),
   }), [algoProblem, editorIsDirected, editorNodes, editorEdges]);
+  const executionProblemKey = useMemo(
+    () => `${problemKey}:${createExecutionProblemKey(algoProblem)}`,
+    [problemKey, algoProblem],
+  );
+  const executionContext = useMemo(() => ({
+    pageKey: 'search',
+    labKey: runner?.meta.category ?? 'uninformed-search',
+    problemKey: executionProblemKey,
+    preservePosition: true,
+  }), [executionProblemKey, runner?.meta.category]);
+  const redirectPath = runner && !isSearchAlgorithm
+    ? buildRoute(runner.meta, runner.meta.category === 'local-search' ? 'local-search' : 'game')
+    : runner && category && category !== runner.meta.category
+      ? buildRoute(runner.meta, 'graph')
+      : null;
+
+  if (redirectPath) {
+    return <Navigate to={redirectPath} replace />;
+  }
 
   return (
     <>
@@ -517,6 +560,7 @@ export default function SearchPage() {
         titleActions={titleActions}
         configPanel={configPanel}
         defaultConfigOpen
+        executionContext={executionContext}
         onDemoRequest={() => setDemoDialogOpen(true)}
       />
       <DemoProblemPicker

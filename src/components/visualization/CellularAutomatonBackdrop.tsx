@@ -93,7 +93,7 @@ export default function CellularAutomatonBackdrop({
     let state2D: number[][] = [];
     
     let currentRule = 30;
-    let ruleSet = [0, 0, 0, 0, 0, 0, 0, 0];
+    const ruleSet = [0, 0, 0, 0, 0, 0, 0, 0];
     let current2DRule = RULES_2D[0];
     
     // Animation frame tracking

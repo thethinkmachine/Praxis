@@ -6,7 +6,7 @@ export function useAlgorithm() {
   const loadAlgorithm = useExecutionStore(s => s.loadAlgorithm);
 
   const load = useCallback((runner: AlgorithmRunner, problem: unknown, algorithmId?: string) => {
-    loadAlgorithm(runner, problem, algorithmId);
+    loadAlgorithm(runner, problem, { algorithmId });
   }, [loadAlgorithm]);
 
   return {

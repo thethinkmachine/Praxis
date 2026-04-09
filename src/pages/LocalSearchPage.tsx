@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import AlgorithmPage from '@/components/module/AlgorithmPage';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
@@ -27,6 +27,7 @@ import {
   type LocalSearchLabContext,
 } from '@/problems/local-search/labs';
 import type { LocalSearchProblem } from '@/types/problem';
+import { createExecutionProblemKey } from '@/lib/execution-problem-key';
 
 interface NumberFieldConfig {
   key: keyof LocalSearchProblem;
@@ -35,6 +36,10 @@ interface NumberFieldConfig {
   max?: number;
   step?: number;
   fallback: number;
+}
+
+function createLocalProblemKey(prefix: string): string {
+  return `${prefix}:${Date.now()}`;
 }
 
 const METAHEURISTIC_FIELDS: Partial<Record<string, NumberFieldConfig[]>> = {
@@ -69,6 +74,7 @@ export default function LocalSearchPage() {
   const rawLabParam = searchParams.get('lab');
   const labParam = isLocalSearchLabKind(rawLabParam) ? rawLabParam : 'n-queens';
   const [problem, setProblem] = useState<LocalSearchProblem>(() => createDefaultLocalSearchProblem(labParam));
+  const [problemKey, setProblemKey] = useState(`local:${labParam}:default`);
   const step = useExecutionStore(state => state.currentStep as LocalSearchStep | null);
   const currentIndex = useExecutionStore(state => state.currentIndex);
   const resetExecution = useExecutionStore(state => state.reset);
@@ -82,12 +88,14 @@ export default function LocalSearchPage() {
   useEffect(() => {
     if (problem.kind !== labParam) {
       setProblem(createDefaultLocalSearchProblem(labParam));
+      setProblemKey(`local:${labParam}:default`);
     }
   }, [labParam, problem.kind]);
 
   const setLab = (kind: LocalSearchProblem['kind']) => {
     setProblem(createDefaultLocalSearchProblem(kind));
     setSearchParams({ lab: kind });
+    setProblemKey(createLocalProblemKey(`local:${kind}:lab`));
   };
 
   const updateProblem = (patch: Record<string, unknown>) => {
@@ -97,6 +105,7 @@ export default function LocalSearchPage() {
 
   const randomizeCurrent = () => {
     setProblem(prev => randomizeLocalSearchProblem(prev));
+    setProblemKey(createLocalProblemKey(`local:${problem.kind}:random`));
   };
 
   const labContext: LocalSearchLabContext = {
@@ -107,6 +116,16 @@ export default function LocalSearchPage() {
     updateProblem,
     resetForSetup: handleResetForSetup,
   };
+  const executionProblemKey = useMemo(
+    () => `${problemKey}:${createExecutionProblemKey(problem)}`,
+    [problemKey, problem],
+  );
+  const executionContext = useMemo(() => ({
+    pageKey: 'local-search',
+    labKey: problem.kind,
+    problemKey: executionProblemKey,
+    preservePosition: true,
+  }), [problem.kind, executionProblemKey]);
 
   const configPanel = (
     <ProblemConfigurator title="Local Search Config">
@@ -180,7 +199,11 @@ export default function LocalSearchPage() {
         problemForActions={problem}
         category="local-search"
         problemCategory="local-search"
-        onProblemImport={(nextProblem) => setProblem(normalizeLocalSearchProblem(nextProblem))}
+        onProblemImport={(nextProblem) => {
+          const normalized = normalizeLocalSearchProblem(nextProblem);
+          setProblem(normalized);
+          setProblemKey(createLocalProblemKey(`local:${normalized.kind}:import`));
+        }}
         tabs={[
           { id: 'board', label: 'Problem View', content: activeLab.renderBoardTab(labContext) },
           { id: 'neighborhood', label: 'Neighborhood', content: activeLab.renderNeighborhoodTab(labContext) },
@@ -188,6 +211,7 @@ export default function LocalSearchPage() {
           { id: 'trajectory', label: 'Trajectory', content: renderLocalSearchTrajectoryTab(problem, step) },
         ]}
         buildAlgorithmRoute={(algorithmId) => `/local/${algorithmId}?lab=${problem.kind}`}
+        executionContext={executionContext}
         titleActions={
           <TitleBarActionGroup>
             <TitleBarActionButton onClick={randomizeCurrent} icon={<Dice5 size={12} />} label="Randomize" title="Randomize current problem" />

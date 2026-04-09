@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from 'react';
 import { registry } from '@/algorithms/core/registry';
+import type { ExecutionLoadContext } from '@/store/execution.store';
 import { useExecutionStore } from '@/store/execution.store';
 import { usePlayback } from '@/hooks/usePlayback';
 import type { AlgorithmRunner, AlgorithmStep } from '@/types';
@@ -15,7 +16,11 @@ function isEmptyGraphProblem(problem: unknown): boolean {
  * Handles runner lookup, execution store integration, playback setup,
  * and algorithm loading when id/problem changes.
  */
-export function useAlgorithmPage(algorithmId: string, problem: unknown) {
+export function useAlgorithmPage(
+  algorithmId: string,
+  problem: unknown,
+  context?: ExecutionLoadContext,
+) {
   const loadAlgorithm = useExecutionStore(state => state.loadAlgorithm);
   const clear = useExecutionStore(state => state.clear);
   
@@ -32,9 +37,9 @@ export function useAlgorithmPage(algorithmId: string, problem: unknown) {
       clear();
       return;
     }
-    loadAlgorithm(runner, problem, algorithmId);
+    loadAlgorithm(runner, problem, { algorithmId, context });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [algorithmId, problem, runner]);
+  }, [algorithmId, problem, runner, context]);
 
   const step = useExecutionStore(state => state.currentStep as AlgorithmStep | null);
   const loadError = useExecutionStore(state => state.loadError);
