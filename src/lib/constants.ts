@@ -5,6 +5,8 @@ export const CATEGORY_LABELS: Record<AlgorithmCategory, string> = {
   'informed-search': 'Informed Search',
   'game-playing': 'Game Playing',
   'local-search': 'Local Search',
+  'planning': 'Planning',
+  'constraint-satisfaction': 'Constraint Satisfaction',
 };
 
 export const CATEGORY_ORDER: AlgorithmCategory[] = [
@@ -12,4 +14,6 @@ export const CATEGORY_ORDER: AlgorithmCategory[] = [
   'informed-search',
   'game-playing',
   'local-search',
+  'planning',
+  'constraint-satisfaction',
 ];

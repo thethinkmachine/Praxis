@@ -11,6 +11,8 @@ const GROUP_COLORS: Record<string, string> = {
   informed: '#D2A8FF',
   game: '#F2C94C',
   local: '#53C880',
+  planning: '#56D4DD',
+  csp: '#FFA657',
 };
 
 const CATEGORY_TO_GROUP: Record<AlgorithmCategory, string> = {
@@ -18,6 +20,8 @@ const CATEGORY_TO_GROUP: Record<AlgorithmCategory, string> = {
   'informed-search': 'informed',
   'game-playing': 'game',
   'local-search': 'local',
+  'planning': 'planning',
+  'constraint-satisfaction': 'csp',
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -25,6 +29,8 @@ const CATEGORY_ICONS: Record<string, string> = {
   'informed-search': 'zap',
   'game-playing': 'game',
   'local-search': 'sparkles',
+  'planning': 'workflow',
+  'constraint-satisfaction': 'grid-3x3',
 };
 
 const RELATIONSHIP_DESCRIPTIONS: Record<string, string> = {
@@ -74,6 +80,16 @@ const FALLBACK_EDGE_LABELS: Record<string, string> = {
   'stochastic-beam-search→genetic-algorithm': 'related',
   'hill-climbing-sideways→tabu-search': 'related',
   'hill-climbing-steepest→min-conflicts': 'related',
+  'fssp→bssp': 'related',
+  'fssp→gsp': 'related',
+  'gsp→graphplan': 'related',
+  'graphplan→satplan': 'related',
+  'gsp→pop': 'related',
+  'backtracking-search→forward-checking': 'related',
+  'forward-checking→mac': 'related',
+  'ac-3→gac': 'related',
+  'gac→mac': 'related',
+  'tree-csp→cutset-conditioning': 'related',
 };
 
 /** 
@@ -104,6 +120,19 @@ const ALGO_RANK: Record<string, number> = {
   'min-conflicts': 19,
   'minimax': 20, 'alpha-beta': 21, 'negamax': 22,
   'expectimax': 23, 'mcts': 24,
+  'fssp': 30,
+  'bssp': 31,
+  'gsp': 32,
+  'graphplan': 33,
+  'satplan': 34,
+  'pop': 35,
+  'backtracking-search': 40,
+  'forward-checking': 41,
+  'ac-3': 42,
+  'gac': 43,
+  'mac': 44,
+  'tree-csp': 45,
+  'cutset-conditioning': 46,
 };
 
 function getRelationshipLabel(source: AlgorithmMeta, target: AlgorithmMeta): string {

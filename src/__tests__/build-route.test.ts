@@ -16,4 +16,16 @@ describe('buildRoute', () => {
     expect(buildRoute({ id: 'tabu-search', category: 'local-search' }, 'local-search')).toBe('/local/tabu-search');
     expect(buildRoute({ id: 'ant-colony-optimization', category: 'local-search' }, 'local-search')).toBe('/local/ant-colony-optimization');
   });
+
+  it('uses default planning labs for planning algorithms', () => {
+    expect(buildRoute({ id: 'fssp', category: 'planning' }, 'planning')).toBe('/planning/fssp?lab=state-space');
+    expect(buildRoute({ id: 'graphplan', category: 'planning' }, 'planning')).toBe('/planning/graphplan?lab=planning-graph');
+    expect(buildRoute({ id: 'pop', category: 'planning' }, 'planning')).toBe('/planning/pop?lab=partial-order');
+  });
+
+  it('uses default CSP labs for CSP algorithms', () => {
+    expect(buildRoute({ id: 'backtracking-search', category: 'constraint-satisfaction' }, 'constraint-satisfaction')).toBe('/csp/backtracking-search?lab=constraint-network');
+    expect(buildRoute({ id: 'ac-3', category: 'constraint-satisfaction' }, 'constraint-satisfaction')).toBe('/csp/ac-3?lab=arc-consistency');
+    expect(buildRoute({ id: 'tree-csp', category: 'constraint-satisfaction' }, 'constraint-satisfaction')).toBe('/csp/tree-csp?lab=structure');
+  });
 });

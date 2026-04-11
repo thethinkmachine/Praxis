@@ -74,6 +74,7 @@ export type StepPhase =
   | 'initializing'
   | 'expanding'
   | 'visiting'
+  | 'propagating'
   | 'backtracking'
   | 'pruning'
   | 'found'

@@ -254,11 +254,196 @@ export type LocalSearchProblem =
   | LandscapeProblem
   | NPuzzleProblem;
 
+export type PlanningLabId =
+  | 'strips'
+  | 'state-space'
+  | 'goal-stack'
+  | 'planning-graph'
+  | 'partial-order';
+
+export type PlanningPresetId =
+  | 'blocks-world'
+  | 'air-cargo'
+  | 'spare-tire'
+  | 'cake';
+
+export type PlanningHeuristicId =
+  | 'goal-count'
+  | 'ignore-delete'
+  | 'planning-graph-level';
+
+export interface PlanningSchemaParameter {
+  key: string;
+  objectSet: string;
+}
+
+export interface PlanningActionSchema {
+  id: string;
+  name: string;
+  parameters: PlanningSchemaParameter[];
+  preconditions: string[];
+  addEffects: string[];
+  deleteEffects: string[];
+  enabled?: boolean;
+}
+
+export interface PlanningGroundedAction {
+  id: string;
+  schemaId: string;
+  name: string;
+  label: string;
+  parameters: Record<string, string>;
+  preconditions: string[];
+  addEffects: string[];
+  deleteEffects: string[];
+  enabled?: boolean;
+}
+
+export interface PlanningProblem {
+  kind: 'planning';
+  lab: PlanningLabId;
+  presetId: PlanningPresetId;
+  domainName: string;
+  objectCount?: number;
+  objectSets: Record<string, string[]>;
+  schemas: PlanningActionSchema[];
+  groundedActions: PlanningGroundedAction[];
+  initialLiterals: string[];
+  goalLiterals: string[];
+  heuristic?: PlanningHeuristicId;
+  duplicateDetection?: boolean;
+  branchOrder?: 'schema' | 'goal-first' | 'reverse';
+  tieBreaker?: 'fifo' | 'lifo' | 'lexicographic';
+  goalOrdering?: 'input' | 'shortest-first' | 'hardest-first';
+  repeatedGoalProtection?: boolean;
+  operatorChoice?: 'first-achiever' | 'fewest-preconditions' | 'lexicographic';
+  expansionDepthCap?: number;
+  showDeleteEffects?: boolean;
+  extractionStrategy?: 'serial-first' | 'parallel-first';
+  satHorizonCap?: number;
+  flawSelection?: 'fifo' | 'most-constrained' | 'recent';
+  threatResolution?: 'promotion' | 'demotion' | 'separation';
+  leastCommitment?: boolean;
+  manualActionHistory?: string[];
+}
+
+export type CspLabId =
+  | 'constraint-network'
+  | 'arc-consistency'
+  | 'sudoku'
+  | 'cryptarithm'
+  | 'scheduling'
+  | 'structure';
+
+export type CspPresetId =
+  | 'australia-map'
+  | 'n-queens-csp'
+  | 'graph-coloring'
+  | 'custom-network'
+  | 'sudoku-4x4-easy'
+  | 'sudoku-4x4-medium'
+  | 'send-more-money'
+  | 'small-timetable'
+  | 'tree-map';
+
+export type CspVariableOrdering = 'input' | 'mrv' | 'degree';
+export type CspValueOrdering = 'input' | 'lcv';
+export type CspQueueDiscipline = 'fifo' | 'lifo';
+
+export type CspValue = string | number;
+
+export interface CspVariable {
+  id: string;
+  label?: string;
+  domain: CspValue[];
+  x?: number;
+  y?: number;
+  meta?: Record<string, string | number | boolean>;
+}
+
+interface CspConstraintBase {
+  id: string;
+  description?: string;
+  variables: string[];
+}
+
+export interface CspNotEqualConstraint extends CspConstraintBase {
+  type: 'not-equal';
+  variables: [string, string];
+}
+
+export interface CspAllDifferentConstraint extends CspConstraintBase {
+  type: 'all-different';
+}
+
+export interface CspTableConstraint extends CspConstraintBase {
+  type: 'table';
+  allowedTuples?: CspValue[][];
+  disallowedTuples?: CspValue[][];
+}
+
+export interface CspLinearEqConstraint extends CspConstraintBase {
+  type: 'linear-eq';
+  coefficients: number[];
+  constant: number;
+}
+
+export interface CspTokenConflictConstraint extends CspConstraintBase {
+  type: 'token-conflict';
+  variables: [string, string];
+  partIndexes: number[];
+}
+
+export interface CspTokenOrderConstraint extends CspConstraintBase {
+  type: 'token-order';
+  variables: [string, string];
+  partIndex: number;
+  relation: '<' | '<=' | '>' | '>=';
+}
+
+export interface CspNonZeroConstraint extends CspConstraintBase {
+  type: 'non-zero';
+  variables: [string];
+}
+
+export type CspConstraint =
+  | CspNotEqualConstraint
+  | CspAllDifferentConstraint
+  | CspTableConstraint
+  | CspLinearEqConstraint
+  | CspTokenConflictConstraint
+  | CspTokenOrderConstraint
+  | CspNonZeroConstraint;
+
+export interface CspProblem {
+  kind: 'constraint-satisfaction';
+  lab: CspLabId;
+  presetId: CspPresetId;
+  title: string;
+  variables: CspVariable[];
+  constraints: CspConstraint[];
+  variableOrdering?: CspVariableOrdering;
+  valueOrdering?: CspValueOrdering;
+  queueDiscipline?: CspQueueDiscipline;
+  explainPruning?: boolean;
+  binaryOnlyView?: boolean;
+  propagationFirst?: boolean;
+  allDifferentEncoding?: 'global' | 'binary-decomposition';
+  rootVariable?: string;
+  cutset?: string[];
+}
+
 // ---------------------------------------------------------------------------
 // Problem saving
 // ---------------------------------------------------------------------------
 
-export type ProblemCategory = 'graph' | 'maze' | 'game' | 'local-search';
+export type ProblemCategory =
+  | 'graph'
+  | 'maze'
+  | 'game'
+  | 'local-search'
+  | 'planning'
+  | 'constraint-satisfaction';
 
 export interface SavedProblem {
   id: string;
@@ -273,4 +458,6 @@ export const ALGORITHM_TO_PROBLEM_CATEGORY: Record<import('./algorithm').Algorit
   'informed-search': 'graph',
   'game-playing': 'game',
   'local-search': 'local-search',
+  'planning': 'planning',
+  'constraint-satisfaction': 'constraint-satisfaction',
 };

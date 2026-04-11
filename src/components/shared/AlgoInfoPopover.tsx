@@ -31,6 +31,14 @@ function buildNarrative(meta: AlgorithmMeta): string {
     return `${meta.name} improves a complete candidate state by repeatedly evaluating nearby alternatives. The trace emphasizes objective values, accepted moves, plateaus, and escape mechanisms such as randomness, restarts, or memory.`;
   }
 
+  if (meta.category === 'planning') {
+    return `${meta.name} builds a sequence or partial ordering of actions that transforms an initial world state into one that satisfies the goal literals. The trace usually highlights subgoals, applicable operators, frontier growth, planning-graph layers, or causal links as the plan takes shape.`;
+  }
+
+  if (meta.category === 'constraint-satisfaction') {
+    return `${meta.name} reasons over variables, domains, and explicit constraints to construct a consistent assignment. The trace focuses on domain pruning, queue revisions, branching choices, backtracking, and the propagation effects that make CSPs readable step by step.`;
+  }
+
   return `${meta.name} uses heuristic guidance to bias exploration toward promising states. That usually means fewer expansions than uninformed baselines, but the quality of the heuristic directly affects how aggressively the frontier narrows and whether optimality guarantees still hold.`;
 }
 
@@ -44,7 +52,11 @@ function buildTradeoffs(meta: AlgorithmMeta): string[] {
         ? 'It is best used when you need to reason about forced wins, defensive replies, stochastic opponents, or simulation-guided move quality.'
         : meta.category === 'local-search'
           ? 'It is best used when you can score complete states cheaply and want fast improvement without exploring full search trees.'
-        : 'It benefits most when the heuristic tracks remaining distance or cost reasonably well.',
+          : meta.category === 'planning'
+            ? 'It is best used when actions have explicit preconditions and effects and you want the trace to expose how goals turn into plans.'
+            : meta.category === 'constraint-satisfaction'
+              ? 'It is best used when the problem is naturally expressed as variables, domains, and hard constraints that can be propagated.'
+              : 'It benefits most when the heuristic tracks remaining distance or cost reasonably well.',
   ];
 }
 

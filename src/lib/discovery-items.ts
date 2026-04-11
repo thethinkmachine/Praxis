@@ -1,7 +1,9 @@
 import type { AlgorithmCategory } from '@/types/algorithm';
+import { CSP_LAB_DEFINITIONS } from '@/problems/csp/labs';
 import { GAME_PLAYING_LAB_DEFINITIONS } from '@/problems/game-playing/labs';
-import { MAZE_LAB_DEFINITIONS } from '@/problems/maze/labs';
 import { LOCAL_SEARCH_LAB_DEFINITIONS } from '@/problems/local-search/labs';
+import { MAZE_LAB_DEFINITIONS } from '@/problems/maze/labs';
+import { PLANNING_LAB_DEFINITIONS } from '@/problems/planning/labs';
 import { SEARCH_LAB_DEFINITIONS } from '@/problems/search/labs';
 
 export type DiscoveryItemStatus = 'live' | 'coming-soon';
@@ -66,6 +68,22 @@ export const DISCOVERY_ITEMS_BY_CATEGORY: DiscoveryItemsByCategory = {
   'local-search': LOCAL_SEARCH_LAB_DEFINITIONS.map((entry) => ({
     id: `${entry.id}-lab`,
     name: `${entry.name} Lab`,
+    description: entry.description,
+    path: entry.path,
+    status: 'live' as const,
+    kind: 'lab' as const,
+  })),
+  planning: PLANNING_LAB_DEFINITIONS.map((entry) => ({
+    id: `${entry.id}-lab`,
+    name: entry.name,
+    description: entry.description,
+    path: entry.path,
+    status: 'live' as const,
+    kind: 'lab' as const,
+  })),
+  'constraint-satisfaction': CSP_LAB_DEFINITIONS.map((entry) => ({
+    id: `${entry.id}-lab`,
+    name: entry.name,
     description: entry.description,
     path: entry.path,
     status: 'live' as const,

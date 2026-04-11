@@ -42,6 +42,13 @@ import { tabuSearchRunner } from './local-search/tabu-search';
 import { geneticAlgorithmRunner } from './local-search/genetic-algorithm';
 import { minConflictsRunner } from './local-search/min-conflicts';
 import { antColonyOptimizationRunner } from './local-search/ant-colony-optimization';
+import { fsspRunner, bsspRunner } from './planning/state-space';
+import { gspRunner } from './planning/goal-stack';
+import { graphplanRunner, satplanRunner } from './planning/planning-graph';
+import { popRunner } from './planning/partial-order';
+import { backtrackingSearchRunner, forwardCheckingRunner, macRunner } from './csp/search';
+import { ac3Runner, gacRunner } from './csp/consistency';
+import { treeCspRunner, cutsetConditioningRunner } from './csp/structure';
 
 const UNINFORMED_SEARCH_RUNNERS = [
   bfsRunner,
@@ -89,11 +96,32 @@ const LOCAL_SEARCH_RUNNERS = [
   minConflictsRunner,
 ];
 
+const PLANNING_RUNNERS = [
+  fsspRunner,
+  bsspRunner,
+  gspRunner,
+  graphplanRunner,
+  satplanRunner,
+  popRunner,
+];
+
+const CSP_RUNNERS = [
+  backtrackingSearchRunner,
+  forwardCheckingRunner,
+  ac3Runner,
+  gacRunner,
+  macRunner,
+  treeCspRunner,
+  cutsetConditioningRunner,
+];
+
 export function registerAllAlgorithms() {
   registry.registerMany([
     ...UNINFORMED_SEARCH_RUNNERS,
     ...INFORMED_SEARCH_RUNNERS,
     ...GAME_PLAYING_RUNNERS,
     ...LOCAL_SEARCH_RUNNERS,
+    ...PLANNING_RUNNERS,
+    ...CSP_RUNNERS,
   ]);
 }

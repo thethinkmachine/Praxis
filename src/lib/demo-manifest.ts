@@ -16,6 +16,8 @@ export interface DemoManifest {
   'informed-search'?: DemoProblemDefinition[];
   'game-playing'?: DemoProblemDefinition[];
   'local-search'?: DemoProblemDefinition[];
+  'planning'?: DemoProblemDefinition[];
+  'constraint-satisfaction'?: DemoProblemDefinition[];
 }
 
 const ALGORITHM_CATEGORIES: AlgorithmCategory[] = [
@@ -23,6 +25,8 @@ const ALGORITHM_CATEGORIES: AlgorithmCategory[] = [
   'informed-search',
   'game-playing',
   'local-search',
+  'planning',
+  'constraint-satisfaction',
 ];
 
 function isDifficulty(value: unknown): value is DemoProblemDefinition['difficulty'] {

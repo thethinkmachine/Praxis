@@ -1,9 +1,13 @@
 import type { AlgorithmCategory } from '@/types/algorithm';
-import type { ProblemCategory } from '@/types/problem';
+import type { CspLabId, PlanningLabId, ProblemCategory } from '@/types/problem';
 import { buildGamePlayingRoute, getDefaultGamePlayingLabId, type GamePlayingLabId } from '@/problems/game-playing/labs';
+import { buildPlanningRoute, getDefaultPlanningLabForAlgorithm } from '@/problems/planning/labs';
+import { buildCspRoute, getDefaultCspLabForAlgorithm } from '@/problems/csp/labs';
 
 interface BuildRouteOptions {
   gameLabId?: GamePlayingLabId;
+  planningLabId?: PlanningLabId;
+  cspLabId?: CspLabId;
 }
 
 /**
@@ -19,6 +23,12 @@ export function buildRoute(
   }
   if (meta.category === 'local-search' || problemCategory === 'local-search') {
     return `/local/${meta.id}`;
+  }
+  if (meta.category === 'planning' || problemCategory === 'planning') {
+    return buildPlanningRoute(meta.id, options?.planningLabId ?? getDefaultPlanningLabForAlgorithm(meta.id));
+  }
+  if (meta.category === 'constraint-satisfaction' || problemCategory === 'constraint-satisfaction') {
+    return buildCspRoute(meta.id, options?.cspLabId ?? getDefaultCspLabForAlgorithm(meta.id));
   }
   if (problemCategory === 'maze') {
     return `/maze/${meta.id}`;

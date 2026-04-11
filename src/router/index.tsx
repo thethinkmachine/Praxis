@@ -8,6 +8,8 @@ const SearchPage = React.lazy(() => import('@/pages/SearchPage'));
 const MazePage = React.lazy(() => import('@/pages/MazePage'));
 const GamePage = React.lazy(() => import('@/pages/GamePage'));
 const LocalSearchPage = React.lazy(() => import('@/pages/LocalSearchPage'));
+const PlanningPage = React.lazy(() => import('@/pages/PlanningPage'));
+const CspPage = React.lazy(() => import('@/pages/CspPage'));
 const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage'));
 
 const PageLoader = () => (
@@ -61,6 +63,22 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageLoader />}>
             <LocalSearchPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'planning/:algo',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <PlanningPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'csp/:algo',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <CspPage />
           </Suspense>
         ),
       },

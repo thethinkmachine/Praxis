@@ -6,6 +6,8 @@ const CATEGORY_LABELS: Record<AlgorithmCategory, string> = {
   'informed-search': 'Informed Search',
   'game-playing': 'Game Playing',
   'local-search': 'Local Search',
+  'planning': 'Planning',
+  'constraint-satisfaction': 'Constraint Satisfaction',
 };
 
 const CATEGORY_ICONS: Record<AlgorithmCategory, string> = {
@@ -13,6 +15,8 @@ const CATEGORY_ICONS: Record<AlgorithmCategory, string> = {
   'informed-search': 'H*',
   'game-playing': 'MINMAX',
   'local-search': 'LOCAL',
+  'planning': 'PLAN',
+  'constraint-satisfaction': 'CSP',
 };
 
 interface CategorySectionProps {

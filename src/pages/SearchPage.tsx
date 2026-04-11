@@ -26,7 +26,7 @@ import { buildSearchTreeElements } from '@/visualizations/adapters/search-tree.a
 import { evaluationFormula } from '@/lib/evaluationFormula';
 
 import type { AlgorithmStep } from '@/types/step';
-import { Graph, type GraphProblem, type HeuristicId } from '@/types/problem';
+import { ALGORITHM_TO_PROBLEM_CATEGORY, Graph, type GraphProblem, type HeuristicId } from '@/types/problem';
 
 import AdjacencyTable from '@/components/editor/AdjacencyTable';
 
@@ -538,7 +538,7 @@ export default function SearchPage() {
     preservePosition: true,
   }), [executionProblemKey, runner?.meta.category]);
   const redirectPath = runner && !isSearchAlgorithm
-    ? buildRoute(runner.meta, runner.meta.category === 'local-search' ? 'local-search' : 'game')
+    ? buildRoute(runner.meta, ALGORITHM_TO_PROBLEM_CATEGORY[runner.meta.category])
     : runner && category && category !== runner.meta.category
       ? buildRoute(runner.meta, 'graph')
       : null;

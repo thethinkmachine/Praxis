@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { DISCOVERY_ITEMS_BY_CATEGORY } from '@/lib/discovery-items';
+import { CSP_LAB_DEFINITIONS } from '@/problems/csp/labs';
 import { GAME_PLAYING_LAB_DEFINITIONS } from '@/problems/game-playing/labs';
 import { LOCAL_SEARCH_LAB_DEFINITIONS } from '@/problems/local-search/labs';
 import { MAZE_LAB_DEFINITIONS } from '@/problems/maze/labs';
+import { PLANNING_LAB_DEFINITIONS } from '@/problems/planning/labs';
 import { SEARCH_LAB_DEFINITIONS } from '@/problems/search/labs';
 
 describe('Lab Registries', () => {
@@ -31,6 +33,16 @@ describe('Lab Registries', () => {
 
     expect(DISCOVERY_ITEMS_BY_CATEGORY['local-search']?.map((item) => item.id)).toEqual(
       LOCAL_SEARCH_LAB_DEFINITIONS.map((lab) => `${lab.id}-lab`),
+    );
+  });
+
+  it('derives planning and CSP home labs from their registries', () => {
+    expect(DISCOVERY_ITEMS_BY_CATEGORY.planning?.map((item) => item.id)).toEqual(
+      PLANNING_LAB_DEFINITIONS.map((lab) => `${lab.id}-lab`),
+    );
+
+    expect(DISCOVERY_ITEMS_BY_CATEGORY['constraint-satisfaction']?.map((item) => item.id)).toEqual(
+      CSP_LAB_DEFINITIONS.map((lab) => `${lab.id}-lab`),
     );
   });
 });

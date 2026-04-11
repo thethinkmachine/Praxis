@@ -122,6 +122,8 @@ export const FALLBACK_DEMO_PROBLEMS: Record<AlgorithmCategory, DemoProblemDefini
   ],
   'game-playing': [],
   'local-search': [],
+  'planning': [],
+  'constraint-satisfaction': [],
 };
 
 const DIFFICULTY_COLORS = {
@@ -213,12 +215,12 @@ export default function DemoProblemPicker({
     };
   }, []);
 
-  const allProblems = manifestData?.[algorithmCategory] ?? FALLBACK_DEMO_PROBLEMS[algorithmCategory] ?? [];
+  const allProblems: DemoProblemDefinition[] = manifestData?.[algorithmCategory] ?? FALLBACK_DEMO_PROBLEMS[algorithmCategory] ?? [];
 
 
   const problems = filter === 'all'
     ? allProblems
-    : allProblems.filter(p => p.difficulty === filter);
+    : allProblems.filter((p: DemoProblemDefinition) => p.difficulty === filter);
 
   const filterButtons: { label: string; value: DifficultyFilter }[] = [
     { label: 'All', value: 'all' },
@@ -313,7 +315,7 @@ export default function DemoProblemPicker({
               {filterButtons.map(({ label, value }) => {
                 const count = value === 'all'
                   ? allProblems.length
-                  : allProblems.filter(p => p.difficulty === value).length;
+                  : allProblems.filter((p: DemoProblemDefinition) => p.difficulty === value).length;
                 const isActive = filter === value;
                 return (
                   <button
@@ -348,7 +350,7 @@ export default function DemoProblemPicker({
               </div>
             )}
             {problems.length > 0 ? (
-              problems.map((p) => (
+              problems.map((p: DemoProblemDefinition) => (
                 <button
                   key={`${p.id}-${p.difficulty}`}
                   onClick={() => handleSelect(p.id)}
@@ -393,7 +395,7 @@ export default function DemoProblemPicker({
                   {/* Tags */}
                   {p.tags && p.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mb-2">
-                      {p.tags.map((tag) => (
+                      {p.tags.map((tag: string) => (
                         <span
                           key={tag}
                           className={cn(

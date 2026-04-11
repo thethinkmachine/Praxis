@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import type { AlgorithmMeta } from '@/types';
+import { ALGORITHM_TO_PROBLEM_CATEGORY } from '@/types/problem';
 import AlgorithmBadge from '@/components/shared/AlgorithmBadge';
 import ComplexityBadge from '@/components/shared/ComplexityBadge';
 import { cn } from '@/lib/cn';
@@ -14,14 +15,7 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
 
   return (
     <button
-      onClick={() => navigate(buildRoute(
-        meta,
-        meta.category === 'game-playing'
-          ? 'game'
-          : meta.category === 'local-search'
-            ? 'local-search'
-            : 'graph',
-      ))}
+      onClick={() => navigate(buildRoute(meta, ALGORITHM_TO_PROBLEM_CATEGORY[meta.category]))}
       className={cn(
         'ui-panel text-left w-full rounded-xl p-4',
         'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]/50 transition-colors group'

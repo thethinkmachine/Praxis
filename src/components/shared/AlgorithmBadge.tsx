@@ -31,6 +31,16 @@ const CATEGORY_CONFIG: Record<
     icon: 'LS //',
     colorClass: 'ui-pill-success',
   },
+  'planning': {
+    label: 'Planning',
+    icon: 'PL //',
+    colorClass: 'ui-pill-accent',
+  },
+  'constraint-satisfaction': {
+    label: 'Constraint Satisfaction',
+    icon: 'CSP //',
+    colorClass: 'ui-pill-purple',
+  },
 };
 
 export default function AlgorithmBadge({ category, size = 'sm' }: AlgorithmBadgeProps) {

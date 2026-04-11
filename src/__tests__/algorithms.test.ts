@@ -8,6 +8,8 @@ import type { AlgorithmStep, PanelSection } from '@/types/step';
 import type { GraphColoringProblem, NQueensProblem, TicTacToeProblem, TspProblem } from '@/types/problem';
 import { countConflicts } from '@/problems/local-search/n-queens';
 import { routeDistance } from '@/problems/local-search/tsp';
+import { createPlanningProblemFromPreset } from '@/problems/planning/presets';
+import { createCspProblemFromPreset } from '@/problems/csp/presets';
 
 function runToEnd(algorithmId: string, problem: unknown): AlgorithmStep {
   const entry = registry.get(algorithmId);
@@ -672,6 +674,187 @@ describe('Local Search', () => {
     expect(getPanel(step!, 'Best So Far')?.type).toBe('key-value');
     expect(getPanel(step!, 'Candidate Moves')?.type).toBe('nodes');
     expect(getPanel(step!, 'Run State')?.type).toBe('key-value');
+  });
+});
+
+describe('Planning', () => {
+  it('registers planning algorithms', () => {
+    expect(registry.get('fssp')).toBeTruthy();
+    expect(registry.get('bssp')).toBeTruthy();
+    expect(registry.get('gsp')).toBeTruthy();
+    expect(registry.get('graphplan')).toBeTruthy();
+    expect(registry.get('satplan')).toBeTruthy();
+    expect(registry.get('pop')).toBeTruthy();
+  });
+
+  it('FSSP solves the spare tire preset', () => {
+    const problem = createPlanningProblemFromPreset('spare-tire', 'state-space');
+    const final = runToEnd('fssp', problem);
+    const state = final.state as { planSoFar?: string[] };
+
+    expect(final.phase).toBe('found');
+    expect(state.planSoFar?.length).toBeGreaterThan(0);
+    expect(getPanel(final, 'Plan So Far')?.type).toBe('chips');
+    expect(Array.isArray(final.metrics)).toBe(true);
+  });
+
+  it('BSSP solves the spare tire preset', () => {
+    const problem = createPlanningProblemFromPreset('spare-tire', 'state-space');
+    const final = runToEnd('bssp', problem);
+    const state = final.state as { planSoFar?: string[]; currentGoals?: string[] };
+
+    expect(final.phase).toBe('found');
+    expect(state.planSoFar?.length).toBeGreaterThan(0);
+    expect(state.currentGoals).toBeTruthy();
+    expect(getPanel(final, 'Current Goals')?.type).toBe('chips');
+  });
+
+  it('GSP solves the spare tire preset with a visible goal stack trace', () => {
+    const problem = createPlanningProblemFromPreset('spare-tire', 'goal-stack');
+    const steps = collectAllSteps('gsp', problem);
+    const final = steps.at(-1);
+    const stackStep = steps.find((step) => getPanel(step, 'Goal Stack')?.type === 'nodes');
+    const state = final?.state as { planSoFar?: string[] } | undefined;
+
+    expect(final?.phase).toBe('found');
+    expect(stackStep).toBeTruthy();
+    expect(state?.planSoFar?.length).toBeGreaterThan(0);
+  });
+
+  it('GraphPlan extracts a parallel plan for the cake preset', () => {
+    const problem = createPlanningProblemFromPreset('cake', 'planning-graph');
+    const final = runToEnd('graphplan', problem);
+    const state = final.state as { extractedPlan?: string[][] };
+
+    expect(final.phase).toBe('found');
+    expect(state.extractedPlan?.length).toBeGreaterThan(0);
+    expect(getPanel(final, 'Graph Layers')?.type).toBe('nodes');
+    expect(getPanel(final, 'Extracted Plan')?.type).toBe('nodes');
+  });
+
+  it('SATPlan finds a bounded plan for the cake preset', () => {
+    const problem = createPlanningProblemFromPreset('cake', 'planning-graph');
+    const final = runToEnd('satplan', problem);
+    const state = final.state as { extractedPlan?: string[][] };
+
+    expect(final.phase).toBe('found');
+    expect(state.extractedPlan?.length).toBeGreaterThan(0);
+    expect(Array.isArray(final.metrics)).toBe(true);
+  });
+
+  it('POP resolves the cake preset into a partial-order plan', () => {
+    const problem = createPlanningProblemFromPreset('cake', 'partial-order');
+    const final = runToEnd('pop', problem);
+    const state = final.state as { partialPlan?: { openFlaws?: Array<unknown> } | null; planSoFar?: string[] };
+
+    expect(final.phase).toBe('found');
+    expect(state.partialPlan?.openFlaws ?? []).toHaveLength(0);
+    expect(getPanel(final, 'Partial Plan')?.type).toBe('nodes');
+  });
+
+  it('planning runners emit metric tiles and state panels', () => {
+    const problem = createPlanningProblemFromPreset('cake', 'planning-graph');
+    const step = collectAllSteps('graphplan', problem).find((entry) => entry.phase === 'expanding');
+
+    expect(step).toBeTruthy();
+    expect(Array.isArray(step!.metrics)).toBe(true);
+    expect((step!.metrics as Array<unknown>).length).toBeGreaterThan(0);
+    expect(step!.statePanels?.length ?? 0).toBeGreaterThan(0);
+  });
+});
+
+describe('Constraint Satisfaction', () => {
+  it('registers CSP algorithms', () => {
+    expect(registry.get('backtracking-search')).toBeTruthy();
+    expect(registry.get('forward-checking')).toBeTruthy();
+    expect(registry.get('ac-3')).toBeTruthy();
+    expect(registry.get('gac')).toBeTruthy();
+    expect(registry.get('mac')).toBeTruthy();
+    expect(registry.get('tree-csp')).toBeTruthy();
+    expect(registry.get('cutset-conditioning')).toBeTruthy();
+  });
+
+  it('backtracking search solves the Australia map coloring preset', () => {
+    const problem = createCspProblemFromPreset('australia-map', 'constraint-network');
+    const final = runToEnd('backtracking-search', problem);
+    const state = final.state as { assignment?: Record<string, string | number>; violatedConstraints?: string[] };
+
+    expect(final.phase).toBe('found');
+    expect(Object.keys(state.assignment ?? {})).toHaveLength(problem.variables.length);
+    expect(state.violatedConstraints ?? []).toHaveLength(0);
+  });
+
+  it('forward checking solves the Australia map coloring preset', () => {
+    const problem = createCspProblemFromPreset('australia-map', 'constraint-network');
+    const final = runToEnd('forward-checking', problem);
+    const state = final.state as { assignment?: Record<string, string | number> };
+
+    expect(final.phase).toBe('found');
+    expect(Object.keys(state.assignment ?? {})).toHaveLength(problem.variables.length);
+    expect(getPanel(final, 'Assignment')?.type).toBe('key-value');
+  });
+
+  it('AC-3 visibly prunes domains on the easy Sudoku preset', () => {
+    const problem = createCspProblemFromPreset('sudoku-4x4-easy', 'arc-consistency');
+    const steps = collectAllSteps('ac-3', problem);
+    const final = steps.at(-1);
+    const pruneStep = steps.find((step) => getPanel(step, 'Pruned Values')?.type === 'nodes');
+    const state = final?.state as { domains?: Record<string, Array<string | number>> } | undefined;
+    const singletonCount = Object.values(state?.domains ?? {}).filter((values) => values.length === 1).length;
+
+    expect(final?.phase === 'visiting' || final?.phase === 'found').toBe(true);
+    expect(pruneStep).toBeTruthy();
+    expect(singletonCount).toBeGreaterThan(4);
+  });
+
+  it('GAC prunes domains on the SEND + MORE = MONEY preset', () => {
+    const problem = createCspProblemFromPreset('send-more-money', 'cryptarithm');
+    const steps = collectAllSteps('gac', problem);
+    const final = steps.at(-1);
+    const pruneStep = steps.find((step) => getPanel(step, 'Pruned Values')?.type === 'nodes');
+
+    expect(final?.phase === 'visiting' || final?.phase === 'found').toBe(true);
+    expect(pruneStep).toBeTruthy();
+    expect(Array.isArray(final?.metrics)).toBe(true);
+  });
+
+  it('MAC solves the easy Sudoku preset', () => {
+    const problem = createCspProblemFromPreset('sudoku-4x4-easy', 'sudoku');
+    const final = runToEnd('mac', problem);
+    const state = final.state as { assignment?: Record<string, string | number> };
+
+    expect(final.phase).toBe('found');
+    expect(Object.keys(state.assignment ?? {})).toHaveLength(problem.variables.length);
+    expect(getPanel(final, 'Domains')?.type).toBe('key-value');
+  });
+
+  it('tree-CSP solves the tree-structured map preset', () => {
+    const problem = createCspProblemFromPreset('tree-map', 'structure');
+    const final = runToEnd('tree-csp', problem);
+    const state = final.state as { assignment?: Record<string, string | number> };
+
+    expect(final.phase).toBe('found');
+    expect(Object.keys(state.assignment ?? {})).toHaveLength(problem.variables.length);
+  });
+
+  it('cutset conditioning solves the tree-structured map preset', () => {
+    const problem = createCspProblemFromPreset('tree-map', 'structure');
+    const final = runToEnd('cutset-conditioning', problem);
+    const state = final.state as { assignment?: Record<string, string | number> };
+
+    expect(final.phase).toBe('found');
+    expect(Object.keys(state.assignment ?? {})).toHaveLength(problem.variables.length);
+    expect(getPanel(final, 'Assignment')?.type).toBe('key-value');
+  });
+
+  it('CSP runners emit metric tiles and state panels', () => {
+    const problem = createCspProblemFromPreset('australia-map', 'constraint-network');
+    const step = collectAllSteps('forward-checking', problem).find((entry) => entry.phase === 'expanding');
+
+    expect(step).toBeTruthy();
+    expect(Array.isArray(step!.metrics)).toBe(true);
+    expect((step!.metrics as Array<unknown>).length).toBeGreaterThan(0);
+    expect(step!.statePanels?.length ?? 0).toBeGreaterThan(0);
   });
 });
 
