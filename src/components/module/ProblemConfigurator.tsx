@@ -40,7 +40,11 @@ export default function ProblemConfigurator({
         </button>
       ) : undefined}
     >
-      <div className="flex-1 overflow-y-auto min-h-0">{children}</div>
+      <div className="flex flex-1 min-h-0 flex-col overflow-hidden bg-[var(--surface)]/30">
+        <div className="custom-scrollbar h-full min-h-0 flex-1 overflow-y-auto">
+          {children}
+        </div>
+      </div>
     </PanelWrapper>
   );
 }

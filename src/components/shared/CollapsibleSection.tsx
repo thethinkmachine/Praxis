@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { ChevronDown, ChevronRight } from '@/components/shared/Icons';
 
@@ -22,12 +22,16 @@ export default function CollapsibleSection({
   className,
 }: CollapsibleSectionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const sectionContentId = useId();
 
   return (
-    <div className={cn('border-b border-[var(--border)] last:border-0', className)}>
-      <div
+    <section className={cn('border-b border-[var(--border)] last:border-0', className)}>
+      <button
+        type="button"
+        aria-expanded={isOpen}
+        aria-controls={sectionContentId}
         className={cn(
-          'flex cursor-pointer select-none items-center gap-2 px-3 py-1.5 transition-colors hover:bg-[var(--surface-3)]/80',
+          'flex w-full select-none items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-[var(--surface-3)]/80',
           'bg-[var(--surface-2)]/50',
           headerClassName,
         )}
@@ -40,8 +44,17 @@ export default function CollapsibleSection({
             {count}
           </span>
         ) : null}
+      </button>
+      <div
+        className={cn(
+          'grid transition-[grid-template-rows] duration-200 ease-out',
+          isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+        )}
+      >
+        <div id={sectionContentId} className="overflow-hidden">
+          <div className={cn('space-y-3 p-3', bodyClassName)}>{children}</div>
+        </div>
       </div>
-      {isOpen ? <div className={cn('space-y-3 p-3', bodyClassName)}>{children}</div> : null}
-    </div>
+    </section>
   );
 }
