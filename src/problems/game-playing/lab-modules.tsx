@@ -1,6 +1,6 @@
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import type { AlgorithmStep } from '@/types/step';
-import type { GameProblem, TicTacToeCell, TicTacToePlayer, TicTacToeProblem } from '@/types/problem';
+import type { GameProblem, TicTacToePlayer, TicTacToeProblem } from '@/types/problem';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
 import type { TabDefinition } from '@/components/module/AlgorithmPage';
 import PresetPickerDialog from '@/components/shared/PresetPickerDialog';
@@ -12,6 +12,7 @@ import TicTacToeLab from '@/components/visualization/TicTacToeLab';
 import SVGAutoCanvas from '@/components/visualization/SVGAutoCanvas';
 import { buildGameTreeElements } from '@/visualizations/adapters/game-tree.adapter';
 import type { TicTacToeTraceHighlight, TicTacToeTraceState } from '@/algorithms/game-playing/types';
+import { setBoardCell } from '@/lib/tic-tac-toe';
 import {
   TIC_TAC_TOE_SCENARIOS,
   createDefaultTicTacToeProblem,
@@ -53,12 +54,6 @@ export interface GamePlayingLabModule<TProblem extends GameProblem = GameProblem
   renderTitleActions: (context: GameLabContext<TProblem>) => ReactNode;
 }
 
-function cycleCell(cell: TicTacToeCell): TicTacToeCell {
-  if (cell == null) return 'X';
-  if (cell === 'X') return 'O';
-  return null;
-}
-
 function setTicTacToeScenario(
   setProblem: Dispatch<SetStateAction<GameProblem>>,
   scenario: TicTacToeScenarioId,
@@ -75,6 +70,7 @@ function renderTicTacToeConfigPanel(context: GameLabContext<TicTacToeProblem>) {
       ...(previous as TicTacToeProblem),
       [field]: value,
     }));
+    context.markProblemChanged('setup');
   };
 
   return (
@@ -169,13 +165,17 @@ function renderTicTacToeTabs(context: GameLabContext<TicTacToeProblem>): TabDefi
         <TicTacToeLab
           problem={problem}
           step={step}
-          onCycleCell={(index) => {
+          onSetCell={(index, value) => {
             context.setProblem((previous) => {
               const current = normalizeTicTacToeProblem(previous);
-              const nextBoard = [...(current.board ?? createDefaultTicTacToeProblem().board ?? [])];
-              nextBoard[index] = cycleCell(nextBoard[index] ?? null);
+              const nextBoard = setBoardCell(
+                current.board ?? createDefaultTicTacToeProblem().board ?? [],
+                index,
+                value,
+              );
               return { ...current, board: nextBoard };
             });
+            context.markProblemChanged('edit');
           }}
         />
       ),
@@ -239,8 +239,8 @@ export const GAME_PLAYING_LAB_MODULES: GamePlayingLabModule[] = [
     description: 'Set up board positions and inspect adversarial search with Minimax, Alpha-Beta, Negamax, Expectimax, and MCTS.',
     category: 'game-playing',
     status: 'live',
-    defaultAlgorithmId: 'minimax',
-    path: '/play/tic-tac-toe/minimax',
+    defaultAlgorithmId: 'alpha-beta',
+    path: '/play/tic-tac-toe/alpha-beta',
     createDefaultProblem: createDefaultTicTacToeProblem,
     normalizeImportedProblem: normalizeTicTacToeProblem,
     presets: TIC_TAC_TOE_SCENARIOS.map((scenario) => ({

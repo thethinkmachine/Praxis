@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
@@ -91,9 +91,23 @@ export default function AppShell() {
   const darkMode = usePreferencesStore(s => s.darkMode);
   const terminalExpanded = usePreferencesStore(s => s.terminalExpanded);
   const toggle = usePreferencesStore(s => s.toggle);
+  const setPreference = usePreferencesStore(s => s.set);
   const { pathname } = useLocation();
   const isAlgoPage = /^\/(?:search|play|local|maze)\//.test(pathname);
   const showStandaloneTopBar = pathname !== '/' && !isAlgoPage;
+  const lastPathname = useRef(pathname);
+
+  // Auto-collapse sidebar on smaller screens or when entering an algorithm page
+  useEffect(() => {
+    const isMobile = window.innerWidth < 1024;
+    const isEnteringAlgoPage = isAlgoPage && !/^\/(?:search|play|local|maze)\//.test(lastPathname.current);
+
+    if (isMobile || isEnteringAlgoPage) {
+      setPreference('sidebarCollapsed', true);
+    }
+    
+    lastPathname.current = pathname;
+  }, [pathname, isAlgoPage, setPreference]);
 
   // Apply/remove data-theme on the <html> element so that the CSS rule
   //   :root[data-theme="light"] { ... }
@@ -115,6 +129,7 @@ export default function AppShell() {
     onTogglePseudocode: useCallback(() => toggle('pseudocodeVisible'), [toggle]),
     onToggleMetrics: useCallback(() => toggle('metricsVisible'), [toggle]),
     onToggleStatePanel: useCallback(() => toggle('statePanelVisible'), [toggle]),
+    onToggleConfig: useCallback(() => toggle('configVisible'), [toggle]),
   });
 
   return (

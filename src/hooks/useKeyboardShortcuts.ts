@@ -8,6 +8,7 @@ export interface KeyboardShortcutHandlers {
   onTogglePseudocode?: () => void;
   onToggleMetrics?: () => void;
   onToggleStatePanel?: () => void;
+  onToggleConfig?: () => void;
   onSwitchTab?: (direction: 'prev' | 'next') => void;
   onFocusSearch?: () => void;
 }
@@ -89,6 +90,12 @@ export function useKeyboardShortcuts(handlers?: KeyboardShortcutHandlers) {
           break;
 
         // Panel toggles
+        case 'c':
+        case 'C':
+          if (!e.ctrlKey && !e.metaKey) {
+            handlers?.onToggleConfig?.();
+          }
+          break;
         case 'p':
         case 'P':
           if (!e.ctrlKey && !e.metaKey) {

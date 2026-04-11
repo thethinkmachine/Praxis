@@ -124,7 +124,6 @@ export default function CspPage() {
         tabs={activeLab.renderTabs(cspContext)}
         buildAlgorithmRoute={(algorithmId) => buildCspRoute(algorithmId, supportsCspAlgorithm(problem.lab, algorithmId) ? problem.lab : getDefaultCspLabForAlgorithm(algorithmId))}
         configPanel={configPanel}
-        defaultConfigOpen
         executionContext={executionContext}
         onDemoRequest={() => setDemoDialogOpen(true)}
       />

@@ -218,7 +218,6 @@ export default function LocalSearchPage() {
           </TitleBarActionGroup>
         }
         configPanel={configPanel}
-        defaultConfigOpen
         onDemoRequest={() => setDemoDialogOpen(true)}
       />
       <PresetPickerDialog

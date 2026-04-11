@@ -78,4 +78,5 @@ export {
   Flag,
   Hash,
   Check,
+  Loader2,
 } from 'lucide-react';

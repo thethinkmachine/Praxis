@@ -43,6 +43,7 @@ const SHORTCUT_SECTIONS: ShortcutSection[] = [
   {
     heading: 'Panels',
     items: [
+      { key: 'C', label: 'Toggle configuration' },
       { key: 'P', label: 'Toggle pseudocode' },
       { key: 'M', label: 'Toggle metrics' },
       { key: 'I', label: 'Toggle state inspector' },

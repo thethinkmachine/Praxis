@@ -387,7 +387,6 @@ export default function MazePage() {
         tabs={tabs}
         titleActions={titleActions}
         configPanel={configPanel}
-        defaultConfigOpen
         executionContext={executionContext}
         onDemoRequest={() => setDemoDialogOpen(true)}
       />

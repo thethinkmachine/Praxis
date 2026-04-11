@@ -16,7 +16,7 @@ export function createDefaultTicTacToeProblem(): TicTacToeProblem {
     kind: 'tic-tac-toe',
     board: createEmptyBoard(),
     currentPlayer: 'X',
-    maximizingPlayer: 'X',
+    maximizingPlayer: 'O',
   };
 }
 

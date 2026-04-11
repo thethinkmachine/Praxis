@@ -2,8 +2,8 @@ import type { AlgorithmRunner, AlgorithmStep } from '@/types';
 
 export type EngineStatus = 'idle' | 'loaded' | 'running' | 'paused' | 'finished';
 
-const MAX_STEPS = 10_000;
-const DEFAULT_ASYNC_BATCH_SIZE = 200;
+const MAX_STEPS = 50_000;
+const DEFAULT_ASYNC_BATCH_SIZE = 1000;
 
 export interface EngineLoadAsyncOptions {
   batchSize?: number;

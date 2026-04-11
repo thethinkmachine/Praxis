@@ -5,13 +5,14 @@ import { persist } from 'zustand/middleware';
 type BooleanKeys = 'sidebarCollapsed' | 'pseudocodeVisible' | 'metricsVisible'
   | 'statePanelVisible' | 'autoFitGraph' | 'showEdgeWeights'
   | 'showHeuristicValues' | 'animationEnabled' | 'darkMode'
-  | 'terminalExpanded';
+  | 'terminalExpanded' | 'configVisible';
 
 interface PreferencesState {
   sidebarCollapsed: boolean;
   pseudocodeVisible: boolean;
   metricsVisible: boolean;
   statePanelVisible: boolean;
+  configVisible: boolean;
   autoFitGraph: boolean;
   showEdgeWeights: boolean;
   showHeuristicValues: boolean;
@@ -35,6 +36,7 @@ export const usePreferencesStore = create<PreferencesState>()(
       pseudocodeVisible: true,
       metricsVisible: true,
       statePanelVisible: true,
+      configVisible: false,
       autoFitGraph: true,
       showEdgeWeights: true,
       showHeuristicValues: true,

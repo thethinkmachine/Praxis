@@ -49,6 +49,16 @@ export function applyMove(board: TicTacToeBoard, move: number, player: TicTacToe
   return next;
 }
 
+export function setBoardCell(board: TicTacToeBoard, index: number, value: TicTacToeCell): TicTacToeBoard {
+  if (index < 0 || index >= BOARD_SIZE) {
+    throw new Error(`Cell ${index} is out of range`);
+  }
+
+  const next = cloneBoard(board);
+  next[index] = value;
+  return next;
+}
+
 export function getOtherPlayer(player: TicTacToePlayer): TicTacToePlayer {
   return player === 'X' ? 'O' : 'X';
 }

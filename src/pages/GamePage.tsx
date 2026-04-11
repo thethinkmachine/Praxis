@@ -25,6 +25,7 @@ export default function GamePage() {
   const [problemKey, setProblemKey] = useState(`game:${resolvedLabId}:default`);
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
   const step = useExecutionStore(state => state.currentStep as AlgorithmStep<unknown, unknown> | null);
+  const clearExecution = useExecutionStore((state) => state.clear);
 
   useEffect(() => {
     setProblem(activeLab.createDefaultProblem());
@@ -38,7 +39,10 @@ export default function GamePage() {
     setProblem,
     step,
     openDemoPicker: () => setDemoDialogOpen(true),
-    markProblemChanged: (reason) => setProblemKey(createGameProblemKey(`game:${activeLab.id}:${reason}`)),
+    markProblemChanged: (reason) => {
+      clearExecution();
+      setProblemKey(createGameProblemKey(`game:${activeLab.id}:${reason}`));
+    },
   };
   const executionProblemKey = useMemo(
     () => `${problemKey}:${createExecutionProblemKey(problem)}`,
@@ -65,13 +69,13 @@ export default function GamePage() {
         problemCategory="game"
         onProblemImport={(nextProblem) => {
           setProblem(activeLab.normalizeImportedProblem(nextProblem));
+          clearExecution();
           setProblemKey(createGameProblemKey(`game:${activeLab.id}:import`));
         }}
         tabs={activeLab.renderTabs(gameContext)}
         titleActions={activeLab.renderTitleActions(gameContext)}
         buildAlgorithmRoute={(algorithmId) => buildGamePlayingRoute(activeLab.id, algorithmId)}
         configPanel={activeLab.renderConfigPanel(gameContext)}
-        defaultConfigOpen
         executionContext={executionContext}
         onDemoRequest={activeLab.presets.length > 0 ? () => setDemoDialogOpen(true) : undefined}
       />
@@ -81,6 +85,7 @@ export default function GamePage() {
         activeLab,
         (presetId) => {
           setProblem(activeLab.loadPreset(presetId));
+          clearExecution();
           setProblemKey(createGameProblemKey(`game:${activeLab.id}:preset:${presetId}`));
         },
       )}

@@ -191,28 +191,6 @@ export const alphaBetaRunner: TicTacToeRunner = {
           discoveryStep: ctx.stepNumber,
         });
 
-        yield createStep(
-          ctx,
-          'visiting',
-          `${player} explores ${moveLabel(move)} with current window [${alpha}, ${beta}].`,
-          maximizingTurn ? 4 : 10,
-          {
-            board: childBoard,
-            currentPlayer: nextPlayer(player),
-            maximizingPlayer: resolved.maximizingPlayer,
-            availableMoves: getLegalMoves(childBoard),
-            currentMove: move,
-            bestMove,
-            bestScore: Number.isFinite(bestScore) ? bestScore : null,
-            evaluatedMoves,
-            recursionStack,
-            alpha,
-            beta,
-            searchTree,
-            currentNodeId: childId,
-          },
-        );
-
         const child = yield* search(childBoard, nextPlayer(player), depth + 1, alpha, beta, move, recursionStack, childId);
         evaluatedMoves.push({ move, score: child.score });
 
@@ -235,30 +213,6 @@ export const alphaBetaRunner: TicTacToeRunner = {
         node.score = bestScore;
         node.alpha = alpha;
         node.beta = beta;
-
-        yield createStep(
-          ctx,
-          'backtracking',
-          `${player} backs up ${child.score} from ${moveLabel(move)}; best=${bestScore}, α=${alpha}, β=${beta}.`,
-          maximizingTurn ? 7 : 13,
-          {
-            board,
-            currentPlayer: player,
-            maximizingPlayer: resolved.maximizingPlayer,
-            availableMoves: legalMoves,
-            currentMove: move,
-            currentScore: child.score,
-            bestMove,
-            bestScore,
-            evaluatedMoves,
-            recursionStack: [...stack, { ...frame, board: [...board] }],
-            alpha,
-            beta,
-            principalVariation: bestVariation,
-            searchTree,
-            currentNodeId: nodeId,
-          },
-        );
 
         const shouldPrune = maximizingTurn ? bestScore >= beta : bestScore <= alpha;
         if (shouldPrune) {

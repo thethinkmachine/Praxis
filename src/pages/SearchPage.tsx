@@ -559,7 +559,6 @@ export default function SearchPage() {
         tabs={tabs}
         titleActions={titleActions}
         configPanel={configPanel}
-        defaultConfigOpen
         executionContext={executionContext}
         onDemoRequest={() => setDemoDialogOpen(true)}
       />

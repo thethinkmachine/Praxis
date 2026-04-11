@@ -154,7 +154,6 @@ export default function PlanningPage() {
         tabs={activeLab.renderTabs(planningContext)}
         buildAlgorithmRoute={(algorithmId) => buildPlanningRoute(algorithmId, supportsPlanningAlgorithm(problem.lab, algorithmId) ? problem.lab : getDefaultPlanningLabForAlgorithm(algorithmId))}
         configPanel={configPanel}
-        defaultConfigOpen
         executionContext={executionContext}
         onDemoRequest={() => setDemoDialogOpen(true)}
       />

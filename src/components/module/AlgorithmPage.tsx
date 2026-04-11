@@ -56,8 +56,6 @@ export interface AlgorithmPageProps {
   onDemoRequest?: () => void;
   /** Configuration UI shown in collapsible left sidebar. If undefined, no sidebar is rendered. */
   configPanel?: React.ReactNode;
-  /** Whether the configuration sidebar should be open by default. Defaults to true. */
-  defaultConfigOpen?: boolean;
   /** Context key used by the execution store to decide whether trace position should be preserved. */
   executionContext?: ExecutionLoadContext;
 }
@@ -73,13 +71,13 @@ export default function AlgorithmPage({
   titleActions,
   buildAlgorithmRoute,
   configPanel,
-  defaultConfigOpen = true,
   onDemoRequest,
   executionContext,
 }: AlgorithmPageProps) {
   const { runner, step, loadError, loadWarning } = useAlgorithmPage(algorithmId, problem, executionContext);
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? '');
-  const [configOpen, setConfigOpen] = useState(defaultConfigOpen);
+  const configVisible = usePreferencesStore((state) => state.configVisible);
+  const toggle = usePreferencesStore((state) => state.toggle);
   const pseudocodeVisible = usePreferencesStore((state) => state.pseudocodeVisible);
   const metricsVisible = usePreferencesStore((state) => state.metricsVisible);
   const statePanelVisible = usePreferencesStore((state) => state.statePanelVisible);
@@ -91,16 +89,16 @@ export default function AlgorithmPage({
   const stateMetricsPanelRef = usePanelRef();
   const pseudocodePanelRef = usePanelRef();
 
-  // Sync panel collapse state when toggle button changes configOpen
+  // Sync panel collapse state when toggle button changes configVisible
   useEffect(() => {
     const panel = configPanelRef.current;
     if (!panel) return;
-    if (configOpen) {
+    if (configVisible) {
       panel.expand();
     } else {
       panel.collapse();
     }
-  }, [configOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [configVisible]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const panel = stateMetricsPanelRef.current;
@@ -126,9 +124,12 @@ export default function AlgorithmPage({
   const handleConfigResize = useCallback(
     (size: PanelSize, _id: string | number | undefined, prevSize: PanelSize | undefined) => {
       if (prevSize === undefined) return; // skip initial mount
-      setConfigOpen(size.asPercentage > 0);
+      const isExpanded = size.asPercentage > 0;
+      if (isExpanded !== configVisible) {
+        toggle('configVisible');
+      }
     },
-    [],
+    [configVisible, toggle],
   );
 
   if (!runner) {
@@ -149,8 +150,8 @@ export default function AlgorithmPage({
         problemCategory={problemCategory}
         buildAlgorithmRoute={buildAlgorithmRoute}
         showConfigButton={hasConfig}
-        configOpen={hasConfig && configOpen}
-        onToggleConfig={() => setConfigOpen(v => !v)}
+        configOpen={hasConfig && configVisible}
+        onToggleConfig={() => toggle('configVisible')}
         unifiedMode
         actions={
           <div className="flex items-center gap-1.5">
