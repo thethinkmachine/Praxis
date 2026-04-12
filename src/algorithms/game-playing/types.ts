@@ -9,6 +9,15 @@ export interface EvaluatedMove {
   detail?: string;
 }
 
+export interface SssOpenEntry {
+  id: string;
+  state: 'L' | 'S';
+  h: number;
+  move: number | null;
+  depth: number;
+  path: number[];
+}
+
 export interface RecursionFrame {
   depth: number;
   player: TicTacToePlayer;
@@ -32,6 +41,10 @@ export interface GameTreeNode {
   player: TicTacToePlayer;
   isPruned?: boolean;
   isTerminal?: boolean;
+  searchState?: 'L' | 'S';
+  path?: number[];
+  childMoves?: number[];
+  childIds?: Array<string | null>;
   discoveryStep: number;
 }
 
@@ -40,6 +53,7 @@ export interface TicTacToeTraceState {
   currentPlayer: TicTacToePlayer;
   maximizingPlayer: TicTacToePlayer;
   availableMoves: number[];
+  openQueue?: SssOpenEntry[];
   currentMove: number | null;
   currentScore: number | null;
   bestMove: number | null;

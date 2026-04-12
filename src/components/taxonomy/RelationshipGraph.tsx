@@ -47,6 +47,7 @@ const RELATIONSHIP_DESCRIPTIONS: Record<string, string> = {
   'symmetric': 'Leverages the zero-sum nature of the game to simplify the logic, treating players symmetrically to reduce code complexity.',
   'stochastic': 'Models the opponent as a chance node and averages over the possible replies instead of assuming perfect opposition.',
   'sampling': 'Estimates move quality with repeated playouts and uses those samples to guide future exploration.',
+  'best-first': 'Prioritizes the most promising frontier states instead of following a single depth-first branch.',
   'related': 'These algorithms share fundamental logic or theoretical roots within the same branch of computation.'
 };
 
@@ -119,7 +120,7 @@ const ALGO_RANK: Record<string, number> = {
   'genetic-algorithm': 18,
   'min-conflicts': 19,
   'minimax': 20, 'alpha-beta': 21, 'negamax': 22,
-  'expectimax': 23, 'mcts': 24,
+  'expectimax': 23, 'mcts': 24, 'sss-star': 25,
   'fssp': 30,
   'bssp': 31,
   'gsp': 32,

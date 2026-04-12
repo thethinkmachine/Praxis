@@ -51,7 +51,7 @@ function loadRomaniaDemoProblem(): GraphProblem {
 
 describe('Game-Playing Smoke', () => {
   const scenarioIds = ['forced-block', 'fork-trap', 'endgame-win'] as const;
-  const algorithmIds = ['minimax', 'alpha-beta', 'negamax'] as const;
+  const algorithmIds = ['minimax', 'alpha-beta', 'negamax', 'sss-star'] as const;
   const samplingAlgorithmIds = ['expectimax', 'mcts'] as const;
 
   it.each(scenarioIds)('all game-playing algorithms agree on %s', (scenarioId) => {

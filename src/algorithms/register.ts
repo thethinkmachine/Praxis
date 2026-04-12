@@ -28,6 +28,7 @@ import { alphaBetaRunner } from './game-playing/alpha-beta';
 import { negamaxRunner } from './game-playing/negamax';
 import { expectimaxRunner } from './game-playing/expectimax';
 import { mctsRunner } from './game-playing/mcts';
+import { sssStarRunner } from './game-playing/sss-star';
 import { hillClimbingSteepestRunner } from './local-search/hill-climbing-steepest';
 import { hillClimbingSimpleRunner } from './local-search/hill-climbing-simple';
 import { hillClimbingFirstChoiceRunner } from './local-search/hill-climbing-first-choice';
@@ -77,6 +78,7 @@ const GAME_PLAYING_RUNNERS = [
   negamaxRunner,
   expectimaxRunner,
   mctsRunner,
+  sssStarRunner,
 ];
 
 const LOCAL_SEARCH_RUNNERS = [

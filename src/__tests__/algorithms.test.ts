@@ -880,6 +880,24 @@ describe('Game Playing', () => {
     expect(getPanel(final, 'Search Tree')?.type).toBe('key-value');
   });
 
+  it('emits OPEN queue details for sss-star', () => {
+    const problem = getTicTacToeScenario('forced-block');
+    const steps = collectAllSteps('sss-star', problem);
+    const initial = steps[0];
+    const final = steps[steps.length - 1];
+    const state = final.state as { bestMove?: number | null; bestScore?: number } | undefined;
+
+    expect(getPanel(initial, 'OPEN Queue')?.type).toBe('chips');
+    expect(getChipPanelIds(initial, 'OPEN Queue')).toEqual(['ε']);
+    expect(final.phase).toBe('found');
+    expect(state?.bestMove).toBe(2);
+    expect(Number.isFinite(state?.bestScore ?? NaN)).toBe(true);
+    const searchTreePanel = getPanel(final, 'Search Tree');
+    expect(searchTreePanel?.type).toBe('key-value');
+    const searchTreeItems = searchTreePanel?.type === 'key-value' ? searchTreePanel.items : [];
+    expect(searchTreeItems.some((item) => item.key === 'Solved')).toBe(true);
+  });
+
   it('emits search-window details for alpha-beta', () => {
     const steps = collectAllSteps('alpha-beta', ticTacToeProblem);
     const step = steps.find(item => item.phase === 'backtracking') ?? steps[0];

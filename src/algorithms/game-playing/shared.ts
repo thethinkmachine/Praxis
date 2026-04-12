@@ -21,6 +21,7 @@ import type {
   EvaluatedMove,
   GameTreeNode,
   RecursionFrame,
+  SssOpenEntry,
   TicTacToeResult,
   TicTacToeStep,
   TicTacToeTraceHighlight,
@@ -52,6 +53,7 @@ export interface TraceSnapshot {
   currentPlayer: TicTacToePlayer;
   maximizingPlayer: TicTacToePlayer;
   availableMoves?: number[];
+  openQueue?: SssOpenEntry[];
   currentMove?: number | null;
   currentScore?: number | null;
   bestMove?: number | null;
@@ -138,6 +140,7 @@ export function getInitialTraceState(problem: TicTacToeProblem): TicTacToeTraceS
     currentPlayer: resolved.currentPlayer,
     maximizingPlayer: resolved.maximizingPlayer,
     availableMoves: getLegalMoves(resolved.board),
+    openQueue: [],
     currentMove: null,
     currentScore: null,
     bestMove: null,
@@ -184,6 +187,14 @@ function formatMoveDetail(frame: RecursionFrame): string {
   return parts.join(' • ');
 }
 
+function formatOpenQueueDetail(entry: SssOpenEntry): string {
+  const parts = [entry.state, `h=${formatBound(entry.h)}`];
+  if (entry.move !== null) {
+    parts.push(`move=${formatMove(entry.move)}`);
+  }
+  return parts.join(' • ');
+}
+
 function buildStatePanels(state: TicTacToeTraceState): PanelSection[] {
   const panels: PanelSection[] = [];
 
@@ -204,6 +215,18 @@ function buildStatePanels(state: TicTacToeTraceState): PanelSection[] {
     searchItems.push({ key: 'Window', value: `[${formatBound(state.alpha)}, ${formatBound(state.beta)}]` });
   }
   panels.push(panelSections.keyValue('Best Move', searchItems));
+
+  if ((state.openQueue ?? []).length > 0) {
+    panels.push(panelSections.chips(
+      'OPEN Queue',
+      (state.openQueue ?? []).map((entry) => ({
+        id: entry.id,
+        label: entry.id,
+        detail: formatOpenQueueDetail(entry),
+        variant: entry.state === 'S' ? 'explored' : 'frontier',
+      })),
+    ));
+  }
 
   panels.push(panelSections.chips(
     'Available Moves',
@@ -249,9 +272,13 @@ function buildStatePanels(state: TicTacToeTraceState): PanelSection[] {
 
   if (state.searchTree instanceof Map && state.searchTree.size > 0) {
     const nodes = [...state.searchTree.values()];
+    const liveNodes = nodes.filter((node) => node.searchState === 'L').length;
+    const solvedNodes = nodes.filter((node) => node.searchState === 'S').length;
     panels.push(panelSections.keyValue('Search Tree', [
       { key: 'Nodes', value: nodes.length },
       { key: 'Terminal', value: nodes.filter(node => node.isTerminal).length },
+      { key: 'Live', value: liveNodes },
+      { key: 'Solved', value: solvedNodes },
       { key: 'Pruned', value: nodes.filter(node => node.isPruned).length },
       { key: 'Max depth', value: nodes.reduce((maxDepth, node) => Math.max(maxDepth, node.depth), 0) },
       { key: 'Current node', value: state.currentNodeId ?? '-' },
@@ -300,14 +327,20 @@ export function createStep(
 ): TicTacToeStep {
   const recursionStack = (snapshot.recursionStack ?? []).map(cloneFrame);
   const availableMoves = [...(snapshot.availableMoves ?? getLegalMoves(snapshot.board))];
+  const openQueue = snapshot.openQueue ? snapshot.openQueue.map((entry) => ({
+    ...entry,
+    path: [...entry.path],
+  })) : undefined;
+  const frontierSize = openQueue?.length ?? availableMoves.length;
   ctx.maxDepth = Math.max(ctx.maxDepth, recursionStack.length === 0 ? 0 : recursionStack[recursionStack.length - 1].depth);
-  ctx.maxFrontierSize = Math.max(ctx.maxFrontierSize, availableMoves.length);
+  ctx.maxFrontierSize = Math.max(ctx.maxFrontierSize, frontierSize);
 
   const state: TicTacToeTraceState = {
     board: [...snapshot.board],
     currentPlayer: snapshot.currentPlayer,
     maximizingPlayer: snapshot.maximizingPlayer,
     availableMoves,
+    openQueue,
     currentMove: snapshot.currentMove ?? null,
     currentScore: snapshot.currentScore ?? null,
     bestMove: snapshot.bestMove ?? null,
@@ -340,11 +373,11 @@ export function createStep(
     statePanels: buildStatePanels(state),
     metrics: [
       { label: 'Expanded', value: ctx.nodesExpanded, color: 'text-[var(--accent)]' },
-      { label: 'Frontier', value: availableMoves.length, color: 'text-[var(--accent)]' },
+      { label: 'Frontier', value: frontierSize, color: 'text-[var(--accent)]' },
       { label: 'Max Frontier', value: ctx.maxFrontierSize, color: 'text-[var(--text-2)]' },
       { label: 'Depth', value: recursionStack.length === 0 ? 0 : recursionStack[recursionStack.length - 1].depth, color: 'text-[var(--text)]' },
       { label: 'Score', value: snapshot.currentScore ?? snapshot.bestScore ?? 0, color: 'text-[var(--warning)]' },
-      { label: 'Memory', value: recursionStack.length + availableMoves.length, color: 'text-[var(--text-2)]' },
+      { label: 'Memory', value: recursionStack.length + frontierSize, color: 'text-[var(--text-2)]' },
     ],
     logs: [createLog(description, options?.level ?? 'info')],
   };

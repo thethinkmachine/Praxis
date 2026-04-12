@@ -56,7 +56,7 @@ function computeTreeCoordinates(rootId: string, childrenMap: Map<string, string[
 }
 
 /**
- * Builds Cytoscape elements for a Game Search Tree (Minimax/Alpha-Beta)
+ * Builds Cytoscape elements for a Game Search Tree (Minimax/Alpha-Beta/SSS*)
  * Implements "focal-rendering" to prevent DOM explosion by only showing 
  * relevant parts of the tree near the current search node.
  */
@@ -138,10 +138,14 @@ export function buildGameTreeElements(
     if (!coord) continue;
 
     const classes: string[] = [];
-    if (node.id === 'root') classes.push('start');
+    if (node.parentId === null) classes.push('start');
     if (node.id === currentNodeId) classes.push('current');
     if (node.isPruned) classes.push('pruned');
     if (node.isTerminal) classes.push('goal');
+    if (node.id !== currentNodeId) {
+      if (node.searchState === 'L') classes.push('frontier');
+      if (node.searchState === 'S') classes.push('explored');
+    }
     if (activePath.has(node.id)) classes.push('active-path');
 
     // Board representation for SVGAutoCanvas to detect
