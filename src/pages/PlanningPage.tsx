@@ -171,7 +171,6 @@ export default function PlanningPage() {
         }))}
         onSelect={(presetId) => {
           const next = activeLab.normalizeImportedProblem({
-            ...problem,
             presetId,
           });
           setProblem(next);

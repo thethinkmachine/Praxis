@@ -171,7 +171,13 @@ export const graphplanRunner: PlanningRunner = {
           ['Act Mutex', currentLayer.actionMutex.length],
         ]),
         statePanels: buildPlanningStatePanels(trace),
-        logs: [planningLog(`Expanded planning graph to level ${index}.`, 'info')],
+        logs: [
+          planningLog(`--- Level ${index} Expansion ---`, 'info'),
+          planningLog(`Generated ${currentLayer.actions.length} applicable actions (including NoOp persistence).`, 'info'),
+          planningLog(`Identified ${currentLayer.actionMutex.length} action mutex pairs (interference/competing needs).`, 'info'),
+          planningLog(`Generated ${currentLayer.propositions.length} subsequent propositions.`, 'info'),
+          planningLog(`Identified ${currentLayer.propositionMutex.length} proposition mutex pairs.`, 'info'),
+        ],
       };
 
       if (isGoalSatisfied(currentLayer.propositions, prepared.goalLiterals) && goalsNonMutex(prepared.goalLiterals, currentLayer)) {
@@ -184,6 +190,18 @@ export const graphplanRunner: PlanningRunner = {
             ? ['Extracted a non-mutex parallel plan from the graph.']
             : ['Goals appeared, but backward extraction failed at this level.'],
         });
+
+        const extractionLogs = [
+          planningLog(`--- Level ${index} Extraction ---`, 'info'),
+          planningLog(`Goals are present and non-mutex. Initiating backward search...`, 'info'),
+        ];
+        
+        if (found) {
+          extractionLogs.push(planningLog(`Backward search succeeded! Extracted parallel plan:`, 'success'));
+          found.forEach((step, i) => extractionLogs.push(planningLog(`  Step ${i+1}: ${step.join(', ') || 'Wait'}`, 'success')));
+        } else {
+          extractionLogs.push(planningLog(`Backward search encountered conflicts. Discovered ${extraction.noGoods.length} no-good states. Extending graph...`, 'warn'));
+        }
 
         yield {
           stepNumber: stepNumber++,
@@ -201,7 +219,7 @@ export const graphplanRunner: PlanningRunner = {
             ['Solved', found ? 'Yes' : 'No'],
           ]),
           statePanels: buildPlanningStatePanels(finalTrace),
-          logs: [planningLog(found ? 'GraphPlan extracted a valid parallel plan.' : 'Extraction produced a no-good at this level.', found ? 'success' : 'warn')],
+          logs: extractionLogs,
         };
 
         if (found) {

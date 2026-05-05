@@ -143,7 +143,6 @@ export default function CspPage() {
           }))}
         onSelect={(presetId) => {
           const next = activeLab.normalizeImportedProblem({
-            ...problem,
             presetId,
           });
           setProblem(next);
