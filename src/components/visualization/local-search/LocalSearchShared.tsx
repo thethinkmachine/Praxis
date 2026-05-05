@@ -163,7 +163,7 @@ export function ObjectiveTab() {
             </div>
           </div>
 
-          <svg viewBox={`0 0 ${width} ${height}`} className="w-full overflow-visible rounded-xl border border-[var(--border)] bg-[#0d151f]">
+          <svg viewBox={`0 0 ${width} ${height}`} className="w-full overflow-visible rounded-xl border border-[var(--border)] bg-[var(--bg)]">
             {Array.from({ length: 6 }, (_, idx) => {
               const value = minY + (span / 5) * idx;
               return (
@@ -261,7 +261,7 @@ export function TrajectoryTab({
                     )}>
                       <div className="flex flex-col sm:flex-row gap-6">
                         {renderMiniature && (
-                          <div className="shrink-0 flex items-center justify-center p-1 bg-[#0b1220] rounded-xl border border-[var(--border)] shadow-inner w-[74px] h-[74px]">
+                          <div className="shrink-0 flex items-center justify-center p-1 bg-[var(--bg)] rounded-xl border border-[var(--border)] shadow-inner w-[74px] h-[74px]">
                             {renderMiniature(localStep.state.currentState, problem)}
                           </div>
                         )}
@@ -324,7 +324,7 @@ export function TrajectoryTab({
               {step && renderMiniature && (
                 <div className="mt-5 pt-5 border-t border-[var(--border)]">
                   <p className="text-[9px] font-mono uppercase text-[var(--text-3)] mb-3">Best Configuration Preview</p>
-                  <div className="flex justify-center p-4 bg-[#0b1220] rounded-2xl border border-[var(--border)] min-h-[100px] items-center">
+                  <div className="flex justify-center p-4 bg-[var(--bg)] rounded-2xl border border-[var(--border)] min-h-[100px] items-center">
                     {renderMiniature(step.state.bestState, problem)}
                   </div>
                 </div>

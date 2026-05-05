@@ -24,7 +24,7 @@ export function NPuzzleMiniature({ state, size }: { state: number[]; size: numbe
           key={`${tile}-${idx}`}
           className={cn(
             'aspect-square flex items-center justify-center text-[8px] font-bold border-[0.5px] border-[var(--border)]/30',
-            tile === 0 ? 'bg-[#0d151f] border-dashed' : 'bg-[var(--surface)] text-[var(--text-2)]'
+            tile === 0 ? 'bg-[var(--bg)] border-dashed' : 'bg-[var(--surface)] text-[var(--text-2)]'
           )}
         >
           {tile !== 0 && tile}
@@ -54,7 +54,7 @@ function PuzzleBoard({ problem, tiles, onMoveTile, step }: { problem: NPuzzlePro
           className={cn(
             'relative aspect-square rounded-2xl border text-center text-2xl font-black transition-colors',
             tile === 0
-              ? 'border-dashed border-[var(--border)] bg-[#0d151f] text-transparent'
+              ? 'border-dashed border-[var(--border)] bg-[var(--bg)] text-transparent'
               : 'border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)]',
             movable.has(index) && tile !== 0 && 'border-[var(--accent)]/50 bg-[var(--accent-soft)]/45',
           )}

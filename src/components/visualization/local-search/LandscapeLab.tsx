@@ -42,7 +42,7 @@ export function LandscapeMiniature({ problem, current }: { problem: LandscapePro
   const scaleY = (y: number) => height - ((y - yRange[0]) / (yRange[1] - yRange[0])) * height;
 
   return (
-    <div className="rounded-md border border-[var(--border)] bg-[#0d151f] p-0.5 overflow-hidden w-[64px] h-[64px]">
+    <div className="rounded-md border border-[var(--border)] bg-[var(--bg)] p-0.5 overflow-hidden w-[64px] h-[64px]">
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
         {cells.map((cell, index) => (
           <rect
@@ -104,7 +104,7 @@ function LandscapeSurface({
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className={cn(
-          'w-full rounded-xl border border-[var(--border)] bg-[#0d151f]',
+          'w-full rounded-xl border border-[var(--border)] bg-[var(--bg)]',
           onSetInitialState && 'cursor-crosshair'
         )}
         onClick={(e) => {
@@ -131,8 +131,8 @@ function LandscapeSurface({
             opacity="0.85"
           />
         ))}
-        <circle cx={scaleX(best.x)} cy={scaleY(best.y)} r="9" fill="#53C880" stroke="#0b1220" strokeWidth="3" />
-        <circle cx={scaleX(current.x)} cy={scaleY(current.y)} r="9" fill="#F2C94C" stroke="#0b1220" strokeWidth="3" className="pointer-events-none" />
+        <circle cx={scaleX(best.x)} cy={scaleY(best.y)} r="9" fill="#53C880" stroke="var(--bg)" strokeWidth="3" />
+        <circle cx={scaleX(current.x)} cy={scaleY(current.y)} r="9" fill="#F2C94C" stroke="var(--bg)" strokeWidth="3" className="pointer-events-none" />
       </svg>
     </div>
   );

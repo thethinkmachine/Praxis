@@ -12,7 +12,8 @@ function Card({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
+    <section className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4 shadow-sm backdrop-blur-sm">
+      <div className="pointer-events-none absolute -top-10 -right-10 h-28 w-28 rounded-full bg-[var(--accent)]/5 blur-3xl" />
       <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">{kicker}</p>
       <h2 className="mt-1 text-lg font-semibold text-[var(--text)]">{title}</h2>
       <div className="mt-3 space-y-3 text-sm text-[var(--text-2)]">{children}</div>
@@ -271,14 +272,69 @@ export function CspSearchTab({
       <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4">
         <div className="grid gap-4 lg:grid-cols-[minmax(320px,0.9fr)_minmax(320px,1.1fr)]">
           <Card kicker="Search" title="Stack / Queue / Violations">
-            <Table
-              headings={['Type', 'Entries']}
-              rows={[
-                ['Recursion Stack', state?.recursionStack.join(' -> ') || '–'],
-                ['Arc Queue', state?.arcQueue.join(' | ') || '–'],
-                ['Violations', state?.violatedConstraints.join(' | ') || '–'],
-              ]}
-            />
+            <div className="space-y-4">
+              <div>
+                <p className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-3)] mb-2">Recursion Stack</p>
+                {state?.recursionStack && state.recursionStack.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {state.recursionStack.map((entry, idx) => (
+                      <span
+                        key={`stack-${idx}-${entry}`}
+                        className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-mono transition-colors ${
+                          idx === state.recursionStack.length - 1
+                            ? 'border-[#58A6FF]/40 bg-[#58A6FF]/10 text-[#58A6FF]'
+                            : 'border-[var(--border)] bg-[var(--surface-2)]/50 text-[var(--text-2)]'
+                        }`}
+                      >
+                        {idx > 0 && <span className="text-[var(--text-3)] mr-0.5">→</span>}
+                        {entry}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-[var(--text-3)] italic">Empty</p>
+                )}
+              </div>
+
+              <div>
+                <p className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-3)] mb-2">Arc Queue</p>
+                {state?.arcQueue && state.arcQueue.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {state.arcQueue.slice(0, 20).map((entry, idx) => (
+                      <span
+                        key={`arc-${idx}-${entry}`}
+                        className="inline-flex items-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)]/50 px-2.5 py-1 text-[11px] font-mono text-[var(--text-2)]"
+                      >
+                        {entry}
+                      </span>
+                    ))}
+                    {state.arcQueue.length > 20 && (
+                      <span className="text-[10px] text-[var(--text-3)] self-center">+{state.arcQueue.length - 20} more</span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-[var(--text-3)] italic">Empty</p>
+                )}
+              </div>
+
+              <div>
+                <p className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-3)] mb-2">Violations</p>
+                {state?.violatedConstraints && state.violatedConstraints.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {state.violatedConstraints.map((entry, idx) => (
+                      <span
+                        key={`viol-${idx}-${entry}`}
+                        className="inline-flex items-center rounded-lg border border-[#FF7B72]/30 bg-[#FF7B72]/10 px-2.5 py-1 text-[11px] font-mono text-[#FF7B72]"
+                      >
+                        {entry}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-[var(--text-3)] italic">No violations</p>
+                )}
+              </div>
+            </div>
           </Card>
 
           <Card kicker="Notes" title="Trace Notes">

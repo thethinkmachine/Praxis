@@ -22,7 +22,7 @@ export function TspMiniature({ problem, route }: { problem: TspProblem; route: n
   const scaleY = (y: number) => 8 + ((y - minY) / Math.max(maxY - minY, 1)) * (height - 16);
 
   return (
-    <div className="rounded-md border border-[var(--border)] bg-[#0d151f] p-0.5 overflow-hidden w-[64px] h-[64px]">
+    <div className="rounded-md border border-[var(--border)] bg-[var(--bg)] p-0.5 overflow-hidden w-[64px] h-[64px]">
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
         {cities.map((city, index) => {
           const next = cities[(index + 1) % cities.length];
@@ -69,7 +69,7 @@ function RouteCanvas({
     <SurfaceCard tone="muted" className="rounded-2xl">
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full rounded-xl border border-[var(--border)] bg-[#0d151f]"
+        className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)]"
         onPointerMove={(e) => {
           if (!onUpdateCities || e.buttons !== 1) return;
           const target = e.target as SVGElement;
@@ -107,8 +107,8 @@ function RouteCanvas({
         })}
         {problem.cities.map(city => (
           <g key={city.id} data-city-id={city.id} className={onUpdateCities ? 'cursor-move' : ''}>
-            <circle cx={scaleX(city.x)} cy={scaleY(city.y)} r="12" fill="#F2C94C" stroke="#0b1220" strokeWidth="2.5" />
-            <text x={scaleX(city.x)} y={scaleY(city.y) + 4} textAnchor="middle" fontSize="10" fill="#0b1220" fontWeight="700" className="pointer-events-none">
+            <circle cx={scaleX(city.x)} cy={scaleY(city.y)} r="12" fill="#F2C94C" stroke="var(--bg)" strokeWidth="2.5" />
+            <text x={scaleX(city.x)} y={scaleY(city.y) + 4} textAnchor="middle" fontSize="10" fill="var(--bg)" fontWeight="700" className="pointer-events-none">
               {city.label ?? city.id}
             </text>
           </g>

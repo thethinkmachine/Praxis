@@ -31,7 +31,7 @@ export function NQueensMiniature({ state }: { state: number[] }) {
             key={`${row}-${column}`}
             className={cn(
               'aspect-square flex items-center justify-center',
-              isDark ? 'bg-[#101a24]' : 'bg-[#16222f]',
+              isDark ? 'bg-[var(--surface-2)]' : 'bg-[var(--surface)]',
               hasQueen && 'bg-[#F2C94C]/40'
             )}
           >
@@ -69,7 +69,7 @@ function QueenBoard({ state, step, onSetQueen }: { state: number[]; step: LocalS
             onClick={() => onSetQueen(column, row)}
             className={cn(
               'relative flex items-center justify-center aspect-square rounded-lg border text-center transition-colors',
-              isDark ? 'border-transparent bg-[#101a24]' : 'border-transparent bg-[#16222f]',
+              isDark ? 'border-transparent bg-[var(--surface-2)]' : 'border-transparent bg-[var(--surface)]',
               hasQueen && 'border-[#F2C94C]/35 bg-[#F2C94C]/10',
               isMoved && 'ring-2 ring-[var(--accent)]/70',
             )}

@@ -11,7 +11,7 @@ export function GraphColoringMiniature({ problem, colors }: { problem: GraphColo
   const nodeIndex = new Map(nodes.map((node, index) => [node.id, index]));
 
   return (
-    <div className="rounded-md border border-[var(--border)] bg-[#0d151f] p-0.5 overflow-hidden w-[64px] h-[64px]">
+    <div className="rounded-md border border-[var(--border)] bg-[var(--bg)] p-0.5 overflow-hidden w-[64px] h-[64px]">
       <svg viewBox="-240 -240 480 480" className="w-full h-full overflow-visible">
         {problem.graph.edges.map(edge => {
           const sourceIdx = nodeIndex.get(edge.source);
@@ -83,7 +83,7 @@ function ColoringCanvas({
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/92 p-4">
       <svg
         viewBox="-240 -240 480 480"
-        className="w-full overflow-visible rounded-xl border border-[var(--border)] bg-[#0d151f]"
+        className="w-full overflow-visible rounded-xl border border-[var(--border)] bg-[var(--bg)]"
         onPointerMove={(e) => {
           if (!onUpdateGraph || e.buttons !== 1) return;
           const target = e.target as SVGElement;
@@ -129,10 +129,10 @@ function ColoringCanvas({
             <circle
               r="20"
               fill={PALETTE[colors[index] % PALETTE.length] ?? '#58A6FF'}
-              stroke={conflictCounts[index] > 0 ? '#FF7B72' : '#0b1220'}
+              stroke={conflictCounts[index] > 0 ? '#FF7B72' : 'var(--bg)'}
               strokeWidth="3"
             />
-            <text y="4" textAnchor="middle" fontSize="10" fill="#0b1220" fontWeight="700" className="pointer-events-none">
+            <text y="4" textAnchor="middle" fontSize="10" fill="var(--bg)" fontWeight="700" className="pointer-events-none">
               {node.label ?? node.id}
             </text>
             {conflictCounts[index] > 0 && (
