@@ -17,7 +17,7 @@ export const PLANNING_PRESETS: PlanningPresetDefinition[] = [
   {
     id: 'blocks-world',
     name: 'Blocks World',
-    description: 'Stack and unstack blocks to reach a symbolic goal arrangement.',
+    description: 'Stack and unstack blocks to reach a symbolic goal arrangement. (Note: The table is assumed infinitely large, so Clear(Table) is not tracked)',
     supportsObjectCount: true,
   },
   {

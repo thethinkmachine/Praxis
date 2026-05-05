@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { PlanningGraphLayerView } from '@/algorithms/planning/types';
 
 /* ── Layout tokens ─────────────────────────────────────────── */
@@ -50,7 +50,7 @@ interface LayoutColumn {
   headerLabel: string;
   subLabel: string;
   nodes: LayoutNode[];
-  mutexPairs: Array<[number, number]>;
+  mutexPairs: Array<{ indices: [number, number], critical: boolean }>;
   columnType: 'proposition' | 'action';
 }
 
@@ -101,13 +101,16 @@ function buildLayout(
       isMutex: propMutexLabels.has(p),
     }));
 
-    const propMutexPairs: Array<[number, number]> = [];
+    const propMutexPairs: Array<{ indices: [number, number], critical: boolean }> = [];
     for (const m of layer.propositionMutex) {
       const pair = parseMutexPair(m);
       if (!pair) continue;
       const idxA = layer.propositions.indexOf(pair[0]);
       const idxB = layer.propositions.indexOf(pair[1]);
-      if (idxA >= 0 && idxB >= 0) propMutexPairs.push([idxA, idxB]);
+      if (idxA >= 0 && idxB >= 0) {
+        const critical = goalSet.has(pair[0]) && goalSet.has(pair[1]);
+        propMutexPairs.push({ indices: [idxA, idxB], critical });
+      }
     }
 
     columns.push({
@@ -122,57 +125,38 @@ function buildLayout(
     /* Action column (skip level 0 which has no actions) */
     if (layer.actions.length > 0) {
       const actColX = columns.length * (COL_WIDTH + COL_GAP) + PAD.x;
-      const realActions = layer.actions.filter(a => !isNoop(a));
-      const noopCount = layer.actions.length - realActions.length;
-
       const actMutexLabels = new Set<string>();
       for (const m of layer.actionMutex) {
         const pair = parseMutexPair(m);
         if (pair) { actMutexLabels.add(pair[0]); actMutexLabels.add(pair[1]); }
       }
 
-      const actNodes: LayoutNode[] = realActions.map((a, idx) => ({
+      const actNodes: LayoutNode[] = layer.actions.map((a, idx) => ({
         id: `a${i}-${a}`,
         label: a,
         x: actColX,
         y: PAD.y + HEADER_H + idx * (NODE_H + NODE_GAP),
         w: COL_WIDTH,
         h: NODE_H,
-        type: 'action',
+        type: isNoop(a) ? 'noop' : 'action',
         highlighted: extractedActions.has(a),
         isGoal: false,
         isMutex: actMutexLabels.has(a),
       }));
 
-      /* Noop summary node */
-      if (noopCount > 0) {
-        actNodes.push({
-          id: `noop-summary-${i}`,
-          label: `+ ${noopCount} persistence`,
-          x: actColX,
-          y: PAD.y + HEADER_H + realActions.length * (NODE_H + NODE_GAP),
-          w: COL_WIDTH,
-          h: NODE_H,
-          type: 'noop',
-          highlighted: false,
-          isGoal: false,
-          isMutex: false,
-        });
-      }
-
-      const actMutexPairs: Array<[number, number]> = [];
+      const actMutexPairs: Array<{ indices: [number, number], critical: boolean }> = [];
       for (const m of layer.actionMutex) {
         const pair = parseMutexPair(m);
         if (!pair) continue;
-        const idxA = realActions.indexOf(pair[0]);
-        const idxB = realActions.indexOf(pair[1]);
-        if (idxA >= 0 && idxB >= 0) actMutexPairs.push([idxA, idxB]);
+        const idxA = layer.actions.indexOf(pair[0]);
+        const idxB = layer.actions.indexOf(pair[1]);
+        if (idxA >= 0 && idxB >= 0) actMutexPairs.push({ indices: [idxA, idxB], critical: false });
       }
 
       columns.push({
         x: actColX,
         headerLabel: `A${i}`,
-        subLabel: `${realActions.length} action${realActions.length !== 1 ? 's' : ''}`,
+        subLabel: `${layer.actions.length} action${layer.actions.length !== 1 ? 's' : ''}`,
         nodes: actNodes,
         mutexPairs: actMutexPairs,
         columnType: 'action',
@@ -210,10 +194,85 @@ export default function PlanningGraphVisualizer({
     return set;
   }, [extractedPlan]);
 
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [copied, setCopied] = useState(false);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
   const { columns, totalWidth, totalHeight } = useMemo(
     () => buildLayout(layers, goalLiterals, extractedActions),
     [layers, goalLiterals, extractedActions],
   );
+
+  const activeNodeIds = useMemo(() => {
+    if (!hoveredId) return null;
+    const active = new Set<string>([hoveredId]);
+    for (const col of columns) {
+      for (const pair of col.mutexPairs) {
+        const nodeA = col.nodes[pair.indices[0]];
+        const nodeB = col.nodes[pair.indices[1]];
+        if (!nodeA || !nodeB) continue;
+        if (nodeA.id === hoveredId) active.add(nodeB.id);
+        if (nodeB.id === hoveredId) active.add(nodeA.id);
+      }
+    }
+    return active;
+  }, [hoveredId, columns]);
+
+  const handleCopyAsPNG = async () => {
+    if (!svgRef.current) return;
+    try {
+      const style = getComputedStyle(document.body);
+      const surface = style.getPropertyValue('--surface').trim() || '#161b22';
+      const surface2 = style.getPropertyValue('--surface-2').trim() || '#21262d';
+      const text = style.getPropertyValue('--text').trim() || '#c9d1d9';
+      const text3 = style.getPropertyValue('--text-3').trim() || '#8b949e';
+      const accentSoft = style.getPropertyValue('--accent-soft').trim() || 'rgba(88,166,255,0.15)';
+      const bg = style.getPropertyValue('--bg').trim() || '#0d1117';
+
+      const svgClone = svgRef.current.cloneNode(true) as SVGSVGElement;
+      let svgString = new XMLSerializer().serializeToString(svgClone);
+      
+      svgString = svgString
+        .replace(/var\(--surface\)/g, surface)
+        .replace(/var\(--surface-2\)/g, surface2)
+        .replace(/var\(--text\)/g, text)
+        .replace(/var\(--text-3\)/g, text3)
+        .replace(/var\(--accent-soft\)/g, accentSoft)
+        .replace(/var\(--font-mono,\s*monospace\)/g, 'monospace');
+
+      const img = new Image();
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = url;
+      });
+
+      const canvas = document.createElement('canvas');
+      canvas.width = totalWidth;
+      canvas.height = totalHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('No 2D context');
+
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+
+      const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, 'image/png'));
+      if (!blob) throw new Error('Failed to create blob');
+
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob })
+      ]);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Copy to PNG failed:', err);
+    }
+  };
 
   if (layers.length === 0) {
     return (
@@ -226,8 +285,25 @@ export default function PlanningGraphVisualizer({
   }
 
   return (
-    <div className="overflow-x-auto overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]/40">
+    <div className="relative overflow-x-auto overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]/40 group">
+      <button
+        onClick={handleCopyAsPNG}
+        className="absolute top-2 right-2 z-10 flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--surface)]/80 px-2 py-1 text-[10px] font-semibold text-[var(--text-2)] opacity-0 shadow-sm backdrop-blur transition-all hover:bg-[var(--surface-2)] hover:text-[var(--text)] group-hover:opacity-100"
+      >
+        {copied ? (
+          <>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3fb950" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span className="text-[#3fb950]">Copied PNG</span>
+          </>
+        ) : (
+          <>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span>Copy as PNG</span>
+          </>
+        )}
+      </button>
       <svg
+        ref={svgRef}
         width={totalWidth}
         height={totalHeight}
         viewBox={`0 0 ${totalWidth} ${totalHeight}`}
@@ -340,9 +416,16 @@ export default function PlanningGraphVisualizer({
             }
 
             const rx = node.type === 'proposition' ? 12 : node.type === 'noop' ? 8 : 6;
+            const isDimmed = activeNodeIds !== null && !activeNodeIds.has(node.id);
 
             return (
-              <g key={node.id}>
+              <g 
+                key={node.id} 
+                className="transition-opacity duration-200"
+                style={{ opacity: isDimmed ? 0.25 : 1 }}
+                onMouseEnter={() => setHoveredId(node.id)}
+                onMouseLeave={() => setHoveredId(null)}
+              >
                 {node.highlighted && (
                   <rect
                     x={node.x - 1}
@@ -366,6 +449,7 @@ export default function PlanningGraphVisualizer({
                   fill={fill}
                   stroke={stroke}
                   strokeWidth={node.isMutex ? 1.5 : 0.8}
+                  className="cursor-crosshair"
                 />
                 {/* Goal indicator dot */}
                 {node.isGoal && (
@@ -394,24 +478,29 @@ export default function PlanningGraphVisualizer({
 
         {/* Mutex arcs */}
         {columns.map((col) =>
-          col.mutexPairs.map(([idxA, idxB], mi) => {
+          col.mutexPairs.map(({ indices: [idxA, idxB], critical }, mi) => {
             const nodeA = col.nodes[idxA];
             const nodeB = col.nodes[idxB];
             if (!nodeA || !nodeB) return null;
+            
+            const isHoveringArc = hoveredId === nodeA.id || hoveredId === nodeB.id;
+            const hideArc = activeNodeIds !== null && !isHoveringArc;
+            if (hideArc) return null;
+
             const x = col.x + col.nodes[0].w + 6;
             const y1 = nodeA.y + NODE_H / 2;
             const y2 = nodeB.y + NODE_H / 2;
-            const midY = (y1 + y2) / 2;
             const curveOffset = Math.min(MUTEX_CURVE, Math.abs(y2 - y1) * 0.3);
             return (
               <path
                 key={`mutex-${col.headerLabel}-${mi}`}
                 d={`M${x},${y1} C${x + curveOffset},${y1} ${x + curveOffset},${y2} ${x},${y2}`}
                 fill="none"
-                stroke={PALETTE.mutexStroke}
-                strokeWidth={1}
-                strokeDasharray="3 2"
-                opacity={0.6}
+                stroke={critical ? '#f85149' : PALETTE.mutexStroke}
+                strokeWidth={critical ? 2 : (isHoveringArc ? 1.5 : 1)}
+                strokeDasharray={critical ? 'none' : '3 2'}
+                opacity={critical ? 0.9 : (isHoveringArc ? 1 : 0.6)}
+                className="transition-all duration-200"
               />
             );
           }),

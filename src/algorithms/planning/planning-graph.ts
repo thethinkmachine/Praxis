@@ -115,7 +115,7 @@ export const graphplanRunner: PlanningRunner = {
         satisfiedGoals: prepared.goalLiterals.filter((goal) => prepared.initialLiterals.includes(goal)),
         unsatisfiedGoals: prepared.goalLiterals.filter((goal) => !prepared.initialLiterals.includes(goal)),
         graphLayers: [],
-        notes: ['Planning graphs alternate proposition and action levels.'],
+        notes: ['Planning graphs alternate proposition and action levels. A graph levels off when both propositions and mutexes stabilize.'],
       }),
       highlight: createPlanningHighlight(createPlanningState(prepared, {
         mode: 'planning-graph',
