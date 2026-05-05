@@ -83,6 +83,10 @@ export default function AlgorithmTitleStrip({
             >
               <Home size={14} />
             </Link>
+            <div className="flex items-center gap-1.5 text-[11px] font-mono text-[var(--text-3)] overflow-hidden">
+              <span className="shrink-0">/</span>
+              <span className="truncate">{categoryLabel}</span>
+            </div>
           </>
         )}
 

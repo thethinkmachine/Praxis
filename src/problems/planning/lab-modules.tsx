@@ -2,6 +2,7 @@ import { ConfigSection } from '@/components/module/ProblemConfigurator';
 import Select from '@/components/shared/Select';
 import type { PlanningProblem, PlanningLabId, PlanningPresetId } from '@/types/problem';
 import { PlanningOverviewTab, PlanningPlanTab, PlanningStructureTab } from '@/components/visualization/planning/PlanningLab';
+import PlanningGraphVisualizer from '@/components/visualization/planning/PlanningGraphVisualizer';
 import { createPlanningProblemFromPreset, PLANNING_PRESETS } from './presets';
 import type { PlanningLabContext, PlanningLabModule } from './labs';
 
@@ -329,6 +330,69 @@ function renderPartialOrderSetup(context: PlanningLabContext) {
   );
 }
 
+function renderPlanningGraphTabs(context: PlanningLabContext) {
+  const graphLayers = context.step?.state.graphLayers ?? [];
+  const extractedPlan = context.step?.state.extractedPlan ?? [];
+
+  return [
+    {
+      id: 'graph',
+      label: 'Graph',
+      content: (
+        <div className="h-full overflow-y-auto bg-[radial-gradient(ellipse_at_top,rgba(88,166,255,0.08),transparent_50%),var(--bg)]">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 pt-2 px-4 pb-4">
+            <div className="relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]/80 backdrop-blur-sm" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+              <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-[rgba(88,166,255,0.12)] blur-3xl" />
+              <div className="relative p-3">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[9px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">Planning Graph</p>
+                    <h2 className="mt-0.5 text-sm font-semibold text-[var(--text)]">
+                      {graphLayers.length > 0
+                        ? `${graphLayers.length} Level${graphLayers.length !== 1 ? 's' : ''} · ${extractedPlan.length > 0 ? 'Plan Extracted ✓' : 'Expanding…'}`
+                        : 'Awaiting Execution'}
+                    </h2>
+                  </div>
+                </div>
+                <div className="mt-2.5">
+                  <PlanningGraphVisualizer
+                    layers={graphLayers}
+                    extractedPlan={extractedPlan}
+                    goalLiterals={context.problem.goalLiterals}
+                    focusLevel={context.step?.highlight?.focusLayer}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'overview',
+      label: 'Workbench',
+      content: (
+        <PlanningOverviewTab
+          problem={context.problem}
+          step={context.step}
+          currentIndex={context.currentIndex}
+          onApplyAction={context.applyAction}
+        />
+      ),
+    },
+    {
+      id: 'structure',
+      label: 'Structures',
+      content: <PlanningStructureTab problem={context.problem} step={context.step} />,
+    },
+    {
+      id: 'plan',
+      label: 'Plan',
+      content: <PlanningPlanTab problem={context.problem} step={context.step} />,
+    },
+  ];
+}
+
 function renderTabs(context: PlanningLabContext) {
   return [
     {
@@ -414,8 +478,7 @@ export const PLANNING_LAB_MODULES: PlanningLabModule[] = [
     createDefaultProblem: () => createPlanningProblemFromPreset('cake', 'planning-graph'),
     normalizeImportedProblem: (problem) => normalizeImported(problem, 'planning-graph', 'cake'),
     renderSetupSection: renderPlanningGraphSetup,
-    renderTabs,
-  },
+    renderTabs: renderPlanningGraphTabs,  },
   {
     id: 'partial-order',
     name: 'Partial-Order Planning Lab',

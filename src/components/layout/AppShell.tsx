@@ -93,7 +93,7 @@ export default function AppShell() {
   const toggle = usePreferencesStore(s => s.toggle);
   const setPreference = usePreferencesStore(s => s.set);
   const { pathname } = useLocation();
-  const isAlgoPage = /^\/(?:search|play|local|maze)\//.test(pathname);
+  const isAlgoPage = /^\/(?:search|play|local|maze|planning|csp)\//.test(pathname);
   const showStandaloneTopBar = pathname !== '/' && !isAlgoPage;
   const lastPathname = useRef(pathname);
 
