@@ -37,6 +37,14 @@ export function useKeyboardShortcuts(handlers?: KeyboardShortcutHandlers) {
         return;
       }
 
+      // Hidden shortcut to clear local cache (Ctrl+Alt+C / Cmd+Option+C)
+      if ((e.ctrlKey || e.metaKey) && e.altKey && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        localStorage.clear();
+        window.location.reload();
+        return;
+      }
+
       switch (e.key) {
         case ' ':
         case 'Space':

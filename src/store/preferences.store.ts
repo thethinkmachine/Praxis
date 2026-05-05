@@ -32,8 +32,8 @@ interface PreferencesState {
 export const usePreferencesStore = create<PreferencesState>()(
   persist(
     immer((set) => ({
-      sidebarCollapsed: false,
-      pseudocodeVisible: true,
+      sidebarCollapsed: true,
+      pseudocodeVisible: false,
       metricsVisible: true,
       statePanelVisible: true,
       configVisible: false,

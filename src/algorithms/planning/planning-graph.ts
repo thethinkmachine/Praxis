@@ -11,13 +11,16 @@ function validatePlanningProblem(problem: Parameters<PlanningRunner['validate']>
 }
 
 function serializeLayers(result: ReturnType<typeof buildPlanningGraph>): PlanningGraphLayerView[] {
-  return result.layers.map((layer) => ({
-    level: layer.level,
-    propositions: layer.propositions,
-    actions: layer.actions.map((action) => action.label),
-    propositionMutex: layer.propositionMutex.map(([left, right]) => `${left} <> ${right}`),
-    actionMutex: layer.actionMutex.map(([left, right]) => `${left} <> ${right}`),
-  }));
+  return result.layers.map((layer) => {
+    const idToLabel = new Map(layer.actions.map((a) => [a.id, a.label]));
+    return {
+      level: layer.level,
+      propositions: layer.propositions,
+      actions: layer.actions.map((action) => action.label),
+      propositionMutex: layer.propositionMutex.map(([left, right]) => `${left} <> ${right}`),
+      actionMutex: layer.actionMutex.map(([left, right]) => `${idToLabel.get(left)} <> ${idToLabel.get(right)}`),
+    };
+  });
 }
 
 function approximateClauseCount(horizon: number, groundedActions: number, propositions: number, goals: number) {
