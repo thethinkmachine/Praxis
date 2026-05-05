@@ -196,7 +196,7 @@ export default function PlanningGraphVisualizer({
 
   const svgRef = useRef<SVGSVGElement>(null);
   const [copied, setCopied] = useState(false);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const { columns, totalWidth, totalHeight } = useMemo(
     () => buildLayout(layers, goalLiterals, extractedActions),
@@ -204,19 +204,19 @@ export default function PlanningGraphVisualizer({
   );
 
   const activeNodeIds = useMemo(() => {
-    if (!hoveredId) return null;
-    const active = new Set<string>([hoveredId]);
+    if (!selectedId) return null;
+    const active = new Set<string>([selectedId]);
     for (const col of columns) {
       for (const pair of col.mutexPairs) {
         const nodeA = col.nodes[pair.indices[0]];
         const nodeB = col.nodes[pair.indices[1]];
         if (!nodeA || !nodeB) continue;
-        if (nodeA.id === hoveredId) active.add(nodeB.id);
-        if (nodeB.id === hoveredId) active.add(nodeA.id);
+        if (nodeA.id === selectedId) active.add(nodeB.id);
+        if (nodeB.id === selectedId) active.add(nodeA.id);
       }
     }
     return active;
-  }, [hoveredId, columns]);
+  }, [selectedId, columns]);
 
   const handleCopyAsPNG = async () => {
     if (!svgRef.current) return;
@@ -307,8 +307,9 @@ export default function PlanningGraphVisualizer({
         width={totalWidth}
         height={totalHeight}
         viewBox={`0 0 ${totalWidth} ${totalHeight}`}
-        className="block"
+        className="block cursor-default"
         style={{ minWidth: totalWidth }}
+        onClick={() => setSelectedId(null)}
       >
         <defs>
           <filter id="pg-glow">
@@ -421,10 +422,12 @@ export default function PlanningGraphVisualizer({
             return (
               <g 
                 key={node.id} 
-                className="transition-opacity duration-200"
+                className="transition-opacity duration-200 cursor-pointer"
                 style={{ opacity: isDimmed ? 0.25 : 1 }}
-                onMouseEnter={() => setHoveredId(node.id)}
-                onMouseLeave={() => setHoveredId(null)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedId(prev => prev === node.id ? null : node.id);
+                }}
               >
                 {node.highlighted && (
                   <rect
@@ -449,7 +452,6 @@ export default function PlanningGraphVisualizer({
                   fill={fill}
                   stroke={stroke}
                   strokeWidth={node.isMutex ? 1.5 : 0.8}
-                  className="cursor-crosshair"
                 />
                 {/* Goal indicator dot */}
                 {node.isGoal && (
@@ -483,8 +485,8 @@ export default function PlanningGraphVisualizer({
             const nodeB = col.nodes[idxB];
             if (!nodeA || !nodeB) return null;
             
-            const isHoveringArc = hoveredId === nodeA.id || hoveredId === nodeB.id;
-            const hideArc = activeNodeIds !== null && !isHoveringArc;
+            const isSelectedArc = selectedId === nodeA.id || selectedId === nodeB.id;
+            const hideArc = activeNodeIds !== null && !isSelectedArc;
             if (hideArc) return null;
 
             const x = col.x + col.nodes[0].w + 6;
@@ -497,10 +499,10 @@ export default function PlanningGraphVisualizer({
                 d={`M${x},${y1} C${x + curveOffset},${y1} ${x + curveOffset},${y2} ${x},${y2}`}
                 fill="none"
                 stroke={critical ? '#f85149' : PALETTE.mutexStroke}
-                strokeWidth={critical ? 2 : (isHoveringArc ? 1.5 : 1)}
+                strokeWidth={critical ? 2 : (isSelectedArc ? 1.5 : 1)}
                 strokeDasharray={critical ? 'none' : '3 2'}
-                opacity={critical ? 0.9 : (isHoveringArc ? 1 : 0.6)}
-                className="transition-all duration-200"
+                opacity={critical ? 0.9 : (isSelectedArc ? 1 : 0.6)}
+                className="transition-all duration-200 pointer-events-none"
               />
             );
           }),
