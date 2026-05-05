@@ -13,17 +13,17 @@ const NOOP_PREFIX = 'NoOp(';
 
 /* ── Palette ───────────────────────────────────────────────── */
 const PALETTE = {
-  propFill: 'rgba(88,166,255,0.12)',
+  propFill: 'var(--surface)',
   propStroke: '#58a6ff',
-  actionFill: 'rgba(210,153,34,0.12)',
+  actionFill: 'var(--surface)',
   actionStroke: '#d29922',
   noopStroke: '#484f58',
   goalFill: 'rgba(63,185,80,0.18)',
   goalStroke: '#3fb950',
   mutexStroke: '#f85149',
-  extractFill: 'rgba(121,192,255,0.18)',
+  extractFill: 'var(--accent-soft)',
   extractStroke: '#79c0ff',
-  colBg: 'rgba(110,118,129,0.04)',
+  colBg: 'var(--surface-2)',
   headerText: 'var(--text-3)',
   nodeText: 'var(--text)',
   dimText: 'var(--text-3)',

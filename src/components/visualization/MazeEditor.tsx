@@ -138,7 +138,7 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
           ctx.fillText('G', x + CELL_SIZE / 2, y + CELL_SIZE / 2);
         } else if (terrainCost > 1) {
           ctx.fillStyle = darkMode ? '#F2CC8F' : '#8B5E34';
-          ctx.font = '600 9px JetBrains Mono, monospace';
+          ctx.font = '700 11px JetBrains Mono, monospace';
           ctx.fillText(String(terrainCost), x + CELL_SIZE / 2, y + CELL_SIZE / 2);
         }
       }

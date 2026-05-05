@@ -148,7 +148,7 @@ export default function TicTacToeLab({ problem, step, onSetCell }: TicTacToeLabP
           </div>
 
           <div className="grid flex-1 gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 p-4">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)]/88 p-4">
               <div className="mb-3 flex items-center justify-between gap-2">
                 <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">Evaluated Moves</p>
                 <span className="text-[10px] font-mono text-[var(--text-3)]">
@@ -182,7 +182,7 @@ export default function TicTacToeLab({ problem, step, onSetCell }: TicTacToeLabP
               )}
             </div>
 
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 p-4">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)]/88 p-4">
               <div className="mb-3 flex items-center justify-between gap-2">
                 <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">Recursion Stack</p>
                 <span className="text-[10px] font-mono text-[var(--text-3)]">

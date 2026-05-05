@@ -33,10 +33,10 @@ export function LandscapeMiniature({ problem, current }: { problem: LandscapePro
   const maxValue = Math.max(...cells.map(cell => cell.value));
   const color = (value: number) => {
     const ratio = (value - minValue) / Math.max(maxValue - minValue, 1e-6);
-    const red = Math.round(40 + ratio * 180);
-    const green = Math.round(80 + ratio * 140);
-    const blue = Math.round(120 - ratio * 70);
-    return `rgb(${red}, ${green}, ${blue})`;
+    // Map ratio (0 to 1) to a hue from 220 (blue) to 60 (gold/yellow)
+    // with decent saturation and lightness that works in both themes
+    const hue = Math.round(220 - ratio * 160);
+    return `hsla(${hue}, 85%, 55%, 0.8)`;
   };
   const scaleX = (x: number) => ((x - xRange[0]) / (xRange[1] - xRange[0])) * width;
   const scaleY = (y: number) => height - ((y - yRange[0]) / (yRange[1] - yRange[0])) * height;

@@ -66,8 +66,13 @@ function SudokuBoard({
   const assignment = step?.state.assignment ?? {};
   const domains = step?.state.domains ?? Object.fromEntries(problem.variables.map((variable) => [variable.id, variable.domain]));
 
+  const size = Math.max(1, Math.round(Math.sqrt(problem.variables.length)));
+
   return (
-    <div className="grid grid-cols-4 gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/60 p-2">
+    <div 
+      className="grid gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/60 p-2"
+      style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
+    >
       {problem.variables
         .slice()
         .sort((left, right) => left.id.localeCompare(right.id))

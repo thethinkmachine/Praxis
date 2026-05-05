@@ -302,6 +302,7 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
 
   const [transform, setTransform] = useState<d3.ZoomTransform>(d3.zoomIdentity);
   const [canvasDims, setCanvasDims] = useState({ w: 800, h: 600 });
+  const [hoveredNodeTooltip, setHoveredNodeTooltip] = useState<{ x: number, y: number, content: React.ReactNode } | null>(null);
   const [layoutVersion, setLayoutVersion] = useState(0);
 
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -516,7 +517,7 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
                       <text textAnchor="middle" dominantBaseline="central" fill={edge.isPath ? (darkMode ? '#58A6FF' : '#0969da') : (darkMode ? '#8b949e' : '#57606a')} fontSize={11} fontWeight="800" fontFamily="JetBrains Mono, monospace">{edge.label}</text>
                     </g>
                   )}
-                  {edge.weight !== 1 && !edge.label && (
+                  {edge.weight !== undefined && edge.weight !== null && edge.weight !== 1 && !edge.label && (
                      <g transform={`translate(${lx}, ${ly})`}>
                         <rect x={-14} y={-8} width={28} height={16} rx={3} fill={darkMode ? '#0F1117' : '#FFFFFF'} fillOpacity={0.9} />
                         <text textAnchor="middle" dominantBaseline="central" fill={darkMode ? '#5A6478' : '#6B7280'} fontSize={10} fontFamily="monospace">{edge.weight}</text>
@@ -556,6 +557,30 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
                   ) : (
                     <text y={node.gCost != null ? -8 : 0} textAnchor="middle" dominantBaseline="central" fill={theme.text} fontSize={11} fontWeight={node.state === 'path' ? 'bold' : 'normal'} fontFamily="monospace">{node.label}</text>
                   )}
+                  {/* Invisible pointer target for tooltips */}
+                  <rect 
+                    x={-CARD_W / 2} y={-CARD_H / 2} width={CARD_W} height={CARD_H} fill="transparent" 
+                    onMouseEnter={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const tooltipContent = (
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-[var(--text)]">{node.label}</span>
+                            <span className="rounded-md border border-[var(--border)] bg-[var(--surface-2)] px-1.5 py-0.5 text-[9px] uppercase text-[var(--text-2)]">{node.state}</span>
+                          </div>
+                          {(node.gCost != null || node.hCost != null || node.fCost != null) && (
+                            <div className="mt-1 grid grid-cols-3 gap-2 border-t border-[var(--border)] pt-1.5 text-[11px] font-mono text-[var(--text-2)]">
+                              {node.gCost != null && <div>g: <span className="text-[var(--text)]">{formatCost(node.gCost)}</span></div>}
+                              {node.hCost != null && <div>h: <span className="text-[var(--text)]">{formatCost(node.hCost)}</span></div>}
+                              {node.fCost != null && <div>f: <span className="text-[var(--text)]">{formatCost(node.fCost)}</span></div>}
+                            </div>
+                          )}
+                        </div>
+                      );
+                      setHoveredNodeTooltip({ x: rect.left + rect.width / 2, y: rect.top - 8, content: tooltipContent });
+                    }}
+                    onMouseLeave={() => setHoveredNodeTooltip(null)}
+                  />
                   {/* Game Metadata (Score, Alpha, Beta) */}
                   {node.score !== undefined && (
                     <g transform={`translate(0, ${CARD_H / 2 - 13})`}>
@@ -590,6 +615,14 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
           </g>
         </g>
       </svg>
+      {hoveredNodeTooltip && (
+        <div
+          className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-full rounded-xl border border-[var(--border)] bg-[var(--surface)]/95 p-3 shadow-xl backdrop-blur-sm"
+          style={{ left: hoveredNodeTooltip.x, top: hoveredNodeTooltip.y }}
+        >
+          {hoveredNodeTooltip.content}
+        </div>
+      )}
       <GraphMinimap
         nodes={nodeVMs}
         transform={transform}
