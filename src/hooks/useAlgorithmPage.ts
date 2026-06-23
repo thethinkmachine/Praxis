@@ -1,7 +1,7 @@
 import { useMemo, useEffect } from 'react';
 import { registry } from '@/algorithms/core/registry';
 import type { ExecutionLoadContext } from '@/store/execution.store';
-import { useExecutionStore } from '@/store/execution.store';
+import { useCurrentStep, useExecutionStore } from '@/store/execution.store';
 import { usePlayback } from '@/hooks/usePlayback';
 import type { AlgorithmRunner, AlgorithmStep } from '@/types';
 
@@ -41,7 +41,7 @@ export function useAlgorithmPage(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [algorithmId, problem, runner, context]);
 
-  const step = useExecutionStore(state => state.currentStep as AlgorithmStep | null);
+  const step = useCurrentStep<AlgorithmStep>(algorithmId);
   const loadError = useExecutionStore(state => state.loadError);
   const loadWarning = useExecutionStore(state => state.loadWarning);
 

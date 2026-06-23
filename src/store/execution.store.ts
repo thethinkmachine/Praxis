@@ -309,3 +309,22 @@ export const useExecutionStore = create<ExecutionState>()(
     clearLogs: () => set(state => { state.logs = []; }),
   }))
 );
+
+/**
+ * Returns the current step ONLY if it belongs to the requested algorithm.
+ *
+ * The execution store is global and a step outlives navigation: when you move
+ * from one page to another, `currentStep` still holds the previous algorithm's
+ * step until the new (async) load completes. Handing that foreign step to a
+ * different family's renderer — e.g. a game board receiving a search step —
+ * crashes. Gating on the loaded `algorithmId` guarantees a page only ever sees
+ * its own step (or `null` while the new trace loads). Algorithm ids never
+ * collide across step-incompatible families, so id matching is sufficient.
+ */
+export function useCurrentStep<T = AlgorithmStep>(algorithmId: string | null | undefined): T | null {
+  return useExecutionStore((state) =>
+    algorithmId != null && state.algorithmId === algorithmId
+      ? (state.currentStep as unknown as T | null)
+      : null,
+  );
+}

@@ -3,7 +3,7 @@ import { Navigate, useParams } from 'react-router-dom';
 import { cn } from '@/lib/cn';
 import { registry } from '@/algorithms/core/registry';
 import { useEditorStore } from '@/store/useEditorStore';
-import { useExecutionStore } from '@/store/execution.store';
+import { useCurrentStep } from '@/store/execution.store';
 import AlgorithmPage from '@/components/module/AlgorithmPage';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
 import type { TabDefinition } from '@/components/module/AlgorithmPage';
@@ -57,7 +57,9 @@ export default function SearchPage() {
   const heuristicDefinition = useMemo(() => getHeuristicDefinition(heuristicId), [heuristicId]);
 
   // ── Execution store read (step needed for visualization memos) ───────
-  const step = useExecutionStore(s => s.currentStep) as AlgorithmStep | null;
+  // Gated by algorithm id so a foreign step from a previous page can never leak
+  // into the graph-search visualization during cross-page navigation.
+  const step = useCurrentStep<AlgorithmStep>(algo);
 
   // ── Editor store subscriptions ───────────────────────────────────────
   const editorNodes = useEditorStore(s => s.nodes);

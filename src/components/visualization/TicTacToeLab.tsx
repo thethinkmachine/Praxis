@@ -152,7 +152,7 @@ export default function TicTacToeLab({ problem, step, onSetCell }: TicTacToeLabP
               <div className="mb-3 flex items-center justify-between gap-2">
                 <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">Evaluated Moves</p>
                 <span className="text-[10px] font-mono text-[var(--text-3)]">
-                  {traceState?.evaluatedMoves.length ?? 0} scored
+                  {traceState?.evaluatedMoves?.length ?? 0} scored
                 </span>
               </div>
               {traceState?.evaluatedMoves?.length ? (
@@ -186,7 +186,7 @@ export default function TicTacToeLab({ problem, step, onSetCell }: TicTacToeLabP
               <div className="mb-3 flex items-center justify-between gap-2">
                 <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">Recursion Stack</p>
                 <span className="text-[10px] font-mono text-[var(--text-3)]">
-                  {traceState?.recursionStack.length ?? 0} frames
+                  {traceState?.recursionStack?.length ?? 0} frames
                 </span>
               </div>
               {traceState?.recursionStack?.length ? (

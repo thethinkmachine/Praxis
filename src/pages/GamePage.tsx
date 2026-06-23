@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import type { AlgorithmStep } from '@/types/step';
 import type { GameProblem } from '@/types/problem';
-import { useExecutionStore } from '@/store/execution.store';
+import { useCurrentStep, useExecutionStore } from '@/store/execution.store';
 import AlgorithmPage from '@/components/module/AlgorithmPage';
 import {
   buildGamePlayingRoute,
@@ -24,7 +24,7 @@ export default function GamePage() {
   const [problem, setProblem] = useState<GameProblem>(() => activeLab.createDefaultProblem());
   const [problemKey, setProblemKey] = useState(`game:${resolvedLabId}:default`);
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
-  const step = useExecutionStore(state => state.currentStep as AlgorithmStep<unknown, unknown> | null);
+  const step = useCurrentStep<AlgorithmStep<unknown, unknown>>(algo);
   const clearExecution = useExecutionStore((state) => state.clear);
 
   useEffect(() => {

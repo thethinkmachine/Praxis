@@ -4,7 +4,7 @@ import AlgorithmPage from '@/components/module/AlgorithmPage';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
 import PresetPickerDialog from '@/components/shared/PresetPickerDialog';
 import Select from '@/components/shared/Select';
-import { useExecutionStore } from '@/store/execution.store';
+import { useCurrentStep, useExecutionStore } from '@/store/execution.store';
 import type { CspProblem } from '@/types/problem';
 import type { CspStep } from '@/algorithms/csp/types';
 import { createExecutionProblemKey } from '@/lib/execution-problem-key';
@@ -35,7 +35,7 @@ export default function CspPage() {
   const resolvedLab = supportsCspAlgorithm(labParam, algo) ? labParam : fallbackLab;
   const [problem, setProblem] = useState<CspProblem>(() => createDefaultCspProblem(resolvedLab));
   const [problemKey, setProblemKey] = useState(`csp:${resolvedLab}:default`);
-  const step = useExecutionStore((state) => state.currentStep as CspStep | null);
+  const step = useCurrentStep<CspStep>(algo);
   const currentIndex = useExecutionStore((state) => state.currentIndex);
   const resetExecution = useExecutionStore((state) => state.reset);
   const activeLab = getCspLabModule(problem.lab);

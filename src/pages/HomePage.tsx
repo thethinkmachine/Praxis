@@ -18,7 +18,7 @@ import { DISCOVERY_ITEMS_BY_CATEGORY, getDiscoveryItemsForCategory } from '@/lib
 
 const HOME_TABS = [
   { id: 'algorithms', label: 'Algorithms', icon: Search, hint: 'Browse registered algorithms' },
-  { id: 'games', label: 'Playgrounds', icon: Gamepad2, hint: 'Open games, sandboxes, and labs' },
+  { id: 'games', label: 'Playgrounds', icon: Gamepad2, hint: 'Open an algorithm playground' },
   { id: 'graph', label: 'Relationship Graph', icon: Network, hint: 'Explore algorithm families visually' },
 ] as const;
 
@@ -277,9 +277,9 @@ export default function HomePage() {
             <div className="mx-auto max-w-5xl space-y-5">
               <SurfaceCard>
                 <p className="text-[11px] font-mono uppercase tracking-wider text-[var(--text-3)]">Playgrounds</p>
-                <h2 className="mt-1 text-lg font-semibold text-[var(--text)]">Games, Sandboxes, and Labs by Category</h2>
+                <h2 className="mt-1 text-lg font-semibold text-[var(--text)]">Playgrounds by Category</h2>
                 <p className="mt-1 text-sm text-[var(--text-2)]">
-                  Maze is treated as a game, Graph Sandbox is the editable testing surface, and local-search modules stay grouped as labs.
+                  Each playground is the editor for one algorithm family — set up a custom problem, then step through it.
                 </p>
               </SurfaceCard>
 
@@ -307,7 +307,7 @@ export default function HomePage() {
                               to={item.path}
                               title={item.name}
                               description={item.description}
-                              badge={item.kind === 'game' ? 'Game' : item.kind === 'sandbox' ? 'Sandbox' : 'Lab'}
+                              badge="Playground"
                               badgeTone="success"
                             />
                           ) : (
@@ -315,13 +315,7 @@ export default function HomePage() {
                               <div className="flex items-center justify-between gap-2">
                                 <p className="text-sm font-semibold text-[var(--text)]">{item.name}</p>
                                 <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-[var(--border)] text-[var(--text-3)]">
-                                  {item.status === 'coming-soon'
-                                    ? 'COMING SOON'
-                                    : item.kind === 'game'
-                                      ? 'GAME'
-                                      : item.kind === 'sandbox'
-                                        ? 'SANDBOX'
-                                        : 'LAB'}
+                                  {item.status === 'coming-soon' ? 'COMING SOON' : 'PLAYGROUND'}
                                 </span>
                               </div>
                               <p className="mt-1 text-xs text-[var(--text-2)]">{item.description}</p>

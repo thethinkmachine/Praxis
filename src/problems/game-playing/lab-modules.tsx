@@ -269,7 +269,7 @@ export function renderGameLabPresetPicker(
       open={open}
       onOpenChange={onOpenChange}
       title={`Choose a ${lab.name} Demo`}
-      subtitle={`Load a preset scenario for ${lab.name.toLowerCase().replace(' lab', '')}`}
+      subtitle={`Load a preset scenario for ${lab.name.toLowerCase()}`}
       items={lab.presets}
       onSelect={onSelect}
     />

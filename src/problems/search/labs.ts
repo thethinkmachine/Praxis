@@ -13,7 +13,7 @@ export interface SearchLabDefinition {
 export const SEARCH_LAB_DEFINITIONS: SearchLabDefinition[] = [
   {
     id: 'graph-sandbox',
-    name: 'Graph Sandbox',
+    name: 'Graph',
     description: 'Build custom graphs and inspect the resulting search tree.',
     category: 'uninformed-search',
     status: 'live',
@@ -22,7 +22,7 @@ export const SEARCH_LAB_DEFINITIONS: SearchLabDefinition[] = [
   },
   {
     id: 'astar-sandbox',
-    name: 'Graph Sandbox',
+    name: 'Graph',
     description: 'Test informed search on editable graphs with live g(n), h(n), and f(n) annotations.',
     category: 'informed-search',
     status: 'live',
