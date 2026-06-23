@@ -1,7 +1,7 @@
 import { cn } from '@/lib/cn';
 import type { NQueensProblem } from '@/types/problem';
 import type { LocalSearchStep } from '@/algorithms/local-search/types';
-import { CandidateList, SummaryCards, TraceNotes } from './LocalSearchShared';
+import { CandidateList, TraceNotes } from './LocalSearchShared';
 
 interface SharedProps {
   problem: NQueensProblem;
@@ -102,8 +102,6 @@ export function NQueensBoardTab({ problem, step, onSetQueen }: SharedProps) {
   return (
     <div className="h-full overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(83,200,128,0.14),transparent_28%),var(--bg)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4">
-        <SummaryCards step={step} />
-
         <div className="grid gap-4 lg:grid-cols-[minmax(320px,1fr)_minmax(320px,0.95fr)]">
           <section>
             <QueenBoard state={board} step={step} onSetQueen={onSetQueen} />

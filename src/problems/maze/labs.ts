@@ -14,7 +14,7 @@ export interface MazeLabDefinition {
 export const MAZE_LAB_DEFINITIONS: MazeLabDefinition[] = [
   {
     id: 'maze-lab',
-    name: 'Maze Game',
+    name: 'Maze',
     description: 'Design mazes, tune terrain costs, and watch frontier growth step-by-step.',
     category: 'uninformed-search',
     status: 'live',
@@ -24,7 +24,7 @@ export const MAZE_LAB_DEFINITIONS: MazeLabDefinition[] = [
   },
   {
     id: 'heuristic-maze',
-    name: 'Maze Game',
+    name: 'Maze',
     description: 'Play the maze with heuristic-guided search such as A* and Greedy Best-First.',
     category: 'informed-search',
     status: 'live',

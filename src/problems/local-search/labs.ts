@@ -1,6 +1,7 @@
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import type { LocalSearchStep } from '@/algorithms/local-search/types';
 import type { GraphColoringProblem, LandscapeProblem, LocalSearchProblem, NPuzzleProblem, NQueensProblem, TspProblem } from '@/types/problem';
+import type { TabDefinition } from '@/components/module/AlgorithmPage';
 import {
   LOCAL_SEARCH_LAB_MODULES,
 } from './lab-modules';
@@ -27,6 +28,8 @@ export interface LocalSearchLabModule extends LocalSearchLabDefinition {
   normalizeImportedProblem: (problem: unknown) => LocalSearchProblem;
   randomizeProblem: (problem: LocalSearchProblem) => LocalSearchProblem;
   renderSetupSection: (context: LocalSearchLabContext) => ReactNode;
+  /** Unified tab contract shared with every other family's page shell. */
+  renderTabs: (context: LocalSearchLabContext) => TabDefinition[];
   renderBoardTab: (context: LocalSearchLabContext) => ReactNode;
   renderNeighborhoodTab: (context: LocalSearchLabContext) => ReactNode;
   renderMiniature?: (state: any, problem: any) => ReactNode;

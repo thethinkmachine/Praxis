@@ -37,13 +37,10 @@ If you are unsure where your change belongs, start here:
 
 ## Terminology
 
-Praxis now distinguishes between several kinds of interactive modules:
-
 1. `Algorithm`: a runnable algorithm implementation such as BFS, A*, Minimax, or Simulated Annealing.
-2. `Game`: an interactive problem module with game-specific rendering and controls, such as Tic-Tac-Toe or Maze Game.
-3. `Sandbox`: a general-purpose experimentation surface, such as Graph Sandbox.
-4. `Lab`: a structured educational module, currently used most heavily in local search.
-5. `Discovery item`: any surfaced module shown on the home Playgrounds tab or in module search.
+2. `Playground`: the editor for one algorithm family — the single user-facing concept for every interactive module. A playground lets you set up a custom problem and step through it. We used to split these into "game", "sandbox", and "lab"; that distinction was cosmetic and has been removed. `DiscoveryItem.kind` is always `'playground'`, and the home page surfaces every module with one uniform badge.
+3. `Family`: the internal code grouping a playground belongs to — `search`, `maze`, `game-playing`, `local-search`, `planning`, or `constraint-satisfaction`. Families are an implementation detail (each has its own `src/problems/<family>/` directory and registry), not a user-facing category.
+4. `Discovery item`: any surfaced playground shown on the home Playgrounds tab or in module search.
 
 ## Architecture Map
 
@@ -190,9 +187,9 @@ The local-search page is generic. It expects each lab to provide:
 6. `createDefaultProblem()`
 7. `normalizeImportedProblem(problem)`
 8. `randomizeProblem(problem)`
-9. `renderSetupSection(context)`
-10. `renderBoardTab(context)`
-11. `renderNeighborhoodTab(context)`
+9. `renderSetupSection(context)` — the lab-specific setup section appended to the page's config sidebar
+10. `renderTabs(context)` — the unified tab contract (Problem View, Neighborhood, Objective, Trajectory), shared with every other family's page shell so each page calls `activeLab.renderTabs(context)` the same way
+11. `renderBoardTab(context)` / `renderNeighborhoodTab(context)` — lab-specific views composed by `renderTabs`; objective and trajectory are family-wide
 
 These are defined in `src/problems/local-search/labs.ts` and implemented in `src/problems/local-search/lab-modules.tsx`.
 
@@ -289,7 +286,7 @@ These contracts live in `src/problems/game-playing/lab-modules.tsx` and `src/pro
 
 ## Adding Or Updating Maze Game Entries
 
-Maze is treated as a game surfaced in the discovery layer, but it currently still uses its own dedicated page implementation.
+Maze now goes through a registry module (`MAZE_LAB_MODULE` in `src/problems/maze/lab-modules.tsx`): `MazePage` is a thin shell that owns the maze store, local config state, and effects, builds a `MazeLabContext`, and delegates rendering to the module's `renderConfigPanel` / `renderTabs` / `renderTitleActions`. Discovery entries still live in `src/problems/maze/labs.ts`.
 
 ### Files You Will Usually Touch
 
@@ -320,7 +317,7 @@ Do not edit `src/lib/discovery-items.ts` directly for Maze-specific entries. Reg
 
 ## Adding Or Updating Graph Sandbox Entries
 
-Graph Sandbox is the general-purpose graph experimentation interface for search algorithms. It is not a game.
+Graph Sandbox is the general-purpose graph experimentation playground for search algorithms. It deliberately remains a single cohesive page (`SearchPage.tsx`) rather than a registry module: it is a single-instance editor with ~7 local state hooks plus the editor store, so threading all of that through a pure-render module context would be messier than the page it replaces. It still renders through the shared `AlgorithmPage` shell, so it is consistent for users.
 
 ### Files You Will Usually Touch
 

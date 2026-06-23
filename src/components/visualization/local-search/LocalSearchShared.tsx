@@ -5,28 +5,6 @@ import type { LocalSearchStep } from '@/algorithms/local-search/types';
 import type { LocalSearchProblem } from '@/types/problem';
 import type { LocalSearchCandidate } from '@/problems/local-search/types';
 
-export function SummaryCards({ step }: { step: LocalSearchStep | null }) {
-  const state = step?.state;
-  const objective = state?.objectiveLabel ?? 'Objective';
-  const cards = [
-    { label: objective, value: state?.currentDisplayValue ?? '-', tone: 'text-[#F0883E]' },
-    { label: `Best ${objective}`, value: state?.bestDisplayValue ?? '-', tone: 'text-[#3FB950]' },
-    { label: 'Iteration', value: state?.iteration ?? 0, tone: 'text-[#58A6FF]' },
-    { label: 'Restarts', value: state?.restartCount ?? 0, tone: 'text-[var(--text)]' },
-  ];
-
-  return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      {cards.map(card => (
-        <div key={card.label} className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/88 px-4 py-3">
-          <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-3)]">{card.label}</p>
-          <p className={cn('mt-2 text-2xl font-semibold', card.tone)}>{card.value}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function CandidateList({
   candidates,
   acceptedMove,

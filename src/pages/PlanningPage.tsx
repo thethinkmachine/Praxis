@@ -4,7 +4,7 @@ import AlgorithmPage from '@/components/module/AlgorithmPage';
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
 import PresetPickerDialog from '@/components/shared/PresetPickerDialog';
 import Select from '@/components/shared/Select';
-import { useExecutionStore } from '@/store/execution.store';
+import { useCurrentStep, useExecutionStore } from '@/store/execution.store';
 import type { PlanningProblem } from '@/types/problem';
 import type { PlanningStep } from '@/algorithms/planning/types';
 import { applyAction, createGroundedProblem, isActionApplicable } from '@/problems/planning/core';
@@ -36,7 +36,7 @@ export default function PlanningPage() {
   const resolvedLab = supportsPlanningAlgorithm(labParam, algo) ? labParam : fallbackLab;
   const [problem, setProblem] = useState<PlanningProblem>(() => createDefaultPlanningProblem(resolvedLab));
   const [problemKey, setProblemKey] = useState(`planning:${resolvedLab}:default`);
-  const step = useExecutionStore((state) => state.currentStep as PlanningStep | null);
+  const step = useCurrentStep<PlanningStep>(algo);
   const currentIndex = useExecutionStore((state) => state.currentIndex);
   const resetExecution = useExecutionStore((state) => state.reset);
   const activeLab = getPlanningLabModule(problem.lab);

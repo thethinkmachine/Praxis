@@ -12,11 +12,10 @@ import {
   DEFAULT_PHEROMONE_INFLUENCE,
   DEFAULT_POPULATION,
 } from '@/algorithms/local-search/core';
-import { renderLocalSearchObjectiveTab, renderLocalSearchTrajectoryTab } from '@/problems/local-search/lab-modules';
 import { Dice5 } from '@/components/shared/Icons';
 import { TitleBarActionButton, TitleBarActionGroup } from '@/components/shared/TitleBarAction';
 import type { LocalSearchStep } from '@/algorithms/local-search/types';
-import { useExecutionStore } from '@/store/execution.store';
+import { useCurrentStep, useExecutionStore } from '@/store/execution.store';
 import {
   LOCAL_SEARCH_LAB_DEFINITIONS,
   createDefaultLocalSearchProblem,
@@ -75,7 +74,7 @@ export default function LocalSearchPage() {
   const labParam = isLocalSearchLabKind(rawLabParam) ? rawLabParam : 'n-queens';
   const [problem, setProblem] = useState<LocalSearchProblem>(() => createDefaultLocalSearchProblem(labParam));
   const [problemKey, setProblemKey] = useState(`local:${labParam}:default`);
-  const step = useExecutionStore(state => state.currentStep as LocalSearchStep | null);
+  const step = useCurrentStep<LocalSearchStep>(algo);
   const currentIndex = useExecutionStore(state => state.currentIndex);
   const resetExecution = useExecutionStore(state => state.reset);
   const activeLab = getLocalSearchLabModule(problem.kind);
@@ -204,12 +203,7 @@ export default function LocalSearchPage() {
           setProblem(normalized);
           setProblemKey(createLocalProblemKey(`local:${normalized.kind}:import`));
         }}
-        tabs={[
-          { id: 'board', label: 'Problem View', content: activeLab.renderBoardTab(labContext) },
-          { id: 'neighborhood', label: 'Neighborhood', content: activeLab.renderNeighborhoodTab(labContext) },
-          { id: 'objective', label: 'Objective', content: renderLocalSearchObjectiveTab() },
-          { id: 'trajectory', label: 'Trajectory', content: renderLocalSearchTrajectoryTab(problem, step) },
-        ]}
+        tabs={activeLab.renderTabs(labContext)}
         buildAlgorithmRoute={(algorithmId) => `/local/${algorithmId}?lab=${problem.kind}`}
         executionContext={executionContext}
         titleActions={

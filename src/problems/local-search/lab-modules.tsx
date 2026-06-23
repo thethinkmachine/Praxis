@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
+import { ConfigSection } from '@/components/module/ProblemConfigurator';
+import type { TabDefinition } from '@/components/module/AlgorithmPage';
 import Select from '@/components/shared/Select';
 import { GraphColoringBoardTab, GraphColoringNeighborhoodTab, GraphColoringMiniature } from '@/components/visualization/local-search/GraphColoringLab';
 import { ObjectiveTab, TrajectoryTab, ViewOverlay } from '@/components/visualization/local-search/LocalSearchShared';
@@ -193,7 +194,7 @@ function renderNPuzzleSetup(context: LocalSearchLabContext) {
   );
 }
 
-export const LOCAL_SEARCH_LAB_MODULES: LocalSearchLabModule[] = [
+const LOCAL_SEARCH_LAB_MODULE_DEFS: Array<Omit<LocalSearchLabModule, 'renderTabs'>> = [
   {
     id: 'n-queens',
     name: 'N-Queens',
@@ -460,6 +461,28 @@ export const LOCAL_SEARCH_LAB_MODULES: LocalSearchLabModule[] = [
     },
   },
 ];
+
+/**
+ * Shared tab set for every local-search lab. Each lab supplies its own board and
+ * neighborhood views; objective and trajectory are family-wide. This lets the
+ * page call `activeLab.renderTabs(context)` exactly like the other families.
+ */
+function buildLocalSearchTabs(
+  module: Omit<LocalSearchLabModule, 'renderTabs'>,
+  context: LocalSearchLabContext,
+): TabDefinition[] {
+  return [
+    { id: 'board', label: 'Problem View', content: module.renderBoardTab(context) },
+    { id: 'neighborhood', label: 'Neighborhood', content: module.renderNeighborhoodTab(context) },
+    { id: 'objective', label: 'Objective', content: renderLocalSearchObjectiveTab() },
+    { id: 'trajectory', label: 'Trajectory', content: renderLocalSearchTrajectoryTab(context.problem, context.step) },
+  ];
+}
+
+export const LOCAL_SEARCH_LAB_MODULES: LocalSearchLabModule[] = LOCAL_SEARCH_LAB_MODULE_DEFS.map((module) => ({
+  ...module,
+  renderTabs: (context: LocalSearchLabContext) => buildLocalSearchTabs(module, context),
+}));
 
 export function renderLocalSearchObjectiveTab() {
   return <ObjectiveTab />;

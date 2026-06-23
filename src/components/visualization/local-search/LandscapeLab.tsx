@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn';
 import type { LandscapeProblem, LandscapeState } from '@/types/problem';
 import type { LocalSearchStep } from '@/algorithms/local-search/types';
 import { evaluateLandscape } from '@/problems/local-search/landscape';
-import { CandidateList, SummaryCards, TraceNotes } from './LocalSearchShared';
+import { CandidateList, TraceNotes } from './LocalSearchShared';
 
 interface LandscapeLabProps {
   problem: LandscapeProblem;
@@ -144,7 +144,6 @@ export function LandscapeBoardTab({ problem, step, onSetInitialState }: Landscap
   return (
     <div className="h-full overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(83,200,128,0.14),transparent_28%),var(--bg)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4">
-        <SummaryCards step={step} />
         <div className="grid gap-4 lg:grid-cols-[minmax(320px,1fr)_minmax(320px,0.95fr)]">
           <section>
             <LandscapeSurface
