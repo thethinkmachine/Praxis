@@ -5,8 +5,7 @@ import GraphMinimap from '@/components/visualization/GraphMinimap';
 import { useEditorStore } from '@/store/useEditorStore';
 import { useGraphInteractions } from '@/hooks/useGraphInteractions';
 import { usePreferencesStore } from '@/store/preferences.store';
-import type { ElementDefinition, StylesheetStyle } from 'cytoscape';
-import type { AlgorithmCategory } from '@/types';
+import type { ElementDefinition } from 'cytoscape';
 import {
   NODE_THEME,
   NODE_THEME_LIGHT,
@@ -24,10 +23,6 @@ import type { SVGNodeVM, SVGEdgeVM, NodeVisualState } from './svg-graph.types';
 // ---------------------------------------------------------------------------
 interface SVGGraphCanvasProps {
   algorithmElements: ElementDefinition[];
-  stylesheet: StylesheetStyle[];
-  description?: string;
-  algorithmCategory?: AlgorithmCategory;
-  onDemoSelect?: (problemId: string) => void;
   snapToGrid?: boolean;
   className?: string;
 }
@@ -256,10 +251,6 @@ function SvgDefs({ darkMode, transform }: { darkMode: boolean; transform?: d3.Zo
 // ---------------------------------------------------------------------------
 export default function SVGGraphCanvas({
   algorithmElements,
-  stylesheet: _stylesheet,
-  description,
-  algorithmCategory: _algorithmCategory,
-  onDemoSelect: _onDemoSelect,
   snapToGrid = false,
   className,
 }: SVGGraphCanvasProps) {
@@ -716,13 +707,6 @@ export default function SVGGraphCanvas({
         </div>
       </div>
 
-      {/* Phase banner */}
-      {description && (
-        <div className="shrink-0 px-3 py-1 text-xs text-[var(--text-2)] bg-[var(--surface)] border-b border-[var(--border)] truncate">
-          {description}
-        </div>
-      )}
-
       {/* Canvas area */}
       <div ref={containerRef} className="flex-1 relative overflow-hidden bg-[var(--bg)]">
         <svg
@@ -968,7 +952,7 @@ export default function SVGGraphCanvas({
           {mode === 'addNode' && 'Click empty area to add node'}
           {mode === 'addEdge' && 'Drag from source node to target node'}
           {mode === 'delete' && 'Click node or edge to delete'}
-          {mode === 'select' && 'Drag nodes to move • Drag empty space to multi-select • Space+drag or right-drag to pan • Scroll to zoom'}
+          {mode === 'select' && 'Drag to move • Drag empty space to select • Right-drag to pan • Scroll to zoom'}
         </div>
 
         {/* Context menu */}

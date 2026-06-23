@@ -21,7 +21,6 @@ import { buildRoute } from '@/lib/buildRoute';
 import { toAppPath } from '@/lib/app-paths';
 import { createExecutionProblemKey } from '@/lib/execution-problem-key';
 import { createGraphSearchAdapterFromProblem } from '@/visualizations/adapters/graph-search.adapter';
-import { getGraphSearchStyles } from '@/visualizations/cytoscapeStyles/graph-search.styles';
 import { buildSearchTreeElements } from '@/visualizations/adapters/search-tree.adapter';
 import { evaluationFormula } from '@/lib/evaluationFormula';
 
@@ -181,12 +180,6 @@ export default function SearchPage() {
       : undefined,
   }), [editorNodes, editorEdges, editorStartId, editorGoalId, editorIsDirected, isInformedAlgorithm, heuristicId, heuristicScale]);
 
-  // ── Stylesheet ───────────────────────────────────────────────────────
-  const stylesheet = useMemo(
-    () => getGraphSearchStyles(isWeightedAlgorithm),
-    [isWeightedAlgorithm],
-  );
-
   // ── Cytoscape elements (colored by algorithm state) ──────────────────
   const algorithmElements = useMemo(() => {
     if (!step) return [];
@@ -250,10 +243,6 @@ export default function SearchPage() {
       content: (
         <SVGGraphCanvas
           algorithmElements={algorithmElements}
-          stylesheet={stylesheet}
-          description={step?.description}
-          algorithmCategory={runner?.meta.category ?? 'uninformed-search'}
-          onDemoSelect={handleDemoSelect}
           snapToGrid={heuristicId === 'manhattan-distance' || heuristicId === 'chebyshev-distance'}
           className="h-full"
         />
@@ -273,7 +262,7 @@ export default function SearchPage() {
         />
       ),
     },
-  ], [algorithmElements, stylesheet, step, runner, handleDemoSelect, treeElements, heuristicId]);
+  ], [algorithmElements, treeElements, heuristicId]);
 
   // ── Title actions ────────────────────────────────────────────────────
   const titleActions = useMemo(() => (

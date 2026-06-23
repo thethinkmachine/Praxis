@@ -29,6 +29,8 @@ export default function MazePage() {
   const strategy = useMazeStore(s => s.strategy);
   const setStrategy = useMazeStore(s => s.setStrategy);
   const setDimensions = useMazeStore(s => s.setDimensions);
+  const clearWalls = useMazeStore(s => s.clearWalls);
+  const clearTerrain = useMazeStore(s => s.clearTerrain);
 
   const [depthLimit, setDepthLimit] = useState(12);
   const [weightedAStarWeight, setWeightedAStarWeight] = useState(1.5);
@@ -121,6 +123,8 @@ export default function MazePage() {
     setDepthLimit,
     weightedAStarWeight,
     setWeightedAStarWeight,
+    clearWalls,
+    clearTerrain,
     markProblemChanged,
     copyReplayLink,
     copyStatus,

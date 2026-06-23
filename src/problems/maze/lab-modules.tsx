@@ -6,12 +6,12 @@ import MazeEditor from '@/components/visualization/MazeEditor';
 import EmptyState from '@/components/shared/EmptyState';
 import InfoCard from '@/components/shared/InfoCard';
 import HeuristicConfigSection from '@/components/shared/HeuristicConfigSection';
+import Select from '@/components/shared/Select';
 import { TitleBarActionButton, TitleBarActionGroup } from '@/components/shared/TitleBarAction';
-import { Copy, Dice5 } from '@/components/shared/Icons';
+import { Copy, Dice5, Wand2, Eraser, Mountain } from '@/components/shared/Icons';
 import { registry } from '@/algorithms/core/registry';
 import { INFORMED_HEURISTICS, getHeuristicDefinition } from '@/algorithms/search/informed/types';
 import { MAZE_STRATEGY_LABELS, type MazeGenerationStrategyId } from '@/problems/maze/strategies';
-import { MAZE_DEMOS, buildMazeDemo } from '@/problems/maze/demos';
 import { algorithmStepToMazeOverlay } from '@/visualizations/adapters/maze.adapter';
 import { buildSearchTreeElements } from '@/visualizations/adapters/search-tree.adapter';
 import { evaluationFormula } from '@/lib/evaluationFormula';
@@ -41,6 +41,8 @@ export interface MazeLabContext {
   setDepthLimit: (value: number) => void;
   weightedAStarWeight: number;
   setWeightedAStarWeight: (value: number) => void;
+  clearWalls: () => void;
+  clearTerrain: () => void;
   /** Bump the execution problem key so the trace reloads. `reason` is a short tag. */
   markProblemChanged: (reason: string) => void;
   copyReplayLink: () => void;
@@ -307,26 +309,47 @@ function renderMazeConfigPanel(context: MazeLabContext): ReactNode {
 
           <div>
             <p className="text-[10px] text-[var(--text-3)] uppercase tracking-wider mb-1.5">Generation Strategy</p>
-            <p className="text-[12px] text-[var(--text-2)] p-2 rounded bg-[var(--surface-2)] border border-[var(--border)] font-medium">{MAZE_STRATEGY_LABELS[context.strategy]}</p>
-          </div>
-        </div>
-      </ConfigSection>
-
-      <ConfigSection title="Demos" defaultOpen={false}>
-        <div className="space-y-1.5">
-          {MAZE_DEMOS.map((demo) => (
+            <Select
+              value={context.strategy}
+              onValueChange={(val) => context.setStrategy(val as MazeGenerationStrategyId)}
+              options={Object.entries(MAZE_STRATEGY_LABELS).map(([id, label]) => ({ value: id, label }))}
+              triggerClassName="w-full"
+            />
             <button
-              key={demo.id}
               onClick={() => {
-                context.setStrategy(demo.strategy);
-                context.setProblem(buildMazeDemo(demo));
-                context.markProblemChanged(`demo:${demo.id}`);
+                context.setSeed(Date.now());
+                context.generateMaze();
+                context.markProblemChanged('generate');
               }}
-              className="ui-btn w-full justify-start rounded-md px-2 py-1.5 text-[11px] font-mono"
+              className="ui-btn ui-btn-active mt-2 w-full justify-center gap-1.5 rounded-md px-2 py-1.5 text-[11px] font-mono"
             >
-              {demo.name}
+              <Wand2 size={12} />
+              Generate Maze
             </button>
-          ))}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => {
+                context.clearWalls();
+                context.markProblemChanged('clear-walls');
+              }}
+              className="ui-btn justify-center gap-1.5 rounded-md px-2 py-1.5 text-[11px] font-mono"
+            >
+              <Eraser size={12} />
+              Clear Walls
+            </button>
+            <button
+              onClick={() => {
+                context.clearTerrain();
+                context.markProblemChanged('clear-terrain');
+              }}
+              className="ui-btn justify-center gap-1.5 rounded-md px-2 py-1.5 text-[11px] font-mono"
+            >
+              <Mountain size={12} />
+              Reset Terrain
+            </button>
+          </div>
         </div>
       </ConfigSection>
     </ProblemConfigurator>

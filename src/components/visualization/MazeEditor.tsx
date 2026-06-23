@@ -1,11 +1,10 @@
 import { useCallback, useMemo, useRef, useEffect } from 'react';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { cn } from '@/lib/cn';
 import { useMazeStore } from '@/store/maze.store';
 import type { MazeOverlay } from '@/visualizations/adapters/maze.adapter';
-import { MAZE_STRATEGY_LABELS } from '@/problems/maze/strategies';
 import { usePreferencesStore } from '@/store/preferences.store';
-import Select from '@/components/shared/Select';
-import { Dice5, Eraser, Mountain, MoveRight, Flag } from '@/components/shared/Icons';
+import { BrickWall, Eraser, Mountain, MapPin, Flag } from '@/components/shared/Icons';
 
 interface MazeEditorProps {
   overlay?: MazeOverlay | null;
@@ -21,15 +20,35 @@ const TOOL_LABELS = {
 } as const;
 
 const TOOL_ICONS = {
-  wall: Mountain,
+  wall: BrickWall,
   erase: Eraser,
-  terrain: MoveRight,
-  start: Dice5,
+  terrain: Mountain,
+  start: MapPin,
   goal: Flag,
 } as const;
 
+const TOOL_TIPS: Record<keyof typeof TOOL_LABELS, string> = {
+  wall: 'Draw walls — impassable cells',
+  erase: 'Erase walls and terrain',
+  terrain: 'Paint weighted terrain (higher step cost)',
+  start: 'Place the start cell',
+  goal: 'Place the goal cell',
+};
+
 const CELL_SIZE = 24;
 const GAP = 1;
+
+function Tip({ children }: { children: React.ReactNode }) {
+  return (
+    <Tooltip.Content
+      sideOffset={6}
+      className="z-50 rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1 text-[10px] text-[var(--text)] shadow-lg"
+    >
+      {children}
+      <Tooltip.Arrow className="fill-[var(--border)]" />
+    </Tooltip.Content>
+  );
+}
 
 export default function MazeEditor({ overlay, className }: MazeEditorProps) {
   const {
@@ -37,15 +56,10 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
     tool,
     brushSize,
     terrainValue,
-    strategy,
     setTool,
     setBrushSize,
     setTerrainValue,
-    setStrategy,
     paintCells,
-    clearWalls,
-    clearTerrain,
-    generateMaze,
   } = useMazeStore();
 
   const darkMode = usePreferencesStore((s) => s.darkMode);
@@ -53,6 +67,10 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
   const dragActiveRef = useRef(false);
 
   const walls = useMemo(() => new Set(problem.walls), [problem.walls]);
+
+  const hasOverlay = Boolean(
+    overlay && (overlay.frontier.size || overlay.explored.size || overlay.pathNodes.size || overlay.currentNode),
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -197,130 +215,109 @@ export default function MazeEditor({ overlay, className }: MazeEditorProps) {
   };
 
   return (
-    <div className={cn('h-full w-full flex flex-col overflow-hidden', className)}>
-      <div className="shrink-0 border-b border-[var(--border)] bg-[var(--surface)] px-3 py-3">
-        <div className="flex flex-wrap items-start gap-3">
-          <div className="min-w-[240px] flex-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 p-2">
-            <p className="px-1 pb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Draw Tools</p>
-            <div className="flex flex-wrap gap-1">
-              {(Object.keys(TOOL_LABELS) as Array<keyof typeof TOOL_LABELS>).map((key) => (
-                <button
-                  key={key}
-                  onClick={() => setTool(key)}
-                  className={cn(
-                    'ui-btn px-3 py-2 rounded-xl text-[11px] font-mono whitespace-nowrap',
-                    tool === key
-                      ? 'ui-btn-active text-[var(--text)]'
-                      : '',
-                  )}
-                >
-                  {(() => {
-                    const Icon = TOOL_ICONS[key];
-                    return <Icon size={12} />;
-                  })()}
-                  {TOOL_LABELS[key]}
-                </button>
-              ))}
-            </div>
+    <Tooltip.Provider delayDuration={250}>
+      <div className={cn('h-full w-full flex flex-col overflow-hidden', className)}>
+        {/* Slim editing toolbar — mirrors the graph editor's visual language */}
+        <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-[var(--border)] bg-[var(--surface)] shrink-0">
+          <div className="flex items-center gap-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] p-1">
+            {(Object.keys(TOOL_LABELS) as Array<keyof typeof TOOL_LABELS>).map((key) => {
+              const Icon = TOOL_ICONS[key];
+              const active = tool === key;
+              return (
+                <Tooltip.Root key={key}>
+                  <Tooltip.Trigger asChild>
+                    <button
+                      onClick={() => setTool(key)}
+                      className={cn(
+                        'inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs transition-colors',
+                        active
+                          ? 'bg-[var(--accent-soft)] text-[var(--text)] border border-[var(--accent)]/35'
+                          : 'text-[var(--text-2)] border border-transparent hover:text-[var(--text)] hover:bg-[var(--surface)]',
+                      )}
+                    >
+                      <Icon size={14} />
+                      <span className="hidden sm:inline">{TOOL_LABELS[key]}</span>
+                    </button>
+                  </Tooltip.Trigger>
+                  <Tip>{TOOL_TIPS[key]}</Tip>
+                </Tooltip.Root>
+              );
+            })}
           </div>
 
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 p-3">
-            <p className="pb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Brush</p>
-            <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--text-2)]">
-              <input type="range" min={1} max={4} value={brushSize} onChange={(e) => setBrushSize(Number(e.target.value))} className="w-24" />
-              <span className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-[var(--text)]">{brushSize}</span>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 p-3">
-            <p className="pb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Terrain Cost</p>
-            <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--text-2)]">
-              <input type="range" min={2} max={10} value={terrainValue} onChange={(e) => setTerrainValue(Number(e.target.value))} className="w-24" />
-              <span className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-[var(--text)]">{terrainValue}</span>
-            </div>
-          </div>
-
-          <div className="min-w-[260px] flex-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 p-3">
-            <p className="pb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Generation</p>
-            <div className="flex flex-wrap items-center gap-2">
-              <Select
-                value={strategy}
-                onValueChange={(val) => setStrategy(val as typeof strategy)}
-                options={Object.entries(MAZE_STRATEGY_LABELS).map(([id, label]) => ({
-                  value: id,
-                  label,
-                }))}
-                variant="toolbar"
-                triggerClassName="min-w-[180px]"
-              />
-
-              <button
-                onClick={generateMaze}
-                className="ui-btn ui-btn-active shrink-0 rounded-xl px-3 py-2 text-[11px] font-mono"
-              >
-                <Dice5 size={12} />
-                Generate Maze
-              </button>
-              <button
-                onClick={clearWalls}
-                className="ui-btn shrink-0 rounded-xl px-3 py-2 text-[11px] font-mono"
-              >
-                <Eraser size={12} />
-                Clear Walls
-              </button>
-              <button
-                onClick={clearTerrain}
-                className="ui-btn shrink-0 rounded-xl px-3 py-2 text-[11px] font-mono"
-              >
-                <Mountain size={12} />
-                Reset Terrain
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/35 px-3 py-2 text-[11px] text-[var(--text-2)]">
-          <span><span className="text-[var(--text-3)]">Active Tool:</span> {TOOL_LABELS[tool]}</span>
-          <span><span className="text-[var(--text-3)]">Brush:</span> {brushSize}</span>
-          <span><span className="text-[var(--text-3)]">Terrain:</span> {terrainValue}</span>
-          <span><span className="text-[var(--text-3)]">Grid:</span> {problem.rows} × {problem.cols}</span>
-          <span><span className="text-[var(--text-3)]">Strategy:</span> {MAZE_STRATEGY_LABELS[strategy]}</span>
-        </div>
-      </div>
-
-      <div className="flex-1 min-h-0 overflow-auto bg-[var(--bg)] custom-scrollbar">
-        <div className="p-4 flex items-center justify-center min-h-full">
-          <div className="rounded-[28px] border border-[var(--border)] bg-[linear-gradient(180deg,rgba(88,166,255,0.05),transparent)] p-4 shadow-[0_18px_50px_rgba(0,0,0,0.25)]">
-            <canvas
-              ref={canvasRef}
-              onPointerDown={onPointerDown}
-              onPointerMove={onPointerMove}
-              onPointerUp={onPointerUp}
-              className="shadow-xl rounded-sm touch-none"
-              style={{ imageRendering: 'pixelated' }}
+          <div className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3 py-[7px]">
+            <span className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-3)]">Brush</span>
+            <input
+              type="range"
+              min={1}
+              max={4}
+              value={brushSize}
+              onChange={(e) => setBrushSize(Number(e.target.value))}
+              className="w-16 accent-[var(--accent)]"
             />
+            <span className="w-3 text-center font-mono text-[11px] tabular-nums text-[var(--text)]">{brushSize}</span>
+          </div>
+
+          {tool === 'terrain' && (
+            <div className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3 py-[7px]">
+              <span className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-3)]">Cost</span>
+              <input
+                type="range"
+                min={2}
+                max={10}
+                value={terrainValue}
+                onChange={(e) => setTerrainValue(Number(e.target.value))}
+                className="w-16 accent-[var(--accent)]"
+              />
+              <span className="w-5 text-center font-mono text-[11px] tabular-nums text-[var(--text)]">{terrainValue}</span>
+            </div>
+          )}
+
+          <div className="min-w-0 flex-1" />
+
+          <span className="shrink-0 font-mono text-[10px] tabular-nums text-[var(--text-3)]">
+            {problem.rows} × {problem.cols}
+          </span>
+        </div>
+
+        {/* Canvas */}
+        <div className="flex-1 min-h-0 overflow-auto bg-[var(--bg)] custom-scrollbar">
+          <div className="p-4 flex items-center justify-center min-h-full">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-3 shadow-sm">
+              <canvas
+                ref={canvasRef}
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={onPointerUp}
+                className="rounded-sm touch-none"
+                style={{ imageRendering: 'pixelated' }}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="shrink-0 flex items-center flex-wrap gap-x-4 gap-y-1 px-3 py-1.5 border-t border-[var(--border)] bg-[var(--surface)] text-[10px] font-mono text-[var(--text-3)]">
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-[3px] inline-block" style={{ background: 'rgba(95,179,255,0.3)', border: '1px solid rgba(95,179,255,0.7)' }} />
-          Frontier
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-[3px] inline-block" style={{ background: 'rgba(240,136,62,0.35)', border: '1px solid rgba(240,136,62,0.75)' }} />
-          Current
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-[3px] inline-block" style={{ background: 'rgba(83,200,128,0.3)', border: '1px solid rgba(83,200,128,0.65)' }} />
-          Path
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-[3px] inline-block" style={{ background: 'rgba(111,129,150,0.25)', border: '1px solid rgba(111,129,150,0.45)' }} />
-          Explored
-        </span>
+        {/* Legend — only while a run is active */}
+        {hasOverlay && (
+          <div className="shrink-0 flex items-center flex-wrap gap-x-4 gap-y-1 px-3 py-1.5 border-t border-[var(--border)] bg-[var(--surface)] text-[10px] font-mono text-[var(--text-3)]">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-[3px] inline-block" style={{ background: 'rgba(95,179,255,0.3)', border: '1px solid rgba(95,179,255,0.7)' }} />
+              Frontier
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-[3px] inline-block" style={{ background: 'rgba(240,136,62,0.35)', border: '1px solid rgba(240,136,62,0.75)' }} />
+              Current
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-[3px] inline-block" style={{ background: 'rgba(83,200,128,0.3)', border: '1px solid rgba(83,200,128,0.65)' }} />
+              Path
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-[3px] inline-block" style={{ background: 'rgba(111,129,150,0.25)', border: '1px solid rgba(111,129,150,0.45)' }} />
+              Explored
+            </span>
+          </div>
+        )}
       </div>
-    </div>
+    </Tooltip.Provider>
   );
 }
