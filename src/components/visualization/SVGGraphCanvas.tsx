@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/cn';
 import EditorToolbar, { type EditorMode } from '@/components/editor/EditorToolbar';
 import GraphMinimap from '@/components/visualization/GraphMinimap';
+import GraphContextMenu from '@/components/visualization/GraphContextMenu';
 import { useEditorStore } from '@/store/useEditorStore';
 import { useGraphInteractions } from '@/hooks/useGraphInteractions';
 import { usePreferencesStore } from '@/store/preferences.store';
@@ -463,7 +464,6 @@ export default function SVGGraphCanvas({
   // ── Event handlers ───────────────────────────────────────────────────────
 
   const handleNodeClick = useCallback((nodeId: string, meta: { append: boolean }) => {
-    setContextMenu(null);
     if (mode === 'delete') {
       removeNode(nodeId);
       return;
@@ -493,7 +493,6 @@ export default function SVGGraphCanvas({
   }, [mode, openRename]);
 
   const handleEdgeClick = useCallback((edgeId: string, meta: { append: boolean }) => {
-    setContextMenu(null);
     if (mode === 'delete') {
       removeEdge(edgeId);
       return;
@@ -523,7 +522,6 @@ export default function SVGGraphCanvas({
   }, [mode, openWeightEdit]);
 
   const handleBgClick = useCallback((pos: { x: number; y: number }) => {
-    setContextMenu(null);
     if (mode === 'addNode') {
       addNode({ x: pos.x, y: pos.y });
     }
@@ -589,6 +587,23 @@ export default function SVGGraphCanvas({
     onNodeDragging: (nodeId, pos) => setLiveDrag({ nodeId, ...pos }),
     snapToGrid,
   });
+
+  // ── Context menu lifecycle ───────────────────────────────────────────────
+  // The menu is anchored to raw screen coordinates, so panning/zooming would
+  // leave it floating over the wrong spot — dismiss it instead of tracking it.
+  useEffect(() => {
+    setContextMenu(null);
+  }, [transform]);
+
+  // Its target can be removed out from under it (e.g. via undo) while open;
+  // drop the menu rather than let actions silently no-op on a stale id.
+  useEffect(() => {
+    if (!contextMenu) return;
+    const stillExists = contextMenu.type === 'node'
+      ? nodes.some(n => n.id === contextMenu.targetId)
+      : edges.some(e => e.id === contextMenu.targetId);
+    if (!stillExists) setContextMenu(null);
+  }, [nodes, edges, contextMenu]);
 
   // ── Keyboard shortcuts (undo/redo) ───────────────────────────────────────
 
@@ -956,55 +971,28 @@ export default function SVGGraphCanvas({
         </div>
 
         {/* Context menu */}
-        {contextMenu && (
-          <div
-            className="ui-menu fixed z-[110] rounded-lg py-1 min-w-[160px]"
-            style={{ left: contextMenu.x, top: contextMenu.y }}
-          >
-            {contextMenu.type === 'node' && (
-              <>
-                <button className="ui-menu-item text-[var(--text)]"
-                  onClick={() => openRename(contextMenu.targetId, contextMenu.x, contextMenu.y)}>
-                  Rename Node
-                </button>
-                <button className="ui-menu-item ui-menu-item-accent"
-                  onClick={() => openHeuristicEdit(contextMenu.targetId, contextMenu.x, contextMenu.y)}>
-                  Edit h(n)
-                </button>
-                <div className="border-t border-[var(--border)] my-1" />
-                <button className="ui-menu-item ui-menu-item-purple"
-                  onClick={() => { setStartNode(contextMenu.targetId); setContextMenu(null); }}>
-                  Set as Start
-                </button>
-                <button className="ui-menu-item ui-menu-item-success"
-                  onClick={() => { setGoalNode(contextMenu.targetId); setContextMenu(null); }}>
-                  Set as Goal
-                </button>
-                <div className="border-t border-[var(--border)] my-1" />
-                <button className="ui-menu-item ui-menu-item-danger"
-                  onClick={() => { removeNode(contextMenu.targetId); setContextMenu(null); }}>
-                  Delete Node
-                </button>
-              </>
-            )}
-            {contextMenu.type === 'edge' && (
-              <>
-                <button className="ui-menu-item text-[var(--text)]"
-                  onClick={() => openWeightEdit(contextMenu.targetId, contextMenu.x, contextMenu.y)}>
-                  Edit Weight
-                </button>
-                <div className="border-t border-[var(--border)] my-1" />
-                <button className="ui-menu-item ui-menu-item-danger"
-                  onClick={() => { removeEdge(contextMenu.targetId); setContextMenu(null); }}>
-                  Delete Edge
-                </button>
-              </>
-            )}
-            <button className="ui-menu-item"
-              onClick={() => setContextMenu(null)}>
-              Cancel
-            </button>
-          </div>
+        {contextMenu?.type === 'node' && (
+          <GraphContextMenu
+            type="node"
+            x={contextMenu.x}
+            y={contextMenu.y}
+            onRename={() => openRename(contextMenu.targetId, contextMenu.x, contextMenu.y)}
+            onEditHeuristic={() => openHeuristicEdit(contextMenu.targetId, contextMenu.x, contextMenu.y)}
+            onSetStart={() => setStartNode(contextMenu.targetId)}
+            onSetGoal={() => setGoalNode(contextMenu.targetId)}
+            onDelete={() => removeNode(contextMenu.targetId)}
+            onClose={() => setContextMenu(null)}
+          />
+        )}
+        {contextMenu?.type === 'edge' && (
+          <GraphContextMenu
+            type="edge"
+            x={contextMenu.x}
+            y={contextMenu.y}
+            onEditWeight={() => openWeightEdit(contextMenu.targetId, contextMenu.x, contextMenu.y)}
+            onDelete={() => removeEdge(contextMenu.targetId)}
+            onClose={() => setContextMenu(null)}
+          />
         )}
 
         {/* Inline rename input */}
