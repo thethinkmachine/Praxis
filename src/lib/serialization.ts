@@ -26,3 +26,18 @@ export function serializeWithSetMap(value: unknown): string {
 export function deserializeWithSetMap(text: string): unknown {
   return JSON.parse(text, setMapReviver);
 }
+
+/** Unicode-safe base64 encoding, used to pack shareable-link tokens (e.g. `?g=`, `?m=`). */
+export function encodeBase64(text: string): string {
+  if (typeof btoa !== 'undefined') {
+    return btoa(unescape(encodeURIComponent(text)));
+  }
+  return Buffer.from(text, 'utf8').toString('base64');
+}
+
+export function decodeBase64(text: string): string {
+  if (typeof atob !== 'undefined') {
+    return decodeURIComponent(escape(atob(text)));
+  }
+  return Buffer.from(text, 'base64').toString('utf8');
+}

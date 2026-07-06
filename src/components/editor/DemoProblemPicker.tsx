@@ -141,7 +141,7 @@ type DifficultyFilter = 'all' | 'easy' | 'medium' | 'hard';
 
 interface DemoProblemPickerProps {
   algorithmCategory: AlgorithmCategory;
-  onSelect: (problemDef: unknown) => void;
+  onSelect: (problemDef: unknown, demoId?: string) => void;
   trigger?: React.ReactNode;
   /** Controlled open state — when provided, the built-in trigger is not rendered. */
   open?: boolean;
@@ -235,7 +235,7 @@ export default function DemoProblemPicker({
       const resp = await fetch(toAppPath(`problems/graphs/${filename}`));
       if (!resp.ok) throw new Error('File not found');
       const data = await resp.json();
-      onSelect(data.problem);
+      onSelect(data.problem, filename);
       if (isControlled) {
         controlledOnOpenChange?.(false);
       } else {

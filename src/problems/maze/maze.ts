@@ -1,4 +1,5 @@
 import { Graph, type GraphData, type GraphEdge, type GraphNode, type GraphProblem, type HeuristicConfig, type HeuristicId, type MazeProblem } from '@/types/problem';
+import { encodeBase64, decodeBase64 } from '@/lib/serialization';
 import { MAZE_STRATEGIES } from './strategies';
 import type { MazeGenerationStrategyId } from './strategies';
 
@@ -195,20 +196,6 @@ export function mazeProblemToGraphProblem(problem: MazeProblem): GraphProblem {
     useHeuristic: true,
     heuristic: normalized.heuristic,
   };
-}
-
-function encodeBase64(text: string): string {
-  if (typeof btoa !== 'undefined') {
-    return btoa(unescape(encodeURIComponent(text)));
-  }
-  return Buffer.from(text, 'utf8').toString('base64');
-}
-
-function decodeBase64(text: string): string {
-  if (typeof atob !== 'undefined') {
-    return decodeURIComponent(escape(atob(text)));
-  }
-  return Buffer.from(text, 'base64').toString('utf8');
 }
 
 export function serializeMazeReplay(problem: MazeProblem): string {

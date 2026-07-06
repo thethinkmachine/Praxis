@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useCallback, useRef, useState } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/cn';
 import { registry } from '@/algorithms/core/registry';
 import { useEditorStore } from '@/store/useEditorStore';
@@ -10,22 +10,23 @@ import type { TabDefinition } from '@/components/module/AlgorithmPage';
 import SVGGraphCanvas from '@/components/visualization/SVGGraphCanvas';
 import SVGAutoCanvas from '@/components/visualization/SVGAutoCanvas';
 import DemoProblemPicker from '@/components/editor/DemoProblemPicker';
-import { Dice5, Info } from '@/components/shared/Icons';
-import { TitleBarActionButton } from '@/components/shared/TitleBarAction';
+import { Copy, Dice5, Info } from '@/components/shared/Icons';
+import { TitleBarActionButton, TitleBarActionGroup } from '@/components/shared/TitleBarAction';
 import EmptyState from '@/components/shared/EmptyState';
 import InfoCard from '@/components/shared/InfoCard';
 import HeuristicConfigSection from '@/components/shared/HeuristicConfigSection';
 import { generateRandomGraph } from '@/lib/random-generators';
 import { INFORMED_HEURISTICS, getHeuristicDefinition } from '@/algorithms/search/informed/types';
 import { buildRoute } from '@/lib/buildRoute';
-import { toAppPath } from '@/lib/app-paths';
+import { toAppPath, toAbsoluteAppUrl } from '@/lib/app-paths';
 import { createExecutionProblemKey } from '@/lib/execution-problem-key';
 import { createGraphSearchAdapterFromProblem } from '@/visualizations/adapters/graph-search.adapter';
 import { buildSearchTreeElements } from '@/visualizations/adapters/search-tree.adapter';
 import { evaluationFormula } from '@/lib/evaluationFormula';
+import { serializeGraphReplay, deserializeGraphReplay, isValidDemoFilename } from '@/problems/search/graph-share';
 
 import type { AlgorithmStep } from '@/types/step';
-import { ALGORITHM_TO_PROBLEM_CATEGORY, Graph, type GraphProblem, type HeuristicId } from '@/types/problem';
+import { ALGORITHM_TO_PROBLEM_CATEGORY, Graph, type GraphNode, type GraphEdge, type GraphProblem, type HeuristicId } from '@/types/problem';
 
 import AdjacencyTable from '@/components/editor/AdjacencyTable';
 
@@ -33,8 +34,24 @@ function createProblemSessionKey(prefix: string): string {
   return `${prefix}:${Date.now()}`;
 }
 
+// Fingerprints a graph + its heuristic settings, so a Copy Link click can tell whether the
+// workspace still matches the bundled demo it was loaded from (short `?demo=` link) or has
+// since diverged (falls back to the full `?g=` token so no edits are silently dropped).
+function graphFingerprint(
+  nodes: GraphNode[],
+  edges: GraphEdge[],
+  startNode: string,
+  goalNode: string,
+  directed: boolean,
+  heuristicId: HeuristicId,
+  heuristicScale: number,
+): string {
+  return JSON.stringify({ nodes, edges, startNode, goalNode, directed, heuristicId, heuristicScale });
+}
+
 export default function SearchPage() {
   const { category, algo = 'bfs' } = useParams<{ category: string; algo: string }>();
+  const [searchParams] = useSearchParams();
   const [depthLimit, setDepthLimit] = useState(12);
   const [weightedAStarWeight, setWeightedAStarWeight] = useState(1.5);
   const [memoryLimit, setMemoryLimit] = useState(64);
@@ -42,7 +59,13 @@ export default function SearchPage() {
   const [heuristicScale, setHeuristicScale] = useState(1);
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
   const [problemKey, setProblemKey] = useState('workspace:default');
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+  // Filename of the bundled demo currently loaded verbatim, if any — lets Copy Link
+  // emit a short `?demo=` link instead of a full `?g=` token when nothing has changed.
+  const [demoId, setDemoId] = useState<string | null>(null);
+  const demoFingerprintRef = useRef<string | null>(null);
   const hasAttemptedInitialLoad = useRef(false);
+  const importedShareRef = useRef<string | null>(null);
 
   // ── Runner (for meta.category in SVGGraphCanvas) ─────────────────────
   const runner = useMemo(() => registry.get(algo)?.runner ?? null, [algo]);
@@ -87,6 +110,64 @@ export default function SearchPage() {
       .join(','),
   );
 
+  // ── Hydrate a shared graph from a ?g= (full token) or ?demo= (bundled demo id) link ──
+  useEffect(() => {
+    const token = searchParams.get('g');
+    const demoParam = searchParams.get('demo');
+    if (!token && !demoParam) return;
+
+    const shareKey = token ? `g:${token}` : `demo:${demoParam}`;
+    if (importedShareRef.current === shareKey) return;
+    importedShareRef.current = shareKey;
+    hasAttemptedInitialLoad.current = true; // supersedes the default Romania preload below
+
+    if (token) {
+      const decoded = deserializeGraphReplay(token);
+      if (decoded) {
+        useEditorStore.getState().loadGraph(
+          decoded.graph.nodes,
+          decoded.graph.edges,
+          decoded.startNode,
+          decoded.goalNode,
+          decoded.graph.directed ?? false,
+        );
+        if (decoded.heuristic?.id) {
+          setHeuristicId(decoded.heuristic.id);
+          const scale = Number(decoded.heuristic.params?.scale);
+          setHeuristicScale(Number.isFinite(scale) && scale > 0 ? scale : 1);
+        }
+        setDemoId(null);
+        setProblemKey(createProblemSessionKey('shared'));
+      }
+      return;
+    }
+
+    if (demoParam && isValidDemoFilename(demoParam)) {
+      fetch(toAppPath(`problems/graphs/${demoParam}`))
+        .then((res) => res.json())
+        .then((data) => {
+          const p = data.problem as GraphProblem;
+          if (!p?.graph?.nodes || !p?.graph?.edges) return;
+          useEditorStore.getState().loadGraph(
+            p.graph.nodes,
+            p.graph.edges,
+            p.startNode ?? '',
+            p.goalNode ?? '',
+            p.graph.directed ?? false,
+          );
+          setDemoId(demoParam);
+          demoFingerprintRef.current = graphFingerprint(
+            p.graph.nodes, p.graph.edges, p.startNode ?? '', p.goalNode ?? '',
+            p.graph.directed ?? false, heuristicId, heuristicScale,
+          );
+          setProblemKey(createProblemSessionKey(`shared-demo:${demoParam}`));
+        })
+        .catch(() => {});
+    }
+    // heuristicId/heuristicScale intentionally omitted — this only needs to run once per link.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   // ── Pre-load Romania map on first mount ──────────────────────────────
   useEffect(() => {
     if (hasAttemptedInitialLoad.current || editorNodes.length > 0) {
@@ -109,15 +190,22 @@ export default function SearchPage() {
           p.goalNode,
           p.graph.directed ?? false,
         );
+        setDemoId('romania-map.json');
+        demoFingerprintRef.current = graphFingerprint(
+          p.graph.nodes, p.graph.edges, p.startNode ?? '', p.goalNode ?? '',
+          p.graph.directed ?? false, heuristicId, heuristicScale,
+        );
         setProblemKey('workspace:romania-default');
       })
       .catch(() => {
         hasAttemptedInitialLoad.current = false;
       });
+    // heuristicId/heuristicScale intentionally omitted — this only needs to run once per mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editorNodes.length]);
 
   // ── Demo selector ────────────────────────────────────────────────────
-  const handleDemoSelect = useCallback((problem: unknown) => {
+  const handleDemoSelect = useCallback((problem: unknown, selectedDemoId?: string) => {
     const p = problem as GraphProblem;
     // We already passed the exact json problem shape from `fetch` in Picker
     if (p?.graph?.nodes && p?.graph?.edges) {
@@ -128,9 +216,18 @@ export default function SearchPage() {
         p.goalNode ?? '',
         p.graph.directed ?? false,
       );
+      if (selectedDemoId) {
+        setDemoId(selectedDemoId);
+        demoFingerprintRef.current = graphFingerprint(
+          p.graph.nodes, p.graph.edges, p.startNode ?? '', p.goalNode ?? '',
+          p.graph.directed ?? false, heuristicId, heuristicScale,
+        );
+      } else {
+        setDemoId(null);
+      }
       setProblemKey(createProblemSessionKey('demo'));
     }
-  }, []);
+  }, [heuristicId, heuristicScale]);
 
   // ── Problems ─────────────────────────────────────────────────────────
   // algoProblem: topology-only by default (no positions) — so dragging
@@ -265,21 +362,65 @@ export default function SearchPage() {
     },
   ], [algorithmElements, treeElements, heuristicId, problemKey]);
 
+  // ── Shareable link ───────────────────────────────────────────────────
+  // True only while the workspace is byte-identical to the bundled demo it was loaded
+  // from (topology, start/goal, directedness, and heuristic settings) — otherwise any
+  // edit falls back to the full `?g=` token so the link never silently drops changes.
+  const isExactDemoMatch = useMemo(() => {
+    if (!demoId || !demoFingerprintRef.current) return false;
+    const current = graphFingerprint(
+      editorNodes, editorEdges, editorStartId ?? '', editorGoalId ?? '',
+      editorIsDirected, heuristicId, heuristicScale,
+    );
+    return current === demoFingerprintRef.current;
+  }, [demoId, editorNodes, editorEdges, editorStartId, editorGoalId, editorIsDirected, heuristicId, heuristicScale]);
+
+  const copyGraphLink = useCallback(async () => {
+    try {
+      const query = isExactDemoMatch && demoId
+        ? `demo=${encodeURIComponent(demoId)}`
+        : `g=${encodeURIComponent(serializeGraphReplay({
+            graph: new Graph({ directed: editorIsDirected, nodes: editorNodes, edges: editorEdges }),
+            startNode: editorStartId ?? '',
+            goalNode: editorGoalId ?? '',
+            useHeuristic: isInformedAlgorithm,
+            heuristic: isInformedAlgorithm
+              ? { id: heuristicId, params: heuristicScale !== 1 ? { scale: heuristicScale } : undefined }
+              : undefined,
+          }))}`;
+      const url = toAbsoluteAppUrl(`search/${category}/${algo}?${query}`);
+      await navigator.clipboard.writeText(url);
+      setCopyStatus('copied');
+    } catch {
+      setCopyStatus('error');
+    }
+    window.setTimeout(() => setCopyStatus('idle'), 1200);
+  }, [isExactDemoMatch, demoId, category, algo, editorIsDirected, editorNodes, editorEdges, editorStartId, editorGoalId, isInformedAlgorithm, heuristicId, heuristicScale]);
+
   // ── Title actions ────────────────────────────────────────────────────
   const titleActions = useMemo(() => (
-    <TitleBarActionButton
-        onClick={() => {
-          const weighted = isWeightedAlgorithm;
-          const { nodes, edges } = generateRandomGraph(6 + Math.floor(Math.random() * 5), 0.25, weighted);
-          const ids = nodes.map(n => n.id);
-          useEditorStore.getState().loadGraph(nodes, edges, ids[0], ids[ids.length - 1], false);
-          setProblemKey(createProblemSessionKey('random'));
-      }}
-      icon={<Dice5 size={12} />}
-      label="Randomize"
-      title="Generate random graph"
-    />
-  ), [isWeightedAlgorithm]);
+    <TitleBarActionGroup>
+      <TitleBarActionButton
+          onClick={() => {
+            const weighted = isWeightedAlgorithm;
+            const { nodes, edges } = generateRandomGraph(6 + Math.floor(Math.random() * 5), 0.25, weighted);
+            const ids = nodes.map(n => n.id);
+            useEditorStore.getState().loadGraph(nodes, edges, ids[0], ids[ids.length - 1], false);
+            setDemoId(null);
+            setProblemKey(createProblemSessionKey('random'));
+        }}
+        icon={<Dice5 size={12} />}
+        label="Randomize"
+        title="Generate random graph"
+      />
+      <TitleBarActionButton
+        onClick={copyGraphLink}
+        icon={<Copy size={12} />}
+        label={copyStatus === 'copied' ? 'Copied' : copyStatus === 'error' ? 'Copy Failed' : 'Share Graph'}
+        title="Copy a shareable link to this graph"
+      />
+    </TitleBarActionGroup>
+  ), [isWeightedAlgorithm, copyGraphLink, copyStatus]);
 
   // ── Problem import handler ───────────────────────────────────────────
   const handleImport = useCallback((imported: unknown) => {
@@ -297,6 +438,7 @@ export default function SearchPage() {
         const importedScale = Number(p.heuristic.params?.scale);
         setHeuristicScale(Number.isFinite(importedScale) && importedScale > 0 ? importedScale : 1);
       }
+      setDemoId(null);
       setProblemKey(createProblemSessionKey('import'));
     }
   }, []);

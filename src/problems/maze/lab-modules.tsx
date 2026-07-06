@@ -140,7 +140,7 @@ function renderMazeTitleActions(context: MazeLabContext): ReactNode {
       <TitleBarActionButton
         onClick={context.copyReplayLink}
         icon={<Copy size={12} />}
-        label={context.copyStatus === 'copied' ? 'Copied' : context.copyStatus === 'error' ? 'Copy Failed' : 'Copy Replay'}
+        label={context.copyStatus === 'copied' ? 'Copied' : context.copyStatus === 'error' ? 'Copy Failed' : 'Share Replay'}
         title="Copy replay link"
       />
     </TitleBarActionGroup>
