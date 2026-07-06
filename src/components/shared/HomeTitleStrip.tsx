@@ -1,7 +1,4 @@
-import { usePreferencesStore } from '@/store/usePreferencesStore';
-import { PanelLeft } from '@/components/shared/Icons';
 import { TopBarControls } from '@/components/layout/TopBar';
-import { cn } from '@/lib/cn';
 
 interface HomeTitleStripProps {
   algorithmCount: number;
@@ -9,25 +6,9 @@ interface HomeTitleStripProps {
 }
 
 export default function HomeTitleStrip({ algorithmCount, liveModuleCount }: HomeTitleStripProps) {
-  const { sidebarCollapsed, toggle } = usePreferencesStore();
-
   return (
     <div className="relative z-20 shrink-0 border-b border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-sm">
       <div className="flex min-h-10 items-center gap-3 px-3 py-2">
-        <button
-          onClick={() => toggle('sidebarCollapsed')}
-          title={sidebarCollapsed ? 'Expand sidebar (S)' : 'Collapse sidebar (S)'}
-          aria-label="Toggle sidebar"
-          className={cn(
-            'ui-btn ui-btn-ghost ui-btn-icon h-7 w-7 rounded-md select-none shrink-0',
-            !sidebarCollapsed ? 'ui-btn-active' : '',
-          )}
-        >
-          <PanelLeft size={15} />
-        </button>
-
-        <div className="mx-0.5 h-4 w-px shrink-0 bg-[var(--border-strong)]" />
-
         <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
           <span className="inline-flex shrink-0 rounded border border-[var(--border)] bg-[var(--surface-2)] px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-[0.16em] text-[var(--text-3)]">
             Library

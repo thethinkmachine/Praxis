@@ -26,7 +26,6 @@ export interface NavigationAlgorithmEntry {
 export interface NavigationCategoryGroup {
   category: AlgorithmCategory;
   displayName: string;
-  iconToken: string;
   algorithms: NavigationAlgorithmEntry[];
 }
 
@@ -35,15 +34,6 @@ export const HOME_DESTINATIONS: HomeDestination[] = [
   { id: 'games', label: 'Playgrounds', to: '/?tab=games', icon: 'gamepad2' },
   { id: 'graph', label: 'Graph', to: '/?tab=graph', icon: 'network' },
 ];
-
-const CATEGORY_ICON_TOKENS: Record<AlgorithmCategory, string> = {
-  'uninformed-search': 'DIR',
-  'informed-search': 'H*',
-  'game-playing': 'MINMAX',
-  'local-search': 'LS',
-  'planning': 'PLAN',
-  'constraint-satisfaction': 'CSP',
-};
 
 const STATIC_SEGMENT_LABELS: Record<string, string> = {
   search: 'Search',
@@ -73,7 +63,6 @@ export function getNavigationCategoryGroups(): NavigationCategoryGroup[] {
     return {
       category,
       displayName: CATEGORY_LABELS[category],
-      iconToken: CATEGORY_ICON_TOKENS[category],
       algorithms: algorithms.map((meta) => ({
         id: meta.id,
         name: meta.shortName ?? meta.name,

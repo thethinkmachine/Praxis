@@ -5,9 +5,8 @@ import { cn } from '@/lib/cn';
 import AlgoInfoPopover from '@/components/shared/AlgoInfoPopover';
 import { registry, type RegistryEntry } from '@/algorithms/core/registry';
 import { buildRoute } from '@/lib/buildRoute';
-import { ChevronDown, Home, Info, Settings2, PanelLeft } from '@/components/shared/Icons';
+import { ChevronDown, Home, Info, Settings2 } from '@/components/shared/Icons';
 import { TopBarControls } from '@/components/layout/TopBar';
-import { usePreferencesStore } from '@/store/usePreferencesStore';
 import type { AlgorithmMeta } from '@/types';
 import type { ProblemCategory } from '@/types/problem';
 
@@ -47,7 +46,6 @@ export default function AlgorithmTitleStrip({
   unifiedMode = false,
 }: AlgorithmTitleStripProps) {
   const navigate = useNavigate();
-  const { sidebarCollapsed, toggle: toggleSidebar } = usePreferencesStore();
   const [showInfo, setShowInfo] = useState(false);
   const toggleInfo = useCallback(() => setShowInfo(v => !v), []);
   const categoryLabel = meta.category.replace(/-/g, ' ');
@@ -63,18 +61,6 @@ export default function AlgorithmTitleStrip({
       <div className="flex h-10 items-center gap-2 px-3">
         {unifiedMode && (
           <>
-            <button
-              onClick={() => toggleSidebar('sidebarCollapsed')}
-              title={sidebarCollapsed ? 'Expand sidebar (S)' : 'Collapse sidebar (S)'}
-              aria-label="Toggle sidebar"
-              className={cn(
-                'ui-btn ui-btn-ghost ui-btn-icon h-7 w-7 rounded-md select-none shrink-0',
-                !sidebarCollapsed ? 'ui-btn-active' : '',
-              )}
-            >
-              <PanelLeft size={15} />
-            </button>
-            <div className="mx-0.5 h-4 w-px shrink-0 bg-[var(--border-strong)]" />
             <Link
               to="/"
               className="ui-btn ui-btn-ghost ui-btn-icon h-7 w-7 rounded-md shrink-0"

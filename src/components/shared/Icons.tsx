@@ -82,4 +82,11 @@ export {
   Hash,
   Check,
   Loader2,
+
+  // Algorithm category icons
+  Waypoints,
+  Swords,
+  TrendingUp,
+  Workflow,
+  Puzzle,
 } from 'lucide-react';
