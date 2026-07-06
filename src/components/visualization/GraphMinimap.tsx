@@ -4,7 +4,7 @@ import type { SVGNodeVM } from './svg-graph.types';
 import { MINIMAP_DOT_COLORS, MINIMAP_DOT_COLORS_LIGHT } from './svg-graph.types';
 import type { ZoomTransform } from 'd3';
 import { usePreferencesStore } from '@/store/preferences.store';
-import { Plus, Minus, Search, LayoutGrid } from '@/components/shared/Icons';
+import { Plus, Minus, Maximize2, Wand2 } from '@/components/shared/Icons';
 
 interface GraphMinimapProps {
   nodes: SVGNodeVM[];
@@ -180,7 +180,7 @@ export default function GraphMinimap({
           className="flex items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] py-2 text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/50 hover:text-[var(--text)]"
           title="Fit graph"
         >
-          <Search size={14} />
+          <Maximize2 size={14} />
         </button>
         <button
           onClick={onAutoLayout}
@@ -193,7 +193,7 @@ export default function GraphMinimap({
           )}
           title="Auto-layout"
         >
-          <LayoutGrid size={14} />
+          <Wand2 size={14} />
         </button>
         <button
           onClick={onZoomIn}

@@ -245,6 +245,7 @@ export default function SearchPage() {
           algorithmElements={algorithmElements}
           snapToGrid={heuristicId === 'manhattan-distance' || heuristicId === 'chebyshev-distance'}
           className="h-full"
+          problemKey={problemKey}
         />
       ),
       keepMounted: true,
@@ -262,7 +263,7 @@ export default function SearchPage() {
         />
       ),
     },
-  ], [algorithmElements, treeElements, heuristicId]);
+  ], [algorithmElements, treeElements, heuristicId, problemKey]);
 
   // ── Title actions ────────────────────────────────────────────────────
   const titleActions = useMemo(() => (

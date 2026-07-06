@@ -26,6 +26,8 @@ interface SVGGraphCanvasProps {
   algorithmElements: ElementDefinition[];
   snapToGrid?: boolean;
   className?: string;
+  /** Identifies the loaded problem; changing it re-centers the view on the new graph. */
+  problemKey?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -254,6 +256,7 @@ export default function SVGGraphCanvas({
   algorithmElements,
   snapToGrid = false,
   className,
+  problemKey,
 }: SVGGraphCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const mainGroupRef = useRef<SVGGElement>(null);
@@ -640,6 +643,12 @@ export default function SVGGraphCanvas({
     if (fitTimerRef.current) clearTimeout(fitTimerRef.current);
     fitTimerRef.current = setTimeout(() => fit(), 50);
   }, [nodes, edges, runAutoLayout, batchUpdateNodes, fit]);
+
+  // ── Auto-center whenever a new problem is loaded ─────────────────────────
+  useEffect(() => {
+    if (fitTimerRef.current) clearTimeout(fitTimerRef.current);
+    fitTimerRef.current = setTimeout(() => fit(), 50);
+  }, [problemKey, fit]);
 
   // ── Track container dimensions ───────────────────────────────────────────
 
