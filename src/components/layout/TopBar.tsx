@@ -18,6 +18,15 @@ interface ShortcutSection {
   items: ShortcutEntry[];
 }
 
+interface Contributor {
+  name: string;
+  role: string;
+}
+
+const CONTRIBUTORS: Contributor[] = [
+  { name: 'Vedika Gupta', role: 'QA Testing' },
+];
+
 const SHORTCUT_SECTIONS: ShortcutSection[] = [
   {
     heading: 'Playback',
@@ -246,6 +255,18 @@ export function TopBarControls() {
                 >
                   github.com/thethinkmachine
                 </a>
+              </SurfaceCard>
+
+              <SurfaceCard tone="muted" padding="sm" className="rounded-lg space-y-1.5">
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)]">Contributors</p>
+                <div className="max-h-20 overflow-y-auto pr-1 space-y-1">
+                  {CONTRIBUTORS.map(({ name, role }) => (
+                    <div key={name} className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-medium text-[var(--text)] truncate">{name}</span>
+                      <span className="text-[10px] text-[var(--text-3)] shrink-0">{role}</span>
+                    </div>
+                  ))}
+                </div>
               </SurfaceCard>
             </div>
           </Dialog.Content>
