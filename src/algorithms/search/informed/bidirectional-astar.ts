@@ -5,6 +5,7 @@ import type { SearchHighlight } from '../uninformed/types';
 import { reconstructPath, validateGraphProblem, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
+import { compareLabels } from '@/lib/natural-sort';
 import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 interface BidirectionalAStarState {
@@ -123,7 +124,7 @@ export const bidirectionalAstarRunner: AlgorithmRunner<GraphProblem, Bidirection
       }
     }
     for (const neighbors of radj.values()) {
-      neighbors.sort((a, b) => labelOf(a.neighbor).localeCompare(labelOf(b.neighbor)));
+      neighbors.sort((a, b) => compareLabels(labelOf(a.neighbor), labelOf(b.neighbor)));
     }
 
     const hForward = createHeuristicEvaluator(problem);
@@ -132,8 +133,8 @@ export const bidirectionalAstarRunner: AlgorithmRunner<GraphProblem, Bidirection
       ? (() => 0)
       : createHeuristicEvaluator({ ...problem, goalNode: problem.startNode });
 
-    const pqF = new PriorityQueue<string>((a, b) => labelOf(a).localeCompare(labelOf(b)));
-    const pqB = new PriorityQueue<string>((a, b) => labelOf(a).localeCompare(labelOf(b)));
+    const pqF = new PriorityQueue<string>((a, b) => compareLabels(labelOf(a), labelOf(b)));
+    const pqB = new PriorityQueue<string>((a, b) => compareLabels(labelOf(a), labelOf(b)));
     const exploredF = new Set<string>();
     const exploredB = new Set<string>();
     const pathMapF = new Map<string, string | null>([[problem.startNode, null]]);

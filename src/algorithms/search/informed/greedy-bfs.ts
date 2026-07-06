@@ -5,6 +5,7 @@ import type { InformedSearchState, SearchHighlight } from './types';
 import { reconstructPath, validateGraphProblem, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
+import { compareLabels } from '@/lib/natural-sort';
 import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 export const greedyBfsRunner: AlgorithmRunner<GraphProblem, InformedSearchState, SearchHighlight> = {
@@ -70,7 +71,7 @@ export const greedyBfsRunner: AlgorithmRunner<GraphProblem, InformedSearchState,
     const labelOf = (id: string) => nodeLabelMap.get(id) ?? id;
     const h = createHeuristicEvaluator(problem);
 
-    const pq = new PriorityQueue<string>((a, b) => labelOf(a).localeCompare(labelOf(b)));
+    const pq = new PriorityQueue<string>((a, b) => compareLabels(labelOf(a), labelOf(b)));
     const reached = new Set<string>([problem.startNode]);
     const explored = new Set<string>();
     const pathMap = new Map<string, string | null>([[problem.startNode, null]]);

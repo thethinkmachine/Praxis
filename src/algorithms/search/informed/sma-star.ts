@@ -4,6 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { InformedSearchState, SearchHighlight } from './types';
 import { reconstructPath, validateGraphProblem, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { deepClone } from '@/lib/deep-clone';
+import { compareLabels } from '@/lib/natural-sort';
 import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 export interface SMAStarProblem extends GraphProblem {
@@ -143,7 +144,7 @@ export const smaStarRunner: AlgorithmRunner<SMAStarProblem, SMAStarState, Search
         const da = ra?.depth ?? 0;
         const db = rb?.depth ?? 0;
         if (da !== db) return db - da; // deeper node first on tie
-        return labelOf(a).localeCompare(labelOf(b));
+        return compareLabels(labelOf(a), labelOf(b));
       });
     };
 

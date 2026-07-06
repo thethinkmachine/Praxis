@@ -1,3 +1,5 @@
+import { compareLabels } from '@/lib/natural-sort';
+
 // Graph problem types shared across search algorithms
 export interface GraphNode {
   id: string;
@@ -67,7 +69,7 @@ export class Graph implements GraphData {
     });
 
     adj.forEach((neighbors) => {
-      neighbors.sort((a, b) => getLabel(a.neighbor).localeCompare(getLabel(b.neighbor)));
+      neighbors.sort((a, b) => compareLabels(getLabel(a.neighbor), getLabel(b.neighbor)));
     });
 
     return adj;

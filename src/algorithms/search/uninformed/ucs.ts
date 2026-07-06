@@ -5,6 +5,7 @@ import type { SearchHighlight } from './types';
 import { reconstructPath, validateGraphProblem } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
+import { compareLabels } from '@/lib/natural-sort';
 import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 interface UniformCostState {
@@ -71,7 +72,7 @@ export const ucsRunner: AlgorithmRunner<GraphProblem, UniformCostState, SearchHi
     const adj = problem.graph.toAdjList();
     const nodeLabelMap = new Map(problem.graph.nodes.map(n => [n.id, n.label ?? n.id]));
     const labelOf = (id: string) => nodeLabelMap.get(id) ?? id;
-    const pq = new PriorityQueue<string>((a, b) => labelOf(a).localeCompare(labelOf(b)));
+    const pq = new PriorityQueue<string>((a, b) => compareLabels(labelOf(a), labelOf(b)));
     const explored = new Set<string>();
     const pathMap = new Map<string, string | null>([[problem.startNode, null]]);
     const gCosts = new Map<string, number>([[problem.startNode, 0]]);

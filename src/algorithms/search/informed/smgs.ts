@@ -5,6 +5,7 @@ import type { InformedSearchState, SearchHighlight } from './types';
 import { validateGraphProblem, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
+import { compareLabels } from '@/lib/natural-sort';
 import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 export interface SMGSProblem extends GraphProblem {
@@ -117,7 +118,7 @@ export const smgsRunner: AlgorithmRunner<SMGSProblem, SMGSState, SearchHighlight
     const h = createHeuristicEvaluator(problem);
     const memoryLimit = Math.max(1, Math.floor(problem.memoryLimit ?? 32));
 
-    const pq = new PriorityQueue<string>((a, b) => labelOf(a).localeCompare(labelOf(b)));
+    const pq = new PriorityQueue<string>((a, b) => compareLabels(labelOf(a), labelOf(b)));
     const open = new Set<string>();
     const closed = new Set<string>();
     const denseParentMap = new Map<string, string | null>([[problem.startNode, null]]);
@@ -212,7 +213,7 @@ export const smgsRunner: AlgorithmRunner<SMGSProblem, SMGSState, SearchHighlight
       const dist = new Map<string, number>([[start, 0]]);
       const parent = new Map<string, string | null>([[start, null]]);
       const settled = new Set<string>();
-      const localPQ = new PriorityQueue<string>((a, b) => labelOf(a).localeCompare(labelOf(b)));
+      const localPQ = new PriorityQueue<string>((a, b) => compareLabels(labelOf(a), labelOf(b)));
       localPQ.push(start, 0);
 
       while (!localPQ.isEmpty) {
@@ -317,7 +318,7 @@ export const smgsRunner: AlgorithmRunner<SMGSProblem, SMGSState, SearchHighlight
             if (fDiff !== 0) return fDiff;
             const gDiff = (gCosts.get(b) ?? Infinity) - (gCosts.get(a) ?? Infinity);
             if (gDiff !== 0) return gDiff;
-            return labelOf(a).localeCompare(labelOf(b));
+            return compareLabels(labelOf(a), labelOf(b));
           });
 
         if (removable.length <= memoryLimit) return;

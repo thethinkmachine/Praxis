@@ -4,6 +4,7 @@ import type { AlgorithmStep } from '@/types/step';
 import type { InformedSearchState, SearchHighlight } from './types';
 import { validateGraphProblem, reconstructPath, createHeuristicEvaluator, getHeuristicValidationWarnings } from './types';
 import { deepClone } from '@/lib/deep-clone';
+import { compareLabels } from '@/lib/natural-sort';
 import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 interface RBFSState extends InformedSearchState {
@@ -248,7 +249,7 @@ export const rbfsRunner: AlgorithmRunner<GraphProblem, RBFSState, SearchHighligh
       }
 
       while (true) {
-        successors.sort((a, b) => a.f - b.f || labelOf(a.id).localeCompare(labelOf(b.id)));
+        successors.sort((a, b) => a.f - b.f || compareLabels(labelOf(a.id), labelOf(b.id)));
         const best = successors[0];
         const alternative = successors.length > 1 ? successors[1].f : Infinity;
 

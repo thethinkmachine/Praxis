@@ -5,6 +5,7 @@ import type { SearchHighlight } from './types';
 import { validateGraphProblem, reconstructPath } from './types';
 import { PriorityQueue } from '@/lib/priority-queue';
 import { deepClone } from '@/lib/deep-clone';
+import { compareLabels } from '@/lib/natural-sort';
 import { createLog, buildGraphStatePanels } from '@/algorithms/core/utils';
 
 interface BidirectionalUcsState {
@@ -102,11 +103,11 @@ export const bidirectionalUcsRunner: AlgorithmRunner<GraphProblem, Bidirectional
       }
     }
     for (const neighbors of radj.values()) {
-      neighbors.sort((a, b) => labelOf(a.neighbor).localeCompare(labelOf(b.neighbor)));
+      neighbors.sort((a, b) => compareLabels(labelOf(a.neighbor), labelOf(b.neighbor)));
     }
 
-    const pqF = new PriorityQueue<string>((a, b) => labelOf(a).localeCompare(labelOf(b)));
-    const pqB = new PriorityQueue<string>((a, b) => labelOf(a).localeCompare(labelOf(b)));
+    const pqF = new PriorityQueue<string>((a, b) => compareLabels(labelOf(a), labelOf(b)));
+    const pqB = new PriorityQueue<string>((a, b) => compareLabels(labelOf(a), labelOf(b)));
     const exploredF = new Set<string>();
     const exploredB = new Set<string>();
     const pathMapF = new Map<string, string | null>([[problem.startNode, null]]);
