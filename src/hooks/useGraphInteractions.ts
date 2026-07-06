@@ -136,6 +136,7 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
   const suppressNextClickRef = useRef(false);
   const suppressContextMenuRef = useRef(false);
   const rightPanRef = useRef(false);
+  const rightPanMovedRef = useRef(false);
 
   // Track drag state to distinguish click from drag
   const draggedRef = useRef(false);
@@ -189,18 +190,30 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
       .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
         d3.select(mainGroup).attr('transform', event.transform.toString());
         setTransform(event.transform);
+        // A 'zoom' event only fires when the transform actually changes, so
+        // seeing one during an active right-button gesture means the user is
+        // genuinely panning (as opposed to a stationary right-click, which
+        // d3-zoom still reports as a start/end pair with no zoom in between).
+        if (rightPanRef.current) rightPanMovedRef.current = true;
       })
       .on('start', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
         const src = event.sourceEvent;
         if (src instanceof MouseEvent && src.button === 2) {
           rightPanRef.current = true;
+          rightPanMovedRef.current = false;
         }
       })
       .on('end', () => {
         if (rightPanRef.current) {
-          suppressContextMenuRef.current = true;
-          setTimeout(() => { suppressContextMenuRef.current = false; }, 0);
+          // Only swallow the upcoming contextmenu event if this was a real
+          // pan — a plain right-click with no movement must still open the
+          // context menu.
+          if (rightPanMovedRef.current) {
+            suppressContextMenuRef.current = true;
+            setTimeout(() => { suppressContextMenuRef.current = false; }, 0);
+          }
           rightPanRef.current = false;
+          rightPanMovedRef.current = false;
         }
       });
 
