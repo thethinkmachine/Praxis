@@ -65,7 +65,6 @@ export default function GamePage() {
         algorithmId={algo}
         problem={problem}
         problemForActions={problem}
-        category="game-playing"
         problemCategory="game"
         onProblemImport={(nextProblem) => {
           setProblem(activeLab.normalizeImportedProblem(nextProblem));

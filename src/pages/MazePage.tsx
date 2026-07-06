@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import AlgorithmPage from '@/components/module/AlgorithmPage';
 import PresetPickerDialog from '@/components/shared/PresetPickerDialog';
-import { registry } from '@/algorithms/core/registry';
 import { useMazeStore } from '@/store/maze.store';
 import { useCurrentStep } from '@/store/execution.store';
 import { mazeToGraphProblem } from '@/visualizations/adapters/maze.adapter';
@@ -36,8 +35,6 @@ export default function MazePage() {
   const [weightedAStarWeight, setWeightedAStarWeight] = useState(1.5);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
   const importedReplayRef = useRef<string | null>(null);
-  const runner = useMemo(() => registry.get(algo)?.runner ?? null, [algo]);
-  const category = runner?.meta.category ?? 'uninformed-search';
 
   // Hydrate a shared maze from a ?m= replay token.
   useEffect(() => {
@@ -136,7 +133,6 @@ export default function MazePage() {
         algorithmId={algo}
         problem={graphProblem}
         problemForActions={mazeProblem}
-        category={category}
         problemCategory="maze"
         onProblemImport={handleImport}
         tabs={MAZE_LAB_MODULE.renderTabs(mazeContext)}

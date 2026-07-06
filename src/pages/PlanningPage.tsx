@@ -144,7 +144,6 @@ export default function PlanningPage() {
         algorithmId={algo}
         problem={problem}
         problemForActions={problem}
-        category="planning"
         problemCategory="planning"
         onProblemImport={(nextProblem) => {
           const normalized = normalizePlanningProblem(nextProblem, resolvedLab);

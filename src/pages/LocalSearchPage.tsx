@@ -196,7 +196,6 @@ export default function LocalSearchPage() {
         algorithmId={algo}
         problem={problem}
         problemForActions={problem}
-        category="local-search"
         problemCategory="local-search"
         onProblemImport={(nextProblem) => {
           const normalized = normalizeLocalSearchProblem(nextProblem);

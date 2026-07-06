@@ -545,7 +545,6 @@ export default function SearchPage() {
         algorithmId={algo}
         problem={algoProblem}
         problemForActions={fullProblem}
-        category={runner?.meta.category ?? 'uninformed-search'}
         problemCategory="graph"
         onProblemImport={handleImport}
         tabs={tabs}

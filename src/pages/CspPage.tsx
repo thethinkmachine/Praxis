@@ -114,7 +114,6 @@ export default function CspPage() {
         algorithmId={algo}
         problem={problem}
         problemForActions={problem}
-        category="constraint-satisfaction"
         problemCategory="constraint-satisfaction"
         onProblemImport={(nextProblem) => {
           const normalized = normalizeCspProblem(nextProblem, resolvedLab);

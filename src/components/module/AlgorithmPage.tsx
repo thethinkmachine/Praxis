@@ -19,12 +19,10 @@ import AlgorithmTitleStrip from '@/components/shared/AlgorithmTitleStrip';
 import AlgorithmNotFound from '@/components/shared/AlgorithmNotFound';
 import TabStrip from '@/components/shared/TabStrip';
 import ControlPanel from '@/components/module/ControlPanel';
-import MetricsPanel from '@/components/module/MetricsPanel';
+import StateMetricsPanel from '@/components/module/StateMetricsPanel';
 import PseudocodePanel from '@/components/module/PseudocodePanel';
-import StatePanel from '@/components/module/StatePanel';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import ProblemImportExportButton from '@/components/shared/ProblemImportExportButton';
-import type { AlgorithmCategory } from '@/types';
 import type { ProblemCategory } from '@/types/problem';
 import type { ExecutionLoadContext } from '@/store/execution.store';
 
@@ -42,7 +40,6 @@ export interface AlgorithmPageProps {
   problem: unknown;
   /** Optional payload used for import/export/save actions instead of execution problem. */
   problemForActions?: unknown;
-  category: AlgorithmCategory;
   problemCategory: ProblemCategory;
   onProblemImport: (problem: unknown) => void;
   /** Visualization tabs — if only 1, no tab strip is shown */
@@ -64,7 +61,6 @@ export default function AlgorithmPage({
   algorithmId,
   problem,
   problemForActions,
-  category,
   problemCategory,
   onProblemImport,
   tabs,
@@ -237,17 +233,7 @@ export default function AlgorithmPage({
           collapsedSize="0"
         >
           <PanelWrapper title="State & Metrics">
-            <div className="h-full overflow-y-auto custom-scrollbar">
-              {statePanelVisible && <StatePanel step={step} />}
-              {metricsVisible && (
-                <MetricsPanel
-                  metrics={step?.metrics ?? null}
-                  phase={step?.phase}
-                  description={step?.description}
-                  algorithmCategory={category}
-                />
-              )}
-            </div>
+            <StateMetricsPanel step={step} showState={statePanelVisible} showMetrics={metricsVisible} />
           </PanelWrapper>
         </Panel>
 
