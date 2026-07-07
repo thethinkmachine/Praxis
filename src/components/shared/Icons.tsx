@@ -36,6 +36,7 @@ export {
   Plus,
   Minus,
   ArrowLeft,
+  ArrowUpDown,
   Compass,
   Save,
   SplitSquareVertical,
