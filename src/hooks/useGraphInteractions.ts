@@ -44,6 +44,10 @@ interface UseGraphInteractionsReturn {
   transform: d3.ZoomTransform;
   zoomLevel: number;
   selectionBox: SelectionBoxRect | null;
+  /** Space held — a pan gesture is available via left-drag regardless of mode. */
+  isSpacePressed: boolean;
+  /** A pan (right-drag, middle-drag, or space+left-drag) is actively in progress. */
+  isPanning: boolean;
   fit: (padding?: number) => void;
   jumpTo: (x: number, y: number, duration?: number) => void;
   zoomIn: (factor?: number) => void;
@@ -129,6 +133,8 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
 
   const [transform, setTransform] = useState<d3.ZoomTransform>(d3.zoomIdentity);
   const [selectionBox, setSelectionBox] = useState<SelectionBoxRect | null>(null);
+  const [isSpacePressed, setIsSpacePressed] = useState(false);
+  const [isPanning, setIsPanning] = useState(false);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const optionsRef = useRef(options);
   optionsRef.current = options;
@@ -145,14 +151,16 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
         isSpacePressedRef.current = true;
+        setIsSpacePressed(true);
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
         isSpacePressedRef.current = false;
+        setIsSpacePressed(false);
       }
     };
-    const onBlur = () => { isSpacePressedRef.current = false; };
+    const onBlur = () => { isSpacePressedRef.current = false; setIsSpacePressed(false); };
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
     window.addEventListener('blur', onBlur);
@@ -198,12 +206,20 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
       })
       .on('start', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
         const src = event.sourceEvent;
-        if (src instanceof MouseEvent && src.button === 2) {
-          rightPanRef.current = true;
-          rightPanMovedRef.current = false;
+        // Wheel-driven zoom also fires start/end — only a mouse-drag gesture
+        // (right/middle button, or space+left) counts as an actual pan.
+        if (src instanceof MouseEvent) {
+          setIsPanning(true);
+          if (src.button === 2) {
+            rightPanRef.current = true;
+            rightPanMovedRef.current = false;
+          }
         }
       })
-      .on('end', () => {
+      .on('end', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
+        if (event.sourceEvent instanceof MouseEvent) {
+          setIsPanning(false);
+        }
         if (rightPanRef.current) {
           // Only swallow the upcoming contextmenu event if this was a real
           // pan — a plain right-click with no movement must still open the
@@ -677,6 +693,8 @@ export function useGraphInteractions(options: UseGraphInteractionsOptions): UseG
     transform,
     zoomLevel: transform.k,
     selectionBox,
+    isSpacePressed,
+    isPanning,
     fit,
     jumpTo,
     zoomIn,

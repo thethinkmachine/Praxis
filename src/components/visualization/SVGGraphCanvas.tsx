@@ -563,6 +563,8 @@ export default function SVGGraphCanvas({
     transform,
     zoomLevel,
     selectionBox,
+    isSpacePressed,
+    isPanning,
     fit,
     jumpTo,
     zoomIn,
@@ -697,13 +699,19 @@ export default function SVGGraphCanvas({
 
   // ── Cursors based on mode ────────────────────────────────────────────────
 
-  const svgCursor = mode === 'addNode' ? 'crosshair'
-    : mode === 'addEdge' ? 'default'
-    : mode === 'delete' ? 'pointer'
-    : 'grab';
+  // Panning (right-drag, middle-drag, or space+left-drag) is available in
+  // every mode, so it takes priority over the mode's own cursor affordance.
+  const panAffordance = isPanning || isSpacePressed;
+  const panCursor = isPanning ? 'grabbing' : 'grab';
 
-  const nodeCursor = mode === 'delete' ? 'pointer'
+  const svgCursor = panAffordance ? panCursor
+    : mode === 'addNode' ? 'crosshair'
+    : 'default';
+
+  const nodeCursor = panAffordance ? panCursor
+    : mode === 'delete' ? 'pointer'
     : mode === 'addEdge' ? 'crosshair'
+    : mode === 'addNode' ? 'default'
     : 'grab';
 
   // ── Render ───────────────────────────────────────────────────────────────
@@ -800,7 +808,7 @@ export default function SVGGraphCanvas({
                       x1={srcPos.x} y1={srcPos.y} x2={tgtPos.x} y2={tgtPos.y}
                       stroke="transparent"
                       strokeWidth={14}
-                      style={{ cursor: mode === 'delete' ? 'pointer' : 'default' }}
+                      style={{ cursor: panAffordance ? panCursor : mode === 'delete' ? 'pointer' : 'default' }}
                     />
                     {/* Weight label */}
                     {edge.weight !== 1 && (
