@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent } from '@radix-ui/react-tabs';
 import { registry } from '@/algorithms/core/registry';
@@ -49,23 +49,23 @@ export default function HomePage() {
 
   const scrollToCategory = useCallback((category: AlgorithmCategory) => {
     handleTabChange('algorithms');
-    setIsHeroCollapsed(true);
-    setIsHeroExpanded(false);
-    
+
+    // Deferred one tick so a tab switch (e.g. from Playgrounds) has mounted the
+    // algorithms grid before we measure its layout.
     setTimeout(() => {
       const container = document.getElementById('home-main-scroll');
       const el = document.getElementById(`category-${category}`);
       const header = document.getElementById('home-sticky-header');
-      
+
       if (el && container) {
         const offset = header?.offsetHeight || 60;
         const rect = el.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
         const scrollTop = container.scrollTop + (rect.top - containerRect.top) - offset - 10;
-        
+
         container.scrollTo({ top: scrollTop, behavior: 'smooth' });
       }
-    }, 120);
+    }, 50);
   }, [handleTabChange]);
 
   // Handle scroll param from sidebar navigation
@@ -104,35 +104,12 @@ export default function HomePage() {
   const isGraphTab = activeTab === 'graph';
   const [animPaused, setAnimPaused] = useState(false);
   const [isHeroExpanded, setIsHeroExpanded] = useState(true);
-  const [isHeroCollapsed, setIsHeroCollapsed] = useState(false);
   const [caRule, setCaRule] = useState<{ mode: '1D' | '2D'; name: string; details?: string } | null>(null);
 
-  const lastScrollY = useRef(0);
-
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const currentScrollY = e.currentTarget.scrollTop;
-    
-    // Collapse if scrolling down past a threshold
-    if (currentScrollY > 60 && currentScrollY > lastScrollY.current && !isHeroCollapsed) {
-      setIsHeroCollapsed(true);
-      setIsHeroExpanded(false); // Reset manual expansion when scrolling away
-    } 
-    // Expand if scrolling up significantly or reaching the top
-    else if (isHeroCollapsed) {
-      if (currentScrollY < 30 || currentScrollY < lastScrollY.current - 40) {
-        setIsHeroCollapsed(false);
-      }
-    }
-    
-    lastScrollY.current = currentScrollY;
-  }, [isHeroCollapsed]);
-
-  // Reset scroll state when changing tabs
+  // Reset scroll position when changing tabs
   useEffect(() => {
     const scrollContainer = document.getElementById('home-main-scroll');
     if (scrollContainer) scrollContainer.scrollTop = 0;
-    setIsHeroCollapsed(false);
-    lastScrollY.current = 0;
   }, [activeTab]);
 
   return (
@@ -143,17 +120,15 @@ export default function HomePage() {
           liveModuleCount={liveModuleCount}
         />
 
-        <div 
+        <div
           id="home-main-scroll"
           className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth"
-          onScroll={handleScroll}
         >
           {/* Hero Section */}
           <div
             className={cn(
               'relative mx-3 mt-3 rounded-xl border border-[var(--border)] transition-all duration-700 ease-in-out ide-surface overflow-hidden',
               isGraphTab ? 'h-0 opacity-0 border-0 pointer-events-none m-0' : isHeroExpanded ? 'h-[85vh] opacity-100' : 'h-[360px] opacity-100',
-              isHeroCollapsed && 'opacity-0 h-0 border-0 m-0 pointer-events-none'
             )}
           >
             {/* Backdrop - Cellular Automaton */}
@@ -216,7 +191,6 @@ export default function HomePage() {
             <div className={cn(
               "relative z-10 px-4 sm:px-6 py-6 h-full flex flex-col items-center justify-center text-center gap-4 transition-all duration-700 rounded-xl",
               isHeroExpanded ? "bg-gradient-to-b from-[var(--surface)]/40 to-[var(--surface-2)]/20 backdrop-blur-[1px]" : "bg-gradient-to-b from-[var(--surface)]/70 to-[var(--surface-2)]/40 backdrop-blur-[2px]",
-              isHeroCollapsed ? "opacity-0 scale-95" : "opacity-100 scale-100"
             )}>
               <span className="font-bold text-4xl sm:text-5xl tracking-tight text-[var(--text)] font-mono">
                 Praxis
