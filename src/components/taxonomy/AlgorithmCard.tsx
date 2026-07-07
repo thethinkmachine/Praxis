@@ -3,6 +3,7 @@ import type { AlgorithmMeta } from '@/types';
 import { ALGORITHM_TO_PROBLEM_CATEGORY } from '@/types/problem';
 import AlgorithmBadge from '@/components/shared/AlgorithmBadge';
 import ComplexityBadge from '@/components/shared/ComplexityBadge';
+import GuaranteeBadge from '@/components/shared/GuaranteeBadge';
 import { cn } from '@/lib/cn';
 import { buildRoute } from '@/lib/buildRoute';
 
@@ -27,30 +28,8 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
           {meta.name}
         </h3>
         <div className="flex gap-1 flex-wrap justify-end shrink-0">
-          {meta.complete !== undefined && (
-            <span
-              className={cn(
-                'ui-pill text-[10px] px-1.5 py-0.5 font-medium',
-                meta.complete
-                  ? 'ui-pill-success'
-                  : 'ui-pill-danger'
-              )}
-            >
-              {meta.complete ? '✓ Complete' : '✗'}
-            </span>
-          )}
-          {meta.optimal !== undefined && (
-            <span
-              className={cn(
-                'ui-pill text-[10px] px-1.5 py-0.5 font-medium',
-                meta.optimal
-                  ? 'ui-pill-success'
-                  : 'ui-pill-warning'
-              )}
-            >
-              {meta.optimal ? '★ Optimal' : '○'}
-            </span>
-          )}
+          {meta.complete !== undefined && <GuaranteeBadge kind="complete" value={meta.complete} />}
+          {meta.optimal !== undefined && <GuaranteeBadge kind="optimal" value={meta.optimal} />}
         </div>
       </div>
 
@@ -74,10 +53,10 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
         )}
       </div>
 
-      {/* AIMA reference */}
+      {/* Reference */}
       {meta.bookChapter && (
         <div className="mt-2 text-[10px] text-[var(--text-3)] font-mono">
-          AIMA {meta.bookChapter}
+          {meta.bookChapter}
         </div>
       )}
     </button>
