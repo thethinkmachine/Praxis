@@ -45,7 +45,7 @@ function TransportButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'ui-btn ui-btn-icon flex h-8 w-8 rounded-lg',
+        'ui-btn ui-btn-icon flex h-7 w-7 rounded-lg',
         accent
           ? 'ui-btn-accent'
           : '',
@@ -86,7 +86,7 @@ export default function ControlPanel() {
   return (
     <Tooltip.Provider delayDuration={250}>
       <div className="bg-[var(--surface)] px-2 py-1.5">
-        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/65 px-2 py-2">
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/65 px-2 py-1.5">
           <div className="flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-1.5 py-1.5">
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
@@ -133,8 +133,8 @@ export default function ControlPanel() {
             </Tooltip.Root>
           </div>
 
-          <div className="min-w-[200px] flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2">
-            <div className="mb-1.5 flex items-center justify-between gap-3">
+          <div className="min-w-[200px] flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5">
+            <div className="mb-1 flex items-center justify-between gap-3">
               <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Trace Position</span>
               <span className="rounded-md border border-[var(--border)] bg-[var(--surface-2)] px-1.5 py-0.5 text-[10px] font-mono text-[var(--text)]">
                 {hasTrace ? currentIndex + 1 : 0}/{total}
@@ -153,7 +153,7 @@ export default function ControlPanel() {
               <Tooltip.Trigger asChild>
                 <button
                   onClick={() => setSpeed(clampSpeed(speed - 5))}
-                  className="ui-btn ui-btn-icon h-8 w-8 rounded-lg"
+                  className="ui-btn ui-btn-icon h-7 w-7 rounded-lg"
                 >
                   <Minus size={13} />
                 </button>
@@ -170,7 +170,7 @@ export default function ControlPanel() {
               <Tooltip.Trigger asChild>
                 <button
                   onClick={() => setSpeed(1)}
-                  className="ui-btn ui-btn-icon h-8 w-8 rounded-lg"
+                  className="ui-btn ui-btn-icon h-7 w-7 rounded-lg"
                 >
                   <RotateCcw size={13} />
                 </button>
@@ -182,7 +182,7 @@ export default function ControlPanel() {
               <Tooltip.Trigger asChild>
                 <button
                   onClick={() => setSpeed(clampSpeed(speed + 5))}
-                  className="ui-btn ui-btn-icon h-8 w-8 rounded-lg"
+                  className="ui-btn ui-btn-icon h-7 w-7 rounded-lg"
                 >
                   <Plus size={13} />
                 </button>
