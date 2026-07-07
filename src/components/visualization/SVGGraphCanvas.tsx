@@ -664,10 +664,13 @@ export default function SVGGraphCanvas({
       for (const entry of entries) {
         setCanvasDims({ w: entry.contentRect.width, h: entry.contentRect.height });
       }
+      // Debounce: panel drags fire many resize events in quick succession.
+      if (fitTimerRef.current) clearTimeout(fitTimerRef.current);
+      fitTimerRef.current = setTimeout(() => fit(), 100);
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [fit]);
 
   // ── Mode badge colors ────────────────────────────────────────────────────
 
