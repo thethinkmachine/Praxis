@@ -60,21 +60,26 @@ function buildTradeoffs(meta: AlgorithmMeta): string[] {
   ];
 }
 
+function computeAnchoredPosition(anchor: HTMLElement | null): { top: number; left: number } {
+  if (!anchor) return { top: 52, left: 16 };
+
+  const rect = anchor.getBoundingClientRect();
+  const width = Math.min(620, window.innerWidth - 32);
+  const left = Math.min(Math.max(16, rect.right - width), window.innerWidth - width - 16);
+  const top = Math.max(16, rect.bottom + 10);
+  return { top, left };
+}
+
 export default function AlgoInfoPopover({ meta, anchorRef, onClose }: AlgoInfoPopoverProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ top: 52, left: 16 });
+  // Lazy-init from the anchor's already-mounted position so the first paint
+  // lands in the right place — anchorRef.current is already a real DOM node
+  // by the time this popover mounts, so there's no need for a placeholder
+  // that gets corrected (and visibly jumps) a tick later.
+  const [position, setPosition] = useState(() => computeAnchoredPosition(anchorRef.current));
 
   useEffect(() => {
-    const updatePosition = () => {
-      const anchor = anchorRef.current;
-      if (!anchor) return;
-
-      const rect = anchor.getBoundingClientRect();
-      const width = Math.min(620, window.innerWidth - 32);
-      const nextLeft = Math.min(Math.max(16, rect.right - width), window.innerWidth - width - 16);
-      const nextTop = Math.max(16, rect.bottom + 10);
-      setPosition({ top: nextTop, left: nextLeft });
-    };
+    const updatePosition = () => setPosition(computeAnchoredPosition(anchorRef.current));
 
     updatePosition();
     window.addEventListener('resize', updatePosition);
