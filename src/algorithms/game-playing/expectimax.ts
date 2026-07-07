@@ -33,7 +33,7 @@ export const expectimaxRunner: TicTacToeRunner = {
     timeComplexity: 'O(b^m)',
     spaceComplexity: 'O(m)',
     complete: true,
-    optimal: true,
+    optimal: 'Optimal only under the assumed chance-node model (uniformly random opponent), unlike Minimax\'s worst-case guarantee',
     tags: ['game tree', 'expectimax', 'chance nodes', 'stochastic search', 'tic-tac-toe'],
     bookChapter: 'Chapter 5',
     relatedAlgorithms: ['minimax', 'mcts'],

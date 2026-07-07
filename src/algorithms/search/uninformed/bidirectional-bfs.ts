@@ -31,7 +31,7 @@ export const bidirectionalBfsRunner: AlgorithmRunner<GraphProblem, Bidirectional
     timeComplexity: 'O(b^(d/2))',
     spaceComplexity: 'O(b^(d/2))',
     complete: true,
-    optimal: true,
+    optimal: 'unit-cost only',
     tags: ['search', 'uninformed', 'bidirectional', 'optimal', 'bfs'],
     bookChapter: 'AIMA 4th Ed. § 3.4.6',
     relatedAlgorithms: ['bfs', 'ucs', 'iddfs'],

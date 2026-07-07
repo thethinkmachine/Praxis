@@ -16,7 +16,7 @@ export const iddfsRunner: AlgorithmRunner<GraphProblem, SearchState, SearchHighl
     timeComplexity: 'O(b^d)',
     spaceComplexity: 'O(bd)',
     complete: true,
-    optimal: true,
+    optimal: 'unit-cost only',
     tags: ['graph', 'uninformed', 'iterative', 'depth-limited', 'complete', 'optimal'],
     bookChapter: 'AIMA 4th Ed. § 3.4.5',
     relatedAlgorithms: ['dls', 'bfs', 'dfs'],

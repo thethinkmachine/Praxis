@@ -216,7 +216,7 @@ export const popRunner: PlanningRunner = {
     description: 'Searches in plan space by resolving open preconditions and threats while keeping only the order constraints that are strictly necessary.',
     timeComplexity: 'Problem-dependent',
     spaceComplexity: 'Problem-dependent',
-    complete: false,
+    complete: 'Complete within the search-depth bound',
     optimal: false,
     tags: ['planning', 'partial-order', 'least-commitment'],
     bookChapter: 'AIMA 4th Ed. § 11.5',
