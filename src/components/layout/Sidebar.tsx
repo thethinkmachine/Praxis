@@ -50,24 +50,38 @@ export default function Sidebar() {
   return (
     <aside
       style={{ width: isExpanded ? 232 : 48 }}
-      className="relative flex h-full shrink-0 flex-col overflow-hidden border-r border-[var(--border)] transition-[width] duration-200 ease-in-out"
+      className="relative flex h-full shrink-0 flex-col overflow-hidden transition-[width] duration-200 ease-in-out"
     >
-      {/* Collapse/expand toggle — pinned to the rail it controls, not a distant title strip */}
-      <div className={cn('flex shrink-0 items-center px-2 pt-2', isExpanded ? 'justify-end' : 'justify-center')}>
-        <button
-          onClick={() => toggleSidebar('sidebarCollapsed')}
-          title={sidebarCollapsed ? 'Expand sidebar (S)' : 'Collapse sidebar (S)'}
-          aria-label="Toggle sidebar"
-          className={cn(
-            'ui-btn ui-btn-ghost ui-btn-icon h-7 w-7 rounded-md select-none shrink-0',
-            isExpanded && 'ui-btn-active',
-          )}
-        >
-          <PanelLeft size={15} />
-        </button>
+      {/* Collapse/expand toggle — same height/border/background as the title strip beside it,
+          so the two form one continuous bar instead of two boxes glued together. The toggle's
+          own cell stays a fixed 48px (matching the collapsed rail) instead of stretching to the
+          expanded width, and the leftover space is filled with the wordmark rather than left
+          empty. The vertical divider only starts below, on <nav>, not up here. */}
+      <div className="relative z-20 flex h-12 shrink-0 items-center border-b border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-sm">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center">
+          <button
+            onClick={() => toggleSidebar('sidebarCollapsed')}
+            title={sidebarCollapsed ? 'Expand sidebar (S)' : 'Collapse sidebar (S)'}
+            aria-label="Toggle sidebar"
+            className={cn(
+              'ui-btn ui-btn-ghost ui-btn-icon h-7 w-7 rounded-md select-none',
+              isExpanded && 'ui-btn-active',
+            )}
+          >
+            <PanelLeft size={15} />
+          </button>
+        </div>
+        {isExpanded && (
+          <Link
+            to="/"
+            className="truncate pr-3 font-mono text-lg font-extrabold tracking-tight text-[var(--accent)] transition-opacity hover:opacity-80"
+          >
+            Praxis
+          </Link>
+        )}
       </div>
 
-      <nav className="custom-scrollbar flex-1 overflow-y-auto overflow-x-hidden px-2 py-3">
+      <nav className="custom-scrollbar flex-1 overflow-y-auto overflow-x-hidden border-r border-[var(--border)] px-2 py-3">
         {/* Home destinations */}
         <div className="space-y-px">
           {HOME_DESTINATIONS.map((item) => {

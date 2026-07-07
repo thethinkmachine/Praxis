@@ -57,8 +57,8 @@ export default function AlgorithmTitleStrip({
   }, [meta.category]);
 
   return (
-    <div className="relative z-20 shrink-0 border-b border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-sm">
-      <div className="flex h-10 items-center gap-2 px-3">
+    <div className="relative z-20 shrink-0 bg-[var(--surface)]/95 backdrop-blur-sm">
+      <div className="flex h-12 items-center gap-2 border-b border-[var(--border)] px-3">
         {unifiedMode && (
           <>
             <Link

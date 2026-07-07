@@ -282,7 +282,7 @@ export default function TopBar() {
 
   return (
     <header className={cn(
-      'ide-titlebar flex items-center justify-between h-10 px-3 sm:px-4 shrink-0 gap-3'
+      'ide-titlebar flex items-center justify-between h-12 px-3 sm:px-4 shrink-0 gap-3'
     )}>
       <nav className="flex-1 min-w-0 flex items-center gap-1 text-[11px] text-[var(--text-3)] font-mono">
         {crumbs.map((crumb, i) => (
