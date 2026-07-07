@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/cn';
+import { Search, Gamepad2, Network, ChevronRight, PanelLeft } from '@/components/shared/Icons';
 import {
-  Search, Gamepad2, Network, ChevronRight, PanelLeft,
-  Waypoints, Target, Swords, TrendingUp, Workflow, Puzzle,
-} from '@/components/shared/Icons';
+  UninformedSearchIcon, InformedSearchIcon, GamePlayingIcon,
+  LocalSearchIcon, PlanningIcon, ConstraintSatisfactionIcon,
+} from '@/components/shared/CategoryIcons';
 import { usePreferencesStore } from '@/store/usePreferencesStore';
 import { HOME_DESTINATIONS, getNavigationCategoryGroups } from '@/lib/navigation';
 import type { AlgorithmCategory } from '@/types';
@@ -15,13 +16,13 @@ function renderHomeDestinationIcon(icon: 'search' | 'gamepad2' | 'network') {
   return <Search size={14} />;
 }
 
-const CATEGORY_ICONS: Record<AlgorithmCategory, typeof Waypoints> = {
-  'uninformed-search': Waypoints,
-  'informed-search': Target,
-  'game-playing': Swords,
-  'local-search': TrendingUp,
-  'planning': Workflow,
-  'constraint-satisfaction': Puzzle,
+const CATEGORY_ICONS: Record<AlgorithmCategory, typeof UninformedSearchIcon> = {
+  'uninformed-search': UninformedSearchIcon,
+  'informed-search': InformedSearchIcon,
+  'game-playing': GamePlayingIcon,
+  'local-search': LocalSearchIcon,
+  'planning': PlanningIcon,
+  'constraint-satisfaction': ConstraintSatisfactionIcon,
 };
 
 export default function Sidebar() {
