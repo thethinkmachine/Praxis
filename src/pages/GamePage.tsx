@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import type { AlgorithmStep } from '@/types/step';
 import type { GameProblem } from '@/types/problem';
@@ -28,7 +28,20 @@ export default function GamePage() {
   const currentIndex = useExecutionStore((state) => state.currentIndex);
   const clearExecution = useExecutionStore((state) => state.clear);
 
+  // Reset to the lab's default problem only when the user actually switches to
+  // a *different* lab — never on the initial mount. The useState initializer
+  // above already seeded `problem`, and a lab's own tab (e.g. the custom-tree
+  // shared-link loader) runs its mount effect *before* this parent effect and
+  // may have loaded a `?t=` tree; a blind reset here would stomp it.
+  //
+  // This is a value-based guard (compare the previous lab id), NOT a
+  // first-mount flag: under React.StrictMode effects run setup→cleanup→setup,
+  // so a boolean "skip once" flag gets flipped on the throwaway pass and the
+  // real reset fires anyway. Comparing ids is immune to that double-invoke.
+  const prevLabIdRef = useRef(activeLab.id);
   useEffect(() => {
+    if (prevLabIdRef.current === activeLab.id) return;
+    prevLabIdRef.current = activeLab.id;
     setProblem(activeLab.createDefaultProblem());
     setDemoDialogOpen(false);
     setProblemKey(`game:${activeLab.id}:default`);

@@ -12,6 +12,7 @@ import NavigationTile from '@/components/shared/NavigationTile';
 import CellularAutomatonBackdrop from '@/components/visualization/CellularAutomatonBackdrop';
 import { Search, Gamepad2, Network, Play, Pause, Maximize2, Minimize2 } from '@/components/shared/Icons';
 import { cn } from '@/lib/cn';
+import { usePreferencesStore } from '@/store/usePreferencesStore';
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/lib/constants';
 import type { AlgorithmCategory } from '@/types/algorithm';
 import { DISCOVERY_ITEMS_BY_CATEGORY, getDiscoveryItemsForCategory } from '@/lib/discovery-items';
@@ -63,6 +64,7 @@ export default function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [recentlyOpened, setRecentlyOpened] = useState<RecentDestination[]>(() => getRecentlyOpened());
+  const sidebarCollapsed = usePreferencesStore((state) => state.sidebarCollapsed);
 
   const liveModuleCount = useMemo(() => {
     return Object.values(DISCOVERY_ITEMS_BY_CATEGORY)
@@ -182,6 +184,7 @@ export default function HomePage() {
         <HomeTitleStrip
           algorithmCount={metas.length}
           liveModuleCount={liveModuleCount}
+          showBrand={sidebarCollapsed}
         />
 
         <div
@@ -260,7 +263,7 @@ export default function HomePage() {
                 Praxis
               </span>
               <p className="text-xs sm:text-sm text-[var(--text-2)] uppercase tracking-[0.2em]">
-                Symbolic AI Algorithm Library & Playground
+                The Planet's Only Symbolic AI Encyclopædia!
               </p>
 
               <AlgorithmSearch />

@@ -12,7 +12,7 @@ import { buildGameTreeElements } from '@/visualizations/adapters/game-tree.adapt
 import ProblemConfigurator, { ConfigSection } from '@/components/module/ProblemConfigurator';
 import Select from '@/components/shared/Select';
 import StatTile from '@/components/shared/StatTile';
-import { RotateCcw, Dice5, Copy } from '@/components/shared/Icons';
+import { RotateCcw, Copy } from '@/components/shared/Icons';
 import { TitleBarActionButton, TitleBarActionGroup } from '@/components/shared/TitleBarAction';
 import { toAbsoluteAppUrl } from '@/lib/app-paths';
 import type { TabDefinition } from '@/components/module/AlgorithmPage';
@@ -23,6 +23,7 @@ import {
   getCustomTreeScenario,
 } from './custom-tree-lab';
 import { serializeGameTree, deserializeGameTree } from './custom-tree-share';
+import { layoutGameTree } from './tree-layout';
 
 const KIND_OPTIONS = [
   { value: 'max', label: 'Max (maximizes)' },
@@ -62,6 +63,10 @@ function deriveProblem(nodes: GameTreeNodeData[], edges: GameTreeEdgeData[], roo
 function useTreeProblemSync(context: GameLabContext, onExternalLoad: () => void) {
   const problem = context.problem as GameTreeProblem;
   const lastStructuralRef = useRef<string | null>(null);
+  // The initial problem object (stable across renders). The mount effect below
+  // owns the initial problem<->store sync, so the [problem] effect must NOT act
+  // while `problem` is still this initial value — see the guard there.
+  const initialProblemRef = useRef(problem);
   const [searchParams] = useSearchParams();
   const sharedToken = searchParams.get('t');
 
@@ -71,9 +76,18 @@ function useTreeProblemSync(context: GameLabContext, onExternalLoad: () => void)
     const store = useTreeEditorStore.getState();
     const shared = sharedToken ? deserializeGameTree(sharedToken) : null;
     if (shared) {
-      store.loadTree(shared.tree.nodes.map((n) => ({ ...n })), shared.tree.edges.map((e) => ({ ...e })), shared.tree.rootId);
-      lastStructuralRef.current = structuralSignature(shared.tree.nodes, shared.tree.edges, shared.tree.rootId);
-      context.setProblem(shared);
+      let sharedNodes = shared.tree.nodes.map((n) => ({ ...n }));
+      const sharedEdges = shared.tree.edges.map((e) => ({ ...e }));
+      // Defends against tokens that lack positions (e.g. links shared before
+      // this fix) — without this every node would default to (0, 0) and pile
+      // on top of each other instead of rendering as a tree.
+      if (!sharedNodes.some((n) => n.x !== undefined && n.y !== undefined)) {
+        const positions = layoutGameTree(sharedNodes, sharedEdges, shared.tree.rootId);
+        sharedNodes = sharedNodes.map((n) => ({ ...n, ...positions.get(n.id) }));
+      }
+      store.loadTree(sharedNodes, sharedEdges, shared.tree.rootId);
+      lastStructuralRef.current = structuralSignature(sharedNodes, sharedEdges, shared.tree.rootId);
+      context.setProblem(deriveProblem(sharedNodes, sharedEdges, shared.tree.rootId));
       onExternalLoad();
     } else if (store.nodes.length === 0) {
       store.loadTree(problem.tree.nodes.map((n) => ({ ...n })), problem.tree.edges.map((e) => ({ ...e })), problem.tree.rootId);
@@ -88,6 +102,15 @@ function useTreeProblemSync(context: GameLabContext, onExternalLoad: () => void)
 
   // External problem change (preset/import/clear) -> load into the store.
   useEffect(() => {
+    // Skip while `problem` is still the initial value. This effect fires on
+    // mount with the *stale* initial problem (default) even though the mount
+    // effect above has already synced the store to a ?t= shared tree and
+    // called setProblem — acting on that stale value would reload the default
+    // over the shared tree. Reference identity is StrictMode-safe (unlike a
+    // "first run" counter, which the setup->cleanup->setup double-invoke
+    // defeats). Genuine preset/import/clear changes produce a new object and
+    // pass this guard.
+    if (problem === initialProblemRef.current) return;
     const sig = structuralSignature(problem.tree.nodes, problem.tree.edges, problem.tree.rootId);
     const store = useTreeEditorStore.getState();
     const storeSig = structuralSignature(store.nodes, store.edges, store.rootId);
@@ -169,6 +192,14 @@ function CustomTreeConfigPanel({ context }: { context: GameLabContext }) {
     <ProblemConfigurator title="Custom Tree">
       <ConfigSection title="Presets" defaultOpen={!selectedNode}>
         <div className="space-y-1.5">
+          <button
+            onClick={() => { context.setProblem(createDefaultGameTreeProblem()); context.markProblemChanged('scenario:default'); }}
+            className="ui-btn w-full justify-start gap-2 rounded-md px-2 py-1.5 text-[11px]"
+            title="Start over with the small starter tree"
+          >
+            <RotateCcw size={12} />
+            Starter Tree
+          </button>
           {CUSTOM_TREE_SCENARIOS.map((scenario) => (
             <button
               key={scenario.id}
@@ -296,7 +327,7 @@ function CustomTreeTitleActions({ context }: { context: GameLabContext }) {
   const copyShareLink = useCallback(async () => {
     try {
       const store = useTreeEditorStore.getState();
-      const token = serializeGameTree(deriveProblem(store.nodes, store.edges, store.rootId));
+      const token = serializeGameTree(new GameTree({ nodes: store.nodes, edges: store.edges, rootId: store.rootId }));
       const url = toAbsoluteAppUrl(`play/custom-tree/${context.algorithmId}?t=${encodeURIComponent(token)}`);
       await navigator.clipboard.writeText(url);
       setCopyStatus('copied');
@@ -309,22 +340,10 @@ function CustomTreeTitleActions({ context }: { context: GameLabContext }) {
   return (
     <TitleBarActionGroup>
       <TitleBarActionButton
-        onClick={() => { context.setProblem(getCustomTreeScenario('classic-minimax')); context.markProblemChanged('scenario:classic-minimax'); }}
-        icon={<Dice5 size={12} />}
-        label="Example"
-        title="Load a textbook minimax tree"
-      />
-      <TitleBarActionButton
         onClick={copyShareLink}
         icon={<Copy size={12} />}
         label={copyStatus === 'copied' ? 'Copied' : copyStatus === 'error' ? 'Copy Failed' : 'Share Tree'}
         title="Copy a shareable link to this tree"
-      />
-      <TitleBarActionButton
-        onClick={() => { context.setProblem(createDefaultGameTreeProblem()); context.markProblemChanged('scenario:default'); }}
-        icon={<RotateCcw size={12} />}
-        label="Reset"
-        title="Reset to the starter tree"
       />
     </TitleBarActionGroup>
   );

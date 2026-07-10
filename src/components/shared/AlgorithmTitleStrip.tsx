@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import * as Popover from '@radix-ui/react-popover';
 import { cn } from '@/lib/cn';
 import AlgoInfoPopover from '@/components/shared/AlgoInfoPopover';
+import BrandDisplay from '@/components/shared/BrandDisplay';
 import { registry, type RegistryEntry } from '@/algorithms/core/registry';
 import { buildRoute } from '@/lib/buildRoute';
 import { ChevronDown, Home, Info, Settings2 } from '@/components/shared/Icons';
@@ -162,6 +163,12 @@ export default function AlgorithmTitleStrip({
             >
               <Home size={14} />
             </Link>
+
+            {/* Only at very wide viewports — the address bar already needs the
+                remaining space below this. */}
+            <div className="hidden shrink-0 xl:block">
+              <BrandDisplay hideAuthorship />
+            </div>
 
             {/* Address-bar-style location field: category + algorithm name + status
              *  + page-action icons all live inside one recessed field, like a

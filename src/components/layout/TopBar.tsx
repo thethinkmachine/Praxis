@@ -6,6 +6,7 @@ import { usePreferencesStore } from '@/store/usePreferencesStore';
 import { Sun, Moon, Keyboard, Info, Maximize2, Minimize2 } from '@/components/shared/Icons';
 import DialogHeader from '@/components/shared/DialogHeader';
 import SurfaceCard from '@/components/shared/SurfaceCard';
+import BrandDisplay from '@/components/shared/BrandDisplay';
 import { getNavigationSegmentLabel } from '@/lib/navigation';
 
 interface ShortcutEntry {
@@ -25,6 +26,7 @@ interface Contributor {
 
 const CONTRIBUTORS: Contributor[] = [
   { name: 'Vedika Gupta', role: 'QA Testing' },
+  { name: 'Mum, Dad & Bro', role: 'Morale boosting & Encouragement'}
 ];
 
 const SHORTCUT_SECTIONS: ShortcutSection[] = [
@@ -227,7 +229,7 @@ export function TopBarControls() {
           >
             <DialogHeader
               title="Praxis"
-              description="Symbolic AI Algorithm Library & Playground"
+              description="The Planet's Only Symbolic AI Encyclopædia!"
               closeLabel="Close about"
               titleClassName="text-4xl font-bold font-mono tracking-tight text-[var(--text)]"
             />
@@ -279,10 +281,11 @@ export function TopBarControls() {
 export default function TopBar() {
   const { pathname } = useLocation();
   const crumbs = buildBreadcrumbs(pathname);
+  const sidebarCollapsed = usePreferencesStore((state) => state.sidebarCollapsed);
 
   return (
     <header className={cn(
-      'ide-titlebar flex items-center justify-between h-12 px-3 sm:px-4 shrink-0 gap-3'
+      'ide-titlebar relative flex items-center justify-between h-12 px-3 sm:px-4 shrink-0 gap-3'
     )}>
       <nav className="flex-1 min-w-0 flex items-center gap-1 text-[11px] text-[var(--text-3)] font-mono">
         {crumbs.map((crumb, i) => (
@@ -301,6 +304,17 @@ export default function TopBar() {
           </span>
         ))}
       </nav>
+
+      {/* Only shown when the sidebar is collapsed — otherwise the Sidebar's own
+          wordmark already covers branding and this would just duplicate it. */}
+      {sidebarCollapsed && (
+        <div className="pointer-events-none absolute inset-0 hidden items-center justify-center md:flex">
+          <div className="pointer-events-auto">
+            <BrandDisplay />
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-1 shrink-0">
         <TopBarControls />
       </div>

@@ -1,17 +1,26 @@
 import { TopBarControls } from '@/components/layout/TopBar';
+import BrandDisplay from '@/components/shared/BrandDisplay';
+import { cn } from '@/lib/cn';
 
 interface HomeTitleStripProps {
   algorithmCount: number;
   liveModuleCount: number;
+  showBrand?: boolean;
 }
 
-export default function HomeTitleStrip({ algorithmCount, liveModuleCount }: HomeTitleStripProps) {
+export default function HomeTitleStrip({ algorithmCount, liveModuleCount, showBrand = false }: HomeTitleStripProps) {
   return (
     <div className="relative z-20 flex h-12 shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface)]/95 px-3 backdrop-blur-sm">
-      <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
-        <p className="truncate text-[11px] uppercase tracking-[0.14em] text-[var(--text-3)]">
-          Taxonomy, interactive modules, and concept map
-        </p>
+      <div className="flex min-w-0 flex-1 items-center overflow-hidden">
+        <div
+          className={cn(
+            'origin-left transition-[opacity,transform] duration-300 ease-out',
+            showBrand ? 'scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0',
+          )}
+          aria-hidden={!showBrand}
+        >
+          <BrandDisplay />
+        </div>
       </div>
 
       <div className="hidden items-center gap-1 xl:flex">

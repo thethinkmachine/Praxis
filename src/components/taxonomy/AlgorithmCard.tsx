@@ -1,10 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import type { AlgorithmMeta } from '@/types';
 import { ALGORITHM_TO_PROBLEM_CATEGORY } from '@/types/problem';
-import AlgorithmBadge from '@/components/shared/AlgorithmBadge';
 import ComplexityBadge from '@/components/shared/ComplexityBadge';
 import GuaranteeBadge from '@/components/shared/GuaranteeBadge';
-import StatusBadge from '@/components/shared/StatusBadge';
 import { Gamepad2 } from '@/components/shared/Icons';
 import { cn } from '@/lib/cn';
 import { buildRoute } from '@/lib/buildRoute';
@@ -15,6 +13,7 @@ interface AlgorithmCardProps {
 
 export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
   const navigate = useNavigate();
+  const hasGuarantees = meta.complete !== undefined || meta.optimal !== undefined;
 
   return (
     <button
@@ -25,21 +24,19 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
         'focus-visible:outline-none focus-visible:border-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]/20',
       )}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="text-sm font-semibold text-[var(--text)] group-hover:text-[var(--accent)] transition-colors leading-snug">
-          {meta.name}
-        </h3>
-        <div className="flex gap-1 flex-wrap justify-end shrink-0">
+      {/* Title always gets the full row to itself — guarantee badges live on
+          their own line below so they never force a wrap. Category is already
+          conveyed by the enclosing CategorySection, so it isn't repeated here. */}
+      <h3 className="text-sm font-semibold text-[var(--text)] group-hover:text-[var(--accent)] transition-colors leading-snug mb-1.5">
+        {meta.name}
+      </h3>
+
+      {hasGuarantees && (
+        <div className="flex gap-1 flex-wrap mb-2">
           {meta.complete !== undefined && <GuaranteeBadge kind="complete" value={meta.complete} />}
           {meta.optimal !== undefined && <GuaranteeBadge kind="optimal" value={meta.optimal} />}
         </div>
-      </div>
-
-      {/* Category badge */}
-      <div className="mb-2">
-        <AlgorithmBadge category={meta.category} size="sm" />
-      </div>
+      )}
 
       {/* Description */}
       {meta.description && (
@@ -64,14 +61,13 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
         ) : (
           <span />
         )}
-        <StatusBadge
-          tone="neutral"
-          className="shrink-0 border-[var(--border)] bg-[var(--surface-2)]/78 text-[var(--text-3)] backdrop-blur-md group-hover:text-[var(--text-2)]"
+        <span
+          className="shrink-0 flex items-center gap-1 text-[10px] text-[var(--text-3)] transition-colors group-hover:text-[var(--accent)]"
           title="Algorithm cards open the default playground for this algorithm."
         >
           <Gamepad2 size={10} />
           Default playground
-        </StatusBadge>
+        </span>
       </div>
     </button>
   );

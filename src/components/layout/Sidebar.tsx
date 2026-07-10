@@ -34,11 +34,11 @@ function SidebarTip({ label, children }: { label: string; children: React.ReactN
         <Tooltip.Content
           side="right"
           align="center"
-          sideOffset={8}
-          className="z-[120] rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--text)] shadow-lg backdrop-blur-md"
+          sideOffset={6}
+          className="z-[120] animate-in fade-in zoom-in-95 slide-in-from-left-1 duration-150 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--text)] shadow-lg"
         >
           {label}
-          <Tooltip.Arrow className="fill-[var(--surface)]" />
+          <Tooltip.Arrow className="fill-[var(--border)]" />
         </Tooltip.Content>
       </Tooltip.Portal>
     </Tooltip.Root>
@@ -76,17 +76,18 @@ export default function Sidebar() {
           so the two form one continuous bar instead of two boxes glued together. The toggle's
           own cell stays a fixed 48px (matching the collapsed rail) instead of stretching to the
           expanded width, and the leftover space is filled with the wordmark rather than left
-          empty. The vertical divider only starts below, on <nav>, not up here. */}
+          empty. The vertical divider only starts below, on <nav>, not up here.
+
+          The toggle stays a plain ghost icon button (no active-state fill) even when expanded —
+          its state is already visible in the sidebar's width, so an accent box here would just
+          compete with the wordmark for "logo" attention. */}
       <div className="relative z-20 flex h-12 shrink-0 items-center border-b border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-sm">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center">
           <button
             onClick={() => toggleSidebar('sidebarCollapsed')}
             title={sidebarCollapsed ? 'Expand sidebar (S)' : 'Collapse sidebar (S)'}
             aria-label="Toggle sidebar"
-            className={cn(
-              'ui-btn ui-btn-ghost ui-btn-icon h-7 w-7 rounded-md select-none',
-              isExpanded && 'ui-btn-active',
-            )}
+            className="ui-btn ui-btn-ghost ui-btn-icon h-7 w-7 rounded-md select-none"
           >
             <PanelLeft size={15} />
           </button>
@@ -94,7 +95,7 @@ export default function Sidebar() {
         {isExpanded && (
           <Link
             to="/"
-            className="truncate pr-3 font-mono text-lg font-extrabold tracking-tight text-[var(--accent)] transition-opacity hover:opacity-80"
+            className="truncate pr-3 font-mono text-lg font-extrabold tracking-tight text-[var(--text)] transition-opacity hover:opacity-80"
           >
             Praxis
           </Link>
