@@ -278,11 +278,14 @@ export function createStep(
     pseudocodeLine,
     statePanels: buildStatePanels(state),
     metrics: [
+      // Expanded/Score lead the array — activity + the actual evaluation number
+      // a viewer cares about, so compact surfaces that only show the first
+      // couple of tiles (e.g. the status bar) still say something useful.
       { label: 'Expanded', value: ctx.nodesExpanded, color: 'text-[var(--accent)]' },
+      { label: 'Score', value: snapshot.currentScore ?? snapshot.bestScore ?? 0, color: 'text-[var(--warning)]' },
       { label: 'Frontier', value: frontierSize, color: 'text-[var(--accent)]' },
       { label: 'Max Frontier', value: ctx.maxFrontierSize, color: 'text-[var(--text-2)]' },
       { label: 'Depth', value: recursionStack.length === 0 ? 0 : recursionStack[recursionStack.length - 1].depth, color: 'text-[var(--text)]' },
-      { label: 'Score', value: snapshot.currentScore ?? snapshot.bestScore ?? 0, color: 'text-[var(--warning)]' },
       { label: 'Memory', value: recursionStack.length + frontierSize, color: 'text-[var(--text-2)]' },
     ],
     logs: [createLog(description, options?.level ?? 'info')],

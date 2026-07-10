@@ -2,91 +2,12 @@ import { useEffect, useCallback, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
+import StatusBar from './StatusBar';
 import { usePreferencesStore } from '@/store/usePreferencesStore';
-import { useExecutionStore } from '@/store/execution.store';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import TerminalPanel from '../module/TerminalPanel';
 import { cn } from '@/lib/cn';
-import { Zap, Layers, Target, Terminal } from '@/components/shared/Icons';
 import { rememberRecentLocation } from '@/lib/recently-opened';
-
-function LatestLogDisplay() {
-  const lastLog = useExecutionStore(s => s.logs.length > 0 ? s.logs[s.logs.length - 1] : null);
-
-  if (!lastLog) {
-    return <span className="opacity-40 italic">Ready</span>;
-  }
-
-  return (
-    <span className={cn(
-      "opacity-90",
-      lastLog.level === 'success' && 'text-[var(--success)]',
-      lastLog.level === 'warn' && 'text-[var(--warning)]',
-      lastLog.level === 'error' && 'text-[var(--danger)]'
-    )}>
-      <span className="opacity-50 mr-2">[{new Date(lastLog.timestamp).toLocaleTimeString([], { hour12: false, minute: '2-digit', second: '2-digit' })}]</span>
-      {lastLog.message}
-    </span>
-  );
-}
-
-function StatusBar() {
-  const terminalExpanded = usePreferencesStore(s => s.terminalExpanded);
-  const toggle = usePreferencesStore(s => s.toggle);
-
-  const isPlaying = useExecutionStore(s => s.isPlaying);
-  const currentIndex = useExecutionStore(s => s.currentIndex);
-  const totalSteps = useExecutionStore(s => s.totalSteps);
-  const step = useExecutionStore(s => s.currentStep);
-
-  return (
-    <footer 
-      onClick={() => toggle('terminalExpanded')}
-      className="ide-statusbar h-7 px-3 flex items-center justify-between text-[10px] font-mono text-[var(--text-2)] shrink-0 cursor-pointer hover:bg-[var(--surface-3)]/40 transition-colors"
-    >
-      <div className="flex items-center gap-4 overflow-hidden flex-1">
-         <div className="flex items-center gap-1.5 shrink-0">
-           <div className={cn(
-             'w-2 h-2 rounded-full',
-             isPlaying ? 'bg-[var(--success)] animate-pulse' : 'bg-[var(--text-3)]'
-           )} />
-           <span className="uppercase tracking-wider">
-             {isPlaying ? 'Running' : (currentIndex >= totalSteps - 1 && totalSteps > 0) ? 'Finished' : 'Idle'}
-           </span>
-         </div>
-         
-         <div className="w-px h-3 bg-[var(--border-strong)] shrink-0" />
-         
-         <div className="flex-1 truncate">
-           <LatestLogDisplay />
-         </div>
-      </div>
-
-      <div className="flex items-center gap-4 shrink-0 px-2">
-        {step && (
-          <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-1.5 text-[var(--accent)]" title="Step">
-              <Zap size={10} />
-              <span>{currentIndex + 1}/{totalSteps}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[var(--warning)]" title="Frontier Size">
-              <Layers size={10} />
-              <span>F:{Array.isArray(step.metrics) ? (step.metrics.find(m => m.label === 'Frontier' || m.label === 'Candidates')?.value ?? '-') : step.metrics?.frontierSize ?? '-'}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[var(--success)]" title="Nodes Expanded">
-              <Target size={10} />
-              <span>E:{Array.isArray(step.metrics) ? (step.metrics.find(m => m.label === 'Expanded' || m.label === 'Evaluated')?.value ?? '-') : step.metrics?.nodesExpanded ?? '-'}</span>
-            </div>
-          </div>
-        )}
-        <div className="hidden sm:flex items-center gap-1.5 opacity-60">
-           <Terminal size={10} className={cn(terminalExpanded && "text-[var(--accent)]")} />
-           <span>Output</span>
-        </div>
-      </div>
-    </footer>
-  );
-}
 
 export default function AppShell() {
   const darkMode = usePreferencesStore(s => s.darkMode);
@@ -135,6 +56,7 @@ export default function AppShell() {
     onToggleMetrics: useCallback(() => toggle('metricsVisible'), [toggle]),
     onToggleStatePanel: useCallback(() => toggle('statePanelVisible'), [toggle]),
     onToggleConfig: useCallback(() => toggle('configVisible'), [toggle]),
+    onToggleOutput: useCallback(() => toggle('terminalExpanded'), [toggle]),
   });
 
   return (
@@ -164,7 +86,7 @@ export default function AppShell() {
             </div>
           </div>
  
-          <StatusBar />
+          <StatusBar isAlgoRoute={isAlgoPage} />
         </div>
       </div>
     </div>

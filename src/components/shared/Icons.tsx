@@ -88,6 +88,7 @@ export {
   Hash,
   Check,
   Loader2,
+  AlertTriangle,
 
   // Algorithm category icons
   Waypoints,

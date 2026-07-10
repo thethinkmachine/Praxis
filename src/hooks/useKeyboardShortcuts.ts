@@ -9,6 +9,7 @@ export interface KeyboardShortcutHandlers {
   onToggleMetrics?: () => void;
   onToggleStatePanel?: () => void;
   onToggleConfig?: () => void;
+  onToggleOutput?: () => void;
   onSwitchTab?: (direction: 'prev' | 'next') => void;
   onFocusSearch?: () => void;
 }
@@ -120,6 +121,12 @@ export function useKeyboardShortcuts(handlers?: KeyboardShortcutHandlers) {
         case 'I':
           if (!e.ctrlKey && !e.metaKey) {
             handlers?.onToggleStatePanel?.();
+          }
+          break;
+        case '`':
+          if (!e.ctrlKey && !e.metaKey) {
+            e.preventDefault();
+            handlers?.onToggleOutput?.();
           }
           break;
 

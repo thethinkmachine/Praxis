@@ -280,11 +280,14 @@ export function createStep(
     pseudocodeLine,
     statePanels: buildStatePanels(state),
     metrics: [
+      // Objective/Best lead the array — they're the numbers that actually show
+      // whether the run is improving, so compact surfaces that only show the
+      // first couple of tiles (e.g. the status bar) still say something useful.
+      { label: 'Objective', value: state.currentValue, color: 'text-[var(--warning)]' },
+      { label: 'Best', value: state.bestValue, color: 'text-[var(--success)]' },
       { label: 'Evaluated', value: ctx.neighborsEvaluated, color: 'text-[var(--text)]' },
       { label: 'Candidates', value: state.candidateMoves.length, color: 'text-[var(--accent)]' },
       { label: 'Iteration', value: snapshot.iteration, color: 'text-[var(--accent)]' },
-      { label: 'Objective', value: state.currentValue, color: 'text-[var(--warning)]' },
-      { label: 'Best', value: state.bestValue, color: 'text-[var(--success)]' },
       { label: 'Restarts', value: state.restartCount, color: 'text-[var(--text)]' },
       { label: 'Plateau', value: state.plateauLength, color: 'text-[var(--text-2)]' },
       ...(state.constructionDepth !== null ? [{ label: 'Depth', value: state.constructionDepth!, color: 'text-[var(--text)]' }] : []),
