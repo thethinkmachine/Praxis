@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 import type { SVGNodeVM } from './svg-graph.types';
 import { MINIMAP_DOT_COLORS, MINIMAP_DOT_COLORS_LIGHT } from './svg-graph.types';
@@ -24,6 +24,16 @@ const MINIMAP_W = 156;
 const MINIMAP_H = 96;
 const PAD = 40;
 const EDGE_MARGIN = 12;
+// Approximate rendered panel height in each state — used to anchor the panel
+// flush against a corner. Doesn't need to be pixel-exact: being a few px off
+// just means a slightly looser margin, never a layout bug.
+const PANEL_H_EXPANDED = 190;
+const PANEL_H_COLLAPSED = 42;
+const SNAP_DURATION_MS = 200;
+
+type MinimapCorner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+const CORNERS: MinimapCorner[] = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+const DEFAULT_CORNER: MinimapCorner = 'bottom-left';
 
 interface MinimapPosition {
   x: number;
@@ -31,29 +41,67 @@ interface MinimapPosition {
 }
 
 interface MinimapStoredState {
-  position: MinimapPosition | null;
+  corner: MinimapCorner;
   collapsed: boolean;
 }
 
+function clampToCanvas(pos: MinimapPosition, panelHeight: number, canvasWidth: number, canvasHeight: number): MinimapPosition {
+  const maxX = Math.max(EDGE_MARGIN, canvasWidth - MINIMAP_W - EDGE_MARGIN);
+  const maxY = Math.max(EDGE_MARGIN, canvasHeight - panelHeight - EDGE_MARGIN);
+  return {
+    x: Math.min(Math.max(EDGE_MARGIN, pos.x), maxX),
+    y: Math.min(Math.max(EDGE_MARGIN, pos.y), maxY),
+  };
+}
+
+/** The panel's resting position is always derived fresh from its corner +
+ *  current canvas/panel dimensions (like `position: absolute; right: 0`)
+ *  rather than a stored pixel offset — so it stays flush against that corner
+ *  through any resize (sidebar toggle, window resize, ...) instead of
+ *  silently drifting away from it. */
+function cornerToPosition(corner: MinimapCorner, panelHeight: number, canvasWidth: number, canvasHeight: number): MinimapPosition {
+  const { x: maxX, y: maxY } = clampToCanvas({ x: Infinity, y: Infinity }, panelHeight, canvasWidth, canvasHeight);
+  return {
+    x: corner.endsWith('left') ? EDGE_MARGIN : maxX,
+    y: corner.startsWith('top') ? EDGE_MARGIN : maxY,
+  };
+}
+
+/** Which quadrant of the canvas a dropped position's center falls in —
+ *  determines the corner it snaps to on release. */
+function nearestCorner(pos: MinimapPosition, panelHeight: number, canvasWidth: number, canvasHeight: number): MinimapCorner {
+  const centerX = pos.x + MINIMAP_W / 2;
+  const centerY = pos.y + panelHeight / 2;
+  const isLeft = centerX < canvasWidth / 2;
+  const isTop = centerY < canvasHeight / 2;
+  return `${isTop ? 'top' : 'bottom'}-${isLeft ? 'left' : 'right'}` as MinimapCorner;
+}
+
 function readStoredState(storageKey?: string): MinimapStoredState {
-  const fallback = { position: null, collapsed: false };
+  const fallback: MinimapStoredState = { corner: DEFAULT_CORNER, collapsed: false };
   if (!storageKey || typeof window === 'undefined') return fallback;
   try {
     const parsed = JSON.parse(window.localStorage.getItem(storageKey) ?? 'null') as
-      | (MinimapPosition & { collapsed?: boolean; position?: MinimapPosition })
+      | { corner?: string; collapsed?: boolean; x?: number; y?: number; position?: MinimapPosition }
       | null;
     if (!parsed) return fallback;
 
-    const position = parsed.position && typeof parsed.position.x === 'number' && typeof parsed.position.y === 'number'
-      ? parsed.position
-      : typeof parsed.x === 'number' && typeof parsed.y === 'number'
-        ? { x: parsed.x, y: parsed.y }
-        : null;
+    const collapsed = typeof parsed.collapsed === 'boolean' ? parsed.collapsed : false;
 
-    return {
-      position,
-      collapsed: typeof parsed.collapsed === 'boolean' ? parsed.collapsed : false,
-    };
+    if (parsed.corner && (CORNERS as string[]).includes(parsed.corner)) {
+      return { corner: parsed.corner as MinimapCorner, collapsed };
+    }
+
+    // Migrate a pre-snap free-pixel position (this component used to store
+    // {x, y} directly) to whichever corner it was closest to, using a rough
+    // default viewport size since the real canvas isn't measured yet here.
+    const legacy = parsed.position ?? (typeof parsed.x === 'number' && typeof parsed.y === 'number' ? { x: parsed.x, y: parsed.y } : null);
+    if (legacy) {
+      const corner = nearestCorner(legacy, collapsed ? PANEL_H_COLLAPSED : PANEL_H_EXPANDED, 1024, 768);
+      return { corner, collapsed };
+    }
+
+    return fallback;
   } catch {
     return fallback;
   }
@@ -77,41 +125,30 @@ export default function GraphMinimap({
   const hasNodes = nodes.length > 0;
   const storedStateRef = useRef<MinimapStoredState>(readStoredState(storageKey));
   const [collapsed, setCollapsed] = useState(() => storedStateRef.current.collapsed);
+  const [corner, setCorner] = useState<MinimapCorner>(() => storedStateRef.current.corner);
   const panelRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{ pointerId: number; dx: number; dy: number } | null>(null);
-  const [position, setPosition] = useState<MinimapPosition | null>(() => storedStateRef.current.position);
+  // Live position while actively dragging (free-following the pointer);
+  // null once settled, at which point `corner` is the source of truth.
+  const [dragPosition, setDragPosition] = useState<MinimapPosition | null>(null);
+  const dragRef = useRef<{ pointerId: number; containerRect: DOMRect; dx: number; dy: number; lastPosition: MinimapPosition } | null>(null);
 
-  const clampPosition = useCallback((next: MinimapPosition): MinimapPosition => {
-    const panel = panelRef.current;
-    const panelWidth = panel?.offsetWidth || MINIMAP_W;
-    const panelHeight = panel?.offsetHeight || (collapsed ? 42 : 190);
-    const maxX = Math.max(EDGE_MARGIN, canvasWidth - panelWidth - EDGE_MARGIN);
-    const maxY = Math.max(EDGE_MARGIN, canvasHeight - panelHeight - EDGE_MARGIN);
-    return {
-      x: Math.min(Math.max(EDGE_MARGIN, next.x), maxX),
-      y: Math.min(Math.max(EDGE_MARGIN, next.y), maxY),
-    };
-  }, [canvasWidth, canvasHeight, collapsed]);
+  const panelHeight = collapsed ? PANEL_H_COLLAPSED : PANEL_H_EXPANDED;
+  const isDragging = dragPosition !== null;
 
-  useEffect(() => {
-    if (!hasNodes) return;
-    setPosition((current) => {
-      const base = current ?? {
-        x: EDGE_MARGIN,
-        y: Math.max(EDGE_MARGIN, canvasHeight - (panelRef.current?.offsetHeight || 190) - EDGE_MARGIN),
-      };
-      return clampPosition(base);
-    });
-  }, [canvasWidth, canvasHeight, collapsed, clampPosition, hasNodes]);
+  const settledPosition = useMemo(
+    () => cornerToPosition(corner, panelHeight, canvasWidth, canvasHeight),
+    [corner, panelHeight, canvasWidth, canvasHeight],
+  );
+  const renderPosition = dragPosition ?? settledPosition;
 
   useEffect(() => {
-    if (!storageKey || !position || typeof window === 'undefined') return;
+    if (!storageKey || typeof window === 'undefined') return;
     try {
-      window.localStorage.setItem(storageKey, JSON.stringify({ ...position, collapsed }));
+      window.localStorage.setItem(storageKey, JSON.stringify({ corner, collapsed }));
     } catch {
       // Minimap placement is a convenience; restricted storage should not break the canvas.
     }
-  }, [collapsed, position, storageKey]);
+  }, [corner, collapsed, storageKey]);
 
   const { dots, vx, vy, vw, vh, bbX1, bbY1, scale, offsetX, offsetY } = useMemo(() => {
     if (!hasNodes) {
@@ -201,13 +238,29 @@ export default function GraphMinimap({
   const beginDrag = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
     const panel = panelRef.current;
-    if (!panel) return;
-    const rect = panel.getBoundingClientRect();
+    const container = panel?.offsetParent;
+    if (!panel || !(container instanceof HTMLElement)) return;
+
+    const panelRect = panel.getBoundingClientRect();
+    // Cache the container rect once up front — reading it on every
+    // pointermove forces a synchronous layout recalculation on a canvas that
+    // can have hundreds of SVG nodes.
+    const containerRect = container.getBoundingClientRect();
+    const start = clampToCanvas(
+      { x: panelRect.left - containerRect.left, y: panelRect.top - containerRect.top },
+      panelHeight,
+      canvasWidth,
+      canvasHeight,
+    );
+
     dragRef.current = {
       pointerId: e.pointerId,
-      dx: e.clientX - rect.left,
-      dy: e.clientY - rect.top,
+      containerRect,
+      dx: e.clientX - panelRect.left,
+      dy: e.clientY - panelRect.top,
+      lastPosition: start,
     };
+    setDragPosition(start);
     e.currentTarget.setPointerCapture(e.pointerId);
     e.preventDefault();
   };
@@ -215,13 +268,14 @@ export default function GraphMinimap({
   const updateDrag = (e: React.PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== e.pointerId) return;
-    const container = panelRef.current?.offsetParent instanceof HTMLElement
-      ? panelRef.current.offsetParent.getBoundingClientRect()
-      : { left: 0, top: 0 };
-    setPosition(clampPosition({
-      x: e.clientX - container.left - drag.dx,
-      y: e.clientY - container.top - drag.dy,
-    }));
+    const next = clampToCanvas(
+      { x: e.clientX - drag.containerRect.left - drag.dx, y: e.clientY - drag.containerRect.top - drag.dy },
+      panelHeight,
+      canvasWidth,
+      canvasHeight,
+    );
+    drag.lastPosition = next;
+    setDragPosition(next);
   };
 
   const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -231,6 +285,11 @@ export default function GraphMinimap({
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
+    // Snap to whichever corner the panel was dropped closest to — the CSS
+    // transition on left/top (enabled once dragPosition clears) animates the
+    // settle, so it reads as a deliberate "snap" rather than a jump.
+    setCorner(nearestCorner(drag.lastPosition, panelHeight, canvasWidth, canvasHeight));
+    setDragPosition(null);
   };
 
   return (
@@ -239,8 +298,9 @@ export default function GraphMinimap({
       className="absolute overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]/94 shadow-[0_16px_40px_rgba(0,0,0,0.28)] backdrop-blur-xl"
       style={{
         width: MINIMAP_W,
-        left: position?.x ?? EDGE_MARGIN,
-        top: position?.y ?? Math.max(EDGE_MARGIN, canvasHeight - 190 - EDGE_MARGIN),
+        left: renderPosition.x,
+        top: renderPosition.y,
+        transition: isDragging ? 'none' : `left ${SNAP_DURATION_MS}ms ease-out, top ${SNAP_DURATION_MS}ms ease-out`,
       }}
     >
       <div
@@ -252,7 +312,7 @@ export default function GraphMinimap({
           'flex w-full cursor-grab touch-none select-none items-center gap-2 px-2.5 py-2 text-left transition-colors hover:bg-[var(--surface-2)]/60 active:cursor-grabbing',
           !collapsed && 'border-b border-[var(--border)]',
         )}
-        title="Drag minimap"
+        title="Drag to move — snaps to the nearest corner"
       >
         <div className="flex min-w-0 flex-1 items-center gap-1.5">
           <button
