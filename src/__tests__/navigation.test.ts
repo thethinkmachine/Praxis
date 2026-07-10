@@ -15,7 +15,8 @@ describe('navigation metadata', () => {
 
     expect(gamePlayingGroup).toBeTruthy();
     expect(gamePlayingGroup?.algorithms.some((algorithm) => algorithm.id === 'minimax')).toBe(true);
-    expect(gamePlayingGroup?.algorithms.some((algorithm) => algorithm.path === '/play/tic-tac-toe/minimax')).toBe(true);
+    // Custom Tree is the default game-playing lab, so algorithm links resolve to it.
+    expect(gamePlayingGroup?.algorithms.some((algorithm) => algorithm.path === '/play/custom-tree/minimax')).toBe(true);
 
     expect(planningGroup).toBeTruthy();
     expect(planningGroup?.algorithms.some((algorithm) => algorithm.id === 'fssp')).toBe(true);
@@ -28,7 +29,7 @@ describe('navigation metadata', () => {
 
   it('resolves breadcrumb labels from shared metadata', () => {
     expect(getNavigationSegmentLabel('weighted-astar')).toBe('wA*');
-    expect(getNavigationSegmentLabel('tic-tac-toe')).toBe('Tic-Tac-Toe Lab');
+    expect(getNavigationSegmentLabel('custom-tree')).toBe('Custom Tree');
     expect(getNavigationSegmentLabel('n-queens')).toBe('N-Queens');
     expect(getNavigationSegmentLabel('planning-graph')).toBe('Planning Graph Lab');
     expect(getNavigationSegmentLabel('arc-consistency')).toBe('Arc Consistency Lab');

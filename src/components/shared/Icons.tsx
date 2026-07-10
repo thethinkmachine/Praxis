@@ -64,6 +64,11 @@ export {
   ArrowLeftRight,
   ArrowRight,
 
+  // Game-tree node kinds
+  Circle,
+  Square,
+  Diamond,
+
   // Features
   Dice5,
   Shuffle,

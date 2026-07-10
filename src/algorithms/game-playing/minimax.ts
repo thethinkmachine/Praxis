@@ -1,74 +1,73 @@
-import type { GameTreeNode, RecursionFrame, TicTacToeRunner } from './types';
+import type { EvaluatedMove, GameTreeNode, RecursionFrame, GameRunner } from './types';
 import {
-  boardKey,
   createStep,
   createTerminalDescription,
   createTraceContext,
   determineOutcome,
   getInitialTraceState,
-  isTerminal,
-  moveLabel,
-  nextBoard,
-  nextPlayer,
-  resolveProblem,
-  terminalEvaluation,
-  validateTicTacToeProblem,
+  validateGameProblem,
   type SearchEvaluation,
 } from './shared';
-import { getLegalMoves, type TicTacToeBoard, type TicTacToePlayer } from '@/lib/tic-tac-toe';
+import { resolveGameDomain } from '@/problems/game-playing/domains';
 
-export const minimaxRunner: TicTacToeRunner = {
+export const minimaxRunner: GameRunner = {
   meta: {
     id: 'minimax',
     name: 'Minimax',
     shortName: 'Minimax',
     category: 'game-playing',
-    description: 'Evaluates the full Tic-Tac-Toe game tree by alternating maximizing and minimizing turns to choose the optimal move.',
-    longDescription: 'Minimax assumes perfect play from both sides. For Tic-Tac-Toe, it explores the entire reachable game tree and backs up terminal utilities to identify the best move for the maximizing player.',
+    description: 'Evaluates the full game tree by alternating maximizing and minimizing turns to choose the optimal move.',
+    longDescription: 'Minimax assumes perfect play from both sides. It explores the entire reachable game tree and backs up terminal utilities to identify the best move for the maximizing player. Chance nodes (if present) are backed up as a probability-weighted average, generalizing Minimax into Expectiminimax.',
     timeComplexity: 'O(b^m)',
     spaceComplexity: 'O(m)',
     complete: true,
     optimal: true,
-    tags: ['game tree', 'adversarial search', 'tic-tac-toe', 'perfect information'],
+    tags: ['game tree', 'adversarial search', 'perfect information'],
     bookChapter: 'AIMA 4th Ed. § 5.2',
     relatedAlgorithms: ['alpha-beta', 'negamax'],
   },
 
   pseudocode: [
-    'function MINIMAX(board, player, maximizingPlayer):',
-    '  if TERMINAL(board): return UTILITY(board)',
-    '  moves <- LEGAL-MOVES(board)',
-    '  if player = maximizingPlayer:',
+    'function MINIMAX(state):',
+    '  if TERMINAL(state): return UTILITY(state)',
+    '  moves <- ACTIONS(state)',
+    '  if MAX(state):',
     '    bestScore <- -∞',
     '    for each move in moves:',
-    '      score <- MINIMAX(RESULT(board, move), OPPONENT(player), maximizingPlayer)',
+    '      score <- MINIMAX(RESULT(state, move))',
     '      bestScore <- max(bestScore, score)',
     '    return bestScore',
-    '  bestScore <- +∞',
-    '  for each move in moves:',
-    '    score <- MINIMAX(RESULT(board, move), OPPONENT(player), maximizingPlayer)',
-    '    bestScore <- min(bestScore, score)',
-    '  return bestScore',
+    '  if MIN(state):',
+    '    bestScore <- +∞',
+    '    for each move in moves:',
+    '      score <- MINIMAX(RESULT(state, move))',
+    '      bestScore <- min(bestScore, score)',
+    '    return bestScore',
+    '  # CHANCE(state): probability-weighted average of children',
+    '  return Σ P(move) * MINIMAX(RESULT(state, move))',
   ],
 
-  validate: validateTicTacToeProblem,
+  validate: validateGameProblem,
 
   getInitialState: getInitialTraceState,
 
   *run(problem) {
-    const resolved = resolveProblem(problem);
-    const ctx = createTraceContext();
-    const initialMoves = getInitialTraceState(problem).availableMoves;
+    const domain = resolveGameDomain(problem);
+    const ctx = createTraceContext(problem);
+    const initialState = domain.initialState(problem);
+    const initialMoves = domain.legalMoves(problem, initialState).map((move) => move.id);
     const searchTree = new Map<string, GameTreeNode>();
 
     const rootNode: GameTreeNode = {
       id: 'root',
       parentId: null,
-      board: [...resolved.board],
+      stateLabel: domain.describeState(problem, initialState),
+      nodeKind: domain.nodeKind(problem, initialState),
+      extra: domain.getStateExtra?.(problem, initialState),
       move: null,
+      moveLabel: null,
       score: null,
       depth: 0,
-      player: resolved.currentPlayer,
       discoveryStep: 0,
     };
     searchTree.set('root', rootNode);
@@ -76,12 +75,10 @@ export const minimaxRunner: TicTacToeRunner = {
     yield createStep(
       ctx,
       'initializing',
-      `Initialized Minimax for board ${boardKey(resolved.board)} with ${resolved.currentPlayer} to move.`,
+      `Initialized Minimax at ${rootNode.stateLabel}.`,
       0,
       {
-        board: resolved.board,
-        currentPlayer: resolved.currentPlayer,
-        maximizingPlayer: resolved.maximizingPlayer,
+        state: initialState,
         availableMoves: initialMoves,
         recursionStack: [],
         searchTree,
@@ -90,32 +87,30 @@ export const minimaxRunner: TicTacToeRunner = {
     );
 
     const search = function* (
-      board: TicTacToeBoard,
-      player: TicTacToePlayer,
+      state: unknown,
       depth: number,
-      incomingMove: number | null,
+      incomingMove: string | null,
       stack: RecursionFrame[],
       nodeId: string,
     ): Generator<ReturnType<typeof createStep>, SearchEvaluation, void> {
       ctx.nodesExpanded++;
-      const maximizingTurn = player === resolved.maximizingPlayer;
-      const role: RecursionFrame['role'] = maximizingTurn ? 'max' : 'min';
-      const legalMoves = isTerminal(board) ? [] : getLegalMoves(board);
-      const frame: RecursionFrame = { depth, player, role, move: incomingMove, board: [...board], bestScore: null };
+      const kind = domain.nodeKind(problem, state);
+      const stateLabel = domain.describeState(problem, state);
+      const isTerminal = domain.isTerminal(problem, state);
+      const moves = isTerminal ? [] : domain.legalMoves(problem, state);
+      const role: RecursionFrame['role'] = kind === 'chance' ? 'chance' : kind === 'min' ? 'min' : 'max';
+      const frame: RecursionFrame = { depth, nodeKind: kind, role, move: incomingMove, stateLabel, bestScore: null };
       const recursionStack = [...stack, frame];
-
       const node = searchTree.get(nodeId)!;
 
       yield createStep(
         ctx,
         'expanding',
-        `${maximizingTurn ? 'Max' : 'Min'} node at depth ${depth} for ${player}; legal moves: ${legalMoves.map(moveLabel).join(', ') || 'none'}.`,
-        maximizingTurn ? 3 : 9,
+        `${kind.toUpperCase()} node at depth ${depth}; legal moves: ${moves.map((move) => move.label).join(', ') || 'none'}.`,
+        kind === 'max' ? 3 : kind === 'min' ? 9 : 15,
         {
-          board,
-          currentPlayer: player,
-          maximizingPlayer: resolved.maximizingPlayer,
-          availableMoves: legalMoves,
+          state,
+          availableMoves: moves.map((move) => move.id),
           currentMove: incomingMove,
           recursionStack,
           searchTree,
@@ -123,65 +118,142 @@ export const minimaxRunner: TicTacToeRunner = {
         },
       );
 
-      if (isTerminal(board)) {
-        const terminal = terminalEvaluation(board, resolved.maximizingPlayer, depth);
-        node.score = terminal.score;
+      if (isTerminal) {
+        const score = domain.terminalValue(problem, state, depth);
+        node.score = score;
         node.isTerminal = true;
 
         yield createStep(
           ctx,
           'found',
-          createTerminalDescription(board, resolved.maximizingPlayer, depth),
+          createTerminalDescription(ctx, state, depth),
           1,
           {
-            board,
-            currentPlayer: player,
-            maximizingPlayer: resolved.maximizingPlayer,
+            state,
             availableMoves: [],
             currentMove: incomingMove,
-            currentScore: terminal.score,
-            bestScore: terminal.score,
+            currentScore: score,
+            bestScore: score,
             recursionStack,
             searchTree,
             currentNodeId: nodeId,
           },
-          { level: 'success', winningLine: terminal.winningLine },
+          { level: 'success' },
         );
 
-        return { score: terminal.score, move: null, principalVariation: [] };
+        return { score, move: null, principalVariation: [] };
       }
 
-      let bestScore = maximizingTurn ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
-      let bestMove: number | null = null;
-      let bestVariation: number[] = [];
-      const evaluatedMoves: Array<{ move: number; score: number }> = [];
+      if (kind === 'chance') {
+        let expectedScore = 0;
+        let bestMove: string | null = null;
+        let bestChildScore = Number.NEGATIVE_INFINITY;
+        let bestVariation: string[] = [];
+        const evaluatedMoves: EvaluatedMove[] = [];
 
-      for (const move of legalMoves) {
-        const childBoard = nextBoard(board, move, player);
-        const childId = `${nodeId}-${move}`;
+        for (const move of moves) {
+          const childState = domain.applyMove(problem, state, move.id);
+          const childId = `${nodeId}-${move.id}`;
+          const probability = move.probability ?? 1 / moves.length;
+
+          searchTree.set(childId, {
+            id: childId,
+            parentId: nodeId,
+            stateLabel: domain.describeState(problem, childState),
+            nodeKind: domain.nodeKind(problem, childState),
+            extra: domain.getStateExtra?.(problem, childState),
+            move: move.id,
+            moveLabel: move.label,
+            score: null,
+            depth: depth + 1,
+            discoveryStep: ctx.stepNumber,
+          });
+
+          const child = yield* search(childState, depth + 1, move.id, recursionStack, childId);
+          evaluatedMoves.push({ move: move.id, score: child.score, detail: `p=${probability.toFixed(2)}` });
+          expectedScore += child.score * probability;
+
+          if (child.score > bestChildScore) {
+            bestChildScore = child.score;
+            bestMove = move.id;
+            bestVariation = [move.id, ...child.principalVariation];
+          }
+
+          frame.bestScore = expectedScore;
+          node.score = expectedScore;
+
+          yield createStep(
+            ctx,
+            'backtracking',
+            `Samples ${move.label} with probability ${probability.toFixed(2)} => ${child.score}; expected value now ${expectedScore.toFixed(2)}.`,
+            16,
+            {
+              state,
+              availableMoves: moves.map((m) => m.id),
+              currentMove: move.id,
+              currentScore: child.score,
+              bestScore: expectedScore,
+              evaluatedMoves,
+              recursionStack: [...stack, { ...frame }],
+              searchTree,
+              currentNodeId: nodeId,
+            },
+          );
+        }
+
+        yield createStep(
+          ctx,
+          'backtracking',
+          `Chance node returns expected value ${expectedScore.toFixed(2)} from ${moves.length} reply(s).`,
+          16,
+          {
+            state,
+            availableMoves: moves.map((m) => m.id),
+            currentMove: incomingMove,
+            bestMove,
+            bestScore: expectedScore,
+            evaluatedMoves,
+            recursionStack,
+            searchTree,
+            currentNodeId: nodeId,
+          },
+        );
+
+        return { score: expectedScore, move: bestMove, principalVariation: bestVariation };
+      }
+
+      const maximizing = kind === 'max';
+      let bestScore = maximizing ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+      let bestMove: string | null = null;
+      let bestVariation: string[] = [];
+      const evaluatedMoves: EvaluatedMove[] = [];
+
+      for (const move of moves) {
+        const childState = domain.applyMove(problem, state, move.id);
+        const childId = `${nodeId}-${move.id}`;
 
         searchTree.set(childId, {
           id: childId,
           parentId: nodeId,
-          board: [...childBoard],
-          move,
+          stateLabel: domain.describeState(problem, childState),
+          nodeKind: domain.nodeKind(problem, childState),
+          extra: domain.getStateExtra?.(problem, childState),
+          move: move.id,
+          moveLabel: move.label,
           score: null,
           depth: depth + 1,
-          player: nextPlayer(player),
           discoveryStep: ctx.stepNumber,
         });
 
         yield createStep(
           ctx,
           'visiting',
-          `${player} considers ${moveLabel(move)} at depth ${depth}; exploring child board ${boardKey(childBoard)}.`,
-          maximizingTurn ? 6 : 10,
+          `${kind.toUpperCase()} node considers ${move.label} at depth ${depth}.`,
+          maximizing ? 6 : 13,
           {
-            board: childBoard,
-            currentPlayer: nextPlayer(player),
-            maximizingPlayer: resolved.maximizingPlayer,
-            availableMoves: getLegalMoves(childBoard),
-            currentMove: move,
+            state: childState,
+            availableMoves: domain.isTerminal(problem, childState) ? [] : domain.legalMoves(problem, childState).map((m) => m.id),
+            currentMove: move.id,
             bestMove,
             bestScore: Number.isFinite(bestScore) ? bestScore : null,
             evaluatedMoves,
@@ -191,14 +263,14 @@ export const minimaxRunner: TicTacToeRunner = {
           },
         );
 
-        const child = yield* search(childBoard, nextPlayer(player), depth + 1, move, recursionStack, childId);
-        evaluatedMoves.push({ move, score: child.score });
+        const child = yield* search(childState, depth + 1, move.id, recursionStack, childId);
+        evaluatedMoves.push({ move: move.id, score: child.score });
 
-        const improved = maximizingTurn ? child.score > bestScore : child.score < bestScore;
+        const improved = maximizing ? child.score > bestScore : child.score < bestScore;
         if (improved) {
           bestScore = child.score;
-          bestMove = move;
-          bestVariation = [move, ...child.principalVariation];
+          bestMove = move.id;
+          bestVariation = [move.id, ...child.principalVariation];
         }
 
         frame.bestScore = bestScore;
@@ -207,19 +279,17 @@ export const minimaxRunner: TicTacToeRunner = {
         yield createStep(
           ctx,
           'backtracking',
-          `${player} receives score ${child.score} for ${moveLabel(move)}; best so far is ${bestMove !== null ? `${moveLabel(bestMove)} (${bestScore})` : 'none'}.`,
-          maximizingTurn ? 7 : 11,
+          `Receives score ${child.score} for ${move.label}; best so far is ${bestMove !== null ? `${bestMove} (${bestScore})` : 'none'}.`,
+          maximizing ? 7 : 14,
           {
-            board,
-            currentPlayer: player,
-            maximizingPlayer: resolved.maximizingPlayer,
-            availableMoves: legalMoves,
-            currentMove: move,
+            state,
+            availableMoves: moves.map((m) => m.id),
+            currentMove: move.id,
             currentScore: child.score,
             bestMove,
             bestScore,
             evaluatedMoves,
-            recursionStack: [...stack, { ...frame, board: [...board], bestScore }],
+            recursionStack: [...stack, { ...frame }],
             principalVariation: bestVariation,
             searchTree,
             currentNodeId: nodeId,
@@ -230,13 +300,11 @@ export const minimaxRunner: TicTacToeRunner = {
       yield createStep(
         ctx,
         'backtracking',
-        `${maximizingTurn ? 'Max' : 'Min'} node returns ${bestScore} from ${bestMove !== null ? moveLabel(bestMove) : 'terminal position'}.`,
-        maximizingTurn ? 8 : 12,
+        `${kind.toUpperCase()} node returns ${bestScore} from ${bestMove ?? 'terminal position'}.`,
+        maximizing ? 8 : 15,
         {
-          board,
-          currentPlayer: player,
-          maximizingPlayer: resolved.maximizingPlayer,
-          availableMoves: legalMoves,
+          state,
+          availableMoves: moves.map((m) => m.id),
           currentMove: incomingMove,
           bestMove,
           bestScore,
@@ -251,17 +319,15 @@ export const minimaxRunner: TicTacToeRunner = {
       return { score: bestScore, move: bestMove, principalVariation: bestVariation };
     };
 
-    const evaluation = yield* search(resolved.board, resolved.currentPlayer, 0, null, [], 'root');
+    const evaluation = yield* search(initialState, 0, null, [], 'root');
 
     yield createStep(
       ctx,
       'found',
-      `Minimax selects ${evaluation.move !== null ? moveLabel(evaluation.move) : 'no move'} with score ${evaluation.score}.`,
+      `Minimax selects ${evaluation.move ?? 'no move'} with score ${evaluation.score}.`,
       8,
       {
-        board: resolved.board,
-        currentPlayer: resolved.currentPlayer,
-        maximizingPlayer: resolved.maximizingPlayer,
+        state: initialState,
         availableMoves: initialMoves,
         currentMove: evaluation.move,
         bestMove: evaluation.move,

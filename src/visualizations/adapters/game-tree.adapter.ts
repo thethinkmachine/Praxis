@@ -1,6 +1,5 @@
 import type { ElementDefinition } from 'cytoscape';
 import type { GameTreeNode } from '@/algorithms/game-playing/types';
-import { formatMove } from '@/lib/tic-tac-toe';
 
 interface TreeCoord {
   x: number;
@@ -55,17 +54,31 @@ function computeTreeCoordinates(rootId: string, childrenMap: Map<string, string[
   return coords;
 }
 
+function defaultDescribeNode(node: GameTreeNode): string {
+  return node.stateLabel;
+}
+
+function defaultDescribeEdge(node: GameTreeNode): string {
+  return node.moveLabel ?? '';
+}
+
+export type GameTreeNodeShape = 'circle' | 'square' | 'diamond' | 'card';
+
 /**
  * Builds Cytoscape elements for a Game Search Tree (Minimax/Alpha-Beta/SSS*)
- * Implements "focal-rendering" to prevent DOM explosion by only showing 
+ * Implements "focal-rendering" to prevent DOM explosion by only showing
  * relevant parts of the tree near the current search node.
  */
 export function buildGameTreeElements(
   tree: Map<string, GameTreeNode> | undefined,
   currentNodeId: string | null = null,
-  principalVariation: number[] | null = null,
+  principalVariation: string[] | null = null,
   currentStepNumber: number = Infinity,
+  describeNode: (node: GameTreeNode) => string = defaultDescribeNode,
+  describeEdge: (node: GameTreeNode) => string = defaultDescribeEdge,
+  nodeShape: (node: GameTreeNode) => GameTreeNodeShape = () => 'card',
 ): ElementDefinition[] {
+  void principalVariation;
   if (!tree || tree.size === 0) return [];
 
   const MAX_VISUAL_NODES = 150;
@@ -96,7 +109,7 @@ export function buildGameTreeElements(
   if (rootId) activePath.add(rootId);
 
   const visibleNodes = new Set<string>(activePath);
-  
+
   for (const nodeId of activePath) {
     for (const node of filteredTree.values()) {
       if (node.parentId === nodeId) {
@@ -148,20 +161,12 @@ export function buildGameTreeElements(
     }
     if (activePath.has(node.id)) classes.push('active-path');
 
-    // Board representation for SVGAutoCanvas to detect
-    // Format: "X . O | . X . | O . ."
-    const boardStr = node.board
-      .map((cell, i) => {
-        const char = cell === null ? '.' : cell;
-        return (i + 1) % 3 === 0 && i < 8 ? `${char} | ` : `${char} `;
-      })
-      .join('')
-      .trim();
-
     nodeElements.push({
       data: {
         id: node.id,
-        label: boardStr,
+        label: describeNode(node),
+        shape: nodeShape(node),
+        nodeKind: node.nodeKind,
         score: node.score,
         alpha: node.alpha,
         beta: node.beta,
@@ -172,18 +177,15 @@ export function buildGameTreeElements(
     });
 
     if (node.parentId) {
-      const parent = filteredTree.get(node.parentId);
       const edgeClasses: string[] = ['directed'];
       if (node.isPruned) edgeClasses.push('pruned-edge');
-      
-      const moveLabel = node.move !== null ? formatMove(node.move) : '';
 
       edgeElements.push({
         data: {
           id: `e-${node.parentId}-${node.id}`,
           source: node.parentId,
           target: node.id,
-          label: moveLabel,
+          label: describeEdge(node),
         },
         classes: edgeClasses.join(' '),
       });

@@ -30,6 +30,8 @@ interface UseCytoscapeOptions {
   onEdgeAdded?: (sourceId: string, targetId: string) => void;
   onNodeMoved?: (nodeId: string, position: { x: number; y: number }) => void;
   autoFit?: boolean;
+  /** Additional edge-draw validation beyond the default self-loop check (e.g. tree single-parent/no-cycle rules). */
+  canConnect?: (sourceId: string, targetId: string) => boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -66,7 +68,8 @@ export function useCytoscape(containerRef: React.RefObject<HTMLDivElement>, opti
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const eh: EdgeHandlesInstance = (cy as any).edgehandles({
       canConnect(sourceNode: cytoscape.NodeSingular, targetNode: cytoscape.NodeSingular) {
-        return !sourceNode.same(targetNode);
+        if (sourceNode.same(targetNode)) return false;
+        return optionsRef.current.canConnect?.(sourceNode.id(), targetNode.id()) ?? true;
       },
       edgeParams() {
         return { data: { weight: 1 } };

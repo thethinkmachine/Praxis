@@ -13,6 +13,9 @@ export type NodeVisualState =
   | 'normal'
   | 'pruned';
 
+/** Node body shape — 'card' (default) is the existing rounded-rectangle look. */
+export type SVGNodeShape = 'circle' | 'square' | 'diamond' | 'card';
+
 /** SVG node view model — everything needed to render a single node */
 export interface SVGNodeVM {
   id: string;
@@ -29,6 +32,8 @@ export interface SVGNodeVM {
   score?: number | null;
   alpha?: number;
   beta?: number;
+  /** MAX/MIN/chance node shape for the custom game-tree domain; defaults to 'card'. */
+  shape?: SVGNodeShape;
 }
 
 /** SVG edge view model — everything needed to render a single edge */

@@ -1,21 +1,14 @@
 import { PriorityQueue } from '@/lib/priority-queue';
-import { boardKey, getLegalMoves, type TicTacToeBoard, type TicTacToePlayer } from '@/lib/tic-tac-toe';
-import type { EvaluatedMove, GameTreeNode, RecursionFrame, SssOpenEntry, TicTacToeRunner } from './types';
+import type { EvaluatedMove, GameTreeNode, RecursionFrame, SssOpenEntry, GameRunner } from './types';
 import {
   createStep,
-  createTerminalDescription,
   createTraceContext,
   determineOutcome,
   getInitialTraceState,
-  isTerminal,
-  moveLabel,
-  nextBoard,
-  nextPlayer,
-  resolveProblem,
-  terminalEvaluation,
-  validateTicTacToeProblem,
+  validateGameProblem,
 } from './shared';
-import type { TicTacToeProblem } from '@/types/problem';
+import { resolveGameDomain } from '@/problems/game-playing/domains';
+import type { GameProblem } from '@/types/problem';
 
 interface QueuedOpenEntry extends SssOpenEntry {
   version: number;
@@ -23,11 +16,27 @@ interface QueuedOpenEntry extends SssOpenEntry {
 
 interface LineEvaluation {
   score: number;
-  move: number | null;
-  principalVariation: number[];
+  move: string | null;
+  principalVariation: string[];
 }
 
 const ROOT_ID = 'ε';
+
+function validateSssStarProblem(problem: GameProblem) {
+  const base = validateGameProblem(problem);
+  if (!base.valid) return base;
+  const hasChance = problem.tree.nodes.some((node) => node.kind === 'chance');
+  if (hasChance) {
+    return {
+      valid: false,
+      errors: [
+        ...base.errors,
+        'SSS* requires a tree of only MAX/MIN/terminal nodes; Stockman\'s Gamma operator has no defined chance-node rule. Remove chance nodes or run Minimax, Alpha-Beta, Expectimax, or MCTS instead.',
+      ],
+    };
+  }
+  return base;
+}
 
 function formatBound(value: number): string {
   if (value === Number.POSITIVE_INFINITY) return '∞';
@@ -42,165 +51,28 @@ function formatNodeId(path: number[]): string {
 function compareNodePath(left: number[], right: number[]): number {
   const limit = Math.min(left.length, right.length);
   for (let index = 0; index < limit; index++) {
-    if (left[index] !== right[index]) {
-      return left[index] - right[index];
-    }
+    if (left[index] !== right[index]) return left[index] - right[index];
   }
   return left.length - right.length;
-}
-
-function nodeKind(player: TicTacToePlayer, maximizingPlayer: TicTacToePlayer): 'MAX' | 'MIN' {
-  return player === maximizingPlayer ? 'MAX' : 'MIN';
 }
 
 function clonePath(path: number[]): number[] {
   return [...path];
 }
 
-function createNodeRecord(
-  board: TicTacToeBoard,
-  player: TicTacToePlayer,
-  depth: number,
-  move: number | null,
-  path: number[],
-  parentId: string | null,
-  searchState: 'L' | 'S',
-  discoveryStep: number,
-  score: number,
-): GameTreeNode {
-  const childMoves = isTerminal(board) ? [] : getLegalMoves(board);
-  return {
-    id: formatNodeId(path),
-    parentId,
-    board: [...board],
-    move,
-    score,
-    depth,
-    player,
-    discoveryStep,
-    searchState,
-    path: clonePath(path),
-    childMoves,
-    childIds: new Array(childMoves.length).fill(null),
-    isTerminal: isTerminal(board),
-  };
-}
-
-function summarizeChildren(node: GameTreeNode, searchTree: Map<string, GameTreeNode>): EvaluatedMove[] {
-  const childIds = node.childIds ?? [];
-  const moves: EvaluatedMove[] = [];
-
-  for (const childId of childIds) {
-    if (!childId) continue;
-    const child = searchTree.get(childId);
-    if (!child || child.move === null) continue;
-
-    moves.push({
-      move: child.move,
-      score: child.score ?? 0,
-      detail: `${child.searchState ?? 'inactive'} • h=${formatBound(child.score ?? 0)}`,
-    });
-  }
-
-  return moves;
-}
-
-function buildPathFrames(
-  nodeId: string,
-  searchTree: Map<string, GameTreeNode>,
-  maximizingPlayer: TicTacToePlayer,
-): RecursionFrame[] {
-  const orderedIds: string[] = [];
-  let currentId: string | null = nodeId;
-
-  while (currentId !== null) {
-    orderedIds.unshift(currentId);
-    currentId = searchTree.get(currentId)?.parentId ?? null;
-  }
-
-  return orderedIds.map((id) => {
-    const node = searchTree.get(id)!;
-    return {
-      depth: node.depth,
-      player: node.player,
-      role: nodeKind(node.player, maximizingPlayer) === 'MAX' ? 'max' : 'min',
-      move: node.move,
-      board: [...node.board],
-      bestScore: node.score,
-    };
-  });
-}
-
-function buildPrincipalVariation(
-  board: TicTacToeBoard,
-  currentPlayer: TicTacToePlayer,
-  maximizingPlayer: TicTacToePlayer,
-  memo: Map<string, LineEvaluation>,
-  depth: number = 0,
-): LineEvaluation {
-  const key = `${boardKey(board)}|${currentPlayer}|${maximizingPlayer}`;
-  const cached = memo.get(key);
-  if (cached) return cached;
-
-  if (isTerminal(board)) {
-    const terminal = terminalEvaluation(board, maximizingPlayer, depth);
-    const result: LineEvaluation = { score: terminal.score, move: null, principalVariation: [] };
-    memo.set(key, result);
-    return result;
-  }
-
-  const maximizingTurn = currentPlayer === maximizingPlayer;
-  let bestScore = maximizingTurn ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
-  let bestMove: number | null = null;
-  let bestVariation: number[] = [];
-
-  for (const move of getLegalMoves(board)) {
-    const child = buildPrincipalVariation(nextBoard(board, move, currentPlayer), nextPlayer(currentPlayer), maximizingPlayer, memo, depth + 1);
-    const improved = maximizingTurn ? child.score > bestScore : child.score < bestScore;
-
-    if (improved) {
-      bestScore = child.score;
-      bestMove = move;
-      bestVariation = [move, ...child.principalVariation];
-    }
-  }
-
-  const result: LineEvaluation = { score: bestScore, move: bestMove, principalVariation: bestVariation };
-  memo.set(key, result);
-  return result;
-}
-
-function buildGameTreeSnapshot(openQueue: Map<string, QueuedOpenEntry>): SssOpenEntry[] {
-  return [...openQueue.values()]
-    .sort((left, right) => {
-      if (left.h !== right.h) {
-        return right.h - left.h;
-      }
-      return compareNodePath(left.path, right.path);
-    })
-    .map(({ version: _version, ...entry }) => ({
-      ...entry,
-      path: clonePath(entry.path),
-    }));
-}
-
-function validateSssStarProblem(problem: TicTacToeProblem) {
-  return validateTicTacToeProblem(problem);
-}
-
-export const sssStarRunner: TicTacToeRunner = {
+export const sssStarRunner: GameRunner = {
   meta: {
     id: 'sss-star',
     name: 'State Space Search SSS*',
     shortName: 'SSS*',
     category: 'game-playing',
     description: 'Runs Stockman\'s best-first SSS* minimax search with an OPEN queue of live and solved states ordered by optimistic bounds.',
-    longDescription: 'SSS* (Stockman, 1979) searches the game tree in best-first order instead of depth-first order. It keeps an OPEN queue of live and solved states, repeatedly applies the Gamma operator, and returns the minimax value once the root becomes solved.',
+    longDescription: 'SSS* (Stockman, 1979) searches the game tree in best-first order instead of depth-first order. It keeps an OPEN queue of live and solved states, repeatedly applies the Gamma operator, and returns the minimax value once the root becomes solved. The Gamma operator has no defined chance-node case, so SSS* is only offered on trees built from MAX, MIN, and terminal nodes.',
     timeComplexity: 'O(b^m)',
     spaceComplexity: 'O(b^m)',
     complete: true,
     optimal: true,
-    tags: ['game tree', 'best-first search', 'state-space search', 'adversarial search', 'tic-tac-toe'],
+    tags: ['game tree', 'best-first search', 'state-space search', 'adversarial search'],
     bookChapter: 'Stockman (1979)',
     relatedAlgorithms: ['minimax', 'alpha-beta'],
     relationshipLabel: 'best-first',
@@ -227,28 +99,46 @@ export const sssStarRunner: TicTacToeRunner = {
   getInitialState: getInitialTraceState,
 
   *run(problem) {
-    const resolved = resolveProblem(problem);
-    const ctx = createTraceContext();
+    const domain = resolveGameDomain(problem);
+    const ctx = createTraceContext(problem);
     const searchTree = new Map<string, GameTreeNode>();
+    const statesByNodeId = new Map<string, unknown>();
     const openQueue = new PriorityQueue<QueuedOpenEntry>((left, right) => compareNodePath(left.path, right.path));
     const activeEntries = new Map<string, QueuedOpenEntry>();
     const entryVersions = new Map<string, number>();
 
-    const rootPath: number[] = [];
-    const rootMoves = getLegalMoves(resolved.board);
-    const rootId = formatNodeId(rootPath);
-    const rootNode = createNodeRecord(
-      resolved.board,
-      resolved.currentPlayer,
-      0,
-      null,
-      rootPath,
-      null,
-      'L',
-      0,
-      Number.POSITIVE_INFINITY,
-    );
-    searchTree.set(rootId, rootNode);
+    const createNodeRecord = (
+      state: unknown,
+      depth: number,
+      move: string | null,
+      moveLabel: string | null,
+      path: number[],
+      parentId: string | null,
+      searchState: 'L' | 'S',
+      discoveryStep: number,
+      score: number,
+    ): GameTreeNode => {
+      const id = formatNodeId(path);
+      statesByNodeId.set(id, state);
+      const isTerminal = domain.isTerminal(problem, state);
+      return {
+        id,
+        parentId,
+        stateLabel: domain.describeState(problem, state),
+        nodeKind: domain.nodeKind(problem, state),
+        extra: domain.getStateExtra?.(problem, state),
+        move,
+        moveLabel,
+        score,
+        depth,
+        discoveryStep,
+        searchState,
+        path: clonePath(path),
+        childMoves: isTerminal ? [] : domain.legalMoves(problem, state).map((m) => m.id),
+        childIds: isTerminal ? [] : new Array(domain.legalMoves(problem, state).length).fill(null),
+        isTerminal,
+      };
+    };
 
     const pushOpen = (nodeId: string, state: 'L' | 'S', h: number): void => {
       const node = searchTree.get(nodeId);
@@ -285,45 +175,41 @@ export const sssStarRunner: TicTacToeRunner = {
         const entry = openQueue.pop();
         if (!entry) break;
         const latestVersion = entryVersions.get(entry.id);
-        if (latestVersion === undefined || latestVersion !== entry.version) {
-          continue;
-        }
-
+        if (latestVersion === undefined || latestVersion !== entry.version) continue;
         activeEntries.delete(entry.id);
         entryVersions.delete(entry.id);
         return entry;
       }
-
       return null;
     };
 
     const ensureChildNode = (parentId: string, childIndex: number): string => {
       const parent = searchTree.get(parentId);
-      if (!parent) {
+      const parentState = statesByNodeId.get(parentId);
+      if (!parent || parentState === undefined) {
         throw new Error(`Missing parent node ${parentId}`);
       }
 
-      parent.childMoves ??= isTerminal(parent.board) ? [] : getLegalMoves(parent.board);
+      parent.childMoves ??= domain.isTerminal(problem, parentState) ? [] : domain.legalMoves(problem, parentState).map((m) => m.id);
       parent.childIds ??= new Array(parent.childMoves.length).fill(null);
 
       const existingId = parent.childIds[childIndex];
-      if (existingId) {
-        return existingId;
-      }
+      if (existingId) return existingId;
 
-      const move = parent.childMoves[childIndex];
-      if (move === undefined) {
+      const moveId = parent.childMoves[childIndex];
+      if (moveId === undefined) {
         throw new Error(`Missing child move ${childIndex + 1} for ${parentId}`);
       }
+      const move = domain.legalMoves(problem, parentState).find((m) => m.id === moveId);
 
       const childPath = [...(parent.path ?? []), childIndex + 1];
       const childId = formatNodeId(childPath);
-      const childBoard = nextBoard(parent.board, move, parent.player);
+      const childState = domain.applyMove(problem, parentState, moveId);
       const childNode = createNodeRecord(
-        childBoard,
-        nextPlayer(parent.player),
+        childState,
         parent.depth + 1,
-        move,
+        moveId,
+        move?.label ?? moveId,
         childPath,
         parentId,
         'L',
@@ -336,21 +222,102 @@ export const sssStarRunner: TicTacToeRunner = {
       return childId;
     };
 
-    const collectEvaluatedMoves = (node: GameTreeNode): EvaluatedMove[] => summarizeChildren(node, searchTree);
+    const collectEvaluatedMoves = (node: GameTreeNode): EvaluatedMove[] => {
+      const childIds = node.childIds ?? [];
+      const moves: EvaluatedMove[] = [];
+      for (const childId of childIds) {
+        if (!childId) continue;
+        const child = searchTree.get(childId);
+        if (!child || child.move === null) continue;
+        moves.push({
+          move: child.move,
+          score: child.score ?? 0,
+          detail: `${child.searchState ?? 'inactive'} • h=${formatBound(child.score ?? 0)}`,
+        });
+      }
+      return moves;
+    };
+
+    const buildPathFrames = (nodeId: string): RecursionFrame[] => {
+      const orderedIds: string[] = [];
+      let currentId: string | null = nodeId;
+      while (currentId !== null) {
+        orderedIds.unshift(currentId);
+        currentId = searchTree.get(currentId)?.parentId ?? null;
+      }
+      return orderedIds.map((id) => {
+        const node = searchTree.get(id)!;
+        return {
+          depth: node.depth,
+          nodeKind: node.nodeKind,
+          role: node.nodeKind === 'min' ? 'min' : 'max',
+          move: node.move,
+          stateLabel: node.stateLabel,
+          bestScore: node.score,
+        };
+      });
+    };
+
+    const buildPrincipalVariation = (
+      state: unknown,
+      memo: Map<string, LineEvaluation>,
+      depth: number = 0,
+    ): LineEvaluation => {
+      const key = domain.stateId(problem, state);
+      const cached = memo.get(key);
+      if (cached) return cached;
+
+      if (domain.isTerminal(problem, state)) {
+        const result: LineEvaluation = { score: domain.terminalValue(problem, state, depth), move: null, principalVariation: [] };
+        memo.set(key, result);
+        return result;
+      }
+
+      const maximizingTurn = domain.nodeKind(problem, state) === 'max';
+      let bestScore = maximizingTurn ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+      let bestMove: string | null = null;
+      let bestVariation: string[] = [];
+
+      for (const move of domain.legalMoves(problem, state)) {
+        const child = buildPrincipalVariation(domain.applyMove(problem, state, move.id), memo, depth + 1);
+        const improved = maximizingTurn ? child.score > bestScore : child.score < bestScore;
+        if (improved) {
+          bestScore = child.score;
+          bestMove = move.id;
+          bestVariation = [move.id, ...child.principalVariation];
+        }
+      }
+
+      const result: LineEvaluation = { score: bestScore, move: bestMove, principalVariation: bestVariation };
+      memo.set(key, result);
+      return result;
+    };
+
+    const buildGameTreeSnapshot = (): SssOpenEntry[] => [...activeEntries.values()]
+      .sort((left, right) => {
+        if (left.h !== right.h) return right.h - left.h;
+        return compareNodePath(left.path, right.path);
+      })
+      .map(({ version: _version, ...entry }) => ({ ...entry, path: clonePath(entry.path) }));
+
+    const initialState = domain.initialState(problem);
+    const rootPath: number[] = [];
+    const rootMoves = domain.legalMoves(problem, initialState).map((move) => move.id);
+    const rootId = formatNodeId(rootPath);
+    const rootNode = createNodeRecord(initialState, 0, null, null, rootPath, null, 'L', 0, Number.POSITIVE_INFINITY);
+    searchTree.set(rootId, rootNode);
 
     pushOpen(rootId, 'L', Number.POSITIVE_INFINITY);
 
     yield createStep(
       ctx,
       'initializing',
-      `Initialized SSS* on board ${boardKey(resolved.board)} with ${resolved.currentPlayer} to move.`,
+      `Initialized SSS* at ${rootNode.stateLabel}.`,
       0,
       {
-        board: resolved.board,
-        currentPlayer: resolved.currentPlayer,
-        maximizingPlayer: resolved.maximizingPlayer,
+        state: initialState,
         availableMoves: rootMoves,
-        openQueue: buildGameTreeSnapshot(activeEntries),
+        openQueue: buildGameTreeSnapshot(),
         recursionStack: [],
         searchTree,
         currentNodeId: rootId,
@@ -365,31 +332,28 @@ export const sssStarRunner: TicTacToeRunner = {
 
       ctx.nodesExpanded += 1;
       const node = searchTree.get(entry.id);
-      if (!node) {
-        continue;
-      }
+      if (!node) continue;
+      const state = statesByNodeId.get(entry.id);
 
       if (entry.state === 'L') {
         node.searchState = undefined;
       }
 
-      const maximizingTurn = nodeKind(node.player, resolved.maximizingPlayer) === 'MAX';
-      const terminal = isTerminal(node.board);
-      const openSnapshotBeforeAction = buildGameTreeSnapshot(activeEntries);
-      const stack = buildPathFrames(node.id, searchTree, resolved.maximizingPlayer);
+      const maximizingTurn = node.nodeKind === 'max';
+      const terminal = domain.isTerminal(problem, state);
+      const openSnapshotBeforeAction = buildGameTreeSnapshot();
+      const stack = buildPathFrames(node.id);
 
       if (entry.id === rootId && entry.state === 'S') {
-        const bestLine = buildPrincipalVariation(resolved.board, resolved.currentPlayer, resolved.maximizingPlayer, new Map<string, LineEvaluation>());
+        const bestLine = buildPrincipalVariation(initialState, new Map<string, LineEvaluation>());
 
         yield createStep(
           ctx,
           'found',
-          `SSS* solves the root with value ${formatBound(entry.h)} and selects ${bestLine.move !== null ? moveLabel(bestLine.move) : 'no move'}.`,
+          `SSS* solves the root with value ${formatBound(entry.h)} and selects ${bestLine.move ?? 'no move'}.`,
           3,
           {
-            board: resolved.board,
-            currentPlayer: resolved.currentPlayer,
-            maximizingPlayer: resolved.maximizingPlayer,
+            state: initialState,
             availableMoves: rootMoves,
             openQueue: openSnapshotBeforeAction,
             currentMove: bestLine.move,
@@ -402,7 +366,7 @@ export const sssStarRunner: TicTacToeRunner = {
             searchTree,
             currentNodeId: rootId,
           },
-          { level: 'success', winningLine: terminalEvaluation(resolved.board, resolved.maximizingPlayer, 0).winningLine },
+          { level: 'success' },
         );
 
         return {
@@ -416,8 +380,7 @@ export const sssStarRunner: TicTacToeRunner = {
 
       if (entry.state === 'L') {
         if (terminal) {
-          const terminalInfo = terminalEvaluation(node.board, resolved.maximizingPlayer, node.depth);
-          const solvedScore = Math.min(entry.h, terminalInfo.score);
+          const solvedScore = Math.min(entry.h, domain.terminalValue(problem, state, node.depth));
           node.isTerminal = true;
           node.score = solvedScore;
           pushOpen(node.id, 'S', solvedScore);
@@ -425,14 +388,12 @@ export const sssStarRunner: TicTacToeRunner = {
           yield createStep(
             ctx,
             'propagating',
-            createTerminalDescription(node.board, resolved.maximizingPlayer, node.depth),
+            `Reached terminal state ${node.stateLabel} at depth ${node.depth}; solved value ${solvedScore}.`,
             6,
             {
-              board: node.board,
-              currentPlayer: node.player,
-              maximizingPlayer: resolved.maximizingPlayer,
+              state,
               availableMoves: [],
-              openQueue: buildGameTreeSnapshot(activeEntries),
+              openQueue: buildGameTreeSnapshot(),
               currentMove: node.move,
               currentScore: solvedScore,
               bestScore: solvedScore,
@@ -441,13 +402,13 @@ export const sssStarRunner: TicTacToeRunner = {
               searchTree,
               currentNodeId: node.id,
             },
-            { level: 'success', winningLine: terminalInfo.winningLine },
+            { level: 'success' },
           );
 
           continue;
         }
 
-        const childMoves = node.childMoves ?? getLegalMoves(node.board);
+        const childMoves = node.childMoves ?? domain.legalMoves(problem, state).map((m) => m.id);
         node.childMoves = childMoves;
         node.childIds ??= new Array(childMoves.length).fill(null);
 
@@ -463,11 +424,9 @@ export const sssStarRunner: TicTacToeRunner = {
             `Expanded MAX node ${node.id} and pushed ${childMoves.length} live child state(s) into OPEN.`,
             8,
             {
-              board: node.board,
-              currentPlayer: node.player,
-              maximizingPlayer: resolved.maximizingPlayer,
+              state,
               availableMoves: childMoves,
-              openQueue: buildGameTreeSnapshot(activeEntries),
+              openQueue: buildGameTreeSnapshot(),
               currentMove: node.move,
               currentScore: entry.h,
               bestScore: entry.h,
@@ -490,11 +449,9 @@ export const sssStarRunner: TicTacToeRunner = {
           `Expanded MIN node ${node.id} and pushed its left-most child ${firstChildId} into OPEN.`,
           7,
           {
-            board: node.board,
-            currentPlayer: node.player,
-            maximizingPlayer: resolved.maximizingPlayer,
+            state,
             availableMoves: childMoves,
-            openQueue: buildGameTreeSnapshot(activeEntries),
+            openQueue: buildGameTreeSnapshot(),
             currentMove: node.move,
             currentScore: entry.h,
             bestScore: entry.h,
@@ -521,7 +478,7 @@ export const sssStarRunner: TicTacToeRunner = {
 
       const childIndex = (node.path?.[node.path.length - 1] ?? 1) - 1;
 
-      if (nodeKind(node.player, resolved.maximizingPlayer) === 'MIN') {
+      if (node.nodeKind === 'min') {
         const parentScore = entry.h;
         parent.score = parentScore;
         parent.searchState = 'S';
@@ -538,11 +495,9 @@ export const sssStarRunner: TicTacToeRunner = {
           `Solved MIN node ${node.id} backs up h=${formatBound(entry.h)} to parent ${parentId} and removes the parent's children from OPEN.`,
           11,
           {
-            board: node.board,
-            currentPlayer: node.player,
-            maximizingPlayer: resolved.maximizingPlayer,
+            state,
             availableMoves: node.childMoves ?? [],
-            openQueue: buildGameTreeSnapshot(activeEntries),
+            openQueue: buildGameTreeSnapshot(),
             currentMove: node.move,
             currentScore: entry.h,
             bestScore: entry.h,
@@ -556,7 +511,8 @@ export const sssStarRunner: TicTacToeRunner = {
         continue;
       }
 
-      const childMoves = parent.childMoves ?? getLegalMoves(parent.board);
+      const parentState = statesByNodeId.get(parentId);
+      const childMoves = parent.childMoves ?? domain.legalMoves(problem, parentState).map((m) => m.id);
       parent.childMoves = childMoves;
       parent.childIds ??= new Array(childMoves.length).fill(null);
 
@@ -571,11 +527,9 @@ export const sssStarRunner: TicTacToeRunner = {
           `Solved MAX node ${node.id} backs up h=${formatBound(entry.h)} to parent ${parentId}.`,
           12,
           {
-            board: node.board,
-            currentPlayer: node.player,
-            maximizingPlayer: resolved.maximizingPlayer,
+            state,
             availableMoves: node.childMoves ?? [],
-            openQueue: buildGameTreeSnapshot(activeEntries),
+            openQueue: buildGameTreeSnapshot(),
             currentMove: node.move,
             currentScore: entry.h,
             bestScore: entry.h,
@@ -598,11 +552,9 @@ export const sssStarRunner: TicTacToeRunner = {
         `Solved MAX node ${node.id} promotes sibling ${nextChildId} as live with h=${formatBound(entry.h)}.`,
         13,
         {
-          board: node.board,
-          currentPlayer: node.player,
-          maximizingPlayer: resolved.maximizingPlayer,
+          state,
           availableMoves: node.childMoves ?? [],
-          openQueue: buildGameTreeSnapshot(activeEntries),
+          openQueue: buildGameTreeSnapshot(),
           currentMove: node.move,
           currentScore: entry.h,
           bestScore: entry.h,

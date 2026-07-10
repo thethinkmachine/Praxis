@@ -1,47 +1,27 @@
 import { createLog, statePanels as panelSections } from '@/algorithms/core/utils';
 import type { PanelSection } from '@/types';
-import {
-  applyMove,
-  createEmptyBoard,
-  evaluateTerminalBoard,
-  formatBoard,
-  formatMove,
-  getLegalMoves,
-  getOtherPlayer,
-  getWinner,
-  getWinningLine,
-  inferNextPlayer,
-  isBoardFull,
-  isTerminalBoard,
-  isValidBoard,
-  type TicTacToeBoard,
-  type TicTacToePlayer,
-} from '@/lib/tic-tac-toe';
+import type { GameProblem } from '@/types/problem';
+import type { GameDomain } from '@/problems/game-playing/domain';
+import { resolveGameDomain } from '@/problems/game-playing/domains';
 import type {
   EvaluatedMove,
+  GameStep,
+  GameTraceHighlight,
+  GameTraceState,
   GameTreeNode,
   RecursionFrame,
   SssOpenEntry,
-  TicTacToeResult,
-  TicTacToeStep,
-  TicTacToeTraceHighlight,
-  TicTacToeTraceState,
 } from './types';
-import type { TicTacToeProblem } from '@/types/problem';
-
-export interface ResolvedTicTacToeProblem {
-  board: TicTacToeBoard;
-  currentPlayer: TicTacToePlayer;
-  maximizingPlayer: TicTacToePlayer;
-}
 
 export interface SearchEvaluation {
   score: number;
-  move: number | null;
-  principalVariation: number[];
+  move: string | null;
+  principalVariation: string[];
 }
 
 export interface TraceContext {
+  problem: GameProblem;
+  domain: GameDomain<GameProblem, unknown>;
   stepNumber: number;
   nodesExpanded: number;
   maxDepth: number;
@@ -49,97 +29,45 @@ export interface TraceContext {
 }
 
 export interface TraceSnapshot {
-  board: TicTacToeBoard;
-  currentPlayer: TicTacToePlayer;
-  maximizingPlayer: TicTacToePlayer;
-  availableMoves?: number[];
+  state: unknown;
+  availableMoves?: string[];
   openQueue?: SssOpenEntry[];
-  currentMove?: number | null;
+  currentMove?: string | null;
   currentScore?: number | null;
-  bestMove?: number | null;
+  bestMove?: string | null;
   bestScore?: number | null;
   evaluatedMoves?: EvaluatedMove[];
   recursionStack?: RecursionFrame[];
   alpha?: number;
   beta?: number;
-  principalVariation?: number[] | null;
+  principalVariation?: string[] | null;
   searchTree?: Map<string, GameTreeNode>;
   currentNodeId?: string | null;
 }
 
-export function validateTicTacToeProblem(problem: TicTacToeProblem): { valid: boolean; errors: string[]; warnings?: string[] } {
-  const errors: string[] = [];
-  const warnings: string[] = [];
-  const board = problem.board ?? createEmptyBoard();
-
-  if (!isValidBoard(board)) {
-    errors.push('Board must contain exactly 9 cells using only X, O, or null.');
-    return { valid: false, errors };
-  }
-
-  const xCount = board.filter((cell: TicTacToeBoard[number]) => cell === 'X').length;
-  const oCount = board.filter((cell: TicTacToeBoard[number]) => cell === 'O').length;
-  if (oCount > xCount || xCount - oCount > 1) {
-    errors.push('Board has an invalid number of X and O moves.');
-  }
-
-  const winner = getWinner(board);
-  const winningLine = getWinningLine(board);
-  if (winner && winningLine) {
-    const altWinner = winner === 'X' ? 'O' : 'X';
-    const altWinningLine = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ].some(line => line.every(index => board[index] === altWinner));
-    if (altWinningLine) {
-      errors.push('Board cannot contain winning lines for both players.');
-    }
-  }
-
-  if (problem.currentPlayer && problem.currentPlayer !== 'X' && problem.currentPlayer !== 'O') {
-    errors.push('Current player must be X or O.');
-  }
-
-  if (problem.maximizingPlayer && problem.maximizingPlayer !== 'X' && problem.maximizingPlayer !== 'O') {
-    errors.push('Maximizing player must be X or O.');
-  }
-
-  const inferred = inferNextPlayer(board);
-  if (problem.currentPlayer && !winner && !isBoardFull(board) && problem.currentPlayer !== inferred) {
-    warnings.push(`Current player ${problem.currentPlayer} does not match inferred turn ${inferred}; using the explicit value.`);
-  }
-
-  if (winner) {
-    warnings.push(`Board is already terminal with winner ${winner}.`);
-  } else if (isBoardFull(board)) {
-    warnings.push('Board is already terminal with a draw.');
-  }
-
-  return { valid: errors.length === 0, errors, warnings: warnings.length > 0 ? warnings : undefined };
+export function validateGameProblem(problem: GameProblem): { valid: boolean; errors: string[]; warnings?: string[] } {
+  return resolveGameDomain(problem).validate(problem);
 }
 
-export function resolveProblem(problem: TicTacToeProblem): ResolvedTicTacToeProblem {
-  const board = problem.board ? [...problem.board] : createEmptyBoard();
+export function createTraceContext(problem: GameProblem): TraceContext {
   return {
-    board,
-    currentPlayer: problem.currentPlayer ?? inferNextPlayer(board),
-    maximizingPlayer: problem.maximizingPlayer ?? (problem.currentPlayer ?? inferNextPlayer(board)),
+    problem,
+    domain: resolveGameDomain(problem),
+    stepNumber: 0,
+    nodesExpanded: 0,
+    maxDepth: 0,
+    maxFrontierSize: 0,
   };
 }
 
-export function getInitialTraceState(problem: TicTacToeProblem): TicTacToeTraceState {
-  const resolved = resolveProblem(problem);
+export function getInitialTraceState(problem: GameProblem): GameTraceState {
+  const domain = resolveGameDomain(problem);
+  const state = domain.initialState(problem);
   return {
-    board: [...resolved.board],
-    currentPlayer: resolved.currentPlayer,
-    maximizingPlayer: resolved.maximizingPlayer,
-    availableMoves: getLegalMoves(resolved.board),
+    stateLabel: domain.describeState(problem, state),
+    nodeKind: domain.nodeKind(problem, state),
+    extra: domain.getStateExtra?.(problem, state),
+    availableMoves: domain.legalMoves(problem, state).map((move) => move.id),
     openQueue: [],
     currentMove: null,
     currentScore: null,
@@ -149,19 +77,25 @@ export function getInitialTraceState(problem: TicTacToeProblem): TicTacToeTraceS
     recursionStack: [],
     alpha: undefined,
     beta: undefined,
-    terminalWinner: getWinner(resolved.board) ?? (isBoardFull(resolved.board) ? 'draw' : null),
-    winningLine: getWinningLine(resolved.board),
     principalVariation: [],
   };
 }
 
-export function createTraceContext(): TraceContext {
-  return {
-    stepNumber: 0,
-    nodesExpanded: 0,
-    maxDepth: 0,
-    maxFrontierSize: 0,
-  };
+export function cloneFrame(frame: RecursionFrame): RecursionFrame {
+  return { ...frame };
+}
+
+export function determineOutcome(score: number): 'win' | 'draw' | 'loss' {
+  if (score > 0) return 'win';
+  if (score < 0) return 'loss';
+  return 'draw';
+}
+
+export function createTerminalDescription(ctx: TraceContext, state: unknown, depth: number): string {
+  return (
+    ctx.domain.describeTerminal?.(ctx.problem, state, depth)
+    ?? `Reached terminal state ${ctx.domain.describeState(ctx.problem, state)} at depth ${depth}.`
+  );
 }
 
 function formatBound(value: number | undefined): string {
@@ -177,7 +111,7 @@ function formatScore(value: number | null | undefined): string {
 }
 
 function formatMoveDetail(frame: RecursionFrame): string {
-  const parts = [frame.move === null ? 'root' : formatMove(frame.move)];
+  const parts = [frame.move === null ? 'root' : frame.move];
   if (frame.alpha !== undefined || frame.beta !== undefined) {
     parts.push(`[${formatBound(frame.alpha)}, ${formatBound(frame.beta)}]`);
   }
@@ -190,24 +124,23 @@ function formatMoveDetail(frame: RecursionFrame): string {
 function formatOpenQueueDetail(entry: SssOpenEntry): string {
   const parts = [entry.state, `h=${formatBound(entry.h)}`];
   if (entry.move !== null) {
-    parts.push(`move=${formatMove(entry.move)}`);
+    parts.push(`move=${entry.move}`);
   }
   return parts.join(' • ');
 }
 
-function buildStatePanels(state: TicTacToeTraceState): PanelSection[] {
+function buildStatePanels(state: GameTraceState): PanelSection[] {
   const panels: PanelSection[] = [];
 
-  panels.push(panelSections.keyValue('Position', [
-    { key: 'Board', value: formatBoard(state.board) },
-    { key: 'Current player', value: state.currentPlayer },
-    { key: 'Maximizing player', value: state.maximizingPlayer },
-    { key: 'Terminal winner', value: state.terminalWinner ?? '-' },
-  ]));
+  const positionItems: Array<{ key: string; value: string | number }> = [
+    { key: 'State', value: state.stateLabel },
+    { key: 'Node kind', value: state.nodeKind.toUpperCase() },
+  ];
+  panels.push(panelSections.keyValue('Position', positionItems));
 
   const searchItems = [
-    { key: 'Current candidate', value: state.currentMove === null ? '-' : formatMove(state.currentMove) },
-    { key: 'Best move', value: state.bestMove === null ? '-' : formatMove(state.bestMove) },
+    { key: 'Current candidate', value: state.currentMove ?? '-' },
+    { key: 'Best move', value: state.bestMove ?? '-' },
     { key: 'Current score', value: formatScore(state.currentScore) },
     { key: 'Best score', value: formatScore(state.bestScore) },
   ];
@@ -230,9 +163,9 @@ function buildStatePanels(state: TicTacToeTraceState): PanelSection[] {
 
   panels.push(panelSections.chips(
     'Available Moves',
-    state.availableMoves.map(move => ({
-      id: String(move),
-      label: formatMove(move),
+    state.availableMoves.map((move) => ({
+      id: move,
+      label: move,
       variant: 'frontier',
     })),
   ));
@@ -240,9 +173,9 @@ function buildStatePanels(state: TicTacToeTraceState): PanelSection[] {
   if ((state.principalVariation ?? []).length > 0) {
     panels.push(panelSections.chips(
       'Principal Variation',
-      (state.principalVariation ?? []).map(move => ({
-        id: String(move),
-        label: formatMove(move),
+      (state.principalVariation ?? []).map((move) => ({
+        id: move,
+        label: move,
         variant: 'path',
       })),
     ));
@@ -251,9 +184,9 @@ function buildStatePanels(state: TicTacToeTraceState): PanelSection[] {
   if (state.evaluatedMoves.length > 0) {
     panels.push(panelSections.nodes(
       'Evaluated Moves',
-      state.evaluatedMoves.map(move => ({
-        id: String(move.move),
-        label: formatMove(move.move),
+      state.evaluatedMoves.map((move) => ({
+        id: move.move,
+        label: move.move,
         detail: move.detail ? `score=${move.score} • ${move.detail}` : `score=${move.score}`,
       })),
     ));
@@ -276,10 +209,10 @@ function buildStatePanels(state: TicTacToeTraceState): PanelSection[] {
     const solvedNodes = nodes.filter((node) => node.searchState === 'S').length;
     panels.push(panelSections.keyValue('Search Tree', [
       { key: 'Nodes', value: nodes.length },
-      { key: 'Terminal', value: nodes.filter(node => node.isTerminal).length },
+      { key: 'Terminal', value: nodes.filter((node) => node.isTerminal).length },
       { key: 'Live', value: liveNodes },
       { key: 'Solved', value: solvedNodes },
-      { key: 'Pruned', value: nodes.filter(node => node.isPruned).length },
+      { key: 'Pruned', value: nodes.filter((node) => node.isPruned).length },
       { key: 'Max depth', value: nodes.reduce((maxDepth, node) => Math.max(maxDepth, node.depth), 0) },
       { key: 'Current node', value: state.currentNodeId ?? '-' },
     ]));
@@ -288,35 +221,9 @@ function buildStatePanels(state: TicTacToeTraceState): PanelSection[] {
   return panels;
 }
 
-export function cloneFrame(frame: RecursionFrame): RecursionFrame {
-  return {
-    ...frame,
-    board: [...frame.board],
-  };
-}
-
-export function determineOutcome(score: number): TicTacToeResult['outcome'] {
-  if (score > 0) return 'win';
-  if (score < 0) return 'loss';
-  return 'draw';
-}
-
-export function terminalEvaluation(
-  board: TicTacToeBoard,
-  maximizingPlayer: TicTacToePlayer,
-  depth: number,
-): { score: number; winner: TicTacToePlayer | 'draw'; winningLine: number[] | null } {
-  const winner = getWinner(board);
-  return {
-    score: evaluateTerminalBoard(board, maximizingPlayer, depth),
-    winner: winner ?? 'draw',
-    winningLine: getWinningLine(board),
-  };
-}
-
 export function createStep(
   ctx: TraceContext,
-  phase: TicTacToeStep['phase'],
+  phase: GameStep['phase'],
   description: string,
   pseudocodeLine: number,
   snapshot: TraceSnapshot,
@@ -324,9 +231,9 @@ export function createStep(
     level?: 'info' | 'warn' | 'success' | 'error';
     winningLine?: number[] | null;
   },
-): TicTacToeStep {
+): GameStep {
   const recursionStack = (snapshot.recursionStack ?? []).map(cloneFrame);
-  const availableMoves = [...(snapshot.availableMoves ?? getLegalMoves(snapshot.board))];
+  const availableMoves = snapshot.availableMoves ?? ctx.domain.legalMoves(ctx.problem, snapshot.state).map((move) => move.id);
   const openQueue = snapshot.openQueue ? snapshot.openQueue.map((entry) => ({
     ...entry,
     path: [...entry.path],
@@ -335,30 +242,29 @@ export function createStep(
   ctx.maxDepth = Math.max(ctx.maxDepth, recursionStack.length === 0 ? 0 : recursionStack[recursionStack.length - 1].depth);
   ctx.maxFrontierSize = Math.max(ctx.maxFrontierSize, frontierSize);
 
-  const state: TicTacToeTraceState = {
-    board: [...snapshot.board],
-    currentPlayer: snapshot.currentPlayer,
-    maximizingPlayer: snapshot.maximizingPlayer,
+  const state: GameTraceState = {
+    stateLabel: ctx.domain.describeState(ctx.problem, snapshot.state),
+    nodeKind: ctx.domain.nodeKind(ctx.problem, snapshot.state),
+    extra: ctx.domain.getStateExtra?.(ctx.problem, snapshot.state),
     availableMoves,
     openQueue,
     currentMove: snapshot.currentMove ?? null,
     currentScore: snapshot.currentScore ?? null,
     bestMove: snapshot.bestMove ?? null,
     bestScore: snapshot.bestScore ?? null,
-    evaluatedMoves: (snapshot.evaluatedMoves ?? []).map(item => ({ ...item })),
+    evaluatedMoves: (snapshot.evaluatedMoves ?? []).map((item) => ({ ...item })),
     recursionStack,
     alpha: snapshot.alpha,
     beta: snapshot.beta,
-    terminalWinner: getWinner(snapshot.board) ?? (isBoardFull(snapshot.board) ? 'draw' : null),
-    winningLine: options?.winningLine ?? getWinningLine(snapshot.board),
     principalVariation: snapshot.principalVariation ? [...snapshot.principalVariation] : [],
     searchTree: snapshot.searchTree, // Shared reference
+    currentNodeId: snapshot.currentNodeId ?? null,
   };
 
-  const highlight: TicTacToeTraceHighlight = {
-    currentCell: snapshot.currentMove ?? null,
-    candidateCells: new Set(availableMoves),
-    winningLine: state.winningLine ?? null,
+  const highlight: GameTraceHighlight = {
+    currentMove: snapshot.currentMove ?? null,
+    candidateMoves: new Set(availableMoves),
+    winningLine: options?.winningLine ?? null,
     principalVariation: snapshot.principalVariation ? [...snapshot.principalVariation] : null,
     currentNodeId: snapshot.currentNodeId ?? null,
   };
@@ -381,37 +287,4 @@ export function createStep(
     ],
     logs: [createLog(description, options?.level ?? 'info')],
   };
-}
-
-export function createTerminalDescription(
-  board: TicTacToeBoard,
-  maximizingPlayer: TicTacToePlayer,
-  depth: number,
-): string {
-  const { score, winner } = terminalEvaluation(board, maximizingPlayer, depth);
-  if (winner === 'draw') {
-    return `Reached terminal draw at depth ${depth}; score = ${score}.`;
-  }
-  const relation = winner === maximizingPlayer ? 'maximizing player wins' : 'maximizing player loses';
-  return `Reached terminal board ${formatBoard(board)} at depth ${depth}; ${relation}, score = ${score}.`;
-}
-
-export function nextBoard(board: TicTacToeBoard, move: number, player: TicTacToePlayer): TicTacToeBoard {
-  return applyMove(board, move, player);
-}
-
-export function moveLabel(move: number): string {
-  return formatMove(move);
-}
-
-export function nextPlayer(player: TicTacToePlayer): TicTacToePlayer {
-  return getOtherPlayer(player);
-}
-
-export function boardKey(board: TicTacToeBoard): string {
-  return formatBoard(board);
-}
-
-export function isTerminal(board: TicTacToeBoard): boolean {
-  return isTerminalBoard(board);
 }

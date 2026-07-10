@@ -122,18 +122,81 @@ export interface MazeProblem {
   manualHeuristicValues?: Record<string, number>;
 }
 
-export type TicTacToeCell = 'X' | 'O' | null;
-export type TicTacToePlayer = 'X' | 'O';
+// Abstract, user-built game tree — nodes carry an explicit MAX/MIN/chance/terminal
+// designation instead of being derived from a concrete game's move rules.
+export type GameTreeNodeKind = 'max' | 'min' | 'chance' | 'terminal';
 
-export interface TicTacToeProblem {
-  kind?: 'tic-tac-toe';
-  board?: TicTacToeCell[];
-  currentPlayer?: TicTacToePlayer;
-  maximizingPlayer?: TicTacToePlayer;
-  allowDepthPenalty?: boolean;
+export interface GameTreeNodeData {
+  id: string;
+  kind: GameTreeNodeKind;
+  /** User-entered annotation, distinct from any computed/derived display text. */
+  label?: string;
+  /** Required (validated) when kind === 'terminal'; ignored otherwise. */
+  value?: number;
+  x?: number;
+  y?: number;
 }
 
-export type GameProblem = TicTacToeProblem;
+export interface GameTreeEdgeData {
+  id: string;
+  /** Parent node id. */
+  source: string;
+  /** Child node id. */
+  target: string;
+  moveLabel?: string;
+  /** Meaningful only when the source node's kind is 'chance'. */
+  probability?: number;
+}
+
+export interface GameTreeData {
+  nodes: GameTreeNodeData[];
+  edges: GameTreeEdgeData[];
+  rootId: string | null;
+}
+
+export class GameTree implements GameTreeData {
+  nodes: GameTreeNodeData[];
+  edges: GameTreeEdgeData[];
+  rootId: string | null;
+
+  constructor(data: GameTreeData) {
+    this.nodes = data.nodes ?? [];
+    this.edges = data.edges ?? [];
+    this.rootId = data.rootId ?? null;
+  }
+
+  getNode(id: string): GameTreeNodeData | undefined {
+    return this.nodes.find((node) => node.id === id);
+  }
+
+  /** Outgoing (parent -> children) edges grouped by source, in edge-array order. */
+  toChildrenMap(): Map<string, GameTreeEdgeData[]> {
+    const map = new Map<string, GameTreeEdgeData[]>();
+    this.nodes.forEach((node) => map.set(node.id, []));
+    this.edges.forEach((edge) => {
+      map.get(edge.source)?.push(edge);
+    });
+    return map;
+  }
+
+  /** Single incoming edge per node (tree invariant) keyed by child id. */
+  toParentMap(): Map<string, GameTreeEdgeData> {
+    const map = new Map<string, GameTreeEdgeData>();
+    this.edges.forEach((edge) => {
+      if (!map.has(edge.target)) {
+        map.set(edge.target, edge);
+      }
+    });
+    return map;
+  }
+}
+
+export interface GameTreeProblem {
+  kind: 'game-tree';
+  tree: GameTree;
+}
+
+export type GameProblem = GameTreeProblem;
 
 export interface NQueensProblem extends AntColonySettings {
   kind: 'n-queens';

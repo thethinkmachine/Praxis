@@ -21,6 +21,8 @@ interface EditorToolbarProps {
   onClear: () => void;
   isDirected: boolean;
   onToggleDirected: () => void;
+  /** Hide the directed/undirected toggle — used by families where directedness is fixed (e.g. game trees). */
+  hideDirected?: boolean;
   onUndo?: () => void;
   onRedo?: () => void;
   canUndo?: boolean;
@@ -81,6 +83,7 @@ export default function EditorToolbar({
   onClear,
   isDirected,
   onToggleDirected,
+  hideDirected = false,
   onUndo,
   onRedo,
   canUndo = false,
@@ -112,23 +115,25 @@ export default function EditorToolbar({
           ))}
         </div>
 
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <button
-              onClick={onToggleDirected}
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs transition-colors',
-                isDirected
-                  ? 'border-[#D2A8FF]/45 bg-[#D2A8FF]/12 text-[#D2A8FF]'
-                  : 'border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text)]',
-              )}
-            >
-              {isDirected ? <ArrowRight size={14} /> : <ArrowLeftRight size={14} />}
-              <span>{isDirected ? 'Directed' : 'Undirected'}</span>
-            </button>
-          </Tooltip.Trigger>
-          <Tip>{isDirected ? 'Switch to undirected graph' : 'Switch to directed graph'}</Tip>
-        </Tooltip.Root>
+        {!hideDirected && (
+          <Tooltip.Root>
+            <Tooltip.Trigger asChild>
+              <button
+                onClick={onToggleDirected}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs transition-colors',
+                  isDirected
+                    ? 'border-[#D2A8FF]/45 bg-[#D2A8FF]/12 text-[#D2A8FF]'
+                    : 'border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text)]',
+                )}
+              >
+                {isDirected ? <ArrowRight size={14} /> : <ArrowLeftRight size={14} />}
+                <span>{isDirected ? 'Directed' : 'Undirected'}</span>
+              </button>
+            </Tooltip.Trigger>
+            <Tip>{isDirected ? 'Switch to undirected graph' : 'Switch to directed graph'}</Tip>
+          </Tooltip.Root>
+        )}
 
         <div className="flex items-center gap-1">
           <Tooltip.Root>

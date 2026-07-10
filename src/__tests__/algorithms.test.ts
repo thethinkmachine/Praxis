@@ -2,10 +2,10 @@ import { Graph } from '@/types/problem';
 import { describe, it, expect, beforeAll } from 'vitest';
 import { registerAllAlgorithms } from '@/algorithms/register';
 import { registry } from '@/algorithms/core/registry';
-import { getTicTacToeScenario } from '@/problems/game-playing/tic-tac-toe-lab';
 import { simpleGraphProblem, romaniaMapProblem } from './fixtures/mock-problems';
+import { buildGameTreeProblem, edge, leaf, node } from './fixtures/game-tree-builder';
 import type { AlgorithmStep, PanelSection } from '@/types/step';
-import type { GraphColoringProblem, NQueensProblem, TicTacToeProblem, TspProblem } from '@/types/problem';
+import type { GraphColoringProblem, NQueensProblem, TspProblem } from '@/types/problem';
 import { countConflicts } from '@/problems/local-search/n-queens';
 import { routeDistance } from '@/problems/local-search/tsp';
 import { createPlanningProblemFromPreset } from '@/problems/planning/presets';
@@ -859,15 +859,27 @@ describe('Constraint Satisfaction', () => {
 });
 
 describe('Game Playing', () => {
-  const ticTacToeProblem: TicTacToeProblem = {
-    kind: 'tic-tac-toe',
-    board: ['X', 'O', 'X', 'O', 'X', null, 'O', null, null],
-    currentPlayer: 'X',
-    maximizingPlayer: 'X',
-  };
+  // root(MAX) -> A(MIN)->[3,5], B(MIN)->[6,2]; A=min(3,5)=3, B=min(6,2)=2,
+  // root=max(3,2)=3, best move is A (id "g1"). Used for panel-shape checks.
+  const shallowTree = buildGameTreeProblem(
+    node('max', [
+      edge(node('min', [edge(leaf(3)), edge(leaf(5))])),
+      edge(node('min', [edge(leaf(6)), edge(leaf(2))])),
+    ]),
+  );
+
+  // root(MAX) -> A(MIN)->[5,-10], B(MIN)->[8,6]; B dominates under both
+  // adversarial (min) and averaging (expectimax) semantics, with enough
+  // margin to stay positive even under MCTS's sampled convergence.
+  const positiveScoreTree = buildGameTreeProblem(
+    node('max', [
+      edge(node('min', [edge(leaf(5)), edge(leaf(-10))])),
+      edge(node('min', [edge(leaf(8)), edge(leaf(6))])),
+    ]),
+  );
 
   it('emits structured state panels for minimax', () => {
-    const steps = collectAllSteps('minimax', ticTacToeProblem);
+    const steps = collectAllSteps('minimax', shallowTree);
     const initial = steps[0];
     const backtracking = steps.find(step => step.phase === 'backtracking');
     const final = steps[steps.length - 1];
@@ -881,17 +893,16 @@ describe('Game Playing', () => {
   });
 
   it('emits OPEN queue details for sss-star', () => {
-    const problem = getTicTacToeScenario('forced-block');
-    const steps = collectAllSteps('sss-star', problem);
+    const steps = collectAllSteps('sss-star', positiveScoreTree);
     const initial = steps[0];
     const final = steps[steps.length - 1];
-    const state = final.state as { bestMove?: number | null; bestScore?: number } | undefined;
+    const state = final.state as { bestMove?: string | null; bestScore?: number } | undefined;
 
     expect(getPanel(initial, 'OPEN Queue')?.type).toBe('chips');
     expect(getChipPanelIds(initial, 'OPEN Queue')).toEqual(['ε']);
     expect(final.phase).toBe('found');
-    expect(state?.bestMove).toBe(2);
-    expect(Number.isFinite(state?.bestScore ?? NaN)).toBe(true);
+    expect(state?.bestMove).toBe('g4');
+    expect(state?.bestScore).toBe(6);
     const searchTreePanel = getPanel(final, 'Search Tree');
     expect(searchTreePanel?.type).toBe('key-value');
     const searchTreeItems = searchTreePanel?.type === 'key-value' ? searchTreePanel.items : [];
@@ -899,7 +910,7 @@ describe('Game Playing', () => {
   });
 
   it('emits search-window details for alpha-beta', () => {
-    const steps = collectAllSteps('alpha-beta', ticTacToeProblem);
+    const steps = collectAllSteps('alpha-beta', shallowTree);
     const step = steps.find(item => item.phase === 'backtracking') ?? steps[0];
     const bestMovePanel = getPanel(step, 'Best Move');
 
@@ -910,13 +921,12 @@ describe('Game Playing', () => {
   });
 
   it('emits expected-value details for expectimax', () => {
-    const problem = getTicTacToeScenario('forced-block');
-    const steps = collectAllSteps('expectimax', problem);
+    const steps = collectAllSteps('expectimax', positiveScoreTree);
     const final = steps.at(-1);
-    const state = final?.state as { bestMove?: number | null; bestScore?: number } | undefined;
+    const state = final?.state as { bestMove?: string | null; bestScore?: number } | undefined;
 
     expect(final?.phase).toBe('found');
-    expect(state?.bestMove).toBe(2);
+    expect(state?.bestMove).toBe('g4');
     expect(state?.bestScore).toBeGreaterThan(0);
 
     const evaluatedMoves = getPanel(final!, 'Evaluated Moves');
@@ -926,42 +936,17 @@ describe('Game Playing', () => {
   });
 
   it('emits rollout details for mcts', () => {
-    const problem = getTicTacToeScenario('forced-block');
-    const steps = collectAllSteps('mcts', problem);
+    const steps = collectAllSteps('mcts', positiveScoreTree);
     const final = steps.at(-1);
-    const state = final?.state as { bestMove?: number | null; bestScore?: number } | undefined;
+    const state = final?.state as { bestMove?: string | null; bestScore?: number } | undefined;
 
     expect(final?.phase).toBe('found');
-    expect(state?.bestMove).toBe(2);
+    expect(state?.bestMove).toBe('g4');
     expect(state?.bestScore).toBeGreaterThan(0);
 
     const evaluatedMoves = getPanel(final!, 'Evaluated Moves');
     expect(evaluatedMoves?.type).toBe('nodes');
     expect(evaluatedMoves?.type === 'nodes' ? evaluatedMoves.items.some((item) => item.detail?.includes('visit')) : false).toBe(true);
     expect(getPanel(final!, 'Principal Variation')?.type).toBe('chips');
-  });
-
-  it('keeps expectimax valid when the maximizing player is not on move', () => {
-    const problem: TicTacToeProblem = {
-      kind: 'tic-tac-toe',
-      board: ['X', 'X', null, null, 'O', null, null, null, null],
-      currentPlayer: 'O',
-      maximizingPlayer: 'X',
-    };
-
-    const validation = registry.get('expectimax')?.runner.validate(problem);
-    expect(validation?.warnings ?? []).not.toContain(
-      'Expectimax assumes the maximizing player is the side to move; opponent turns are modeled as chance nodes.',
-    );
-
-    const steps = collectAllSteps('expectimax', problem);
-    const final = steps.at(-1);
-    const state = final?.state as { bestMove?: number | null } | undefined;
-
-    expect(final?.phase).toBe('found');
-    expect(state?.bestMove).not.toBeNull();
-    if (state?.bestMove !== null && state?.bestMove !== undefined) {
-      expect(problem.board?.[state.bestMove]).toBeNull();
-    }
   });
 });

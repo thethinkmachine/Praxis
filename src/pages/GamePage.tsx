@@ -25,6 +25,7 @@ export default function GamePage() {
   const [problemKey, setProblemKey] = useState(`game:${resolvedLabId}:default`);
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
   const step = useCurrentStep<AlgorithmStep<unknown, unknown>>(algo);
+  const currentIndex = useExecutionStore((state) => state.currentIndex);
   const clearExecution = useExecutionStore((state) => state.clear);
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export default function GamePage() {
     problem,
     setProblem,
     step,
+    currentIndex,
     openDemoPicker: () => setDemoDialogOpen(true),
     markProblemChanged: (reason) => {
       clearExecution();

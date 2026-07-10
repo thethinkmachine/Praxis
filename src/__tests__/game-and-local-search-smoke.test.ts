@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 
 import { registerAllAlgorithms } from '@/algorithms/register';
 import { registry } from '@/algorithms/core/registry';
-import { getTicTacToeScenario } from '@/problems/game-playing/tic-tac-toe-lab';
+import { buildGameTreeProblem, edge, leaf, node } from './fixtures/game-tree-builder';
 import type { AlgorithmStep } from '@/types/step';
 import { Graph, type GraphProblem, type NQueensProblem } from '@/types/problem';
 import { countConflicts } from '@/problems/local-search/n-queens';
@@ -50,13 +50,54 @@ function loadRomaniaDemoProblem(): GraphProblem {
 }
 
 describe('Game-Playing Smoke', () => {
-  const scenarioIds = ['forced-block', 'fork-trap', 'endgame-win'] as const;
+  // Three chance-free MAX/MIN trees of varying shape/depth so the
+  // "algorithms agree" check exercises more than one topology.
+  const twoPlyTree = buildGameTreeProblem(
+    node('max', [
+      edge(node('min', [edge(leaf(3)), edge(leaf(5))])),
+      edge(node('min', [edge(leaf(6)), edge(leaf(2))])),
+    ]),
+  );
+  const threeBranchTree = buildGameTreeProblem(
+    node('max', [
+      edge(node('min', [edge(leaf(3)), edge(leaf(12)), edge(leaf(8))])),
+      edge(node('min', [edge(leaf(2)), edge(leaf(4)), edge(leaf(6))])),
+      edge(node('min', [edge(leaf(14)), edge(leaf(5)), edge(leaf(2))])),
+    ]),
+  );
+  const deepTree = buildGameTreeProblem(
+    node('max', [
+      edge(node('min', [
+        edge(node('max', [edge(leaf(1)), edge(leaf(9))])),
+        edge(node('max', [edge(leaf(4)), edge(leaf(2))])),
+      ])),
+      edge(node('min', [
+        edge(node('max', [edge(leaf(7)), edge(leaf(3))])),
+        edge(node('max', [edge(leaf(0)), edge(leaf(8))])),
+      ])),
+    ]),
+  );
+  const treeCases = [
+    ['two-ply', twoPlyTree],
+    ['three-branch', threeBranchTree],
+    ['deep-three-ply', deepTree],
+  ] as const;
+
+  // root(MAX) -> A(MIN)->[5,-10], B(MIN)->[8,6]; B dominates under both
+  // adversarial and averaging semantics, with margin to stay positive even
+  // under MCTS's sampled convergence.
+  const positiveScoreTree = buildGameTreeProblem(
+    node('max', [
+      edge(node('min', [edge(leaf(5)), edge(leaf(-10))])),
+      edge(node('min', [edge(leaf(8)), edge(leaf(6))])),
+    ]),
+  );
+
   const algorithmIds = ['minimax', 'alpha-beta', 'negamax', 'sss-star'] as const;
   const samplingAlgorithmIds = ['expectimax', 'mcts'] as const;
 
-  it.each(scenarioIds)('all game-playing algorithms agree on %s', (scenarioId) => {
-    const problem = getTicTacToeScenario(scenarioId);
-    const baseline = runGeneratorWithGuard<AlgorithmStep, { bestMove: number | null; bestScore: number }>(
+  it.each(treeCases)('all game-playing algorithms agree on %s', (_name, problem) => {
+    const baseline = runGeneratorWithGuard<AlgorithmStep, { bestMove: string | null; bestScore: number }>(
       'minimax',
       problem,
     );
@@ -65,7 +106,7 @@ describe('Game-Playing Smoke', () => {
     expect(baseline.steps.at(-1)?.phase).toBe('found');
 
     for (const algorithmId of algorithmIds.slice(1)) {
-      const candidate = runGeneratorWithGuard<AlgorithmStep, { bestMove: number | null; bestScore: number }>(
+      const candidate = runGeneratorWithGuard<AlgorithmStep, { bestMove: string | null; bestScore: number }>(
         algorithmId,
         problem,
       );
@@ -77,24 +118,22 @@ describe('Game-Playing Smoke', () => {
     }
   });
 
-  it('alpha-beta expands no more nodes than minimax on the forced-block scenario', () => {
-    const problem = getTicTacToeScenario('forced-block');
-    const minimax = runGeneratorWithGuard<AlgorithmStep, { nodesExpanded: number }>('minimax', problem);
-    const alphaBeta = runGeneratorWithGuard<AlgorithmStep, { nodesExpanded: number }>('alpha-beta', problem);
+  it('alpha-beta expands no more nodes than minimax on a branching tree', () => {
+    const minimax = runGeneratorWithGuard<AlgorithmStep, { nodesExpanded: number }>('minimax', threeBranchTree);
+    const alphaBeta = runGeneratorWithGuard<AlgorithmStep, { nodesExpanded: number }>('alpha-beta', threeBranchTree);
 
     expect(alphaBeta.result.nodesExpanded).toBeLessThanOrEqual(minimax.result.nodesExpanded);
   });
 
-  it.each(samplingAlgorithmIds)('%s terminates on the forced-block scenario', (algorithmId) => {
-    const problem = getTicTacToeScenario('forced-block');
-    const { steps, result } = runGeneratorWithGuard<AlgorithmStep, { bestMove: number | null; bestScore: number }>(
+  it.each(samplingAlgorithmIds)('%s terminates on a tree with a clear best move', (algorithmId) => {
+    const { steps, result } = runGeneratorWithGuard<AlgorithmStep, { bestMove: string | null; bestScore: number }>(
       algorithmId,
-      problem,
+      positiveScoreTree,
     );
 
     expect(steps.length).toBeGreaterThan(0);
     expect(steps.at(-1)?.phase).toBe('found');
-    expect(result.bestMove).toBe(2);
+    expect(result.bestMove).toBe('g4');
     expect(result.bestScore).toBeGreaterThan(0);
   });
 });

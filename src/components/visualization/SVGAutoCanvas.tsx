@@ -17,7 +17,7 @@ import {
   NODE_H_TALL,
   GRID_SNAP,
 } from './svg-graph.types';
-import type { SVGNodeVM, SVGEdgeVM, NodeVisualState } from './svg-graph.types';
+import type { SVGNodeVM, SVGEdgeVM, NodeVisualState, SVGNodeShape } from './svg-graph.types';
 
 // ---------------------------------------------------------------------------
 // Props
@@ -101,55 +101,6 @@ function isGridState(label: string): number[] | null {
     if (numbers.every(n => n >= 0 && n < 16)) return numbers;
   }
   return null;
-}
-
-function isTicTacToeState(label: string): (string | null)[] | null {
-  const clean = label.replace(/[|\n]/g, ' ');
-  const parts = clean.trim().split(/\s+/);
-  if (parts.length === 9 && parts.every(p => p === 'X' || p === 'O' || p === '.')) {
-    return parts.map(p => (p === '.' ? null : p));
-  }
-  return null;
-}
-
-function renderTicTacToe(cells: (string | null)[], totalW: number, darkMode: boolean) {
-  const cellSize = totalW / 3;
-  const padding = 2;
-  const innerSize = cellSize - padding * 2;
-
-  return (
-    <g transform={`translate(${-totalW / 2}, ${-totalW / 2})`}>
-      {/* Grid Lines */}
-      <line x1={cellSize} y1={2} x2={cellSize} y2={totalW - 2} stroke={darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} strokeWidth={1} />
-      <line x1={cellSize * 2} y1={2} x2={cellSize * 2} y2={totalW - 2} stroke={darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} strokeWidth={1} />
-      <line x1={2} y1={cellSize} x2={totalW - 2} y2={cellSize} stroke={darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} strokeWidth={1} />
-      <line x1={2} y1={cellSize * 2} x2={totalW - 2} y2={cellSize * 2} stroke={darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} strokeWidth={1} />
-
-      {cells.map((cell, i) => {
-        if (!cell) return null;
-        const r = Math.floor(i / 3);
-        const c = i % 3;
-        const x = c * cellSize + cellSize / 2;
-        const y = r * cellSize + cellSize / 2;
-
-        return (
-          <text
-            key={i}
-            x={x}
-            y={y}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontSize={cellSize * 0.6}
-            fontWeight="900"
-            fill={cell === 'X' ? '#58A6FF' : '#F0883E'}
-            fontFamily="Outfit, sans-serif"
-          >
-            {cell}
-          </text>
-        );
-      })}
-    </g>
-  );
 }
 
 function renderGrid(tiles: number[], size: number, totalW: number, darkMode: boolean) {
@@ -272,6 +223,7 @@ interface ParsedNode {
   score?: number | null;
   alpha?: number;
   beta?: number;
+  shape?: SVGNodeShape;
   /** Pre-computed position from element data (if adapter supplies it) */
   elX?: number;
   elY?: number;
@@ -352,6 +304,7 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
           score: el.data?.score as number | null,
           alpha: el.data?.alpha as number,
           beta: el.data?.beta as number,
+          shape: el.data?.shape as SVGNodeShape | undefined,
           elX: el.position?.x,
           elY: el.position?.y,
         });
@@ -420,6 +373,7 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
     score: n.score,
     alpha: n.alpha,
     beta: n.beta,
+    shape: n.shape,
   })), [parsedNodes, layoutVersion]);
 
   const edgeVMs: SVGEdgeVM[] = useMemo(() => parsedEdges.map(e => ({ ...e })), [parsedEdges]);
@@ -494,12 +448,11 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
               if (!srcNode || !tgtNode) return null;
 
               const srcGrid = isGridState(srcNode.label), tgtGrid = isGridState(tgtNode.label);
-              const srcTTT = isTicTacToeState(srcNode.label), tgtTTT = isTicTacToeState(tgtNode.label);
-              
-              const srcW = srcGrid ? (srcGrid.length === 16 ? 110 : 90) : srcTTT ? 70 : (srcNode.gCost != null ? 100 : 76);
-              const srcH = srcGrid ? (srcGrid.length === 16 ? 130 : 104) : srcTTT ? (srcNode.score !== undefined ? 100 : 70) : (srcNode.gCost != null ? 56 : 38);
-              const tgtW = tgtGrid ? (tgtGrid.length === 16 ? 110 : 90) : tgtTTT ? 70 : (tgtNode.gCost != null ? 100 : 76);
-              const tgtH = tgtGrid ? (tgtGrid.length === 16 ? 130 : 104) : tgtTTT ? (tgtNode.score !== undefined ? 100 : 70) : (tgtNode.gCost != null ? 56 : 38);
+
+              const srcW = srcGrid ? (srcGrid.length === 16 ? 110 : 90) : (srcNode.gCost != null ? 100 : 76);
+              const srcH = srcGrid ? (srcGrid.length === 16 ? 130 : 104) : (srcNode.gCost != null ? 56 : 38);
+              const tgtW = tgtGrid ? (tgtGrid.length === 16 ? 110 : 90) : (tgtNode.gCost != null ? 100 : 76);
+              const tgtH = tgtGrid ? (tgtGrid.length === 16 ? 130 : 104) : (tgtNode.gCost != null ? 56 : 38);
 
               const { x1, y1, x2, y2 } = getEdgeEndpoints(srcNode.x, srcNode.y, tgtNode.x, tgtNode.y, srcW, srcH, tgtW, tgtH);
               const style = edge.isPath ? activeEdgeColors.path : edge.isPruned ? activeEdgeColors.pruned : edge.isDirected ? activeEdgeColors.directed : activeEdgeColors.normal;
@@ -532,11 +485,11 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
             {nodeVMs.map(node => {
               const theme = activeNodeTheme[node.state];
               const grid = isGridState(node.label);
-              const ttt = isTicTacToeState(node.label);
-              
+
               const hasMetadata = node.score !== undefined || node.gCost !== undefined;
-              const CARD_W = grid ? (grid.length === 16 ? 110 : 90) : ttt ? 70 : (hasMetadata ? 100 : 76);
-              const CARD_H = grid ? (grid.length === 16 ? 130 : 104) : ttt ? (node.score !== undefined ? 100 : 70) : (hasMetadata ? 56 : 38);
+              const isTreeShape = node.shape === 'circle' || node.shape === 'square' || node.shape === 'diamond';
+              const CARD_W = isTreeShape ? (hasMetadata ? 64 : 52) : grid ? (grid.length === 16 ? 110 : 90) : (hasMetadata ? 100 : 76);
+              const CARD_H = isTreeShape ? (hasMetadata ? 64 : 52) : grid ? (grid.length === 16 ? 130 : 104) : (hasMetadata ? 56 : 38);
               const isExplored = node.state === 'explored' || node.state === 'pruned';
 
               const filterMap: any = { 'glow-current': 'ac-glow-current', 'glow-frontier': 'ac-glow-frontier', 'glow-goal': 'ac-glow-goal', 'glow-start': 'ac-glow-start', 'glow-path': 'ac-glow-path' };
@@ -544,15 +497,23 @@ export default function SVGAutoCanvas({ elements, className }: SVGAutoCanvasProp
 
               return (
                 <g key={node.id} transform={`translate(${node.x}, ${node.y})`} filter={filterId ? `url(#${filterId})` : undefined} opacity={isExplored ? 0.45 : 1}>
-                  <rect x={-CARD_W / 2} y={-CARD_H / 2} width={CARD_W} height={CARD_H} rx={12} fill={theme.fill} fillOpacity={theme.fillOpacity} stroke={theme.border} strokeWidth={theme.borderWidth} />
+                  {node.shape === 'circle' ? (
+                    <circle r={CARD_W / 2} fill={theme.fill} fillOpacity={theme.fillOpacity} stroke={theme.border} strokeWidth={theme.borderWidth} />
+                  ) : node.shape === 'diamond' ? (
+                    <polygon
+                      points={`0,${-CARD_H / 2} ${CARD_W / 2},0 0,${CARD_H / 2} ${-CARD_W / 2},0`}
+                      fill={theme.fill}
+                      fillOpacity={theme.fillOpacity}
+                      stroke={theme.border}
+                      strokeWidth={theme.borderWidth}
+                    />
+                  ) : (
+                    <rect x={-CARD_W / 2} y={-CARD_H / 2} width={CARD_W} height={CARD_H} rx={node.shape === 'square' ? 4 : 12} fill={theme.fill} fillOpacity={theme.fillOpacity} stroke={theme.border} strokeWidth={theme.borderWidth} />
+                  )}
                   {grid ? (
                     <g transform="translate(0, -6)">
                       <text y={-CARD_H/2 + 16} textAnchor="middle" fill={theme.text} fontSize={8} fontWeight="bold" opacity={0.6}>{grid.length === 9 ? '8-PUZZLE' : '15-PUZZLE'}</text>
                       <g transform="translate(0, 8)">{renderGrid(grid, grid.length === 16 ? 4 : 3, grid.length === 16 ? 90 : 70, darkMode)}</g>
-                    </g>
-                  ) : ttt ? (
-                    <g transform={`translate(0, ${node.score !== undefined ? -15 : 0})`}>
-                       {renderTicTacToe(ttt, 56, darkMode)}
                     </g>
                   ) : (
                     <text y={node.gCost != null ? -8 : 0} textAnchor="middle" dominantBaseline="central" fill={theme.text} fontSize={11} fontWeight={node.state === 'path' ? 'bold' : 'normal'} fontFamily="monospace">{node.label}</text>

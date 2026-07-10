@@ -1,10 +1,10 @@
 import type { AlgorithmRunner } from '@/types/algorithm';
 import type { AlgorithmStep } from '@/types/step';
-import type { TicTacToeBoard, TicTacToePlayer } from '@/lib/tic-tac-toe';
-import type { TicTacToeProblem } from '@/types/problem';
+import type { GameProblem } from '@/types/problem';
+import type { GameNodeKind } from '@/problems/game-playing/domain';
 
 export interface EvaluatedMove {
-  move: number;
+  move: string;
   score: number;
   detail?: string;
 }
@@ -13,17 +13,17 @@ export interface SssOpenEntry {
   id: string;
   state: 'L' | 'S';
   h: number;
-  move: number | null;
+  move: string | null;
   depth: number;
   path: number[];
 }
 
 export interface RecursionFrame {
   depth: number;
-  player: TicTacToePlayer;
+  nodeKind: GameNodeKind;
   role: 'max' | 'min' | 'negamax' | 'chance' | 'selection' | 'rollout' | 'backprop';
-  move: number | null;
-  board: TicTacToeBoard;
+  move: string | null;
+  stateLabel: string;
   alpha?: number;
   beta?: number;
   bestScore?: number | null;
@@ -32,64 +32,60 @@ export interface RecursionFrame {
 export interface GameTreeNode {
   id: string;
   parentId: string | null;
-  board: TicTacToeBoard;
-  move: number | null;
+  stateLabel: string;
+  nodeKind: GameNodeKind;
+  /** Domain-specific rendering payload. */
+  extra?: Record<string, unknown>;
+  move: string | null;
+  moveLabel: string | null;
   score: number | null;
   alpha?: number;
   beta?: number;
   depth: number;
-  player: TicTacToePlayer;
   isPruned?: boolean;
   isTerminal?: boolean;
   searchState?: 'L' | 'S';
   path?: number[];
-  childMoves?: number[];
+  childMoves?: string[];
   childIds?: Array<string | null>;
   discoveryStep: number;
 }
 
-export interface TicTacToeTraceState {
-  board: TicTacToeBoard;
-  currentPlayer: TicTacToePlayer;
-  maximizingPlayer: TicTacToePlayer;
-  availableMoves: number[];
+export interface GameTraceState {
+  stateLabel: string;
+  nodeKind: GameNodeKind;
+  extra?: Record<string, unknown>;
+  availableMoves: string[];
   openQueue?: SssOpenEntry[];
-  currentMove: number | null;
+  currentMove: string | null;
   currentScore: number | null;
-  bestMove: number | null;
+  bestMove: string | null;
   bestScore: number | null;
   evaluatedMoves: EvaluatedMove[];
   recursionStack: RecursionFrame[];
   alpha?: number;
   beta?: number;
-  terminalWinner?: TicTacToePlayer | 'draw' | null;
-  winningLine?: number[] | null;
-  principalVariation?: number[];
+  principalVariation?: string[];
   searchTree?: Map<string, GameTreeNode>;
   currentNodeId?: string | null;
 }
 
-export interface TicTacToeTraceHighlight {
-  currentCell: number | null;
-  candidateCells: Set<number>;
+export interface GameTraceHighlight {
+  currentMove: string | null;
+  candidateMoves: Set<string>;
   winningLine: number[] | null;
-  principalVariation: number[] | null;
+  principalVariation: string[] | null;
   currentNodeId?: string | null;
 }
 
-export interface TicTacToeResult {
-  bestMove: number | null;
+export interface GameResult {
+  bestMove: string | null;
   bestScore: number;
   nodesExpanded: number;
-  principalVariation: number[];
+  principalVariation: string[];
   outcome: 'win' | 'draw' | 'loss';
 }
 
-export type TicTacToeRunner = AlgorithmRunner<
-  TicTacToeProblem,
-  TicTacToeTraceState,
-  TicTacToeTraceHighlight,
-  TicTacToeResult
->;
+export type GameRunner = AlgorithmRunner<GameProblem, GameTraceState, GameTraceHighlight, GameResult>;
 
-export type TicTacToeStep = AlgorithmStep<TicTacToeTraceState, TicTacToeTraceHighlight>;
+export type GameStep = AlgorithmStep<GameTraceState, GameTraceHighlight>;

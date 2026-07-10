@@ -31,9 +31,10 @@ If you are unsure where your change belongs, start here:
 
 1. Adding a new algorithm to an existing family: use [Adding A New Algorithm](#adding-a-new-algorithm).
 2. Adding a new local-search lab: use [Adding A New Local Search Lab](#adding-a-new-local-search-lab).
-3. Adding a new game-playing module: use [Adding A New Game-Playing Module](#adding-a-new-game-playing-module).
-4. Adding or changing Maze / Graph Sandbox discovery: use the Maze or Graph Sandbox sections.
-5. Adding a brand-new family: use [New Family Blueprint](#new-family-blueprint) and then adapt the closest existing pattern.
+3. Adding a new game-playing module (a new concrete game like Connect Four): use [Adding A New Game-Playing Module](#adding-a-new-game-playing-module).
+4. Adding a new game-playing domain (a new state representation the existing algorithms should run against, like the abstract custom-tree domain): use [Adding A New Game-Playing Domain](#adding-a-new-game-playing-domain).
+5. Adding or changing Maze / Graph Sandbox discovery: use the Maze or Graph Sandbox sections.
+6. Adding a brand-new family: use [New Family Blueprint](#new-family-blueprint) and then adapt the closest existing pattern.
 
 ## Terminology
 
@@ -65,7 +66,7 @@ If you are unsure where your change belongs, start here:
 - Game page shell: `src/pages/GamePage.tsx`
 - Game lab registry: `src/problems/game-playing/labs.ts`
 - Game lab modules: `src/problems/game-playing/lab-modules.tsx`
-- Example game metadata: `src/problems/game-playing/tic-tac-toe-lab.ts`
+- Example game metadata: `src/problems/game-playing/custom-tree-lab.ts`
 
 ### Maze Game And Graph Sandbox Discovery
 
@@ -283,6 +284,63 @@ These contracts live in `src/problems/game-playing/lab-modules.tsx` and `src/pro
 1. Building a non-game family.
 2. Hardcoding game logic into the page component.
 3. Introducing another route pattern when the lab id already works.
+
+## Adding A New Game-Playing Domain
+
+Use this path when you are adding a new *kind of game state* the existing algorithms (Minimax, Alpha-Beta, Negamax, SSS*, Expectimax, MCTS) should run against — as opposed to a new concrete game with its own board UI (see [Adding A New Game-Playing Module](#adding-a-new-game-playing-module) for that). This is how the built-in "Custom Tree" lab (a free-form, user-drawn MAX/MIN/chance/terminal game tree) was added.
+
+The six runners under `src/algorithms/game-playing/` do not talk to any concrete game's move rules directly. They call a `GameDomain` strategy object (`src/problems/game-playing/domain.ts`), mirroring `LocalSearchDomain` (see the Local Search section above) — the same generic-algorithms-plus-injected-strategy pattern, applied to adversarial search instead of local search.
+
+### Files You Will Usually Touch
+
+1. `src/types/problem.ts` — add the new problem kind to the `GameProblem` union.
+2. `src/problems/game-playing/<name>.domain.ts` — the new `GameDomain` implementation.
+3. `src/problems/game-playing/domains.ts` — dispatch to it from `resolveGameDomain`.
+4. `src/problems/game-playing/lab-modules.tsx` and `labs.ts` — a new lab exposing an editor/config UI for the domain (follow the "Adding A New Game-Playing Module" contract above for this part).
+5. Tests — see `src/__tests__/game-tree-domain.test.ts` for the pattern.
+
+### The `GameDomain` Contract
+
+```ts
+interface GameDomain<TProblem, TState> {
+  kind: string;
+  validate(problem): { valid; errors; warnings? };
+  initialState(problem): TState;
+  stateId(problem, state): string;
+  nodeKind(problem, state): 'max' | 'min' | 'chance' | 'terminal';
+  isTerminal(problem, state): boolean;
+  legalMoves(problem, state): Array<{ id; label; probability? }>;
+  applyMove(problem, state, moveId): TState;
+  terminalValue(problem, state, depth): number;
+  describeState(problem, state): string;
+  describeTerminal?(problem, state, depth): string;
+  chooseRolloutMove?(problem, state, random): Move; // MCTS-only heuristic escape hatch
+  getStateExtra?(problem, state): Record<string, unknown>; // rendering payload
+}
+```
+
+`src/problems/game-playing/game-tree.domain.ts` wraps a pre-built `GameTree` (nodes/edges the user drew), where "legal moves" are just edge lookups rather than simulated moves — this is the only built-in domain today, but the abstraction exists so a second one (e.g. a concrete game with real move rules) can be added without touching the six runners.
+
+### Important Rule: Negamax and SSS* Only Support MAX/MIN/Terminal Domains
+
+Negamax's sign-flip recurrence and SSS*'s Gamma operator (Stockman, 1979) have no textbook definition for chance nodes. Minimax, Alpha-Beta, Expectimax, and MCTS all generalize cleanly to `'chance'`-kind states (they dispatch on `nodeKind` directly), but Negamax and SSS* each layer an extra `validate()` check that rejects any problem containing a chance node, with an actionable error pointing the user at an algorithm that does support it. **This is an intentional, documented constraint reflecting the actual mathematical scope of those two algorithms — not a bug to "fix" by faking non-textbook chance-node support.** If you add a new domain whose states can be chance nodes, you don't need to do anything extra here; the existing rejection is domain-agnostic (it inspects `nodeKind`, not the concrete problem type).
+
+Note also that Minimax and Expectimax deliberately disagree on `'min'`-kind nodes: Minimax minimizes (adversarial), Expectimax averages uniformly (non-adversarial) — that's the whole pedagogical point of Expectimax, so don't "fix" an apparent mismatch between the two on a tree with real MIN nodes.
+
+### Template
+
+Use `docs/game-playing-domain-template.md` as the canonical starter template.
+
+### What This Section Is Good For
+
+1. Adding a new state representation the existing six algorithms should run against.
+2. Reusing the generic `GamePage` shell and the existing runners unmodified.
+3. Keeping move-generation/terminal-test logic isolated from algorithm control flow.
+
+### What This Section Does Not Cover
+
+1. Adding a new concrete game with its own board UI (use "Adding A New Game-Playing Module").
+2. Writing a seventh algorithm.
 
 ## Adding Or Updating Maze Game Entries
 

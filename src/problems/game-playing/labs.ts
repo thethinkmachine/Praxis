@@ -6,7 +6,7 @@ import {
   type GameLabPresetDefinition,
 } from './lab-modules';
 
-export type GamePlayingLabId = 'tic-tac-toe';
+export type GamePlayingLabId = 'custom-tree';
 
 export interface GamePlayingLabDefinition<TProblem = unknown> {
   id: GamePlayingLabId;
@@ -19,19 +19,18 @@ export interface GamePlayingLabDefinition<TProblem = unknown> {
   createDefaultProblem: () => TProblem;
 }
 
-export interface GamePlayingRenderableLab<TProblem extends GameProblem = GameProblem>
-  extends GamePlayingLabDefinition<TProblem> {
-  normalizeImportedProblem: (problem: unknown) => TProblem;
+export interface GamePlayingRenderableLab extends GamePlayingLabDefinition<GameProblem> {
+  normalizeImportedProblem: (problem: unknown) => GameProblem;
   presets: GameLabPresetDefinition[];
-  loadPreset: (presetId: string) => TProblem;
-  renderConfigPanel: (context: GameLabContext<TProblem>) => ReactNode;
-  renderTabs: (context: GameLabContext<TProblem>) => Array<{
+  loadPreset: (presetId: string) => GameProblem;
+  renderConfigPanel: (context: GameLabContext) => ReactNode;
+  renderTabs: (context: GameLabContext) => Array<{
     id: string;
     label: string;
     content: ReactNode;
     keepMounted?: boolean;
   }>;
-  renderTitleActions: (context: GameLabContext<TProblem>) => ReactNode;
+  renderTitleActions: (context: GameLabContext) => ReactNode;
 }
 
 export const GAME_PLAYING_LAB_DEFINITIONS: GamePlayingLabDefinition[] = GAME_PLAYING_LAB_MODULES.map((lab) => ({
@@ -54,7 +53,7 @@ export function isGamePlayingLabId(id: unknown): id is GamePlayingLabId {
 }
 
 export function getDefaultGamePlayingLabId(): GamePlayingLabId {
-  return GAME_PLAYING_LAB_DEFINITIONS[0]?.id ?? 'tic-tac-toe';
+  return GAME_PLAYING_LAB_DEFINITIONS[0]?.id ?? 'custom-tree';
 }
 
 export function buildGamePlayingRoute(labId: GamePlayingLabId, algorithmId: string): string {
