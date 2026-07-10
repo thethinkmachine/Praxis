@@ -15,6 +15,7 @@ const tabItemBase = (size: 'compact' | 'default', disabled?: boolean) =>
     // Layout & shape
     'relative inline-flex items-center gap-1.5 whitespace-nowrap',
     'select-none outline-none transition-colors duration-150',
+    'focus-visible:ring-2 focus-visible:ring-[var(--accent)]/20 focus-visible:ring-inset',
     // Size
     size === 'compact'
       ? 'h-9 px-2.5 text-[11px]'

@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent } from '@radix-ui/react-tabs';
 import { registry } from '@/algorithms/core/registry';
 import TaxonomyCardGrid from '@/components/taxonomy/TaxonomyCardGrid';
@@ -15,6 +15,11 @@ import { cn } from '@/lib/cn';
 import { CATEGORY_ORDER, CATEGORY_LABELS } from '@/lib/constants';
 import type { AlgorithmCategory } from '@/types/algorithm';
 import { DISCOVERY_ITEMS_BY_CATEGORY, getDiscoveryItemsForCategory } from '@/lib/discovery-items';
+import {
+  getRecentlyOpened,
+  RECENTLY_OPENED_UPDATED,
+  type RecentDestination,
+} from '@/lib/recently-opened';
 
 const HOME_TABS = [
   { id: 'algorithms', label: 'Algorithms', icon: Search, hint: 'Browse registered algorithms' },
@@ -22,11 +27,42 @@ const HOME_TABS = [
   { id: 'graph', label: 'Relationship Graph', icon: Network, hint: 'Explore algorithm families visually' },
 ] as const;
 
+function RecentlyOpenedRail({ items }: { items: RecentDestination[] }) {
+  if (items.length === 0) return null;
+
+  return (
+    <div className="w-full max-w-3xl">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <p className="text-[10px] font-mono uppercase tracking-[0.16em] text-[var(--text-3)]">Recently Opened</p>
+      </div>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {items.slice(0, 3).map((item) => (
+          <Link
+            key={item.id}
+            to={item.path}
+            className="group min-w-0 rounded-lg border border-[var(--border-strong)] bg-[var(--surface)]/88 px-3 py-2 text-left shadow-[0_10px_28px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-colors hover:border-[var(--accent)]/60 hover:bg-[var(--surface-2)]/92 focus-visible:outline-none focus-visible:border-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]/20"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p className="truncate text-xs font-semibold text-[var(--text)] group-hover:text-[var(--accent)]">{item.title}</p>
+              <span className="shrink-0 rounded border border-[var(--border)] bg-[var(--surface-2)]/86 px-1.5 py-0.5 text-[8px] font-mono uppercase tracking-wider text-[var(--text-3)] backdrop-blur-xl">
+                {item.kind === 'playground' ? 'Playground' : 'Algorithm'}
+              </span>
+            </div>
+            <p className="mt-1 truncate text-[10px] text-[var(--text-2)]">{item.subtitle}</p>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const metas = registry.getAllMeta();
   const [activeTab, setActiveTab] = useState('algorithms');
   const [graphFullscreen, setGraphFullscreen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [recentlyOpened, setRecentlyOpened] = useState<RecentDestination[]>(() => getRecentlyOpened());
 
   const liveModuleCount = useMemo(() => {
     return Object.values(DISCOVERY_ITEMS_BY_CATEGORY)
@@ -47,15 +83,35 @@ export default function HomePage() {
     }, { replace: true });
   }, [setSearchParams]);
 
-  const scrollToCategory = useCallback((category: AlgorithmCategory) => {
-    handleTabChange('algorithms');
+  useEffect(() => {
+    const refresh = () => setRecentlyOpened(getRecentlyOpened());
+    window.addEventListener(RECENTLY_OPENED_UPDATED, refresh);
+    window.addEventListener('storage', refresh);
+    refresh();
+    return () => {
+      window.removeEventListener(RECENTLY_OPENED_UPDATED, refresh);
+      window.removeEventListener('storage', refresh);
+    };
+  }, []);
 
-    // Deferred one tick so a tab switch (e.g. from Playgrounds) has mounted the
-    // algorithms grid before we measure its layout.
-    setTimeout(() => {
+  const scrollToCategory = useCallback((category: AlgorithmCategory, options?: { updateTab?: boolean }) => {
+    if (options?.updateTab !== false) {
+      handleTabChange('algorithms');
+    } else {
+      setActiveTab('algorithms');
+    }
+
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
+    // Deferred one tick so a tab switch has mounted the algorithms grid before
+    // we measure its layout.
+    scrollTimeoutRef.current = setTimeout(() => {
       const container = document.getElementById('home-main-scroll');
       const el = document.getElementById(`category-${category}`);
       const header = document.getElementById('home-sticky-header');
+      scrollTimeoutRef.current = null;
 
       if (el && container) {
         const offset = header?.offsetHeight || 60;
@@ -80,7 +136,7 @@ export default function HomePage() {
     if (scrollTarget) {
       const cat = scrollTarget.replace('category-', '') as AlgorithmCategory;
       if (CATEGORY_ORDER.includes(cat)) {
-        scrollToCategory(cat);
+        scrollToCategory(cat, { updateTab: false });
       }
     }
 
@@ -90,6 +146,14 @@ export default function HomePage() {
       setSearchParams(next, { replace: true });
     }
   }, [searchParams, setSearchParams, scrollToCategory]);
+
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Close fullscreen on Escape
   useEffect(() => {
@@ -106,10 +170,10 @@ export default function HomePage() {
   const [isHeroExpanded, setIsHeroExpanded] = useState(true);
   const [caRule, setCaRule] = useState<{ mode: '1D' | '2D'; name: string; details?: string } | null>(null);
 
-  // Reset scroll position when changing tabs
   useEffect(() => {
-    const scrollContainer = document.getElementById('home-main-scroll');
-    if (scrollContainer) scrollContainer.scrollTop = 0;
+    if (activeTab !== 'graph') {
+      setGraphFullscreen(false);
+    }
   }, [activeTab]);
 
   return (
@@ -137,7 +201,7 @@ export default function HomePage() {
                 intervalMs={50} 
                 changeRuleIntervalMs={10000} 
                 cellSize={10} 
-                paused={animPaused} 
+                paused={animPaused || isGraphTab} 
                 onRuleChange={setCaRule}
               />
             </div>
@@ -170,7 +234,7 @@ export default function HomePage() {
             <div className="absolute bottom-2 right-2 z-20 flex items-center gap-1.5 ">
               <button
                 onClick={() => setIsHeroExpanded((e) => !e)}
-                className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--text-3)] opacity-40 transition-opacity hover:opacity-100 hover:bg-[var(--surface-2)] hover:text-[var(--text-2)]"
+                className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--text-3)] opacity-40 transition-opacity hover:opacity-100 hover:bg-[var(--surface-2)] hover:text-[var(--text-2)] focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/25"
                 aria-label={isHeroExpanded ? 'Collapse hero' : 'Expand hero'}
                 title={isHeroExpanded ? 'Collapse' : 'Expand'}
               >
@@ -179,7 +243,7 @@ export default function HomePage() {
 
               <button
                 onClick={() => setAnimPaused((p) => !p)}
-                className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--text-3)] opacity-40 transition-opacity hover:opacity-100 hover:bg-[var(--surface-2)] hover:text-[var(--text-2)]"
+                className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--text-3)] opacity-40 transition-opacity hover:opacity-100 hover:bg-[var(--surface-2)] hover:text-[var(--text-2)] focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/25"
                 aria-label={animPaused ? 'Play animation' : 'Pause animation'}
                 title={animPaused ? 'Play' : 'Pause'}
               >
@@ -201,7 +265,9 @@ export default function HomePage() {
 
               <AlgorithmSearch />
 
-              <div className="flex items-center gap-3">
+              <RecentlyOpenedRail items={recentlyOpened} />
+
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 <span className="text-xs px-2.5 py-1 rounded-md bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] font-mono">
                   {metas.length} algorithms
                 </span>
@@ -215,7 +281,7 @@ export default function HomePage() {
                   <button
                     key={cat}
                     onClick={() => scrollToCategory(cat)}
-                    className="text-xs px-3 py-1 rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] hover:border-[var(--accent)]/60 hover:text-[var(--text)] transition-colors font-mono"
+                    className="text-xs px-3 py-1 rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)] hover:border-[var(--accent)]/60 hover:text-[var(--text)] transition-colors font-mono focus-visible:outline-none focus-visible:border-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]/20"
                   >
                     {CATEGORY_LABELS[cat]}
                   </button>

@@ -8,6 +8,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import TerminalPanel from '../module/TerminalPanel';
 import { cn } from '@/lib/cn';
 import { Zap, Layers, Target, Terminal } from '@/components/shared/Icons';
+import { rememberRecentLocation } from '@/lib/recently-opened';
 
 function LatestLogDisplay() {
   const lastLog = useExecutionStore(s => s.logs.length > 0 ? s.logs[s.logs.length - 1] : null);
@@ -92,7 +93,7 @@ export default function AppShell() {
   const terminalExpanded = usePreferencesStore(s => s.terminalExpanded);
   const toggle = usePreferencesStore(s => s.toggle);
   const setPreference = usePreferencesStore(s => s.set);
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const isAlgoPage = /^\/(?:search|play|local|maze|planning|csp)\//.test(pathname);
   const showStandaloneTopBar = pathname !== '/' && !isAlgoPage;
   const lastPathname = useRef(pathname);
@@ -108,6 +109,10 @@ export default function AppShell() {
     
     lastPathname.current = pathname;
   }, [pathname, isAlgoPage, setPreference]);
+
+  useEffect(() => {
+    rememberRecentLocation(pathname, search);
+  }, [pathname, search]);
 
   // Apply/remove data-theme on the <html> element so that the CSS rule
   //   :root[data-theme="light"] { ... }

@@ -36,6 +36,7 @@ export default function NavigationTile({
       className={cn(
         'group rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/75 p-4 transition-colors',
         'hover:border-[var(--accent)]/60 hover:bg-[var(--accent-soft)]',
+        'focus-visible:outline-none focus-visible:border-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]/20',
         className,
       )}
     >

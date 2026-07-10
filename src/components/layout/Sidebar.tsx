@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/cn';
 import { Search, Gamepad2, Network, ChevronRight, PanelLeft } from '@/components/shared/Icons';
@@ -24,6 +25,25 @@ const CATEGORY_ICONS: Record<AlgorithmCategory, typeof UninformedSearchIcon> = {
   'planning': PlanningIcon,
   'constraint-satisfaction': ConstraintSatisfactionIcon,
 };
+
+function SidebarTip({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <Tooltip.Root>
+      <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content
+          side="right"
+          align="center"
+          sideOffset={8}
+          className="z-[120] rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--text)] shadow-lg backdrop-blur-md"
+        >
+          {label}
+          <Tooltip.Arrow className="fill-[var(--surface)]" />
+        </Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip.Root>
+  );
+}
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -114,6 +134,7 @@ export default function Sidebar() {
         <div className="my-3 border-t border-[var(--border)]" />
 
         {/* Algorithm categories */}
+        <Tooltip.Provider delayDuration={180} skipDelayDuration={80}>
         <div className="space-y-px">
           {isExpanded && (
             <p className="mb-1.5 px-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-3)]">
@@ -123,33 +144,36 @@ export default function Sidebar() {
 
           {categories.map((cat) => {
             const CategoryIcon = CATEGORY_ICONS[cat.category];
+            const categoryButton = (
+              <button
+                onClick={() => handleCategoryClick(cat.category)}
+                aria-label={cat.displayName}
+                className={cn(
+                  'flex w-full items-center rounded-md text-[13px] transition-colors text-left',
+                  !isExpanded ? 'h-8 justify-center' : 'gap-2.5 px-2.5 py-[7px]',
+                  'text-[var(--text-2)] hover:bg-[var(--surface-2)] hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/20',
+                )}
+              >
+                <span className="shrink-0 flex items-center justify-center text-[var(--accent)]" style={{ minWidth: 14 }}>
+                  <CategoryIcon size={14} />
+                </span>
+                {isExpanded && (
+                  <>
+                    <span className="flex-1 truncate font-medium">{cat.displayName}</span>
+                    <ChevronRight
+                      size={12}
+                      className={cn(
+                        'shrink-0 text-[var(--text-3)] transition-transform',
+                        openCategories[cat.category] && 'rotate-90',
+                      )}
+                    />
+                  </>
+                )}
+              </button>
+            );
             return (
               <div key={cat.category}>
-                <button
-                  onClick={() => handleCategoryClick(cat.category)}
-                  title={!isExpanded ? cat.displayName : undefined}
-                  className={cn(
-                    'flex w-full items-center rounded-md text-[13px] transition-colors text-left',
-                    !isExpanded ? 'h-8 justify-center' : 'gap-2.5 px-2.5 py-[7px]',
-                    'text-[var(--text-2)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]',
-                  )}
-                >
-                  <span className="shrink-0 flex items-center justify-center text-[var(--accent)]" style={{ minWidth: 14 }}>
-                    <CategoryIcon size={14} />
-                  </span>
-                  {isExpanded && (
-                    <>
-                      <span className="flex-1 truncate font-medium">{cat.displayName}</span>
-                      <ChevronRight
-                        size={12}
-                        className={cn(
-                          'shrink-0 text-[var(--text-3)] transition-transform',
-                          openCategories[cat.category] && 'rotate-90',
-                        )}
-                      />
-                    </>
-                  )}
-                </button>
+                {isExpanded ? categoryButton : <SidebarTip label={cat.displayName}>{categoryButton}</SidebarTip>}
 
                 <div
                   key={cat.category + '-collapse'}
@@ -181,6 +205,7 @@ export default function Sidebar() {
             );
           })}
         </div>
+        </Tooltip.Provider>
       </nav>
     </aside>
   );

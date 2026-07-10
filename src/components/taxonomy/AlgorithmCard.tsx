@@ -4,6 +4,8 @@ import { ALGORITHM_TO_PROBLEM_CATEGORY } from '@/types/problem';
 import AlgorithmBadge from '@/components/shared/AlgorithmBadge';
 import ComplexityBadge from '@/components/shared/ComplexityBadge';
 import GuaranteeBadge from '@/components/shared/GuaranteeBadge';
+import StatusBadge from '@/components/shared/StatusBadge';
+import { Gamepad2 } from '@/components/shared/Icons';
 import { cn } from '@/lib/cn';
 import { buildRoute } from '@/lib/buildRoute';
 
@@ -19,7 +21,8 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
       onClick={() => navigate(buildRoute(meta, ALGORITHM_TO_PROBLEM_CATEGORY[meta.category]))}
       className={cn(
         'ui-panel text-left w-full rounded-xl p-4',
-        'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]/50 transition-colors group'
+        'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]/50 transition-colors group',
+        'focus-visible:outline-none focus-visible:border-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]/20',
       )}
     >
       {/* Header */}
@@ -53,12 +56,23 @@ export default function AlgorithmCard({ meta }: AlgorithmCardProps) {
         )}
       </div>
 
-      {/* Reference */}
-      {meta.bookChapter && (
-        <div className="mt-2 text-[10px] text-[var(--text-3)] font-mono">
-          {meta.bookChapter}
-        </div>
-      )}
+      <div className="mt-3 flex items-center justify-between gap-2">
+        {meta.bookChapter ? (
+          <span className="min-w-0 truncate text-[10px] text-[var(--text-3)] font-mono">
+            {meta.bookChapter}
+          </span>
+        ) : (
+          <span />
+        )}
+        <StatusBadge
+          tone="neutral"
+          className="shrink-0 border-[var(--border)] bg-[var(--surface-2)]/78 text-[var(--text-3)] backdrop-blur-md group-hover:text-[var(--text-2)]"
+          title="Algorithm cards open the default playground for this algorithm."
+        >
+          <Gamepad2 size={10} />
+          Default playground
+        </StatusBadge>
+      </div>
     </button>
   );
 }

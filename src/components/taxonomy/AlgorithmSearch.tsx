@@ -82,6 +82,13 @@ export default function AlgorithmSearch() {
   const showDropdown = open && query.trim().length > 0;
 
   useEffect(() => {
+    setSelectedIndex((index) => {
+      if (flatResults.length === 0) return 0;
+      return Math.min(index, flatResults.length - 1);
+    });
+  }, [flatResults.length]);
+
+  useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
@@ -144,10 +151,14 @@ export default function AlgorithmSearch() {
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex((i) => Math.min(i + 1, flatResults.length - 1));
+      if (flatResults.length > 0) {
+        setSelectedIndex((i) => Math.min(i + 1, flatResults.length - 1));
+      }
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex((i) => Math.max(i - 1, 0));
+      if (flatResults.length > 0) {
+        setSelectedIndex((i) => Math.max(i - 1, 0));
+      }
     } else if (e.key === 'Enter' && flatResults[selectedIndex]) {
       e.preventDefault();
       handleSelect(flatResults[selectedIndex]);
@@ -181,6 +192,7 @@ export default function AlgorithmSearch() {
                       key={item.id}
                       onClick={() => handleSelect(item)}
                       onMouseEnter={() => setSelectedIndex(index)}
+                      aria-selected={index === selectedIndex}
                       className={cn(
                         'w-full text-left px-3 py-2.5 flex flex-col gap-1 transition-colors',
                         index === selectedIndex ? 'bg-[var(--accent-soft)]/85' : 'hover:bg-[var(--surface-2)]',
@@ -208,6 +220,7 @@ export default function AlgorithmSearch() {
                         key={item.id}
                         onClick={() => handleSelect(item)}
                         onMouseEnter={() => setSelectedIndex(index)}
+                        aria-selected={index === selectedIndex}
                         className={cn(
                           'w-full text-left px-3 py-2.5 flex items-start gap-3 transition-colors',
                           index === selectedIndex ? 'bg-[var(--accent-soft)]/85' : 'hover:bg-[var(--surface-2)]',
