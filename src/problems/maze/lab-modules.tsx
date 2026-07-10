@@ -112,7 +112,7 @@ function renderMazeTabs(context: MazeLabContext): TabDefinition[] {
       id: 'tree',
       label: 'Search Tree',
       content: treeElements.length > 0
-        ? <div className="h-full overflow-hidden"><SVGAutoCanvas elements={treeElements} /></div>
+        ? <div className="h-full overflow-hidden"><SVGAutoCanvas elements={treeElements} minimapStorageKey="praxis:maze-search-tree-minimap-position" /></div>
         : (
           <EmptyState
             title="No search tree yet"

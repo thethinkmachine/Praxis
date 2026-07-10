@@ -1,6 +1,7 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { cn } from '@/lib/cn';
 import StatusBadge from '@/components/shared/StatusBadge';
+import MathText from '@/components/shared/MathText';
 
 interface ComplexityBadgeProps {
   label: string;
@@ -15,7 +16,7 @@ export default function ComplexityBadge({ label, value, tooltip }: ComplexityBad
       size="md"
     >
       <span className="text-[var(--text-2)]">{label}:</span>
-      <span className="text-[var(--accent)]">{value}</span>
+      <MathText value={value} className="text-[var(--accent)]" />
     </StatusBadge>
   );
 

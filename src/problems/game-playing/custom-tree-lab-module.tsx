@@ -145,7 +145,7 @@ function SearchTreeTab({ context }: { context: GameLabContext }) {
       />
     );
   }
-  return <div className="h-full w-full bg-[var(--bg)]"><SVGAutoCanvas elements={elements} /></div>;
+  return <div className="h-full w-full bg-[var(--bg)]"><SVGAutoCanvas elements={elements} minimapStorageKey="praxis:tree-minimap-position" /></div>;
 }
 
 function CustomTreeConfigPanel({ context }: { context: GameLabContext }) {

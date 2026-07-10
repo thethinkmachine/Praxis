@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/cn';
 import { X } from '@/components/shared/Icons';
+import MathText from '@/components/shared/MathText';
 import type { AlgorithmMeta } from '@/types';
 
 interface AlgoInfoPopoverProps {
@@ -187,11 +188,15 @@ export default function AlgoInfoPopover({ meta, anchorRef, onClose }: AlgoInfoPo
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 p-3">
               <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Time Complexity</p>
-              <p className={cn('mt-2 font-mono text-lg', complexityTone(meta.timeComplexity))}>{meta.timeComplexity}</p>
+              <p className={cn('mt-2 text-lg', complexityTone(meta.timeComplexity))}>
+                <MathText value={meta.timeComplexity} />
+              </p>
             </div>
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/65 p-3">
               <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-3)]">Space Complexity</p>
-              <p className={cn('mt-2 font-mono text-lg', complexityTone(meta.spaceComplexity))}>{meta.spaceComplexity}</p>
+              <p className={cn('mt-2 text-lg', complexityTone(meta.spaceComplexity))}>
+                <MathText value={meta.spaceComplexity} />
+              </p>
             </div>
           </div>
 

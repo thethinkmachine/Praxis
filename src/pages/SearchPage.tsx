@@ -351,7 +351,7 @@ export default function SearchPage() {
       id: 'tree',
       label: 'Search Tree',
       content: treeElements.length > 0 ? (
-        <SVGAutoCanvas elements={treeElements} />
+        <SVGAutoCanvas elements={treeElements} minimapStorageKey="praxis:graph-minimap-position" />
       ) : (
         <EmptyState
           title="No search tree yet"

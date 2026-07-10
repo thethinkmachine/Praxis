@@ -787,13 +787,17 @@ export default function SVGGameTreeCanvas({ step, problemKey, className }: SVGGa
           transform={transform}
           canvasWidth={canvasDims.w}
           canvasHeight={canvasDims.h}
-          zoomLevel={zoomLevel}
+          storageKey="praxis:tree-minimap-position"
           onViewJump={(x, y) => jumpTo(x, y)}
           onZoomIn={() => zoomIn()}
           onZoomOut={() => zoomOut()}
           onFit={() => fit()}
           onAutoLayout={handleAutoLayout}
         />
+
+        <div className="absolute bottom-3 right-3 rounded-lg border border-[var(--border)] bg-[var(--surface)]/94 px-3 py-2 text-[11px] font-mono text-[var(--text)] shadow-[0_12px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+          {Math.round(zoomLevel * 100)}%
+        </div>
       </div>
     </div>
   );
