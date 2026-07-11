@@ -32,20 +32,19 @@ export default function BrandDisplay({ className, hideAuthorship = false }: Bran
             >
               AI Algorithm Library &amp; Playground
             </span>
-            <a
-              href="https://github.com/thethinkmachine"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="View author's GitHub profile"
+            <span
               className={cn(
                 'col-start-1 row-start-1 whitespace-nowrap self-center text-[11.5px] text-[var(--text-3)]',
-                'pointer-events-none opacity-0 transition-opacity duration-200 ease-out delay-100',
-                'group-hover:pointer-events-auto group-hover:opacity-100',
-                'hover:text-[var(--accent)] hover:underline focus-visible:text-[var(--accent)] focus-visible:outline-none',
+                'opacity-0 transition-opacity duration-200 ease-out',
+                // Delay only applies entering hover (staggers the fade-in after the tagline
+                // starts fading out) — scoping it to group-hover keeps the fade-out on
+                // un-hover immediate, matching the tagline's fade-in and avoiding an
+                // overlap flash where both texts are visible at once.
+                'group-hover:opacity-100 group-hover:delay-100',
               )}
             >
               by <span className="font-medium text-[var(--text-2)]">Shreyan Chaubey</span>
-            </a>
+            </span>
           </div>
         </>
       )}
