@@ -50,8 +50,8 @@ const KIND_LABELS: Record<GameTreeNodeKind, string> = {
 };
 
 const KIND_PALETTE: Array<{ kind: GameTreeNodeKind; title: string }> = [
-  { kind: 'max', title: 'Add a MAX node (circle) — maximizes' },
-  { kind: 'min', title: 'Add a MIN node (square) — minimizes' },
+  { kind: 'max', title: 'Add a MAX node (square) — maximizes' },
+  { kind: 'min', title: 'Add a MIN node (circle) — minimizes' },
   { kind: 'chance', title: 'Add a CHANCE node (diamond) — probability-weighted average' },
   { kind: 'terminal', title: 'Add a LEAF node (rounded) — fixed value' },
 ];
@@ -62,8 +62,8 @@ function KindGlyph({ kind }: { kind: GameTreeNodeKind }) {
   const common = { fill: 'none', stroke: color, strokeWidth: 1.8 };
   return (
     <svg width={16} height={16} viewBox="-9 -9 18 18">
-      {kind === 'max' && <circle r={6.5} {...common} />}
-      {kind === 'min' && <rect x={-6} y={-6} width={12} height={12} rx={1.5} {...common} />}
+      {kind === 'max' && <rect x={-6} y={-6} width={12} height={12} rx={1.5} {...common} />}
+      {kind === 'min' && <circle r={6.5} {...common} />}
       {kind === 'chance' && <polygon points="0,-7.5 7.5,0 0,7.5 -7.5,0" {...common} />}
       {kind === 'terminal' && <rect x={-7} y={-4.5} width={14} height={9} rx={3} {...common} />}
     </svg>
@@ -77,8 +77,8 @@ interface NodeExtent { shape: 'circle' | 'square' | 'diamond' | 'rect'; hw: numb
 
 function nodeExtent(kind: GameTreeNodeKind): NodeExtent {
   switch (kind) {
-    case 'max': return { shape: 'circle', hw: 21, hh: 21, r: 21 };
-    case 'min': return { shape: 'square', hw: 20, hh: 20, r: 20 };
+    case 'max': return { shape: 'square', hw: 20, hh: 20, r: 20 };
+    case 'min': return { shape: 'circle', hw: 21, hh: 21, r: 21 };
     case 'chance': return { shape: 'diamond', hw: 24, hh: 24, r: 24 };
     case 'terminal': return { shape: 'rect', hw: 26, hh: 17, r: 20 };
   }

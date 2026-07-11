@@ -155,7 +155,7 @@ function SearchTreeTab({ context }: { context: GameLabContext }) {
       step.stepNumber,
       (node) => (node.nodeKind === 'terminal' ? String(node.score ?? 0) : (node.score != null ? String(node.score) : node.stateLabel)),
       (node) => node.moveLabel ?? '',
-      (node) => (node.nodeKind === 'max' ? 'circle' : node.nodeKind === 'min' ? 'square' : node.nodeKind === 'chance' ? 'diamond' : 'card'),
+      (node) => (node.nodeKind === 'max' ? 'square' : node.nodeKind === 'min' ? 'circle' : node.nodeKind === 'chance' ? 'diamond' : 'card'),
       step.highlight.bestStrategyNodeIds ?? step.state.bestStrategyNodeIds ?? null,
     );
   }, [step]);
