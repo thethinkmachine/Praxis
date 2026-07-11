@@ -115,7 +115,17 @@ function useTreeProblemSync(context: GameLabContext, onExternalLoad: () => void)
     const store = useTreeEditorStore.getState();
     const storeSig = structuralSignature(store.nodes, store.edges, store.rootId);
     if (sig !== lastStructuralRef.current && sig !== storeSig) {
-      store.loadTree(problem.tree.nodes.map((n) => ({ ...n })), problem.tree.edges.map((e) => ({ ...e })), problem.tree.rootId);
+      let nodes = problem.tree.nodes.map((n) => ({ ...n }));
+      const edges = problem.tree.edges.map((e) => ({ ...e }));
+      // Defends against saved/imported problems that lack positions (they're
+      // stripped before save/export — see deriveProblem) — without this every
+      // node would default to (0, 0) and pile on top of each other instead of
+      // rendering as a tree.
+      if (!nodes.some((n) => n.x !== undefined && n.y !== undefined)) {
+        const positions = layoutGameTree(nodes, edges, problem.tree.rootId);
+        nodes = nodes.map((n) => ({ ...n, ...positions.get(n.id) }));
+      }
+      store.loadTree(nodes, edges, problem.tree.rootId);
       lastStructuralRef.current = sig;
       onExternalLoad();
     }
