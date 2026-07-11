@@ -24,9 +24,11 @@ const MINIMAP_W = 156;
 const MINIMAP_H = 96;
 const PAD = 40;
 const EDGE_MARGIN = 12;
-// Approximate rendered panel height in each state — used to anchor the panel
-// flush against a corner. Doesn't need to be pixel-exact: being a few px off
-// just means a slightly looser margin, never a layout bug.
+// Fallback panel height for each state, used only until the real height is
+// measured off the DOM (see the ResizeObserver below) — e.g. the very first
+// paint. Anchoring a bottom corner against a guess that's off from the real
+// rendered height leaves a visible gap between the panel and the edge, so
+// this is a rough starting point, not the source of truth.
 const PANEL_H_EXPANDED = 190;
 const PANEL_H_COLLAPSED = 42;
 const SNAP_DURATION_MS = 200;
@@ -132,7 +134,30 @@ export default function GraphMinimap({
   const [dragPosition, setDragPosition] = useState<MinimapPosition | null>(null);
   const dragRef = useRef<{ pointerId: number; containerRect: DOMRect; dx: number; dy: number; lastPosition: MinimapPosition } | null>(null);
 
-  const panelHeight = collapsed ? PANEL_H_COLLAPSED : PANEL_H_EXPANDED;
+  // Real measured height per state, filled in by the ResizeObserver below.
+  // Falls back to the PANEL_H_* estimates until the first measurement lands.
+  const [measuredHeights, setMeasuredHeights] = useState<{ expanded: number | null; collapsed: number | null }>({
+    expanded: null,
+    collapsed: null,
+  });
+  const collapsedRef = useRef(collapsed);
+  collapsedRef.current = collapsed;
+
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => {
+      const height = panel.offsetHeight;
+      const key = collapsedRef.current ? 'collapsed' : 'expanded';
+      setMeasuredHeights((prev) => (prev[key] === height ? prev : { ...prev, [key]: height }));
+    });
+    observer.observe(panel);
+    return () => observer.disconnect();
+  }, [hasNodes]);
+
+  const panelHeight = collapsed
+    ? measuredHeights.collapsed ?? PANEL_H_COLLAPSED
+    : measuredHeights.expanded ?? PANEL_H_EXPANDED;
   const isDragging = dragPosition !== null;
 
   const settledPosition = useMemo(
