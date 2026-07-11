@@ -42,8 +42,6 @@ export function useAlgorithmPage(
   }, [algorithmId, problem, runner, context]);
 
   const step = useCurrentStep<AlgorithmStep>(algorithmId);
-  const loadError = useExecutionStore(state => state.loadError);
-  const loadWarning = useExecutionStore(state => state.loadWarning);
 
-  return { runner, step, loadError, loadWarning };
+  return { runner, step };
 }

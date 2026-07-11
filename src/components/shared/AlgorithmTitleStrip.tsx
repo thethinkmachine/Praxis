@@ -12,8 +12,6 @@ import type { ProblemCategory } from '@/types/problem';
 
 interface AlgorithmTitleStripProps {
   meta: AlgorithmMeta;
-  loadError: string | null;
-  loadWarning?: string | null;
   problemCategory?: ProblemCategory;
   buildAlgorithmRoute?: (algorithmId: string) => string;
   /** Show the gear/config toggle button */
@@ -34,8 +32,6 @@ interface AlgorithmTitleStripProps {
 
 export default function AlgorithmTitleStrip({
   meta,
-  loadError,
-  loadWarning,
   problemCategory = 'graph',
   buildAlgorithmRoute,
   showConfigButton = false,
@@ -222,22 +218,6 @@ export default function AlgorithmTitleStrip({
           )}
         </div>
       </div>
-
-      {loadError && (
-        <div className="ui-banner ui-banner-danger px-3 py-1.5">
-          <p className="text-[10px] text-[var(--danger)] truncate">
-            {loadError}
-          </p>
-        </div>
-      )}
-
-      {!loadError && loadWarning && (
-        <div className="ui-banner ui-banner-warning px-3 py-1.5">
-          <p className="text-[10px] text-[var(--warning)] truncate">
-            {loadWarning}
-          </p>
-        </div>
-      )}
 
       {showInfo && (
         <AlgoInfoPopover meta={meta} anchorRef={infoButtonRef} onClose={() => setShowInfo(false)} />

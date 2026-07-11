@@ -1,8 +1,56 @@
+import { useLayoutEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 import { usePreferencesStore } from '@/store/preferences.store';
 import { useExecutionStore } from '@/store/execution.store';
 import { Terminal, ChevronUp, AlertTriangle } from '@/components/shared/Icons';
 import type { MetricTile, StepMetrics, StepPhase } from '@/types';
+
+/** Crawl speed for overflowing banner text, in px/sec. */
+const MARQUEE_SPEED = 50;
+const MARQUEE_GAP_PX = 48;
+const MARQUEE_MIN_DURATION = 6;
+
+/** Single-line text that truncates normally, but crawls (marquee-scrolls)
+ *  instead of ellipsizing once it's too long for its container — used for
+ *  load errors/warnings, which can be long free-form validation messages. */
+function MarqueeText({ text, className }: { text: string; className?: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [duration, setDuration] = useState<number | null>(null);
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const textEl = textRef.current;
+    if (!container || !textEl) return;
+
+    const measure = () => {
+      const overflowing = textEl.scrollWidth > container.clientWidth;
+      setDuration(overflowing ? Math.max(MARQUEE_MIN_DURATION, (textEl.scrollWidth + MARQUEE_GAP_PX) / MARQUEE_SPEED) : null);
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [text]);
+
+  if (duration === null) {
+    return (
+      <div ref={containerRef} className={cn('truncate', className)}>
+        <span ref={textRef}>{text}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={containerRef} className={cn('overflow-hidden whitespace-nowrap', className)}>
+      <div className="inline-flex animate-marquee" style={{ animationDuration: `${duration}s` }}>
+        <span ref={textRef} className="pr-12">{text}</span>
+        <span className="pr-12" aria-hidden="true">{text}</span>
+      </div>
+    </div>
+  );
+}
 
 /** Coarse run state shown by the leading status dot — richer than a simple
  *  isPlaying/idle split so load failures and a completed-but-failed search
@@ -98,6 +146,7 @@ export default function StatusBar({ isAlgoRoute }: StatusBarProps) {
   const totalSteps = useExecutionStore((s) => s.totalSteps);
   const step = useExecutionStore((s) => s.currentStep);
   const loadError = useExecutionStore((s) => s.loadError);
+  const loadWarning = useExecutionStore((s) => s.loadWarning);
   const truncated = useExecutionStore((s) => s.truncated);
   const logs = useExecutionStore((s) => s.logs);
 
@@ -112,6 +161,9 @@ export default function StatusBar({ isAlgoRoute }: StatusBarProps) {
     else if (isAtEnd) runState = step?.phase === 'failed' ? 'failed' : 'finished';
     else runState = 'paused';
   }
+
+  const bannerMessage = isAlgoRoute ? (loadError ?? loadWarning) : null;
+  const bannerTone = loadError ? 'text-[var(--danger)]' : 'text-[var(--warning)]';
 
   const metricTiles = hasTrace && step ? normalizeMetricTiles(step.metrics).slice(0, 2) : [];
   const issueCount = isAlgoRoute ? logs.filter((l) => l.level === 'warn' || l.level === 'error').length : 0;
@@ -140,8 +192,14 @@ export default function StatusBar({ isAlgoRoute }: StatusBarProps) {
 
         <Divider />
 
-        <div className="flex-1 min-w-0 truncate">
-          {isAlgoRoute ? <LatestLogDisplay /> : <span className="opacity-40 italic">Select an algorithm to begin</span>}
+        <div className="flex-1 min-w-0">
+          {bannerMessage ? (
+            <MarqueeText text={bannerMessage} className={cn('font-medium', bannerTone)} />
+          ) : isAlgoRoute ? (
+            <div className="truncate"><LatestLogDisplay /></div>
+          ) : (
+            <span className="opacity-40 italic">Select an algorithm to begin</span>
+          )}
         </div>
       </div>
 

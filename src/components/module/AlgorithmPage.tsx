@@ -70,7 +70,7 @@ export default function AlgorithmPage({
   onDemoRequest,
   executionContext,
 }: AlgorithmPageProps) {
-  const { runner, step, loadError, loadWarning } = useAlgorithmPage(algorithmId, problem, executionContext);
+  const { runner, step } = useAlgorithmPage(algorithmId, problem, executionContext);
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? '');
   const configVisible = usePreferencesStore((state) => state.configVisible);
   const toggle = usePreferencesStore((state) => state.toggle);
@@ -141,8 +141,6 @@ export default function AlgorithmPage({
       {/* Title strip */}
       <AlgorithmTitleStrip
         meta={runner.meta}
-        loadError={loadError}
-        loadWarning={loadWarning}
         problemCategory={problemCategory}
         buildAlgorithmRoute={buildAlgorithmRoute}
         showConfigButton={hasConfig}
