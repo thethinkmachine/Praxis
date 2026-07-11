@@ -230,13 +230,16 @@ export default function SVGGameTreeCanvas({ step, problemKey, className }: SVGGa
       cursor = n.parentId;
     }
 
-    // Principal variation (best line). For the game-tree domain a move id IS the
-    // child editor node id, so the PV nodes are root + those ids — keeps the best
-    // line highlighted in gold even after the run finishes.
+    // Principal variation (single best line) and best strategy (best child at every MAX node,
+    // every child at MIN/chance nodes — a branching policy, not just one line). For the game-tree
+    // domain a move id IS the child editor node id, so both sets are root + those ids — keeps
+    // them highlighted in gold even after the run finishes.
     const pv = step.highlight.principalVariation ?? st.principalVariation ?? null;
+    const bestStrategy = step.highlight.bestStrategyNodeIds ?? st.bestStrategyNodeIds ?? null;
     const pathSet = new Set(activePath);
     if (rootId) pathSet.add(rootId);
     if (Array.isArray(pv)) for (const id of pv) pathSet.add(id);
+    if (Array.isArray(bestStrategy)) for (const id of bestStrategy) pathSet.add(id);
 
     const map = new Map<string, NodeAlgo>();
     for (const n of tree.values()) {
@@ -406,7 +409,7 @@ export default function SVGGameTreeCanvas({ step, problemKey, className }: SVGGa
   }, [nodes]);
 
   const {
-    transform, zoomLevel, selectionBox, isSpacePressed, isPanning,
+    transform, selectionBox, isSpacePressed, isPanning,
     fit, jumpTo, zoomIn, zoomOut,
   } = useGraphInteractions({
     svgRef, mainGroupRef, tempEdgeRef, mode,
@@ -666,12 +669,12 @@ export default function SVGGameTreeCanvas({ step, problemKey, className }: SVGGa
                       <rect x={-ext.hw} y={-ext.hh} width={ext.hw * 2} height={ext.hh * 2} rx={9} fill={theme.fill} fillOpacity={theme.fillOpacity} stroke={isSelected ? selStroke : theme.border} strokeWidth={isSelected ? theme.borderWidth + 1.4 : theme.borderWidth} style={{ transition: 'fill 0.3s ease, stroke 0.3s ease' }} />
                     )}
 
-                    {/* Kind glyph (tiny, top) for internal nodes when idle */}
-                    {!na && node.kind !== 'terminal' && (
-                      <text y={-ext.hh - 6} textAnchor="middle" fontSize={7.5} fontFamily="JetBrains Mono, monospace" fill={theme.text} opacity={0.65} style={{ pointerEvents: 'none' }}>
-                        {KIND_LABELS[node.kind]}
-                      </text>
-                    )}
+                    {/* Node id — always visible so it can be matched against panel chip ids (tXX);
+                        idle internal nodes also get the kind glyph alongside it. */}
+                    <title>{node.label ? `${node.id} — ${node.label}` : node.id}</title>
+                    <text y={-ext.hh - 6} textAnchor="middle" fontSize={7.5} fontFamily="JetBrains Mono, monospace" fill={theme.text} opacity={0.8} style={{ pointerEvents: 'none' }}>
+                      {!na && node.kind !== 'terminal' ? `${KIND_LABELS[node.kind]} · ${node.id}` : node.id}
+                    </text>
 
                     {/* Center text */}
                     {centerText !== '' && (
@@ -794,10 +797,6 @@ export default function SVGGameTreeCanvas({ step, problemKey, className }: SVGGa
           onFit={() => fit()}
           onAutoLayout={handleAutoLayout}
         />
-
-        <div className="absolute bottom-3 right-3 rounded-lg border border-[var(--border)] bg-[var(--surface)]/94 px-3 py-2 text-[11px] font-mono text-[var(--text)] shadow-[0_12px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl">
-          {Math.round(zoomLevel * 100)}%
-        </div>
       </div>
     </div>
   );

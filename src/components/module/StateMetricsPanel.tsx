@@ -13,13 +13,15 @@ interface StateMetricsPanelProps {
 
 // ── State sections (chips / nodes / key-value) ──────────────────────────────
 
-type ChipVariant = 'frontier' | 'current' | 'explored' | 'path';
+type ChipVariant = 'frontier' | 'current' | 'explored' | 'path' | 'pruned' | 'strategy';
 
 const CHIP_STYLES: Record<ChipVariant, string> = {
   frontier: 'bg-[var(--color-frontier)]/7 text-[var(--color-frontier)] border-[var(--color-frontier)]/20',
   current: 'bg-[var(--color-current)]/10 text-[var(--color-current)] border-[var(--color-current)]/30',
   explored: 'bg-[var(--color-explored)]/10 text-[var(--text-2)] border-[var(--color-explored)]/20',
   path: 'bg-[var(--color-goal)]/10 text-[var(--color-goal)] border-[var(--color-goal)]/25',
+  pruned: 'bg-[var(--color-pruned)]/10 text-[var(--color-pruned)] border-[var(--color-pruned)]/25',
+  strategy: 'bg-[var(--color-path)]/10 text-[var(--color-path)] border-[var(--color-path)]/25',
 };
 
 function ChipBadge({

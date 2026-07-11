@@ -500,10 +500,6 @@ export default function SVGAutoCanvas({ elements, className, minimapStorageKey =
         disableAutoLayout
       />
 
-      <div className="absolute bottom-3 right-3 rounded-lg border border-[var(--border)] bg-[var(--surface)]/94 px-3 py-2 text-[11px] font-mono text-[var(--text)] shadow-[0_12px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl">
-        {Math.round(transform.k * 100)}%
-      </div>
-
       <button
         onClick={() => fit()}
         className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)]/92 text-[var(--text-2)] shadow-lg backdrop-blur-xl transition-colors hover:border-[var(--accent)]/50 hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/20"

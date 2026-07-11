@@ -1,5 +1,9 @@
 import type { EvaluatedMove, GameTreeNode, RecursionFrame, GameRunner } from './types';
 import {
+  collectBestStrategyLeafIds,
+  collectBestStrategyNodeIds,
+  collectTerminalDescendantIds,
+  computeBestStrategy,
   createStep,
   createTerminalDescription,
   createTraceContext,
@@ -58,6 +62,10 @@ export const alphaBetaRunner: GameRunner = {
     const initialState = domain.initialState(problem);
     const initialMoves = domain.legalMoves(problem, initialState).map((move) => move.id);
     const searchTree = new Map<string, GameTreeNode>();
+    // Pruned branches are never actually visited, so their horizon descendants have to be found
+    // via a fresh domain-level walk rather than read off the (incomplete) search tree.
+    const alphaCutHorizonIds = new Set<string>();
+    const betaCutHorizonIds = new Set<string>();
 
     const rootNode: GameTreeNode = {
       id: 'root',
@@ -290,6 +298,9 @@ export const alphaBetaRunner: GameRunner = {
         const shouldPrune = maximizing ? bestScore >= beta : bestScore <= alpha;
         if (shouldPrune) {
           const remainingMoves = moves.filter((candidate) => candidate.id !== move.id && !evaluatedMoves.some((item) => item.move === candidate.id));
+          // Beta cuts fire while maximizing (value >= beta); alpha cuts fire while minimizing (value <= alpha).
+          const cutKind: 'alpha' | 'beta' = maximizing ? 'beta' : 'alpha';
+          const cutHorizonSet = maximizing ? betaCutHorizonIds : alphaCutHorizonIds;
 
           for (const remaining of remainingMoves) {
             const prunedId = `${nodeId}-${remaining.id}`;
@@ -307,8 +318,19 @@ export const alphaBetaRunner: GameRunner = {
               beta,
               depth: depth + 1,
               isPruned: true,
+              prunedBy: cutKind,
               discoveryStep: ctx.stepNumber,
             });
+
+            // The pruned branch was never explored, so find its horizon descendants (if any)
+            // with a fresh domain walk rather than relying on the (nonexistent) search-tree entries.
+            if (domain.isTerminal(problem, prunedState)) {
+              cutHorizonSet.add(remaining.id);
+            } else {
+              for (const leafId of collectTerminalDescendantIds(domain, problem, prunedState)) {
+                cutHorizonSet.add(leafId);
+              }
+            }
           }
 
           yield createStep(
@@ -327,6 +349,8 @@ export const alphaBetaRunner: GameRunner = {
               alpha,
               beta,
               principalVariation: bestVariation,
+              alphaCutHorizonIds: [...alphaCutHorizonIds],
+              betaCutHorizonIds: [...betaCutHorizonIds],
               searchTree,
               currentNodeId: nodeId,
             },
@@ -369,6 +393,11 @@ export const alphaBetaRunner: GameRunner = {
       [],
       'root',
     );
+    // Pruning means the trace itself may never have visited large parts of the tree, so the
+    // best-strategy subtree is computed independently, same as the other exhaustive runners.
+    const bestStrategy = computeBestStrategy(domain, problem, initialState);
+    const bestStrategyLeafIds = collectBestStrategyLeafIds(bestStrategy);
+    const bestStrategyNodeIds = collectBestStrategyNodeIds(bestStrategy);
 
     yield createStep(
       ctx,
@@ -382,6 +411,10 @@ export const alphaBetaRunner: GameRunner = {
         bestMove: evaluation.move,
         bestScore: evaluation.score,
         principalVariation: evaluation.principalVariation,
+        bestStrategyLeafIds,
+        bestStrategyNodeIds,
+        alphaCutHorizonIds: [...alphaCutHorizonIds],
+        betaCutHorizonIds: [...betaCutHorizonIds],
         recursionStack: [],
         alpha: Number.NEGATIVE_INFINITY,
         beta: Number.POSITIVE_INFINITY,

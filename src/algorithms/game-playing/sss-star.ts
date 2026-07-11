@@ -1,6 +1,10 @@
 import { PriorityQueue } from '@/lib/priority-queue';
-import type { EvaluatedMove, GameTreeNode, RecursionFrame, SssOpenEntry, GameRunner } from './types';
+import type { EvaluatedMove, GameTreeNode, RecursionFrame, SssClusterInfo, SssOpenEntry, GameRunner } from './types';
 import {
+  collectBestStrategyLeafIds,
+  collectBestStrategyNodeIds,
+  collectTerminalDescendantIds,
+  computeBestStrategy,
   createStep,
   createTraceContext,
   determineOutcome,
@@ -106,6 +110,9 @@ export const sssStarRunner: GameRunner = {
     const openQueue = new PriorityQueue<QueuedOpenEntry>((left, right) => compareNodePath(left.path, right.path));
     const activeEntries = new Map<string, QueuedOpenEntry>();
     const entryVersions = new Map<string, number>();
+    // A cluster is the batch of siblings the Γ operator pushes LIVE together when a MAX node is
+    // expanded (all other node kinds push exactly one child at a time, so they never form one).
+    const clusters: SssClusterInfo[] = [];
 
     const createNodeRecord = (
       state: unknown,
@@ -346,6 +353,11 @@ export const sssStarRunner: GameRunner = {
 
       if (entry.id === rootId && entry.state === 'S') {
         const bestLine = buildPrincipalVariation(initialState, new Map<string, LineEvaluation>());
+        // SSS* is best-first and typically leaves large parts of the tree unvisited, so the
+        // best-strategy subtree is computed independently rather than read off the search tree.
+        const bestStrategy = computeBestStrategy(domain, problem, initialState);
+        const bestStrategyLeafIds = collectBestStrategyLeafIds(bestStrategy);
+        const bestStrategyNodeIds = collectBestStrategyNodeIds(bestStrategy);
 
         yield createStep(
           ctx,
@@ -363,6 +375,9 @@ export const sssStarRunner: GameRunner = {
             evaluatedMoves: collectEvaluatedMoves(node),
             recursionStack: [],
             principalVariation: bestLine.principalVariation,
+            bestStrategyLeafIds,
+            bestStrategyNodeIds,
+            clusters: [...clusters],
             searchTree,
             currentNodeId: rootId,
           },
@@ -413,15 +428,39 @@ export const sssStarRunner: GameRunner = {
         node.childIds ??= new Array(childMoves.length).fill(null);
 
         if (maximizingTurn) {
+          const memberIds: string[] = [];
           node.childIds.forEach((_childId, index) => {
             const generatedId = ensureChildNode(node.id, index);
             pushOpen(generatedId, 'L', entry.h);
+            memberIds.push(generatedId);
           });
+
+          // Find each member's horizon descendants with a fresh domain walk — SSS* is best-first
+          // and may never actually visit most of them, so the search tree alone can't answer this.
+          const horizonIds = new Set<string>();
+          for (const memberId of memberIds) {
+            const memberState = statesByNodeId.get(memberId);
+            if (memberState === undefined) continue;
+            if (domain.isTerminal(problem, memberState)) {
+              const memberMove = searchTree.get(memberId)?.move;
+              if (memberMove) horizonIds.add(memberMove);
+            } else {
+              for (const leafId of collectTerminalDescendantIds(domain, problem, memberState)) {
+                horizonIds.add(leafId);
+              }
+            }
+          }
+          const clusterIndex = clusters.length + 1;
+          clusters.push({ index: clusterIndex, sourceNodeId: node.id, memberIds, horizonIds: [...horizonIds] });
+          for (const memberId of memberIds) {
+            const memberNode = searchTree.get(memberId);
+            if (memberNode) memberNode.clusterIndex = clusterIndex;
+          }
 
           yield createStep(
             ctx,
             'visiting',
-            `Expanded MAX node ${node.id} and pushed ${childMoves.length} live child state(s) into OPEN.`,
+            `Expanded MAX node ${node.id} and pushed ${childMoves.length} live child state(s) into OPEN as cluster ${clusterIndex}.`,
             8,
             {
               state,
@@ -432,6 +471,7 @@ export const sssStarRunner: GameRunner = {
               bestScore: entry.h,
               evaluatedMoves: collectEvaluatedMoves(node),
               recursionStack: stack,
+              clusters: [...clusters],
               searchTree,
               currentNodeId: node.id,
             },
@@ -478,7 +518,16 @@ export const sssStarRunner: GameRunner = {
 
       const childIndex = (node.path?.[node.path.length - 1] ?? 1) - 1;
 
-      if (node.nodeKind === 'min') {
+      // Dispatch on the PARENT's kind, not the just-solved child's kind. A MAX parent pushes all
+      // of its children live at once as a cluster (Γ rule 3), so the first one to solve is, by the
+      // best-first/h-monotonicity invariant, already the true max — finalize immediately and purge
+      // the rest of the cluster. A MIN parent pushes children one at a time (Γ rule 2), so its
+      // solved children must be handled sequentially by array position instead (below).
+      // Checking the child's own kind instead of the parent's misclassifies solved *terminal*
+      // children: their kind is 'terminal' either way, so a terminal directly under a MAX node was
+      // wrongly routed into the sequential branch, letting a later (possibly lower-valued) sibling
+      // silently overwrite the MAX parent's backed-up score.
+      if (parent.nodeKind === 'max') {
         const parentScore = entry.h;
         parent.score = parentScore;
         parent.searchState = 'S';
@@ -492,7 +541,7 @@ export const sssStarRunner: GameRunner = {
         yield createStep(
           ctx,
           'propagating',
-          `Solved MIN node ${node.id} backs up h=${formatBound(entry.h)} to parent ${parentId} and removes the parent's children from OPEN.`,
+          `Solved node ${node.id} backs up h=${formatBound(entry.h)} to MAX parent ${parentId} and removes the rest of its cluster from OPEN.`,
           11,
           {
             state,
@@ -524,7 +573,7 @@ export const sssStarRunner: GameRunner = {
         yield createStep(
           ctx,
           'propagating',
-          `Solved MAX node ${node.id} backs up h=${formatBound(entry.h)} to parent ${parentId}.`,
+          `Solved node ${node.id} backs up h=${formatBound(entry.h)} to MIN parent ${parentId}.`,
           12,
           {
             state,
@@ -549,7 +598,7 @@ export const sssStarRunner: GameRunner = {
       yield createStep(
         ctx,
         'visiting',
-        `Solved MAX node ${node.id} promotes sibling ${nextChildId} as live with h=${formatBound(entry.h)}.`,
+        `Solved node ${node.id} promotes sibling ${nextChildId} as live under MIN parent with h=${formatBound(entry.h)}.`,
         13,
         {
           state,

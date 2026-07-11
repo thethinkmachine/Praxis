@@ -1,5 +1,8 @@
 import type { EvaluatedMove, GameTreeNode, RecursionFrame, GameRunner } from './types';
 import {
+  collectBestStrategyLeafIds,
+  collectBestStrategyNodeIds,
+  computeBestStrategy,
   createStep,
   createTerminalDescription,
   createTraceContext,
@@ -345,6 +348,11 @@ export const expectimaxRunner: GameRunner = {
     const finalEvaluatedMoves: EvaluatedMove[] = [...searchTree.values()]
       .filter((node) => node.parentId === 'root' && node.move !== null)
       .map((node) => ({ move: node.move!, score: node.score ?? 0 }));
+    // treatMinAsChance=true: Expectimax averages every non-MAX node (MIN or CHANCE), so the
+    // reported strategy has to use that same semantics rather than adversarial minimax.
+    const bestStrategy = computeBestStrategy(domain, problem, initialState, true);
+    const bestStrategyLeafIds = collectBestStrategyLeafIds(bestStrategy);
+    const bestStrategyNodeIds = collectBestStrategyNodeIds(bestStrategy);
 
     yield createStep(
       ctx,
@@ -359,6 +367,8 @@ export const expectimaxRunner: GameRunner = {
         bestScore: evaluation.score,
         evaluatedMoves: finalEvaluatedMoves,
         principalVariation: evaluation.principalVariation,
+        bestStrategyLeafIds,
+        bestStrategyNodeIds,
         recursionStack: [],
         searchTree,
         currentNodeId: 'root',

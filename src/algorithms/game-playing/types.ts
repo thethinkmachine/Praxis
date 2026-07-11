@@ -43,12 +43,27 @@ export interface GameTreeNode {
   beta?: number;
   depth: number;
   isPruned?: boolean;
+  /** Set on pruned nodes: which bound caused the cut. Beta cuts fire at MAX nodes, alpha cuts at MIN nodes. */
+  prunedBy?: 'alpha' | 'beta';
   isTerminal?: boolean;
   searchState?: 'L' | 'S';
   path?: number[];
   childMoves?: string[];
   childIds?: Array<string | null>;
   discoveryStep: number;
+  /** SSS*-only: index of the cluster (MAX-node sibling batch) this node was pushed live as part of. */
+  clusterIndex?: number;
+}
+
+/** SSS*-only: a batch of siblings pushed LIVE together when a MAX node is expanded (Γ operator, MAX case). */
+export interface SssClusterInfo {
+  index: number;
+  /** The MAX node whose expansion formed this cluster. */
+  sourceNodeId: string;
+  /** Search-tree ids of the siblings pushed live together. */
+  memberIds: string[];
+  /** Horizon/terminal leaves reachable beneath this cluster's members, regardless of whether SSS* has visited them yet. */
+  horizonIds: string[];
 }
 
 export interface GameTraceState {
@@ -66,6 +81,16 @@ export interface GameTraceState {
   alpha?: number;
   beta?: number;
   principalVariation?: string[];
+  /** Horizon/terminal leaves belonging to the full best-strategy subtree (best child at MAX nodes, every child at MIN/chance nodes), independent of pruning. */
+  bestStrategyLeafIds?: string[];
+  /** Every node id (leaves and internal) belonging to the best-strategy subtree; used for highlighting. */
+  bestStrategyNodeIds?: string[];
+  /** Horizon/terminal leaves that fall beneath a branch pruned by an alpha cut (MIN node, value <= alpha). */
+  alphaCutHorizonIds?: string[];
+  /** Horizon/terminal leaves that fall beneath a branch pruned by a beta cut (MAX node, value >= beta). */
+  betaCutHorizonIds?: string[];
+  /** SSS*-only: MAX-node sibling batches formed so far, in formation order. */
+  clusters?: SssClusterInfo[];
   searchTree?: Map<string, GameTreeNode>;
   currentNodeId?: string | null;
 }
@@ -75,6 +100,7 @@ export interface GameTraceHighlight {
   candidateMoves: Set<string>;
   winningLine: number[] | null;
   principalVariation: string[] | null;
+  bestStrategyNodeIds?: string[] | null;
   currentNodeId?: string | null;
 }
 

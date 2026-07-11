@@ -13,7 +13,7 @@ export interface MetricTile {
   fullWidth?: boolean;
 }
 
-export type PanelChipVariant = 'frontier' | 'current' | 'explored' | 'path';
+export type PanelChipVariant = 'frontier' | 'current' | 'explored' | 'path' | 'pruned' | 'strategy';
 
 export interface PanelKeyValueItem {
   key: string;

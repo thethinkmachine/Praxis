@@ -1,5 +1,8 @@
 import type { EvaluatedMove, GameTreeNode, RecursionFrame, GameRunner } from './types';
 import {
+  collectBestStrategyLeafIds,
+  collectBestStrategyNodeIds,
+  computeBestStrategy,
   createStep,
   createTerminalDescription,
   createTraceContext,
@@ -320,6 +323,9 @@ export const minimaxRunner: GameRunner = {
     };
 
     const evaluation = yield* search(initialState, 0, null, [], 'root');
+    const bestStrategy = computeBestStrategy(domain, problem, initialState);
+    const bestStrategyLeafIds = collectBestStrategyLeafIds(bestStrategy);
+    const bestStrategyNodeIds = collectBestStrategyNodeIds(bestStrategy);
 
     yield createStep(
       ctx,
@@ -333,6 +339,8 @@ export const minimaxRunner: GameRunner = {
         bestMove: evaluation.move,
         bestScore: evaluation.score,
         principalVariation: evaluation.principalVariation,
+        bestStrategyLeafIds,
+        bestStrategyNodeIds,
         recursionStack: [],
         searchTree,
         currentNodeId: 'root',

@@ -330,6 +330,15 @@ export default function GraphMinimap({
             {!collapsed && <p className="truncate text-[11px] text-[var(--text-2)]">Click to recenter</p>}
           </div>
         </div>
+        {/* Zoom readout — lives inside the minimap so the two form one cohesive control cluster in
+            both the collapsed and expanded states, rather than a separate badge that collides with
+            the panel when it docks near a corner. */}
+        <span
+          className="shrink-0 font-mono text-[11px] tabular-nums text-[var(--text-2)]"
+          title="Current zoom level"
+        >
+          {Math.round(transform.k * 100)}%
+        </span>
       </div>
 
       {!collapsed && (

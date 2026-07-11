@@ -77,9 +77,16 @@ export function buildGameTreeElements(
   describeNode: (node: GameTreeNode) => string = defaultDescribeNode,
   describeEdge: (node: GameTreeNode) => string = defaultDescribeEdge,
   nodeShape: (node: GameTreeNode) => GameTreeNodeShape = () => 'card',
+  bestStrategyNodeIds: string[] | null = null,
 ): ElementDefinition[] {
-  void principalVariation;
   if (!tree || tree.size === 0) return [];
+
+  // Prefer the (possibly branching) best-strategy set when available; fall back to the single
+  // principal-variation line. Node ids are matched against `extra.nodeId`, the domain's own id
+  // for the underlying tree node — not the search-tree trace id, which is a per-run compound key.
+  const strategyIds = new Set<string>(
+    bestStrategyNodeIds && bestStrategyNodeIds.length > 0 ? bestStrategyNodeIds : (principalVariation ?? []),
+  );
 
   const MAX_VISUAL_NODES = 150;
   let rootId: string | null = null;
@@ -160,6 +167,8 @@ export function buildGameTreeElements(
       if (node.searchState === 'S') classes.push('explored');
     }
     if (activePath.has(node.id)) classes.push('active-path');
+    const editorNodeId = (node.extra?.nodeId as string | undefined) ?? node.id;
+    if (strategyIds.has(editorNodeId)) classes.push('path');
 
     nodeElements.push({
       data: {

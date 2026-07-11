@@ -1,7 +1,7 @@
 import { createLog, statePanels as panelSections } from '@/algorithms/core/utils';
 import type { PanelSection } from '@/types';
 import type { GameProblem } from '@/types/problem';
-import type { GameDomain } from '@/problems/game-playing/domain';
+import type { GameDomain, GameMove } from '@/problems/game-playing/domain';
 import { resolveGameDomain } from '@/problems/game-playing/domains';
 import type {
   EvaluatedMove,
@@ -10,6 +10,7 @@ import type {
   GameTraceState,
   GameTreeNode,
   RecursionFrame,
+  SssClusterInfo,
   SssOpenEntry,
 } from './types';
 
@@ -41,6 +42,11 @@ export interface TraceSnapshot {
   alpha?: number;
   beta?: number;
   principalVariation?: string[] | null;
+  bestStrategyLeafIds?: string[];
+  bestStrategyNodeIds?: string[];
+  alphaCutHorizonIds?: string[];
+  betaCutHorizonIds?: string[];
+  clusters?: SssClusterInfo[];
   searchTree?: Map<string, GameTreeNode>;
   currentNodeId?: string | null;
 }
@@ -96,6 +102,121 @@ export function createTerminalDescription(ctx: TraceContext, state: unknown, dep
     ctx.domain.describeTerminal?.(ctx.problem, state, depth)
     ?? `Reached terminal state ${ctx.domain.describeState(ctx.problem, state)} at depth ${depth}.`
   );
+}
+
+export interface BestStrategyNode {
+  /** The move that led here from the parent; null at the root. */
+  moveId: string | null;
+  isTerminal: boolean;
+  score: number;
+  /** MAX nodes keep only their best child; MIN/chance nodes keep every child, since the strategy must cover any reply. */
+  children: BestStrategyNode[];
+}
+
+/**
+ * Replays the full game tree independently of any search trace (so it's correct even when the
+ * algorithm that ran pruned or never fully explored the tree, e.g. Alpha-Beta or SSS*). At MAX
+ * nodes it keeps only the best child (ties broken leftmost, matching the strict `>` comparisons
+ * used throughout this package's runners); at MIN/chance nodes it keeps every child, since a
+ * strategy has to define a response to whichever one the opponent/chance picks.
+ *
+ * `treatMinAsChance` mirrors Expectimax's own semantics (every non-MAX node is averaged, never
+ * minimized) so the reported strategy matches what that particular algorithm actually computed.
+ */
+export function computeBestStrategy(
+  domain: GameDomain<GameProblem, unknown>,
+  problem: GameProblem,
+  state: unknown,
+  treatMinAsChance: boolean = false,
+  depth: number = 0,
+): BestStrategyNode {
+  if (domain.isTerminal(problem, state)) {
+    return { moveId: null, isTerminal: true, score: domain.terminalValue(problem, state, depth), children: [] };
+  }
+
+  const kind = domain.nodeKind(problem, state);
+  const moves = domain.legalMoves(problem, state);
+
+  if (kind === 'max') {
+    let best: { move: GameMove; node: BestStrategyNode } | null = null;
+    for (const move of moves) {
+      const childState = domain.applyMove(problem, state, move.id);
+      const childNode = computeBestStrategy(domain, problem, childState, treatMinAsChance, depth + 1);
+      if (!best || childNode.score > best.node.score) {
+        best = { move, node: childNode };
+      }
+    }
+    if (!best) return { moveId: null, isTerminal: false, score: Number.NEGATIVE_INFINITY, children: [] };
+    return {
+      moveId: null,
+      isTerminal: false,
+      score: best.node.score,
+      children: [{ ...best.node, moveId: best.move.id }],
+    };
+  }
+
+  const useExpectation = kind === 'chance' || treatMinAsChance;
+  const children: BestStrategyNode[] = [];
+  let score = useExpectation ? 0 : Number.POSITIVE_INFINITY;
+  for (const move of moves) {
+    const childState = domain.applyMove(problem, state, move.id);
+    const childNode = computeBestStrategy(domain, problem, childState, treatMinAsChance, depth + 1);
+    children.push({ ...childNode, moveId: move.id });
+    if (useExpectation) {
+      score += childNode.score * (move.probability ?? 1 / moves.length);
+    } else {
+      score = Math.min(score, childNode.score);
+    }
+  }
+  return { moveId: null, isTerminal: false, score, children };
+}
+
+export function collectBestStrategyLeafIds(strategy: BestStrategyNode): string[] {
+  const ids: string[] = [];
+  const visit = (node: BestStrategyNode) => {
+    if (node.isTerminal) {
+      if (node.moveId) ids.push(node.moveId);
+      return;
+    }
+    for (const child of node.children) visit(child);
+  };
+  visit(strategy);
+  return ids;
+}
+
+export function collectBestStrategyNodeIds(strategy: BestStrategyNode): string[] {
+  const ids: string[] = [];
+  const visit = (node: BestStrategyNode) => {
+    if (node.moveId) ids.push(node.moveId);
+    for (const child of node.children) visit(child);
+  };
+  visit(strategy);
+  return ids;
+}
+
+/**
+ * DFS over the domain (not the search trace) to find every terminal/horizon leaf reachable
+ * beneath `state`. Used to attribute horizon nodes to branches a search algorithm pruned or
+ * otherwise never actually visited (Alpha-Beta cuts, SSS* clusters).
+ */
+export function collectTerminalDescendantIds(
+  domain: GameDomain<GameProblem, unknown>,
+  problem: GameProblem,
+  state: unknown,
+): string[] {
+  const leaves: string[] = [];
+  const visit = (s: unknown) => {
+    for (const move of domain.legalMoves(problem, s)) {
+      const childState = domain.applyMove(problem, s, move.id);
+      if (domain.isTerminal(problem, childState)) {
+        leaves.push(move.id);
+      } else {
+        visit(childState);
+      }
+    }
+  };
+  if (!domain.isTerminal(problem, state)) visit(state);
+  return leaves;
 }
 
 function formatBound(value: number | undefined): string {
@@ -181,6 +302,50 @@ function buildStatePanels(state: GameTraceState): PanelSection[] {
     ));
   }
 
+  if ((state.bestStrategyLeafIds ?? []).length > 0) {
+    panels.push(panelSections.chips(
+      'Best Strategy — Horizon Nodes',
+      (state.bestStrategyLeafIds ?? []).map((id) => ({
+        id,
+        label: id,
+        variant: 'strategy',
+      })),
+    ));
+  }
+
+  if ((state.alphaCutHorizonIds ?? []).length > 0) {
+    panels.push(panelSections.chips(
+      'Pruned by Alpha-Cuts (horizon)',
+      (state.alphaCutHorizonIds ?? []).map((id) => ({
+        id,
+        label: id,
+        variant: 'pruned',
+      })),
+    ));
+  }
+
+  if ((state.betaCutHorizonIds ?? []).length > 0) {
+    panels.push(panelSections.chips(
+      'Pruned by Beta-Cuts (horizon)',
+      (state.betaCutHorizonIds ?? []).map((id) => ({
+        id,
+        label: id,
+        variant: 'pruned',
+      })),
+    ));
+  }
+
+  if ((state.clusters ?? []).length > 0) {
+    panels.push(panelSections.nodes(
+      'SSS* Clusters',
+      (state.clusters ?? []).map((cluster) => ({
+        id: `cluster-${cluster.index}`,
+        label: `Cluster ${cluster.index} (from ${cluster.sourceNodeId})`,
+        detail: `members: ${cluster.memberIds.join(', ') || 'none'} • horizon: ${cluster.horizonIds.join(', ') || 'none'}`,
+      })),
+    ));
+  }
+
   if (state.evaluatedMoves.length > 0) {
     panels.push(panelSections.nodes(
       'Evaluated Moves',
@@ -257,6 +422,11 @@ export function createStep(
     alpha: snapshot.alpha,
     beta: snapshot.beta,
     principalVariation: snapshot.principalVariation ? [...snapshot.principalVariation] : [],
+    bestStrategyLeafIds: snapshot.bestStrategyLeafIds,
+    bestStrategyNodeIds: snapshot.bestStrategyNodeIds,
+    alphaCutHorizonIds: snapshot.alphaCutHorizonIds,
+    betaCutHorizonIds: snapshot.betaCutHorizonIds,
+    clusters: snapshot.clusters,
     searchTree: snapshot.searchTree, // Shared reference
     currentNodeId: snapshot.currentNodeId ?? null,
   };
@@ -266,6 +436,7 @@ export function createStep(
     candidateMoves: new Set(availableMoves),
     winningLine: options?.winningLine ?? null,
     principalVariation: snapshot.principalVariation ? [...snapshot.principalVariation] : null,
+    bestStrategyNodeIds: snapshot.bestStrategyNodeIds ?? null,
     currentNodeId: snapshot.currentNodeId ?? null,
   };
 
